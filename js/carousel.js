@@ -97,11 +97,11 @@ function initializeCarousel() {
             video.setAttribute('muted', ''); // Required for autoplay on mobile
             video.setAttribute('preload', 'metadata'); // Load video metadata
             
-            // Remove default controls on mobile
-            if (isMobile) {
-                video.removeAttribute('controls');
-                video.setAttribute('controls', 'false');
-            }
+            // Enable controls on mobile for native playback
+        if (isMobile) {
+            video.setAttribute('controls', '');
+            console.log(`📱 Carousel: Enabled controls for video ${index + 1}`);
+        }
             
             // Force load first frame on mobile
             if (isMobile) {
