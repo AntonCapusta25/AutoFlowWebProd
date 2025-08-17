@@ -2329,86 +2329,206 @@ nav.navbar::after {
     padding: 0;
     opacity: 1 !important;
     filter: none !important;
-}
 /* ========================================
-   HIDE ALL DEFAULT VIDEO CONTROLS - ADD THIS TO YOUR CSS
+   MOBILE BROWSER CONTROLS - REPLACE YOUR VIDEO CSS
    ======================================== */
 
-/* Hide all webkit video controls */
-.carousel-track video::-webkit-media-controls {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
+/* Desktop: Hide browser controls, show custom */
+@media (min-width: 769px) {
+    /* Hide browser controls on desktop */
+    .carousel-track video::-webkit-media-controls,
+    .carousel-track video::-webkit-media-controls-panel,
+    .carousel-track video::-webkit-media-controls-play-button,
+    .carousel-track video::-webkit-media-controls-start-playback-button,
+    .carousel-track video::-webkit-media-controls-overlay-play-button {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+    
+    .carousel-track video {
+        pointer-events: none !important;
+    }
+    
+    .carousel-track .video-wrapper {
+        pointer-events: auto !important;
+    }
+    
+    /* Show custom controls on desktop */
+    .video-overlay,
+    .video-controls {
+        display: flex !important;
+    }
 }
 
-.carousel-track video::-webkit-media-controls-overlay-play-button {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
+/* Mobile: Show browser controls, hide custom */
+@media (max-width: 768px) {
+    /* Enable browser controls on mobile */
+    .carousel-track video {
+        pointer-events: auto !important;
+        outline: none !important;
+    }
+    
+    /* Hide custom controls on mobile */
+    .video-overlay,
+    .video-controls {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+    
+    /* Make sure video shows first frame */
+    .carousel-track video {
+        background: #000 !important;
+    }
 }
 
-.carousel-track video::-webkit-media-controls-play-button {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
+/* Base video wrapper styles (both desktop and mobile) */
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    border-radius: 15px;
+    overflow: hidden;
+    background: #000;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
 }
 
-.carousel-track video::-webkit-media-controls-start-playback-button {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
+.video-wrapper video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 15px;
+    display: block;
 }
 
-.carousel-track video::-webkit-media-controls-panel {
-    display: none !important;
+/* Custom controls (desktop only) */
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    z-index: 5;
+    transition: opacity 0.3s ease;
 }
 
-.carousel-track video::-webkit-media-controls-current-time-display {
-    display: none !important;
+.video-controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    z-index: 5;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
 }
 
-.carousel-track video::-webkit-media-controls-time-remaining-display {
-    display: none !important;
+.play-button,
+.pause-button {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e91e63, #9c27b0);
+    border: none;
+    color: white;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(233, 30, 99, 0.4);
 }
 
-.carousel-track video::-webkit-media-controls-timeline {
-    display: none !important;
+.play-button {
+    padding-left: 3px;
 }
 
-.carousel-track video::-webkit-media-controls-volume-slider {
-    display: none !important;
+.play-button:hover,
+.pause-button:hover {
+    transform: scale(1.15);
+    box-shadow: 0 12px 35px rgba(233, 30, 99, 0.6);
 }
 
-.carousel-track video::-webkit-media-controls-mute-button {
-    display: none !important;
+/* Video states (desktop only) */
+.video-wrapper.paused .video-overlay {
+    opacity: 1;
+    visibility: visible;
 }
 
-.carousel-track video::-webkit-media-controls-fullscreen-button {
-    display: none !important;
+.video-wrapper.playing .video-overlay {
+    opacity: 0;
+    visibility: hidden;
 }
 
-/* Firefox controls */
-.carousel-track video::-moz-media-controls {
-    display: none !important;
+.video-wrapper.playing:hover .video-controls {
+    opacity: 1;
+    visibility: visible;
 }
 
-/* Remove all interactions from video element */
-.carousel-track video {
-    outline: none !important;
-    -webkit-touch-callout: none !important;
-    -webkit-user-select: none !important;
-    -webkit-tap-highlight-color: transparent !important;
-    user-select: none !important;
-    pointer-events: none !important; /* This is key - disable all video interactions */
+/* Video container styles */
+.video-container {
+    position: relative;
+    background: linear-gradient(135deg, #f3e5f5, #fce4ec);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(233, 30, 99, 0.1);
+    transition: all 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-/* Make sure your custom overlays still work */
-.carousel-track .video-overlay,
-.carousel-track .video-controls {
-    pointer-events: auto !important;
-    z-index: 10 !important;
+.video-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(233, 30, 99, 0.2);
 }
 
-.carousel-track .video-wrapper {
-    pointer-events: auto !important;
+.video-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.video-description {
+    color: #6b7280;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    text-align: left;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .video-container {
+        padding: 25px 20px;
+    }
+    
+    .video-wrapper {
+        height: 250px;
+        margin-bottom: 15px;
+    }
+    
+    .video-title {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+    
+    .video-description {
+        font-size: 0.9rem;
+    }
 }
