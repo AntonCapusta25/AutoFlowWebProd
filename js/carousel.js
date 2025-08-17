@@ -86,63 +86,110 @@ function initializeCarousel() {
      * MOBILE VIDEO OPTIMIZATION: Setup videos for mobile performance
      */
     function optimizeVideosForMobile() {
-        console.log('📱 Optimizing videos for mobile...');
+    console.log('📱 AGGRESSIVE mobile video optimization...');
+    
+    const videos = track.querySelectorAll('video');
+    
+    videos.forEach((video, index) => {
+        console.log(`🎬 Setting up video ${index + 1} - Mobile: ${isMobile}`);
         
-        const videos = track.querySelectorAll('video');
+        // Essential attributes for ALL videos
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
+        video.setAttribute('preload', 'metadata');
         
-        videos.forEach((video, index) => {
-            // Essential mobile video attributes
-            video.setAttribute('playsinline', ''); // Prevents fullscreen on iOS
-            video.setAttribute('webkit-playsinline', ''); // Legacy iOS support
-            video.setAttribute('muted', ''); // Required for autoplay on mobile
-            video.setAttribute('preload', 'metadata'); // Load video metadata
-            
-            // Enable controls on mobile for native playback
         if (isMobile) {
+            // MOBILE: Force native controls, remove custom ones
+            console.log(`📱 MOBILE setup for video ${index + 1}`);
+            
+            // Force enable controls
             video.setAttribute('controls', '');
-            console.log(`📱 Carousel: Enabled controls for video ${index + 1}`);
-        }
+            video.controls = true;
             
-            // Force load first frame on mobile
-            if (isMobile) {
-                video.currentTime = 0.1; // Seek to first frame
-                
-                // Ensure video loads first frame
-                video.addEventListener('loadedmetadata', () => {
-                    video.currentTime = 0.1;
-                });
-                
-                // Force video to show first frame immediately
-                const forceFirstFrame = () => {
-                    if (video.readyState >= 2) { // HAVE_CURRENT_DATA
-                        video.currentTime = 0.1;
-                        console.log(`📱 Video ${index + 1} first frame loaded`);
-                    } else {
-                        setTimeout(forceFirstFrame, 100);
-                    }
-                };
-                
-                forceFirstFrame();
-            }
+            // Remove mute for better UX
+            video.removeAttribute('muted');
+            video.muted = false;
             
-            // Add error handling
-            video.addEventListener('error', (e) => {
-                console.error(`❌ Video ${index + 1} error:`, e);
-                // Hide video overlay if video fails
-                const overlay = video.parentElement.querySelector('.video-overlay');
+            // Hide all custom overlays
+            const wrapper = video.closest('.video-wrapper');
+            if (wrapper) {
+                const overlay = wrapper.querySelector('.video-overlay');
+                const controls = wrapper.querySelector('.video-controls');
+                
                 if (overlay) {
                     overlay.style.display = 'none';
+                    overlay.style.opacity = '0';
+                    overlay.style.visibility = 'hidden';
+                    overlay.style.pointerEvents = 'none';
                 }
+                
+                if (controls) {
+                    controls.style.display = 'none';
+                    controls.style.opacity = '0';
+                    controls.style.visibility = 'hidden';
+                    controls.style.pointerEvents = 'none';
+                }
+            }
+            
+            // Force video interactions
+            video.style.pointerEvents = 'auto';
+            video.style.webkitUserSelect = 'auto';
+            video.style.userSelect = 'auto';
+            
+            // Show first frame
+            video.addEventListener('loadedmetadata', () => {
+                video.currentTime = 0.1;
             });
             
-            // Better mobile loading
-            video.addEventListener('canplay', () => {
-                console.log(`✅ Video ${index + 1} can play`);
-            });
+        } else {
+            // DESKTOP: Custom controls
+            console.log(`🖥️ DESKTOP setup for video ${index + 1}`);
+            video.removeAttribute('controls');
+            video.setAttribute('muted', '');
             
-            console.log(`📱 Optimized video ${index + 1} for mobile`);
+            const wrapper = video.closest('.video-wrapper');
+            if (!wrapper) return;
+            
+            wrapper.classList.add('paused');
+            
+            const playButton = wrapper.querySelector('.play-button');
+            const pauseButton = wrapper.querySelector('.pause-button');
+            const overlay = wrapper.querySelector('.video-overlay');
+            
+            function playVideo() {
+                video.muted = false;
+                wrapper.classList.remove('paused');
+                wrapper.classList.add('playing');
+                video.play().catch(console.error);
+            }
+            
+            function pauseVideo() {
+                wrapper.classList.remove('playing');
+                wrapper.classList.add('paused');
+                video.pause();
+            }
+            
+            if (playButton) playButton.addEventListener('click', playVideo);
+            if (pauseButton) pauseButton.addEventListener('click', pauseVideo);
+            if (overlay) overlay.addEventListener('click', playVideo);
+            
+            video.addEventListener('ended', () => {
+                pauseVideo();
+                video.currentTime = 0;
+                video.muted = true;
+            });
+        }
+        
+        // Error handling
+        video.addEventListener('error', (e) => {
+            console.error(`❌ Video ${index + 1} error:`, e);
         });
-    }
+        
+        console.log(`✅ Video ${index + 1} optimized for ${isMobile ? 'MOBILE' : 'DESKTOP'}`);
+    });
+    
+    console.log('✅ Aggressive mobile video optimization complete');
+}
     
     /**
      * Create indicator dots
