@@ -1342,94 +1342,11 @@ function initializeEnhancedChatbot() {
 // REPLACE your initializeVideoControls() function with this simpler version:
 
 function initializeVideoControls() {
-    console.log('🎬 Initializing video controls...');
+    console.log('🎬 Simple video controls - letting carousel handle it');
     
-    const videos = document.querySelectorAll('video');
-    const isMobile = window.innerWidth <= 768;
-    
-    videos.forEach((video, index) => {
-        console.log(`🎬 Setting up video ${index + 1}: ${video.id}`);
-        
-        // Basic video attributes for all devices
-        video.setAttribute('playsinline', '');
-        video.setAttribute('webkit-playsinline', '');
-        video.setAttribute('preload', 'metadata');
-        
-        if (isMobile) {
-            // MOBILE: Enable browser controls with sound
-            console.log(`📱 Mobile - enabling browser controls for video ${index + 1}`);
-            video.setAttribute('controls', '');
-            // DON'T mute on mobile - let users control sound
-            video.removeAttribute('muted');
-            
-            // Force show first frame
-            video.addEventListener('loadedmetadata', () => {
-                video.currentTime = 0.1;
-            });
-            
-        } else {
-            // DESKTOP: Custom controls with sound
-            console.log(`🖥️ Desktop - setting up custom controls for video ${index + 1}`);
-            video.removeAttribute('controls');
-            // Start muted for autoplay compatibility, unmute when user plays
-            video.setAttribute('muted', '');
-            
-            const wrapper = video.closest('.video-wrapper');
-            if (!wrapper) return;
-            
-            // Force initial state
-            wrapper.classList.add('paused');
-            
-            // Get controls
-            const playButton = wrapper.querySelector('.play-button');
-            const pauseButton = wrapper.querySelector('.pause-button');
-            const overlay = wrapper.querySelector('.video-overlay');
-            
-            // Simple play function with sound
-            function playVideo() {
-                console.log('▶️ Playing video with sound:', video.id);
-                // UNMUTE when user manually plays
-                video.muted = false;
-                wrapper.classList.remove('paused');
-                wrapper.classList.add('playing');
-                video.play().catch(console.error);
-            }
-            
-            // Simple pause function
-            function pauseVideo() {
-                console.log('⏸️ Pausing video:', video.id);
-                wrapper.classList.remove('playing');
-                wrapper.classList.add('paused');
-                video.pause();
-            }
-            
-            // Event listeners
-            if (playButton) {
-                playButton.addEventListener('click', playVideo);
-            }
-            
-            if (pauseButton) {
-                pauseButton.addEventListener('click', pauseVideo);
-            }
-            
-            if (overlay) {
-                overlay.addEventListener('click', playVideo);
-            }
-            
-            // Video events
-            video.addEventListener('ended', () => {
-                pauseVideo();
-                video.currentTime = 0;
-                // Mute again for next play
-                video.muted = true;
-            });
-        }
-        
-        console.log(`✅ Video ${index + 1} setup complete`);
-    });
-    
-    // Simple stop all function
+    // Just set up the global stop function
     window.stopAllVideos = function() {
+        const videos = document.querySelectorAll('video');
         videos.forEach(video => {
             if (!video.paused) {
                 video.pause();
@@ -1439,12 +1356,10 @@ function initializeVideoControls() {
                 wrapper.classList.remove('playing');
                 wrapper.classList.add('paused');
             }
-            // Reset mute state
-            video.muted = true;
         });
     };
     
-    console.log('✅ Video controls initialized with sound support');
+    console.log('✅ Video controls: Delegated to carousel system');
 }
 /**
  * Modal functions
