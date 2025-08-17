@@ -1339,195 +1339,112 @@ function initializeEnhancedChatbot() {
 
 // REPLACE your initializeVideoControls() function with this:
 
+// REPLACE your initializeVideoControls() function with this simpler version:
+
 function initializeVideoControls() {
     console.log('🎬 Initializing video controls...');
     
     const videos = document.querySelectorAll('video');
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    const isMobile = window.innerWidth <= 768;
     
-    console.log('📱 Mobile detected:', isMobile);
-    
-    if (isMobile) {
-        // MOBILE: Enable browser controls, disable custom
-        console.log('📱 Setting up MOBILE browser controls...');
+    videos.forEach((video, index) => {
+        console.log(`🎬 Setting up video ${index + 1}: ${video.id}`);
         
-        videos.forEach((video, index) => {
-            // Enable browser controls
+        // Basic video attributes for all devices
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
+        video.setAttribute('preload', 'metadata');
+        
+        if (isMobile) {
+            // MOBILE: Enable browser controls with sound
+            console.log(`📱 Mobile - enabling browser controls for video ${index + 1}`);
             video.setAttribute('controls', '');
-            video.setAttribute('playsinline', '');
-            video.setAttribute('webkit-playsinline', '');
-            video.setAttribute('muted', '');
+            // DON'T mute on mobile - let users control sound
+            video.removeAttribute('muted');
             
             // Force show first frame
-            video.currentTime = 0.1;
             video.addEventListener('loadedmetadata', () => {
                 video.currentTime = 0.1;
             });
             
-            console.log(`📱 Mobile video ${index + 1} setup complete`);
-        });
-        
-        // Simple stop function for mobile
-        window.stopAllVideos = function() {
-            videos.forEach(video => {
-                if (!video.paused) {
-                    video.pause();
-                }
+        } else {
+            // DESKTOP: Custom controls with sound
+            console.log(`🖥️ Desktop - setting up custom controls for video ${index + 1}`);
+            video.removeAttribute('controls');
+            // Start muted for autoplay compatibility, unmute when user plays
+            video.setAttribute('muted', '');
+            
+            const wrapper = video.closest('.video-wrapper');
+            if (!wrapper) return;
+            
+            // Force initial state
+            wrapper.classList.add('paused');
+            
+            // Get controls
+            const playButton = wrapper.querySelector('.play-button');
+            const pauseButton = wrapper.querySelector('.pause-button');
+            const overlay = wrapper.querySelector('.video-overlay');
+            
+            // Simple play function with sound
+            function playVideo() {
+                console.log('▶️ Playing video with sound:', video.id);
+                // UNMUTE when user manually plays
+                video.muted = false;
+                wrapper.classList.remove('paused');
+                wrapper.classList.add('playing');
+                video.play().catch(console.error);
+            }
+            
+            // Simple pause function
+            function pauseVideo() {
+                console.log('⏸️ Pausing video:', video.id);
+                wrapper.classList.remove('playing');
+                wrapper.classList.add('paused');
+                video.pause();
+            }
+            
+            // Event listeners
+            if (playButton) {
+                playButton.addEventListener('click', playVideo);
+            }
+            
+            if (pauseButton) {
+                pauseButton.addEventListener('click', pauseVideo);
+            }
+            
+            if (overlay) {
+                overlay.addEventListener('click', playVideo);
+            }
+            
+            // Video events
+            video.addEventListener('ended', () => {
+                pauseVideo();
+                video.currentTime = 0;
+                // Mute again for next play
+                video.muted = true;
             });
-        };
-        
-        console.log('✅ Mobile browser controls initialized');
-        return;
-    }
-    
-    // DESKTOP: Custom controls only
-    console.log('🖥️ Setting up DESKTOP custom controls...');
-    
-    let activeVideo = null;
-    
-    videos.forEach((video, index) => {
-        // Disable browser controls
-        video.removeAttribute('controls');
-        video.setAttribute('playsinline', '');
-        video.setAttribute('webkit-playsinline', '');
-        video.setAttribute('muted', '');
-        
-        const wrapper = video.closest('.video-wrapper');
-        if (!wrapper) return;
-        
-        // Force initial state
-        wrapper.classList.remove('playing', 'loading');
-        wrapper.classList.add('paused');
-        
-        // Get controls
-        const playButton = wrapper.querySelector('.play-button');
-        const pauseButton = wrapper.querySelector('.pause-button');
-        const overlay = wrapper.querySelector('.video-overlay');
-        
-        // Play function
-        function playVideo() {
-            console.log('▶️ Playing video:', video.id);
-            
-            // Stop other videos
-            if (activeVideo && activeVideo !== video) {
-                pauseOtherVideo(activeVideo);
-            }
-            
-            // Pause carousel
-            if (window.pauseCarouselForVideo) {
-                window.pauseCarouselForVideo();
-            }
-            
-            // Set visual state
-            wrapper.classList.remove('paused', 'loading');
-            wrapper.classList.add('playing');
-            
-            // Play video
-            const playPromise = video.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    console.log('✅ Video playing successfully');
-                    activeVideo = video;
-                }).catch(error => {
-                    console.error('❌ Play failed:', error);
-                    wrapper.classList.remove('playing', 'loading');
-                    wrapper.classList.add('paused');
-                    activeVideo = null;
-                });
-            } else {
-                activeVideo = video;
-            }
         }
         
-        // Pause function
-        function pauseVideo() {
-            console.log('⏸️ Pausing video:', video.id);
-            
+        console.log(`✅ Video ${index + 1} setup complete`);
+    });
+    
+    // Simple stop all function
+    window.stopAllVideos = function() {
+        videos.forEach(video => {
             if (!video.paused) {
                 video.pause();
             }
-            
-            wrapper.classList.remove('playing', 'loading');
-            wrapper.classList.add('paused');
-            
-            if (activeVideo === video) {
-                activeVideo = null;
-                if (window.resumeCarouselAfterVideo) {
-                    window.resumeCarouselAfterVideo();
-                }
-            }
-        }
-        
-        // Pause other videos
-        function pauseOtherVideo(otherVideo) {
-            const otherWrapper = otherVideo.closest('.video-wrapper');
-            if (otherWrapper) {
-                if (!otherVideo.paused) {
-                    otherVideo.pause();
-                }
-                otherWrapper.classList.remove('playing', 'loading');
-                otherWrapper.classList.add('paused');
-            }
-        }
-        
-        // Event listeners
-        if (playButton) {
-            playButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                playVideo();
-            });
-        }
-        
-        if (pauseButton) {
-            pauseButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                pauseVideo();
-            });
-        }
-        
-        if (overlay) {
-            overlay.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                playVideo();
-            });
-        }
-        
-        // Video events
-        video.addEventListener('ended', () => {
-            console.log('🔚 Video ended:', video.id);
-            pauseVideo();
-            video.currentTime = 0;
-        });
-        
-        video.addEventListener('error', (e) => {
-            console.error('❌ Video error:', e);
-            wrapper.classList.remove('playing', 'loading');
-            wrapper.classList.add('paused');
-        });
-        
-        console.log(`✅ Desktop video ${index + 1} setup complete`);
-    });
-    
-    // Global stop function for desktop
-    function stopAllVideos() {
-        console.log('⏹️ Stopping all videos');
-        videos.forEach(video => {
             const wrapper = video.closest('.video-wrapper');
-            if (wrapper && !video.paused) {
-                video.pause();
-                wrapper.classList.remove('playing', 'loading');
+            if (wrapper) {
+                wrapper.classList.remove('playing');
                 wrapper.classList.add('paused');
             }
+            // Reset mute state
+            video.muted = true;
         });
-        activeVideo = null;
-    }
+    };
     
-    window.stopAllVideos = stopAllVideos;
-    console.log('✅ Desktop custom controls initialized');
+    console.log('✅ Video controls initialized with sound support');
 }
 /**
  * Modal functions
