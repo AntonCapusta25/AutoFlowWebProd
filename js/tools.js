@@ -1337,65 +1337,72 @@ function initializeEnhancedChatbot() {
 // ADD THIS TO YOUR initializeVideoControls() FUNCTION IN tools.js
 // Replace the existing video setup with this aggressive version
 
+// REPLACE your initializeVideoControls() function with this:
+
 function initializeVideoControls() {
-    console.log('🎬 Initializing AGGRESSIVE video controls...');
+    console.log('🎬 Initializing video controls...');
     
     const videos = document.querySelectorAll('video');
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    
+    console.log('📱 Mobile detected:', isMobile);
+    
+    if (isMobile) {
+        // MOBILE: Enable browser controls, disable custom
+        console.log('📱 Setting up MOBILE browser controls...');
+        
+        videos.forEach((video, index) => {
+            // Enable browser controls
+            video.setAttribute('controls', '');
+            video.setAttribute('playsinline', '');
+            video.setAttribute('webkit-playsinline', '');
+            video.setAttribute('muted', '');
+            
+            // Force show first frame
+            video.currentTime = 0.1;
+            video.addEventListener('loadedmetadata', () => {
+                video.currentTime = 0.1;
+            });
+            
+            console.log(`📱 Mobile video ${index + 1} setup complete`);
+        });
+        
+        // Simple stop function for mobile
+        window.stopAllVideos = function() {
+            videos.forEach(video => {
+                if (!video.paused) {
+                    video.pause();
+                }
+            });
+        };
+        
+        console.log('✅ Mobile browser controls initialized');
+        return;
+    }
+    
+    // DESKTOP: Custom controls only
+    console.log('🖥️ Setting up DESKTOP custom controls...');
+    
     let activeVideo = null;
     
     videos.forEach((video, index) => {
-        console.log(`🎬 AGGRESSIVELY setting up video ${index + 1}: ${video.id}`);
-        
-        // NUCLEAR OPTION - Remove ALL possible controls
+        // Disable browser controls
         video.removeAttribute('controls');
-        video.setAttribute('controls', 'false');
         video.setAttribute('playsinline', '');
         video.setAttribute('webkit-playsinline', '');
         video.setAttribute('muted', '');
-        video.setAttribute('disablepictureinpicture', '');
-        video.setAttribute('controlslist', 'nodownload nofullscreen noremoteplayback');
-        
-        // Kill all possible interactions
-        video.style.pointerEvents = 'none';
-        video.style.webkitAppearance = 'none';
-        video.style.appearance = 'none';
-        video.style.outline = 'none';
-        video.style.border = 'none';
-        
-        // Disable ALL events that could show controls
-        ['click', 'dblclick', 'contextmenu', 'touchstart', 'touchend'].forEach(event => {
-            video.addEventListener(event, (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
-            });
-        });
         
         const wrapper = video.closest('.video-wrapper');
         if (!wrapper) return;
-        
-        // REMOVE ANY DUPLICATE OVERLAYS
-        const existingOverlays = wrapper.querySelectorAll('.video-overlay');
-        if (existingOverlays.length > 1) {
-            console.log(`🗑️ Removing ${existingOverlays.length - 1} duplicate overlays`);
-            for (let i = 1; i < existingOverlays.length; i++) {
-                existingOverlays[i].remove();
-            }
-        }
         
         // Force initial state
         wrapper.classList.remove('playing', 'loading');
         wrapper.classList.add('paused');
         
-        // Get controls (only the first ones)
+        // Get controls
         const playButton = wrapper.querySelector('.play-button');
         const pauseButton = wrapper.querySelector('.pause-button');
         const overlay = wrapper.querySelector('.video-overlay');
-        
-        if (!playButton || !overlay) {
-            console.error(`❌ Missing controls for video ${index + 1}`);
-            return;
-        }
         
         // Play function
         function playVideo() {
@@ -1464,37 +1471,30 @@ function initializeVideoControls() {
             }
         }
         
-        // REMOVE ALL EXISTING EVENT LISTENERS
-        const newPlayButton = playButton.cloneNode(true);
-        const newPauseButton = pauseButton ? pauseButton.cloneNode(true) : null;
-        const newOverlay = overlay.cloneNode(true);
-        
-        playButton.parentNode.replaceChild(newPlayButton, playButton);
-        if (pauseButton && newPauseButton) {
-            pauseButton.parentNode.replaceChild(newPauseButton, pauseButton);
+        // Event listeners
+        if (playButton) {
+            playButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                playVideo();
+            });
         }
-        overlay.parentNode.replaceChild(newOverlay, overlay);
         
-        // Add SINGLE event listeners
-        newPlayButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            playVideo();
-        });
-        
-        if (newPauseButton) {
-            newPauseButton.addEventListener('click', (e) => {
+        if (pauseButton) {
+            pauseButton.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 pauseVideo();
             });
         }
         
-        newOverlay.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            playVideo();
-        });
+        if (overlay) {
+            overlay.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                playVideo();
+            });
+        }
         
         // Video events
         video.addEventListener('ended', () => {
@@ -1509,12 +1509,12 @@ function initializeVideoControls() {
             wrapper.classList.add('paused');
         });
         
-        console.log(`✅ AGGRESSIVELY setup video ${index + 1} complete`);
+        console.log(`✅ Desktop video ${index + 1} setup complete`);
     });
     
-    // Global stop function
+    // Global stop function for desktop
     function stopAllVideos() {
-        console.log('⏹️ Stopping all videos AGGRESSIVELY');
+        console.log('⏹️ Stopping all videos');
         videos.forEach(video => {
             const wrapper = video.closest('.video-wrapper');
             if (wrapper && !video.paused) {
@@ -1527,9 +1527,8 @@ function initializeVideoControls() {
     }
     
     window.stopAllVideos = stopAllVideos;
-    console.log('✅ AGGRESSIVE video controls initialized');
+    console.log('✅ Desktop custom controls initialized');
 }
-
 /**
  * Modal functions
  */
