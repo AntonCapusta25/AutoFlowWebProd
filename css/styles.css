@@ -2330,3 +2330,85 @@ nav.navbar::after {
     opacity: 1 !important;
     filter: none !important;
 }
+/* ========================================
+   HIDE ALL DEFAULT VIDEO CONTROLS - ADD THIS TO YOUR CSS
+   ======================================== */
+
+/* Hide all webkit video controls */
+.carousel-track video::-webkit-media-controls {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+.carousel-track video::-webkit-media-controls-overlay-play-button {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+.carousel-track video::-webkit-media-controls-play-button {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+.carousel-track video::-webkit-media-controls-start-playback-button {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+.carousel-track video::-webkit-media-controls-panel {
+    display: none !important;
+}
+
+.carousel-track video::-webkit-media-controls-current-time-display {
+    display: none !important;
+}
+
+.carousel-track video::-webkit-media-controls-time-remaining-display {
+    display: none !important;
+}
+
+.carousel-track video::-webkit-media-controls-timeline {
+    display: none !important;
+}
+
+.carousel-track video::-webkit-media-controls-volume-slider {
+    display: none !important;
+}
+
+.carousel-track video::-webkit-media-controls-mute-button {
+    display: none !important;
+}
+
+.carousel-track video::-webkit-media-controls-fullscreen-button {
+    display: none !important;
+}
+
+/* Firefox controls */
+.carousel-track video::-moz-media-controls {
+    display: none !important;
+}
+
+/* Remove all interactions from video element */
+.carousel-track video {
+    outline: none !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    user-select: none !important;
+    pointer-events: none !important; /* This is key - disable all video interactions */
+}
+
+/* Make sure your custom overlays still work */
+.carousel-track .video-overlay,
+.carousel-track .video-controls {
+    pointer-events: auto !important;
+    z-index: 10 !important;
+}
+
+.carousel-track .video-wrapper {
+    pointer-events: auto !important;
+}
