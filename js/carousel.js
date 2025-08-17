@@ -1,5 +1,5 @@
-// AutoFlow Studio - Carousel JavaScript
-// Handles the work examples carousel on the home page
+// AutoFlow Studio - Mobile-Optimized Carousel JavaScript
+// Handles the work examples carousel with mobile video optimizations
 
 // Wait for DOM to load
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,10 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * Initialize the carousel functionality
+ * Initialize the carousel functionality with mobile optimizations
  */
 function initializeCarousel() {
-    console.log('🎠 Initializing carousel...');
+    console.log('🎠 Initializing mobile-optimized carousel...');
     
     const track = document.getElementById('carouselTrack');
     
@@ -39,6 +39,9 @@ function initializeCarousel() {
     const timerProgress = document.getElementById('timerProgress');
     const carouselContainer = document.querySelector('.carousel-container');
     
+    // Mobile detection
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    
     // Debug: Check if all elements are found
     console.log('🔍 Elements found:', {
         track: !!track,
@@ -48,16 +51,20 @@ function initializeCarousel() {
         indicators: !!indicatorsContainer,
         autoPlayBtn: !!autoPlayBtn,
         timerProgress: !!timerProgress,
-        container: !!carouselContainer
+        container: !!carouselContainer,
+        isMobile: isMobile
     });
     
     // Carousel state
     const slideCount = slides.length;
     let currentIndex = 0;
-    let autoPlay = true;
+    let autoPlay = !isMobile; // Disable autoplay on mobile by default
     let autoPlayInterval;
-    const autoPlayTime = 5000; // 5 seconds
+    const autoPlayTime = isMobile ? 7000 : 5000; // Longer on mobile
     let isUserInteracting = false;
+    
+    // MOBILE VIDEO OPTIMIZATION: Setup all videos immediately
+    optimizeVideosForMobile();
     
     // Create indicators
     createIndicators();
@@ -73,7 +80,69 @@ function initializeCarousel() {
         startTimer();
     }
     
-    console.log('✅ Carousel initialized successfully');
+    console.log('✅ Mobile-optimized carousel initialized successfully');
+    
+    /**
+     * MOBILE VIDEO OPTIMIZATION: Setup videos for mobile performance
+     */
+    function optimizeVideosForMobile() {
+        console.log('📱 Optimizing videos for mobile...');
+        
+        const videos = track.querySelectorAll('video');
+        
+        videos.forEach((video, index) => {
+            // Essential mobile video attributes
+            video.setAttribute('playsinline', ''); // Prevents fullscreen on iOS
+            video.setAttribute('webkit-playsinline', ''); // Legacy iOS support
+            video.setAttribute('muted', ''); // Required for autoplay on mobile
+            video.setAttribute('preload', 'metadata'); // Load video metadata
+            
+            // Remove default controls on mobile
+            if (isMobile) {
+                video.removeAttribute('controls');
+                video.setAttribute('controls', 'false');
+            }
+            
+            // Force load first frame on mobile
+            if (isMobile) {
+                video.currentTime = 0.1; // Seek to first frame
+                
+                // Ensure video loads first frame
+                video.addEventListener('loadedmetadata', () => {
+                    video.currentTime = 0.1;
+                });
+                
+                // Force video to show first frame immediately
+                const forceFirstFrame = () => {
+                    if (video.readyState >= 2) { // HAVE_CURRENT_DATA
+                        video.currentTime = 0.1;
+                        console.log(`📱 Video ${index + 1} first frame loaded`);
+                    } else {
+                        setTimeout(forceFirstFrame, 100);
+                    }
+                };
+                
+                forceFirstFrame();
+            }
+            
+            // Add error handling
+            video.addEventListener('error', (e) => {
+                console.error(`❌ Video ${index + 1} error:`, e);
+                // Hide video overlay if video fails
+                const overlay = video.parentElement.querySelector('.video-overlay');
+                if (overlay) {
+                    overlay.style.display = 'none';
+                }
+            });
+            
+            // Better mobile loading
+            video.addEventListener('canplay', () => {
+                console.log(`✅ Video ${index + 1} can play`);
+            });
+            
+            console.log(`📱 Optimized video ${index + 1} for mobile`);
+        });
+    }
     
     /**
      * Create indicator dots
@@ -101,7 +170,7 @@ function initializeCarousel() {
      * Update carousel position and UI - ENHANCED WITH VIDEO INTEGRATION
      */
     function updateCarousel(isInstant = false) {
-        // STOP ALL VIDEOS WHEN SLIDE CHANGES - This is the key integration!
+        // STOP ALL VIDEOS WHEN SLIDE CHANGES
         if (window.stopAllVideos) {
             window.stopAllVideos();
         }
@@ -117,7 +186,9 @@ function initializeCarousel() {
         // Restore transition after instant movement
         if (isInstant) {
             setTimeout(() => {
-                track.style.transition = 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                track.style.transition = isMobile ? 
+                    'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)' : // Faster on mobile
+                    'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
             }, 50);
         }
         
@@ -131,6 +202,17 @@ function initializeCarousel() {
         
         // Update ARIA attributes
         updateAriaAttributes();
+        
+        // MOBILE: Ensure current video shows first frame
+        if (isMobile) {
+            setTimeout(() => {
+                const currentSlide = slides[currentIndex];
+                const currentVideo = currentSlide.querySelector('video');
+                if (currentVideo && currentVideo.paused) {
+                    currentVideo.currentTime = 0.1;
+                }
+            }, 100);
+        }
         
         console.log(`🎠 Updated to slide ${currentIndex + 1}/${slideCount}`);
     }
@@ -259,28 +341,48 @@ function initializeCarousel() {
     }
     
     /**
-     * Setup all event listeners
+     * Setup all event listeners with mobile optimizations
      */
     function setupEventListeners() {
-        console.log('🎧 Setting up event listeners...');
+        console.log('🎧 Setting up mobile-optimized event listeners...');
         
         // Navigation buttons
         if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
+            const nextHandler = () => {
                 console.log('➡️ Next button clicked');
                 setUserInteracting(true);
                 nextSlide();
-                setTimeout(() => setUserInteracting(false), 1000);
-            });
+                setTimeout(() => setUserInteracting(false), isMobile ? 2000 : 1000);
+            };
+            
+            nextBtn.addEventListener('click', nextHandler);
+            
+            // Better mobile touch handling
+            if (isMobile) {
+                nextBtn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    nextHandler();
+                });
+            }
         }
         
         if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
+            const prevHandler = () => {
                 console.log('⬅️ Previous button clicked');
                 setUserInteracting(true);
                 prevSlide();
-                setTimeout(() => setUserInteracting(false), 1000);
-            });
+                setTimeout(() => setUserInteracting(false), isMobile ? 2000 : 1000);
+            };
+            
+            prevBtn.addEventListener('click', prevHandler);
+            
+            // Better mobile touch handling
+            if (isMobile) {
+                prevBtn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    prevHandler();
+                });
+            }
         }
         
         // Autoplay toggle
@@ -288,17 +390,27 @@ function initializeCarousel() {
             autoPlayBtn.addEventListener('click', toggleAutoPlay);
         }
         
-        // Indicators
+        // Indicators with improved mobile touch
         if (indicatorsContainer) {
-            indicatorsContainer.addEventListener('click', (e) => {
+            const indicatorHandler = (e) => {
                 if (e.target.classList.contains('indicator')) {
                     const slideIndex = parseInt(e.target.dataset.slide);
                     console.log(`🔘 Indicator ${slideIndex + 1} clicked`);
                     setUserInteracting(true);
                     goToSlide(slideIndex);
-                    setTimeout(() => setUserInteracting(false), 1000);
+                    setTimeout(() => setUserInteracting(false), isMobile ? 2000 : 1000);
                 }
-            });
+            };
+            
+            indicatorsContainer.addEventListener('click', indicatorHandler);
+            
+            // Better mobile touch for indicators
+            if (isMobile) {
+                indicatorsContainer.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    indicatorHandler(e);
+                });
+            }
             
             // Keyboard navigation for indicators
             indicatorsContainer.addEventListener('keydown', (e) => {
@@ -307,13 +419,13 @@ function initializeCarousel() {
                     const slideIndex = parseInt(e.target.dataset.slide);
                     setUserInteracting(true);
                     goToSlide(slideIndex);
-                    setTimeout(() => setUserInteracting(false), 1000);
+                    setTimeout(() => setUserInteracting(false), isMobile ? 2000 : 1000);
                 }
             });
         }
         
-        // Mouse interaction with carousel
-        if (carouselContainer) {
+        // Mouse interaction with carousel (desktop only)
+        if (carouselContainer && !isMobile) {
             carouselContainer.addEventListener('mouseenter', () => {
                 if (autoPlay) {
                     pauseTimer();
@@ -327,26 +439,27 @@ function initializeCarousel() {
             });
         }
         
-        // Keyboard navigation for entire carousel
-        document.addEventListener('keydown', (e) => {
-            // Only handle if we're on the home page and carousel is visible
-            if (!isOnHomePage() || !isCarouselVisible()) return;
-            
-            if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                setUserInteracting(true);
-                prevSlide();
-                setTimeout(() => setUserInteracting(false), 1000);
-            } else if (e.key === 'ArrowRight') {
-                e.preventDefault();
-                setUserInteracting(true);
-                nextSlide();
-                setTimeout(() => setUserInteracting(false), 1000);
-            }
-        });
+        // Keyboard navigation (desktop only)
+        if (!isMobile) {
+            document.addEventListener('keydown', (e) => {
+                if (!isOnHomePage() || !isCarouselVisible()) return;
+                
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    setUserInteracting(true);
+                    prevSlide();
+                    setTimeout(() => setUserInteracting(false), 1000);
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    setUserInteracting(true);
+                    nextSlide();
+                    setTimeout(() => setUserInteracting(false), 1000);
+                }
+            });
+        }
         
-        // Touch/swipe support
-        setupTouchSupport();
+        // Enhanced touch/swipe support for mobile
+        setupMobileTouchSupport();
         
         // Visibility change (pause when tab is not active)
         document.addEventListener('visibilitychange', () => {
@@ -357,24 +470,44 @@ function initializeCarousel() {
             }
         });
         
-        console.log('✅ Event listeners set up');
+        // Orientation change handling for mobile
+        if (isMobile) {
+            window.addEventListener('orientationchange', () => {
+                setTimeout(() => {
+                    // Re-optimize videos after orientation change
+                    optimizeVideosForMobile();
+                    updateCarousel(true);
+                }, 200);
+            });
+        }
+        
+        console.log('✅ Mobile-optimized event listeners set up');
     }
     
     /**
-     * Setup touch/swipe support
+     * Enhanced mobile touch/swipe support
      */
-    function setupTouchSupport() {
+    function setupMobileTouchSupport() {
         let startX = 0;
         let startY = 0;
         let moveX = 0;
         let moveY = 0;
         let isMoving = false;
+        let touchStartTime = 0;
+        
+        const touchOptions = { passive: false };
         
         track.addEventListener('touchstart', (e) => {
             startX = e.touches[0].clientX;
             startY = e.touches[0].clientY;
+            touchStartTime = Date.now();
             isMoving = true;
             setUserInteracting(true);
+            
+            // Pause autoplay during touch
+            if (autoPlay) {
+                pauseTimer();
+            }
         }, { passive: true });
         
         track.addEventListener('touchmove', (e) => {
@@ -388,19 +521,22 @@ function initializeCarousel() {
             const deltaY = Math.abs(moveY - startY);
             
             // If horizontal movement is greater than vertical, prevent scrolling
-            if (deltaX > deltaY && deltaX > 10) {
+            if (deltaX > deltaY && deltaX > 15) { // Increased threshold for mobile
                 e.preventDefault();
             }
-        }, { passive: false });
+        }, touchOptions);
         
         track.addEventListener('touchend', (e) => {
             if (!isMoving) return;
             
             const endX = e.changedTouches[0].clientX;
             const deltaX = startX - endX;
-            const minSwipeDistance = 50;
+            const touchDuration = Date.now() - touchStartTime;
+            const minSwipeDistance = isMobile ? 80 : 50; // Larger threshold on mobile
+            const maxSwipeTime = 500; // Maximum time for a swipe
             
-            if (Math.abs(deltaX) > minSwipeDistance) {
+            // Only trigger swipe if it's fast enough and far enough
+            if (Math.abs(deltaX) > minSwipeDistance && touchDuration < maxSwipeTime) {
                 if (deltaX > 0) {
                     nextSlide();
                 } else {
@@ -409,8 +545,22 @@ function initializeCarousel() {
             }
             
             isMoving = false;
-            setTimeout(() => setUserInteracting(false), 1000);
+            
+            // Resume autoplay after touch interaction
+            setTimeout(() => {
+                setUserInteracting(false);
+                if (autoPlay) {
+                    resetTimer();
+                }
+            }, isMobile ? 2000 : 1000);
         }, { passive: true });
+        
+        // Prevent context menu on long touch
+        track.addEventListener('contextmenu', (e) => {
+            if (isMobile) {
+                e.preventDefault();
+            }
+        });
     }
     
     /**
@@ -418,6 +568,7 @@ function initializeCarousel() {
      */
     function setUserInteracting(interacting) {
         isUserInteracting = interacting;
+        console.log(`👤 User interacting: ${interacting}`);
     }
     
     function isOnHomePage() {
@@ -460,19 +611,16 @@ function initializeCarousel() {
     }
     
     /**
-     * ADDED: Pause carousel for video playback - called from video controls
+     * Pause carousel for video playback - called from video controls
      */
     function pauseCarouselForVideo() {
         if (autoPlay && autoPlayInterval) {
-            // Store that we paused it due to video
             if (autoPlayBtn) {
                 autoPlayBtn.dataset.pausedByVideo = 'true';
             }
             
-            // Pause timer
             clearTimeout(autoPlayInterval);
             
-            // Pause progress bar animation
             if (timerProgress) {
                 const computedWidth = getComputedStyle(timerProgress).width;
                 timerProgress.style.transition = 'none';
@@ -484,24 +632,21 @@ function initializeCarousel() {
     }
 
     /**
-     * ADDED: Resume carousel after video stops - called from video controls
+     * Resume carousel after video stops - called from video controls
      */
     function resumeCarouselAfterVideo() {
-        // Only resume if we paused it for video and autoplay is still enabled
         if (autoPlayBtn && 
             autoPlayBtn.dataset.pausedByVideo === 'true' && 
             autoPlay) {
             
             delete autoPlayBtn.dataset.pausedByVideo;
-            
-            // Resume timer
             resetTimer();
             
             console.log('▶️ Carousel resumed after video');
         }
     }
 
-    // ADDED: Make these functions globally available for video integration
+    // Make functions globally available for video integration
     window.pauseCarouselForVideo = pauseCarouselForVideo;
     window.resumeCarouselAfterVideo = resumeCarouselAfterVideo;
     
@@ -522,9 +667,10 @@ function initializeCarousel() {
         toggleAutoPlay: () => {
             console.log('🎠 External call: toggleAutoPlay()');
             toggleAutoPlay();
-        }
+        },
+        isMobile: () => isMobile
     };
 }
 
-// ADDED: Confirm video integration functions are loaded
-console.log('🎠 Carousel JavaScript loaded with video integration support');
+// Confirm mobile-optimized carousel is loaded
+console.log('🎠📱 Mobile-optimized carousel JavaScript loaded with video integration support');
