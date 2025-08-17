@@ -2442,3 +2442,49 @@ nav.navbar::after {
         font-size: 0.9rem !important;
     }
 }
+/* ========================================
+   FINAL MOBILE VIDEO FIX - ADD TO END OF CSS
+   ======================================== */
+
+/* MOBILE ONLY - Force native controls, hide custom overlays */
+@media screen and (max-width: 768px) {
+    /* Hide ALL custom video overlays and controls */
+    .video-overlay,
+    .video-controls,
+    .play-button,
+    .pause-button {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+    
+    /* Force enable native video controls */
+    .carousel-track video,
+    .video-wrapper video {
+        pointer-events: auto !important;
+        -webkit-touch-callout: auto !important;
+        -webkit-user-select: auto !important;
+        user-select: auto !important;
+    }
+    
+    /* Show native webkit controls */
+    .carousel-track video::-webkit-media-controls,
+    .video-wrapper video::-webkit-media-controls {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    .carousel-track video::-webkit-media-controls-panel,
+    .video-wrapper video::-webkit-media-controls-panel {
+        display: flex !important;
+    }
+    
+    .carousel-track video::-webkit-media-controls-overlay-play-button,
+    .video-wrapper video::-webkit-media-controls-overlay-play-button {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+}
