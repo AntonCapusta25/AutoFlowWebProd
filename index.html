@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoFlow Studio - Automate the Work You Hate</title>
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -108,46 +109,20 @@
     <div class="carousel-container">
         <div class="carousel-wrapper">
             <div class="carousel-track" id="carouselTrack">
-                <!-- SLIDE 1: ACTUAL VIDEO -->
+
                 <div class="carousel-slide">
                     <div class="video-container">
-                        <div class="video-wrapper" id="video-wrapper-enhancer">
-                            <!-- The actual video -->
-                           <video 
-                             controls
-                             id="enhancer-video"
-                             preload="metadata"
-                             muted
-                             playsinline
-                             webkit-playsinline
-                             disablepictureinpicture
-                             controlslist="nodownload nofullscreen noremoteplayback"
-                             style="width: 100%; height: 300px; border-radius: 15px; object-fit: cover;"
-                            >
-                                <source src="https://akcirhxetrsjoarl.public.blob.vercel-storage.com/enhqncer%2015.mp4" type="video/mp4" />
-                                <!-- Fallback content -->
-                                <div class="video-fallback">
-                                    <p style="color: #6b7280; text-align: center; padding: 20px;">
-                                        Your browser doesn't support video playback. 
-                                        <a href="https://akcirhxetrsjoarl.public.blob.vercel-storage.com/enhqncer%2015.mp4" target="_blank" style="color: #e91e63;">
-                                            Click here to download the video.
-                                        </a>
-                                    </p>
-                                </div>
-                            </video>
+                        <div class="video-wrapper" id="video-wrapper-1">
+                            <div id="player1" class="youtube-player" data-video-id="YOUR_YOUTUBE_ID_1"></div>
                             
-                            <!-- Play button overlay (REMOVED onclick) -->
                             <div class="video-overlay">
                                 <div class="play-button">▶</div>
                             </div>
-                            
-                            <!-- Pause button (REMOVED onclick) -->
                             <div class="video-controls">
                                 <button class="pause-button">⏸</button>
                             </div>
                         </div>
                         
-                        <!-- Video title and description OUTSIDE video wrapper -->
                         <div class="video-title">Custom Photo Improvement Tool</div>
                         <div class="video-description">Automated photo enhancement tool ensuring every chef's dish looks magazine-ready on the platform.</div>
                     </div>
@@ -177,46 +152,19 @@
                     </div>
                 </div>
 
-                <!-- SLIDE 2: ACTUAL VIDEO -->
                 <div class="carousel-slide">
                     <div class="video-container">
-                        <div class="video-wrapper">
-                            <!-- The actual video -->
-                            <video 
-                             controls
-                             id="enhancer-video"
-                             preload="metadata"
-                             muted
-                             playsinline
-                             webkit-playsinline
-                             disablepictureinpicture
-                             controlslist="nodownload nofullscreen noremoteplayback"
-                             style="width: 100%; height: 300px; border-radius: 15px; object-fit: cover;"
-                            >
-                                <source src="https://akcirhxetrsjoarl.public.blob.vercel-storage.com/emailautoflow.mp4" type="video/mp4" />
-                                <!-- Fallback content -->
-                                <div class="video-fallback">
-                                    <p style="color: #6b7280; text-align: center; padding: 20px;">
-                                        Your browser doesn't support video playback. 
-                                        <a href="https://akcirhxetrsjoarl.public.blob.vercel-storage.com/emailautoflow.mp4" target="_blank" style="color: #e91e63;">
-                                            Click here to download the video.
-                                        </a>
-                                    </p>
-                                </div>
-                            </video>
+                        <div class="video-wrapper" id="video-wrapper-2">
+                            <div id="player2" class="youtube-player" data-video-id="YOUR_YOUTUBE_ID_2"></div>
                             
-                            <!-- Play button overlay -->
                             <div class="video-overlay">
                                 <div class="play-button">▶</div>
                             </div>
-                            
-                            <!-- Pause button -->
                             <div class="video-controls">
                                 <button class="pause-button">⏸</button>
                             </div>
                         </div>
                         
-                        <!-- Video title and description OUTSIDE video wrapper -->
                         <div class="video-title">AI-Powered Personalized Email Automation</div>
                         <div class="video-description">AI-powered system generating thousands of personalized, human-sounding emails for efficient outreach.</div>
                     </div>
@@ -245,46 +193,19 @@
                     </div>
                 </div>
 
-                <!-- SLIDE 3: ACTUAL VIDEO (UPDATED) -->
                 <div class="carousel-slide">
                     <div class="video-container">
-                        <div class="video-wrapper" id="video-wrapper-chatbot">
-                            <!-- The actual video -->
-                           <video 
-                             controls
-                             id="enhancer-video"
-                             preload="metadata"
-                             muted
-                             playsinline
-                             webkit-playsinline
-                             disablepictureinpicture
-                             controlslist="nodownload nofullscreen noremoteplayback"
-                             style="width: 100%; height: 300px; border-radius: 15px; object-fit: cover;"
-                            >
-                                <source src="https://akcirhxetrsjoarl.public.blob.vercel-storage.com/telegramboter1.mp4" type="video/mp4" />
-                                <!-- Fallback content -->
-                                <div class="video-fallback">
-                                    <p style="color: #6b7280; text-align: center; padding: 20px;">
-                                        Your browser doesn't support video playback. 
-                                        <a href="https://akcirhxetrsjoarl.public.blob.vercel-storage.com/telegramboter1.mp4" target="_blank" style="color: #e91e63;">
-                                            Click here to download the video.
-                                        </a>
-                                    </p>
-                                </div>
-                            </video>
-                            
-                            <!-- Play button overlay -->
+                        <div class="video-wrapper" id="video-wrapper-3">
+                            <div id="player3" class="youtube-player" data-video-id="YOUR_YOUTUBE_ID_3"></div>
+                           
                             <div class="video-overlay">
                                 <div class="play-button">▶</div>
                             </div>
-                            
-                            <!-- Pause button -->
                             <div class="video-controls">
                                 <button class="pause-button">⏸</button>
                             </div>
                         </div>
                         
-                        <!-- Video title and description OUTSIDE video wrapper -->
                         <div class="video-title">AI-Powered Chatbot with Real-Time Telegram Integration</div>
                         <div class="video-description">AI-powered chatbot providing instant 24/7 customer support directly via Telegram, connected to live data.</div>
                     </div>
@@ -313,46 +234,19 @@
                     </div>
                 </div>
 
-                <!-- SLIDE 4: ACTUAL VIDEO -->
                 <div class="carousel-slide">
                     <div class="video-container">
-                        <div class="video-wrapper">
-                            <!-- The actual video -->
-                           <video 
-                             controls
-                             id="enhancer-video"
-                             preload="metadata"
-                             muted
-                             playsinline
-                             webkit-playsinline
-                             disablepictureinpicture
-                             controlslist="nodownload nofullscreen noremoteplayback"
-                             style="width: 100%; height: 300px; border-radius: 15px; object-fit: cover;"
-                            >
-                                <source src="https://akcirhxetrsjoarl.public.blob.vercel-storage.com/leadscrapper.mp4" type="video/mp4" />
-                                <!-- Fallback content -->
-                                <div class="video-fallback">
-                                    <p style="color: #6b7280; text-align: center; padding: 20px;">
-                                        Your browser doesn't support video playback. 
-                                        <a href="https://akcirhxetrsjoarl.public.blob.vercel-storage.com/leadscrapper.mp4" target="_blank" style="color: #e91e63;">
-                                            Click here to download the video.
-                                        </a>
-                                    </p>
-                                </div>
-                            </video>
+                        <div class="video-wrapper" id="video-wrapper-4">
+                            <div id="player4" class="youtube-player" data-video-id="YOUR_YOUTUBE_ID_4"></div>
                             
-                            <!-- Play button overlay -->
                             <div class="video-overlay">
                                 <div class="play-button">▶</div>
                             </div>
-                            
-                            <!-- Pause button -->
                             <div class="video-controls">
                                 <button class="pause-button">⏸</button>
                             </div>
                         </div>
                         
-                        <!-- Video title and description OUTSIDE video wrapper -->
                         <div class="video-title">Data Goldmine Automation</div>
                         <div class="video-description">Automated lead generation engine precisely scraping and enriching prospect data from diverse online sources.</div>
                     </div>
@@ -382,13 +276,11 @@
                 </div>
             </div>
             
-            <!-- Carousel timer -->
             <div class="carousel-timer">
                 <div class="timer-progress" id="timerProgress"></div>
             </div>
         </div>
 
-        <!-- Carousel controls -->
         <div class="carousel-controls">
             <button class="carousel-button" id="prevBtn">‹</button>
             <div class="carousel-indicators" id="indicators"></div>
