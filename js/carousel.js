@@ -17,6 +17,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// NEW: This global function is REQUIRED by the YouTube API.
+// It's called automatically when the API script is loaded and ready.
+function onYouTubeIframeAPIReady() {
+    console.log('🎬 YouTube API is ready.');
+    // Trigger a custom event to let our carousel know it can create the players.
+    document.dispatchEvent(new Event('youtubeApiReady'));
+}
 /**
  * Initialize the carousel functionality with mobile optimizations
  */
@@ -63,8 +70,11 @@ function initializeCarousel() {
     const autoPlayTime = isMobile ? 7000 : 5000; // Longer on mobile
     let isUserInteracting = false;
     
-    // MOBILE VIDEO OPTIMIZATION: Setup all videos immediately
-    optimizeVideosForMobile();
+// NEW: An object to hold all our YouTube player instances
+    let players = {};
+
+    // NEW: Wait for the YouTube API to be ready before setting up players
+    document.addEventListener('youtubeApiReady', setupYouTubePlayers);
     
     // Create indicators
     createIndicators();
@@ -83,113 +93,88 @@ function initializeCarousel() {
     console.log('✅ Mobile-optimized carousel initialized successfully');
     
     /**
-     * MOBILE VIDEO OPTIMIZATION: Setup videos for mobile performance
+     * NEW: Creates a YouTube player for each placeholder div in the carousel.
      */
-    function optimizeVideosForMobile() {
-    console.log('📱 AGGRESSIVE mobile video optimization...');
-    
-    const videos = track.querySelectorAll('video');
-    
-    videos.forEach((video, index) => {
-        console.log(`🎬 Setting up video ${index + 1} - Mobile: ${isMobile}`);
+    function setupYouTubePlayers() {
+        console.log('🎬 Setting up YouTube players...');
+        const playerDivs = document.querySelectorAll('.youtube-player');
         
-        // Essential attributes for ALL videos
-        video.setAttribute('playsinline', '');
-        video.setAttribute('webkit-playsinline', '');
-        video.setAttribute('preload', 'metadata');
-        
-        if (isMobile) {
-            // MOBILE: Force native controls, remove custom ones
-            console.log(`📱 MOBILE setup for video ${index + 1}`);
-            
-            // Force enable controls
-            video.setAttribute('controls', '');
-            video.controls = true;
-            
-            // Remove mute for better UX
-            video.removeAttribute('muted');
-            video.muted = false;
-            
-            // Hide all custom overlays
-            const wrapper = video.closest('.video-wrapper');
+        playerDivs.forEach(playerDiv => {
+            const playerId = playerDiv.id;
+            const videoId = playerDiv.dataset.videoId;
+            const wrapper = playerDiv.closest('.video-wrapper');
             if (wrapper) {
-                const overlay = wrapper.querySelector('.video-overlay');
-                const controls = wrapper.querySelector('.video-controls');
-                
-                if (overlay) {
-                    overlay.style.display = 'none';
-                    overlay.style.opacity = '0';
-                    overlay.style.visibility = 'hidden';
-                    overlay.style.pointerEvents = 'none';
+                wrapper.classList.add('paused'); // Set initial state for custom controls
+            }
+
+            const player = new YT.Player(playerId, {
+                height: '100%',
+                width: '100%',
+                videoId: videoId,
+                playerVars: {
+                    'playsinline': 1,
+                    'controls': isMobile ? 1 : 0,
+                    'rel': 0,
+                    'showinfo': 0,
+                    'modestbranding': 1,
+                    'iv_load_policy': 3,
+                    'mute': 1
+                },
+                events: {
+                    'onReady': (event) => onPlayerReady(event, wrapper),
+                    'onStateChange': (event) => onPlayerStateChange(event, wrapper)
                 }
-                
-                if (controls) {
-                    controls.style.display = 'none';
-                    controls.style.opacity = '0';
-                    controls.style.visibility = 'hidden';
-                    controls.style.pointerEvents = 'none';
-                }
-            }
-            
-            // Force video interactions
-            video.style.pointerEvents = 'auto';
-            video.style.webkitUserSelect = 'auto';
-            video.style.userSelect = 'auto';
-            
-            // Show first frame
-            video.addEventListener('loadedmetadata', () => {
-                video.currentTime = 0.1;
             });
-            
-        } else {
-            // DESKTOP: Custom controls
-            console.log(`🖥️ DESKTOP setup for video ${index + 1}`);
-            video.removeAttribute('controls');
-            video.setAttribute('muted', '');
-            
-            const wrapper = video.closest('.video-wrapper');
-            if (!wrapper) return;
-            
-            wrapper.classList.add('paused');
-            
-            const playButton = wrapper.querySelector('.play-button');
-            const pauseButton = wrapper.querySelector('.pause-button');
-            const overlay = wrapper.querySelector('.video-overlay');
-            
-            function playVideo() {
-                video.muted = false;
-                wrapper.classList.remove('paused');
-                wrapper.classList.add('playing');
-                video.play().catch(console.error);
-            }
-            
-            function pauseVideo() {
-                wrapper.classList.remove('playing');
-                wrapper.classList.add('paused');
-                video.pause();
-            }
-            
-            if (playButton) playButton.addEventListener('click', playVideo);
-            if (pauseButton) pauseButton.addEventListener('click', pauseVideo);
-            if (overlay) overlay.addEventListener('click', playVideo);
-            
-            video.addEventListener('ended', () => {
-                pauseVideo();
-                video.currentTime = 0;
-                video.muted = true;
-            });
-        }
-        
-        // Error handling
-        video.addEventListener('error', (e) => {
-            console.error(`❌ Video ${index + 1} error:`, e);
+            players[playerId] = player;
         });
+        console.log(`✅ ${playerDivs.length} YouTube players set up.`);
+    }
+
+    /**
+     * NEW: Wires up custom play/pause buttons once a player is ready.
+     */
+    function onPlayerReady(event, wrapper) {
+        if (!wrapper || isMobile) return; // Only apply custom controls on desktop
+
+        const playButton = wrapper.querySelector('.play-button');
+        const pauseButton = wrapper.querySelector('.pause-button');
+        const overlay = wrapper.querySelector('.video-overlay');
+        const player = event.target;
+
+        const playVideo = () => {
+            player.unMute();
+            player.playVideo();
+        };
+
+        const pauseVideo = () => {
+            player.pauseVideo();
+        };
         
-        console.log(`✅ Video ${index + 1} optimized for ${isMobile ? 'MOBILE' : 'DESKTOP'}`);
-    });
-    
-    console.log('✅ Aggressive mobile video optimization complete');
-}
+        if (playButton) playButton.addEventListener('click', playVideo);
+        if (overlay) overlay.addEventListener('click', playVideo);
+        if (pauseButton) pauseButton.addEventListener('click', pauseVideo);
+    }
+
+    /**
+     * NEW: Updates custom UI based on the video's state.
+     */
+    function onPlayerStateChange(event, wrapper) {
+        if (!wrapper) return;
+        if (event.data === YT.PlayerState.PLAYING) {
+            wrapper.classList.remove('paused');
+            wrapper.classList.add('playing');
+            pauseCarouselForVideo();
+        } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+            wrapper.classList.remove('playing');
+            wrapper.classList.add('paused');
+            resumeCarouselAfterVideo();
+            
+            if (event.data === YT.PlayerState.ENDED) {
+                event.target.seekTo(0);
+                event.target.mute();
+            }
+        }
+    }
     
     /**
      * Create indicator dots
@@ -249,17 +234,6 @@ function initializeCarousel() {
         
         // Update ARIA attributes
         updateAriaAttributes();
-        
-        // MOBILE: Ensure current video shows first frame
-        if (isMobile) {
-            setTimeout(() => {
-                const currentSlide = slides[currentIndex];
-                const currentVideo = currentSlide.querySelector('video');
-                if (currentVideo && currentVideo.paused) {
-                    currentVideo.currentTime = 0.1;
-                }
-            }, 100);
-        }
         
         console.log(`🎠 Updated to slide ${currentIndex + 1}/${slideCount}`);
     }
