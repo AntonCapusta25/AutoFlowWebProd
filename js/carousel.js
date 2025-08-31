@@ -1,6 +1,15 @@
 // AutoFlow Studio - Mobile-Optimized Carousel JavaScript
 // Handles the work examples carousel with mobile video optimizations
+// Load the IFrame Player API code asynchronously.
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
+// --- The rest of your carousel.js code starts below ---
+
+// NEW: This global function is REQUIRED by the YouTube API...
+// ...
 // Wait for DOM to load
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🎠 DOM loaded, checking for carousel...');
