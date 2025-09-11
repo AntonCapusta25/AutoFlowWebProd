@@ -79,7 +79,7 @@
 
             <div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.ibb.co/zT6V4dkz/Chat-GPT-Image-Sep-8-2025-02-30-08-PM.png" 
+                <img src="https://i.postimg.cc/JzdW07Bw/Chat-GPT-Image-Aug-17-2025-10-39-44-PM.png" 
                 alt="Dutch SME Business Automation Dashboard" />
                 </div>
 
@@ -436,3 +436,58 @@
                 
                 <!-- Monthly price (hidden by default) -->
                 <div id="monthly-price-container" style="display: none; margin-bottom: 12px;">
+                    <div style="font-size: 1rem; color: #6b7280; margin: 6px 0;">+</div>
+                    <div id="monthly-price" style="font-size: 1.5rem; font-weight: bold; color: #e91e63; margin-bottom: 3px;">€50 / month</div>
+                    <div style="color: #6b7280; font-size: 0.8rem;">(Monthly Support Plan)</div>
+                </div>
+                
+                <p style="color: #9ca3af; font-size: 0.85rem; line-height: 1.4; margin: 0 0 15px 0; max-width: 350px; margin-left: auto; margin-right: auto; padding: 0 8px;">This is a rough approximation. The final price may increase or decrease based on your specific requirements.</p>
+                
+                <a href="https://autoflow.neetocal.com/meeting-with-auto-flow" target="_blank" id="proceed-button" style="display: inline-block; background: linear-gradient(135deg, #e91e63, #9c27b0); color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(233, 30, 99, 0.3); border: none; cursor: pointer; max-width: 100%; box-sizing: border-box;">Schedule a free consultation</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Chat Bot Modal -->
+<div id="chatbot-modal-overlay" class="chat-modal-overlay">
+    <div id="chatbot-modal" class="chat-modal">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <div class="chat-bot-avatar">🤖</div>
+                <div class="chat-header-text">
+                    <h3>AI Assistant</h3>
+                    <p>AutoFlow Studio Bot</p>
+                </div>
+            </div>
+            <button id="close-chatbot-modal-btn" class="chat-close-btn">&times;</button>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="chat-container">
+            <div class="chat-messages">
+                <div class="message received">
+                    <p>Hello! How can I help you with your automation needs today?</p>
+                </div>
+            </div>
+            
+            <!-- Chat Input Area with SINGLE attachment button -->
+            <div class="chat-input-area">
+                <button id="chat-upload-btn" title="Upload file">📎</button>
+                <div class="chat-input-container">
+                    <input type="text" id="chat-input" placeholder="Type your message...">
+                </div>
+                <button class="chat-send-btn" title="Send message">
+                    Send
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script src="js/main.js"></script>
+    <script src="js/carousel.js"></script>
+    <script src="js/tools.js"></script>
+    <script src="js/cookies-banner.js"></script>
+</body>
+</html>
