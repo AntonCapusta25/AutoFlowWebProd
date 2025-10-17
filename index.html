@@ -2,17 +2,17 @@
 <html lang="en">
 <head>
     <script type="text/javascript"> (function(c,l,a,r,i,t,y){ c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)}; t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i; y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y); })(window, document, "clarity", "script", "sc7rg8deco"); </script>
-    
+
     <!-- Basic Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- SEO Meta Tags -->
     <title>AutoFlow Studio - Automate the Work You Hate | Custom Automation Solutions</title>
     <meta name="description" content="Custom automation tools for startups, founders, and teams. Google Sheets automation, AI chatbots, and process automation delivered in under 7 days. Book your free audit today.">
     <meta name="keywords" content="automation, workflow automation, Google Sheets automation, AI chatbots, process automation, business automation, custom automation tools">
     <meta name="author" content="AutoFlow Studio">
-    
+
     <!-- Open Graph Meta Tags (for social media sharing) -->
     <meta property="og:title" content="AutoFlow Studio - Automate the Work You Hate">
     <meta property="og:description" content="Custom automation tools for startups, founders, and teams. Delivered in under 7 days. Book your free automation audit today.">
@@ -20,28 +20,39 @@
     <meta property="og:url" content="https://www.autoflowstudio.net/">
     <meta property="og:image" content="https://www.autoflowstudio.net/images/og-image.jpg">
     <meta property="og:site_name" content="AutoFlow Studio">
-    
+
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="AutoFlow Studio - Automate the Work You Hate">
     <meta name="twitter:description" content="Custom automation tools for startups, founders, and teams. Delivered in under 7 days.">
     <meta name="twitter:image" content="https://www.autoflowstudio.net/images/twitter-image.jpg">
-    
+
     <!-- Canonical URL -->
     <link rel="canonical" href="https://www.autoflowstudio.net/">
-    
+
     <!-- Favicon -->
     <link rel="icon" href="/favicon.png">
-    
+
     <!-- External Scripts and Stylesheets -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script> 
+    <script src="js/gsap.js"></script>
+
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/components.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"> 
     <link rel="stylesheet" href="css/cookies-banner.css">
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div class="loading-screen">
+        <div class="loading-logo" id="loadingLogo">AutoFlow Studio</div>
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
+        </div>
+    </div>
     <nav class="navbar">
         <div class="nav-container">
             <a href="index.html" class="logo">AutoFlow Studio</a>
@@ -63,7 +74,7 @@
                 <div class="abstract-element sphere-2"></div>
                 <div class="abstract-element sphere-3"></div>
                 <div class="abstract-element sphere-4"></div>
-                
+
                 <!-- Geometric Shapes -->
                 <div class="geometric-shapes">
                     <div class="dots-pattern"></div>
@@ -77,7 +88,7 @@
                 <p>Custom automation tools for startups, founders, and teams. Delivered in under 7 days.</p>
                 <a href="https://autoflow.neetocal.com/meeting-with-auto-flow" target="_blank" class="cta-button">Book a Free Automation Audit</a>
             </div>
-            
+
             <!-- ADDED: Animated Scroll Down Arrow -->
             <div class="scroll-down-arrow" id="scrollDownArrow">
                 <div class="scroll-indicator">
@@ -140,7 +151,7 @@
                     <div class="video-container">
                         <div class="video-wrapper" id="video-wrapper-1">
                             <div id="player1" class="youtube-player" data-video-id="b467PfZsSXQ"></div>
-                            
+
                             <div class="video-overlay">
                                 <div class="play-button">▶</div>
                             </div>
@@ -148,11 +159,11 @@
                                 <button class="pause-button">⏸</button>
                             </div>
                         </div>
-                        
+
                         <div class="video-title">Custom Photo Improvement Tool</div>
                         <div class="video-description">Automated photo enhancement tool ensuring every chef's dish looks magazine-ready on the platform.</div>
                     </div>
-                    
+
                     <div class="work-content">
                         <h2>Visual Consistency Revolution</h2>
                         <p>Transformed inconsistent, low-quality homemade food photos into professional, appealing images, making the platform visually competitive and trustworthy.</p>
@@ -182,7 +193,7 @@
                     <div class="video-container">
                         <div class="video-wrapper" id="video-wrapper-2">
                             <div id="player2" class="youtube-player" data-video-id="yTDTiJZXJ3M"></div>
-                            
+
                             <div class="video-overlay">
                                 <div class="play-button">▶</div>
                             </div>
@@ -190,7 +201,7 @@
                                 <button class="pause-button">⏸</button>
                             </div>
                         </div>
-                        
+
                         <div class="video-title">AI-Powered Personalized Email Automation</div>
                         <div class="video-description">AI-powered system generating thousands of personalized, human-sounding emails for efficient outreach.</div>
                     </div>
@@ -223,7 +234,7 @@
                     <div class="video-container">
                         <div class="video-wrapper" id="video-wrapper-3">
                             <div id="player3" class="youtube-player" data-video-id="Rg1Kb2y2BiY"></div>
-                           
+
                             <div class="video-overlay">
                                 <div class="play-button">▶</div>
                             </div>
@@ -231,7 +242,7 @@
                                 <button class="pause-button">⏸</button>
                             </div>
                         </div>
-                        
+
                         <div class="video-title">AI-Powered Chatbot with Real-Time Telegram Integration</div>
                         <div class="video-description">AI-powered chatbot providing instant 24/7 customer support directly via Telegram, connected to live data.</div>
                     </div>
@@ -264,7 +275,7 @@
                     <div class="video-container">
                         <div class="video-wrapper" id="video-wrapper-4">
                             <div id="player4" class="youtube-player" data-video-id="KjOoXLNfWlA"></div>
-                            
+
                             <div class="video-overlay">
                                 <div class="play-button">▶</div>
                             </div>
@@ -272,7 +283,7 @@
                                 <button class="pause-button">⏸</button>
                             </div>
                         </div>
-                        
+
                         <div class="video-title">Data Goldmine Automation</div>
                         <div class="video-description">Automated lead generation engine precisely scraping and enriching prospect data from diverse online sources.</div>
                     </div>
@@ -301,7 +312,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="carousel-timer">
                 <div class="timer-progress" id="timerProgress"></div>
             </div>
@@ -339,7 +350,7 @@
                 </div>
             </div>
         </section>
-        
+
         <section class="section testimonials">
             <div class="container">
                 <h2 class="section-title">What Our Clients Say</h2>
@@ -370,7 +381,7 @@
                 Building automation solutions that save time and eliminate manual work. Connect with us and stay updated on the latest automation insights.
             </p>
         </div>
-        
+
         <!-- Social Media Section -->
         <div class="footer-social-section">
             <h4>Follow Us</h4>
@@ -389,7 +400,7 @@
                 </a>
             </div>
         </div>
-        
+
         <!-- Navigation Links -->
         <div class="footer-navigation">
             <ul class="footer-links">
@@ -399,7 +410,7 @@
                 <li><a href="contact.html">Contact</a></li>
             </ul>
         </div>
-        
+
         <!-- Copyright -->
         <div class="footer-bottom">
             <p>© 2025 AutoFlow Studio. All rights reserved. | autoflowcompany2025@gmail.com</p>
@@ -431,7 +442,7 @@
                <path d="M8 8a3.5 3 0 0 1 3.5 -3h1a3.5 3 0 0 1 3.5 3a3 3 0 0 1 -2 3a3 4 0 0 0 -2 4"></path>
                <line x1="12" y1="19" x2="12" y2="19.01"></line>
             </svg>
-            
+
             <svg id="close-icon" class="main-fab-icon" width="28" height="28" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                <path d="M18 6l-12 12"></path>
@@ -443,12 +454,12 @@
     <!-- Calculator Modal -->
     <div id="calculator-modal-overlay" class="calculator-modal-overlay">
         <div id="calculator-modal" class="calculator-modal">
-            
+
             <!-- Close Button -->
             <button id="close-calculator-modal-btn" class="close-modal-btn">&times;</button>
-            
+
             <h2 style="font-size: 2rem; font-weight: 800; color: #1a1a1a; margin: 0 0 15px 0; text-align: center; padding: 0 15px;">Automation Price Estimator</h2>
-            
+
             <p style="color: #6b7280; font-size: 0.85rem; text-align: center; margin: 0 auto 25px auto; line-height: 1.4; max-width: 450px; padding: 0 15px;">Select your options to get a real-time price estimate for your custom automation project.</p>
 
             <form id="pricing-calculator-form" class="pricing-calculator-form">
@@ -479,10 +490,10 @@
                         <input type="number" id="num-tasks" name="num-tasks" value="1" min="1" max="10" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; background: #f8fafc; color: #374151;">
                     </div>
                 </div>
-                
+
                 <!-- Add-ons section -->
                 <h3 style="font-size: 1.2rem; font-weight: 700; color: #1a1a1a; margin: 0 0 15px 0;">Add-ons</h3>
-                
+
                 <div class="mobile-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                     <div>
                         <label style="display: block; font-size: 0.95rem; font-weight: 600; color: #1a1a1a; margin-bottom: 8px;">
@@ -527,20 +538,20 @@
             <!-- Results Section -->
             <div class="mobile-results" style="background: linear-gradient(135deg, #fce4ec, #f3e5f5); padding: 15px; border-radius: 15px; text-align: center;">
                 <div style="color: #9ca3af; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px;">ESTIMATED TOTAL</div>
-                
+
                 <div id="one-time-price" class="mobile-price" style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #e91e63, #9c27b0); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; line-height: 1;">€100</div>
-                
+
                 <div style="color: #6b7280; font-size: 0.8rem; margin-bottom: 6px;">(One-Time Project Cost)</div>
-                
+
                 <!-- Monthly price (hidden by default) -->
                 <div id="monthly-price-container" style="display: none; margin-bottom: 12px;">
                     <div style="font-size: 1rem; color: #6b7280; margin: 6px 0;">+</div>
                     <div id="monthly-price" style="font-size: 1.5rem; font-weight: bold; color: #e91e63; margin-bottom: 3px;">€50 / month</div>
                     <div style="color: #6b7280; font-size: 0.8rem;">(Monthly Support Plan)</div>
                 </div>
-                
+
                 <p style="color: #9ca3af; font-size: 0.85rem; line-height: 1.4; margin: 0 0 15px 0; max-width: 350px; margin-left: auto; margin-right: auto; padding: 0 8px;">This is a rough approximation. The final price may increase or decrease based on your specific requirements.</p>
-                
+
                 <a href="https://autoflow.neetocal.com/meeting-with-auto-flow" target="_blank" id="proceed-button" style="display: inline-block; background: linear-gradient(135deg, #e91e63, #9c27b0); color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(233, 30, 99, 0.3); border: none; cursor: pointer; max-width: 100%; box-sizing: border-box;">Schedule a free consultation</a>
             </div>
         </div>
@@ -568,7 +579,7 @@
                     <p>Hello! How can I help you with your automation needs today?</p>
                 </div>
             </div>
-            
+
             <!-- Chat Input Area with SINGLE attachment button -->
             <div class="chat-input-area">
                 <button id="chat-upload-btn" title="Upload file">📎</button>
