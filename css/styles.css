@@ -1,15 +1,6 @@
 /* AutoFlow Studio - Main Styles */
 /* Loading Screen Styles */
 /* Smooth transition setup */
-
-body:not(.loaded) .main-content,
-body:not(.loaded) .navbar,
-body:not(.loaded) .footer {
-    opacity: 0;
-    transform: scale(0.98);
-    pointer-events: none;
-}
-
 .loading-screen {
     position: fixed;
     top: 0;
