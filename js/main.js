@@ -103,20 +103,20 @@ function initLoading() {
     
     tl.to('.loading-progress', {
         width: '100%',
-        duration: 2.5,
+        duration: 1.0,
         ease: 'power3.out'
     })
     .to('body:not(.loaded) .main-content, body:not(.loaded) .navbar, body:not(.loaded) .footer', {
         opacity: 1,
         scale: 1,
-        duration: 1.5,
+        duration: 1.0,
         ease: 'power3.inOut'
     }, '-=1.2')
     .to('.loading-screen', {
         opacity: 0,
         filter: 'blur(15px)',
         scale: 0.9,
-        duration: 1.5,
+        duration: 1.0,
         ease: 'power3.inOut',
         onComplete: () => {
             loadingScreen.style.display = 'none';
