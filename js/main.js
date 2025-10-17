@@ -91,48 +91,6 @@ function animateLetters() {
     });
 }
 
-function initLoading() {
-    const loadingScreen = document.querySelector('.loading-screen');
-    if (!loadingScreen) return;
-    
-    splitTextToLetters();
-    animateLetters();
-    
-    // Enhanced loading timeline
-    const tl = gsap.timeline();
-    
-    tl.to('.loading-progress', {
-        width: '100%',
-        duration: 1.0,
-        ease: 'power3.out'
-    })
-    .to('body:not(.loaded) .main-content, body:not(.loaded) .navbar, body:not(.loaded) .footer', {
-        opacity: 1,
-        scale: 1,
-        duration: 1.0,
-        ease: 'power3.inOut'
-    }, '-=1.2')
-    .to('.loading-screen', {
-        opacity: 0,
-        filter: 'blur(15px)',
-        scale: 0.9,
-        duration: 1.0,
-        ease: 'power3.inOut',
-        onComplete: () => {
-            loadingScreen.style.display = 'none';
-            document.body.classList.add('loaded');
-            if (typeof initMainAnimations === 'function') {
-                initMainAnimations();
-            }
-        }
-    }, '-=1');
-}
-
-// Initialize loading when page loads
-window.addEventListener('load', () => {
-    initLoading();
-});
-
 // Enhanced scroll down arrow functionality
 document.addEventListener('DOMContentLoaded', () => {
     const scrollDownArrow = document.getElementById('scrollDownArrow');
