@@ -4,25 +4,25 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Navigation Functionality ---
     initializeNavigation();
-    
+
     // --- Smooth Scroll ---
     initializeSmoothScroll();
-    
+
     // --- Scroll Effects ---
     initializeScrollEffects();
-    
+
     // --- Form Handling ---
     initializeFormHandling();
-    
+
     // --- Animation Observers ---
     initializeAnimations();
-    
+
     // --- CTA Button Functionality ---
     initializeCTAButtons();
-    
+
     // --- Newsletter Functionality ---
     initializeNewsletter();
-    
+
     // --- Enhanced GSAP Interactions ---
     initializeGSAPInteractions();
 });
@@ -31,10 +31,10 @@ document.addEventListener('DOMContentLoaded', () => {
 function splitTextToLetters() {
     const logoElement = document.getElementById('loadingLogo');
     if (!logoElement) return;
-    
+
     const text = logoElement.textContent;
     logoElement.innerHTML = '';
-    
+
     for (let i = 0; i < text.length; i++) {
         const char = text[i];
         if (char === ' ') {
@@ -53,7 +53,7 @@ function splitTextToLetters() {
 function animateLetters() {
     const letters = document.querySelectorAll('.letter');
     if (letters.length === 0) return;
-    
+
     // Enhanced GSAP letter animations
     gsap.fromTo(letters, 
         { 
@@ -75,7 +75,7 @@ function animateLetters() {
             ease: 'elastic.out(1, 0.6)'
         }
     );
-    
+
     // Enhanced continuous wave animation
     gsap.to(letters, {
         y: -12,
@@ -91,10 +91,52 @@ function animateLetters() {
     });
 }
 
+function initLoading() {
+    const loadingScreen = document.querySelector('.loading-screen');
+    if (!loadingScreen) return;
+
+    splitTextToLetters();
+    animateLetters();
+
+    // Enhanced loading timeline
+    const tl = gsap.timeline();
+
+    tl.to('.loading-progress', {
+        width: '100%',
+        duration: 2.5,
+        ease: 'power3.out'
+    })
+    .to('body:not(.loaded) .main-content, body:not(.loaded) .navbar, body:not(.loaded) .footer', {
+        opacity: 1,
+        scale: 1,
+        duration: 1.5,
+        ease: 'power3.inOut'
+    }, '-=1.2')
+    .to('.loading-screen', {
+        opacity: 0,
+        filter: 'blur(15px)',
+        scale: 0.9,
+        duration: 1.5,
+        ease: 'power3.inOut',
+        onComplete: () => {
+            loadingScreen.style.display = 'none';
+            document.body.classList.add('loaded');
+            if (typeof initMainAnimations === 'function') {
+                initMainAnimations();
+            }
+        }
+    }, '-=1');
+}
+
+// Initialize loading when page loads
+window.addEventListener('load', () => {
+    initLoading();
+});
+
 // Enhanced scroll down arrow functionality
 document.addEventListener('DOMContentLoaded', () => {
     const scrollDownArrow = document.getElementById('scrollDownArrow');
-    
+
     if (scrollDownArrow) {
         // Enhanced click animation
         scrollDownArrow.addEventListener('click', () => {
@@ -106,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 yoyo: true,
                 repeat: 1
             });
-            
+
             // Smooth scroll to the next section
             const nextSection = document.getElementById('what-we-build');
             if (nextSection && window.smoothScrollTo) {
@@ -121,10 +163,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     ease: "power3.inOut"
                 });
             }
-            
+
             console.log('🔽 Enhanced scroll indicator clicked');
         });
-        
+
         // Enhanced scroll fade out animation
         window.addEventListener('scroll', () => {
             if (window.scrollY > 50) {
@@ -149,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         }, { passive: true });
-        
+
         console.log('🔽 Enhanced scroll indicator initialized');
     }
 });
@@ -159,20 +201,20 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 function initializeSmoothScroll() {
     console.log('🛼 Initializing enhanced smooth scroll...');
-    
+
     // Enhanced scroll settings
     const scrollSettings = {
         duration: 1.4,
         ease: "power3.inOut"
     };
-    
+
     // Handle all anchor links for smooth scrolling
     document.addEventListener('click', (e) => {
         const target = e.target.closest('a[href^="#"]');
-        
+
         if (target) {
             e.preventDefault();
-            
+
             // Button press animation
             gsap.to(target, {
                 scale: 0.95,
@@ -181,9 +223,9 @@ function initializeSmoothScroll() {
                 yoyo: true,
                 repeat: 1
             });
-            
+
             const targetId = target.getAttribute('href');
-            
+
             if (targetId === '#' || targetId === '#top') {
                 gsap.to(window, {
                     duration: scrollSettings.duration,
@@ -193,14 +235,14 @@ function initializeSmoothScroll() {
                 console.log('🛼 Enhanced smooth scroll to top');
                 return;
             }
-            
+
             const targetElement = document.querySelector(targetId);
-            
+
             if (targetElement) {
                 const navbar = document.querySelector('.navbar');
                 const navbarHeight = navbar ? navbar.offsetHeight : 0;
                 const offset = navbarHeight + 20;
-                
+
                 gsap.to(window, {
                     duration: scrollSettings.duration,
                     scrollTo: { 
@@ -209,16 +251,16 @@ function initializeSmoothScroll() {
                     },
                     ease: scrollSettings.ease
                 });
-                
+
                 console.log(`🛼 Enhanced smooth scroll to: ${targetId}`);
             }
         }
     });
-    
+
     // Enhanced programmatic scrolling
     window.smoothScrollTo = (target, offset = 0) => {
         let scrollTarget;
-        
+
         if (typeof target === 'string') {
             scrollTarget = document.querySelector(target);
         } else if (typeof target === 'number') {
@@ -226,7 +268,7 @@ function initializeSmoothScroll() {
         } else {
             scrollTarget = target;
         }
-        
+
         if (scrollTarget) {
             gsap.to(window, {
                 duration: scrollSettings.duration,
@@ -238,7 +280,7 @@ function initializeSmoothScroll() {
             });
         }
     };
-    
+
     console.log('✅ Enhanced smooth scroll initialized');
 }
 
@@ -248,12 +290,12 @@ function initializeSmoothScroll() {
 function initializeNavigation() {
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const navLinksContainer = document.getElementById('navLinks');
-    
+
     if (mobileMenuBtn && navLinksContainer) {
         // Enhanced mobile menu toggle with GSAP
         mobileMenuBtn.addEventListener('click', () => {
             const isActive = navLinksContainer.classList.contains('mobile-active');
-            
+
             if (!isActive) {
                 // Opening animation
                 navLinksContainer.classList.add('mobile-active');
@@ -271,7 +313,7 @@ function initializeNavigation() {
                         ease: "back.out(1.4)" 
                     }
                 );
-                
+
                 // Animate menu items
                 const navLinks = navLinksContainer.querySelectorAll('a');
                 gsap.fromTo(navLinks,
@@ -285,7 +327,7 @@ function initializeNavigation() {
                         ease: "power2.out"
                     }
                 );
-                
+
                 mobileMenuBtn.textContent = '✖';
             } else {
                 // Closing animation
@@ -299,11 +341,11 @@ function initializeNavigation() {
                         navLinksContainer.classList.remove('mobile-active');
                     }
                 });
-                
+
                 mobileMenuBtn.textContent = '☰';
             }
         });
-        
+
         // Enhanced close functionality
         const navLinks = navLinksContainer.querySelectorAll('a');
         navLinks.forEach(link => {
@@ -320,7 +362,7 @@ function initializeNavigation() {
                 });
             });
         });
-        
+
         // Enhanced outside click
         document.addEventListener('click', (e) => {
             if (!mobileMenuBtn.contains(e.target) && !navLinksContainer.contains(e.target)) {
@@ -339,7 +381,7 @@ function initializeNavigation() {
             }
         });
     }
-    
+
     setActiveNavLink();
 }
 
@@ -349,11 +391,11 @@ function initializeNavigation() {
 function setActiveNavLink() {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     const navLinks = document.querySelectorAll('.nav-link');
-    
+
     navLinks.forEach(link => {
         link.classList.remove('active');
         const href = link.getAttribute('href');
-        
+
         if (href === currentPage || 
             (currentPage === '' && href === 'index.html') ||
             (currentPage === 'index.html' && href === 'index.html')) {
@@ -421,29 +463,29 @@ function initializeFormHandling() {
  */
 function handleContactFormSubmit(e) {
     e.preventDefault();
-    
+
     const formData = {
         name: document.getElementById('name')?.value?.trim() || '',
         email: document.getElementById('email')?.value?.trim() || '',
         company: document.getElementById('company')?.value?.trim() || '',
         automation: document.getElementById('automation')?.value?.trim() || ''
     };
-    
+
     console.log('📋 Contact form data collected:', formData);
-    
+
     if (!formData.name || !formData.email) {
         showNotification('Please fill in all required fields.', 'error');
         return;
     }
-    
+
     if (!isValidEmail(formData.email)) {
         showNotification('Please enter a valid email address.', 'error');
         return;
     }
-    
+
     const submitBtn = e.target.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
-    
+
     // Enhanced loading animation
     gsap.to(submitBtn, {
         scale: 0.95,
@@ -452,18 +494,18 @@ function handleContactFormSubmit(e) {
         yoyo: true,
         repeat: 1
     });
-    
+
     submitBtn.textContent = '⏳ Sending...';
     submitBtn.disabled = true;
-    
+
     gsap.to(submitBtn, {
         opacity: 0.7,
         duration: 0.2,
         ease: "power2.out"
     });
-    
+
     const scriptUrl = 'https://script.google.com/macros/s/AKfycbyq0Y_ILIVb2Ubs9Ye1FKuqLw7LHpOz7u9ZkxHStd_T7EVUaeds9ZqUZRnIzU3h4I1PrQ/exec';
-    
+
     fetch(scriptUrl, {
         method: 'POST',
         mode: 'no-cors',
@@ -488,7 +530,7 @@ function handleContactFormSubmit(e) {
             duration: 0.3,
             ease: "power2.out"
         });
-        
+
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
     });
@@ -502,10 +544,10 @@ const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyee7JkEOt3kgtLiYHB
  */
 function initializeNewsletter() {
     const emailInput = document.querySelector('input[type="email"]');
-    
+
     if (emailInput) {
         const newsletterButton = emailInput.nextElementSibling;
-        
+
         if (newsletterButton && newsletterButton.classList.contains('cta-button')) {
             newsletterButton.addEventListener('click', handleNewsletterSubmit);
             console.log('📧 Newsletter button initialized for:', emailInput.placeholder);
@@ -520,29 +562,29 @@ function initializeNewsletter() {
  */
 async function handleNewsletterSubmit(e) {
     e.preventDefault();
-    
+
     const emailInput = e.target.previousElementSibling;
-    
+
     if (!emailInput || emailInput.type !== 'email') {
         console.error('Newsletter email input not found');
         showNotification('❌ Email input not found. Please refresh the page.', 'error');
         return;
     }
-    
+
     const email = emailInput.value.trim();
-    
+
     if (!email) {
         showNotification('Please enter your email address.', 'error');
         return;
     }
-    
+
     if (!isValidEmail(email)) {
         showNotification('Please enter a valid email address.', 'error');
         return;
     }
-    
+
     const originalText = e.target.textContent;
-    
+
     // Enhanced button animation
     gsap.to(e.target, {
         scale: 0.95,
@@ -551,13 +593,13 @@ async function handleNewsletterSubmit(e) {
         yoyo: true,
         repeat: 1
     });
-    
+
     e.target.textContent = 'Subscribing...';
     e.target.disabled = true;
-    
+
     try {
         console.log('📧 Submitting newsletter subscription for:', email);
-        
+
         await fetch(WEB_APP_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -566,11 +608,11 @@ async function handleNewsletterSubmit(e) {
             },
             body: JSON.stringify({ email: email })
         });
-        
+
         console.log('✅ Newsletter subscription submitted successfully!');
         showNotification('🎉 Successfully subscribed! Check your email for a welcome message.', 'success');
         emailInput.value = '';
-        
+
     } catch (error) {
         console.error('❌ Newsletter subscription error:', error);
         showNotification('❌ Network error. Please try again.', 'error');
@@ -585,11 +627,11 @@ async function handleNewsletterSubmit(e) {
  */
 function initializeCTAButtons() {
     const ctaButtons = document.querySelectorAll('.cta-button');
-    
+
     ctaButtons.forEach(button => {
         const buttonText = button.textContent.toLowerCase().trim();
         const buttonHref = button.getAttribute('href');
-        
+
         // Add hover animations to all CTA buttons
         button.addEventListener('mouseenter', () => {
             gsap.to(button, {
@@ -600,7 +642,7 @@ function initializeCTAButtons() {
                 ease: "power2.out"
             });
         });
-        
+
         button.addEventListener('mouseleave', () => {
             gsap.to(button, {
                 scale: 1,
@@ -610,20 +652,20 @@ function initializeCTAButtons() {
                 ease: "power2.out"
             });
         });
-        
+
         // Skip newsletter button (handled separately)
         if (button.previousElementSibling && button.previousElementSibling.type === 'email') {
             console.log('📧 Skipping newsletter button:', buttonText);
             return;
         }
-        
+
         // Let "View Full Case Study" buttons work as normal links
         if (buttonText.includes('view full case study') || 
             (buttonHref && (buttonHref.includes('Project') || buttonHref.includes('.html')))) {
             console.log('📄 Case study link - letting it work normally:', buttonText, buttonHref);
             return;
         }
-        
+
         // Handle booking/project buttons
         if (buttonText.includes('book') || 
             buttonText.includes('audit') || 
@@ -634,13 +676,13 @@ function initializeCTAButtons() {
             button.addEventListener('click', handleBookingClick);
             console.log('📞 Initialized booking button:', buttonText);
         }
-        
+
         // Handle generic case study buttons
         else if (buttonText.includes('case study') && !buttonText.includes('view full')) {
             button.addEventListener('click', handleCaseStudyClick);
             console.log('📄 Initialized generic case study button:', buttonText);
         }
-        
+
         // Handle learn more buttons
         else if (buttonText.includes('learn more')) {
             button.addEventListener('click', handleLearnMoreClick);
@@ -661,7 +703,7 @@ function handleBookingClick(e) {
         yoyo: true,
         repeat: 1
     });
-    
+
     console.log('📞 Booking/Project button clicked:', e.target.textContent);
 }
 
@@ -670,7 +712,7 @@ function handleBookingClick(e) {
  */
 function handleCaseStudyClick(e) {
     e.preventDefault();
-    
+
     gsap.to(e.target, {
         scale: 0.95,
         duration: 0.1,
@@ -678,9 +720,9 @@ function handleCaseStudyClick(e) {
         yoyo: true,
         repeat: 1
     });
-    
+
     showNotification('Case study details would be shown here. For this demo, redirecting to portfolio page.', 'info');
-    
+
     setTimeout(() => {
         window.location.href = 'portfolio.html';
     }, 2000);
@@ -691,7 +733,7 @@ function handleCaseStudyClick(e) {
  */
 function handleLearnMoreClick(e) {
     e.preventDefault();
-    
+
     gsap.to(e.target, {
         scale: 0.95,
         duration: 0.1,
@@ -699,9 +741,9 @@ function handleLearnMoreClick(e) {
         yoyo: true,
         repeat: 1
     });
-    
+
     showNotification('More details would be shown here. For this demo, redirecting to contact page.', 'info');
-    
+
     setTimeout(() => {
         window.location.href = 'contact.html';
     }, 2000);
@@ -730,7 +772,7 @@ function showNotification(message, type = 'info') {
             onComplete: () => notification.remove()
         });
     });
-    
+
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
@@ -740,7 +782,7 @@ function showNotification(message, type = 'info') {
             <button class="notification-close">&times;</button>
         </div>
     `;
-    
+
     // Add styles if not already present
     if (!document.querySelector('#notification-styles')) {
         const styles = document.createElement('style');
@@ -809,10 +851,10 @@ function showNotification(message, type = 'info') {
         `;
         document.head.appendChild(styles);
     }
-    
+
     // Add to page
     document.body.appendChild(notification);
-    
+
     // Enhanced slide-in animation
     gsap.fromTo(notification,
         { x: '100%', opacity: 0 },
@@ -823,7 +865,7 @@ function showNotification(message, type = 'info') {
             ease: "back.out(1.4)" 
         }
     );
-    
+
     // Handle close button
     const closeBtn = notification.querySelector('.notification-close');
     closeBtn.addEventListener('click', () => {
@@ -835,7 +877,7 @@ function showNotification(message, type = 'info') {
             onComplete: () => notification.remove()
         });
     });
-    
+
     // Auto-remove with enhanced animation
     setTimeout(() => {
         if (notification.parentNode) {
@@ -858,12 +900,12 @@ function initializeAnimations() {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
     };
-    
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 const element = entry.target;
-                
+
                 // Enhanced reveal animations based on element type
                 if (element.classList.contains('feature-card')) {
                     gsap.fromTo(element,
@@ -910,12 +952,12 @@ function initializeAnimations() {
                         }
                     );
                 }
-                
+
                 observer.unobserve(element);
             }
         });
     }, observerOptions);
-    
+
     // Observe elements that should animate
     const elementsToAnimate = document.querySelectorAll(`
         .feature-card,
@@ -926,7 +968,7 @@ function initializeAnimations() {
         .portfolio-card,
         .work-stats .stat-item
     `);
-    
+
     elementsToAnimate.forEach(el => {
         observer.observe(el);
     });
@@ -938,7 +980,7 @@ function initializeAnimations() {
 function initializeGSAPInteractions() {
     // Enhanced hover effects for cards
     const cards = document.querySelectorAll('.feature-card, .testimonial, .step');
-    
+
     cards.forEach(card => {
         card.addEventListener('mouseenter', () => {
             gsap.to(card, {
@@ -949,7 +991,7 @@ function initializeGSAPInteractions() {
                 ease: "power2.out"
             });
         });
-        
+
         card.addEventListener('mouseleave', () => {
             gsap.to(card, {
                 y: 0,
@@ -960,7 +1002,7 @@ function initializeGSAPInteractions() {
             });
         });
     });
-    
+
     console.log('✨ Enhanced GSAP interactions initialized');
 }
 
@@ -969,16 +1011,16 @@ function initializeGSAPInteractions() {
  */
 function testContactForm() {
     console.log('🧪 Testing contact form submission...');
-    
+
     const testData = {
         name: 'Test User',
         email: 'test@example.com',
         company: 'Test Company',
         automation: 'This is a test message to verify the form is working correctly.'
     };
-    
+
     const scriptUrl = 'https://script.google.com/macros/s/AKfycbyq0Y_ILIVb2Ubs9Ye1FKuqLw7LHpOz7u9ZkxHStd_T7EVUaeds9ZqUZRnIzU3h4I1PrQ/exec';
-    
+
     fetch(scriptUrl, {
         method: 'POST',
         mode: 'no-cors',
@@ -999,9 +1041,9 @@ function testContactForm() {
 
 function testNewsletter() {
     console.log('🧪 Testing newsletter subscription...');
-    
+
     const testEmail = 'test@example.com';
-    
+
     fetch(WEB_APP_URL, {
         method: 'POST',
         headers: {
