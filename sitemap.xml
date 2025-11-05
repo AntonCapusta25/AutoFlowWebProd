@@ -10,19 +10,19 @@
   
   <!-- Main Pages -->
   <url>
-    <loc>https://www.autoflowstudio.net/blog</loc>
+    <loc>https://www.autoflowstudio.net/blog.html</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.autoflowstudio.net/portfolio</loc>
+    <loc>https://www.autoflowstudio.net/portfolio.html</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.autoflowstudio.net/contact</loc>
+    <loc>https://www.autoflowstudio.net/contact.html</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -30,37 +30,109 @@
   
   <!-- Blog Posts -->
   <url>
-    <loc>https://www.autoflowstudio.net/Blog1</loc>
+    <loc>https://www.autoflowstudio.net/10%20repetitive%20tasks.html</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.autoflowstudio.net/Blog2</loc>
+    <loc>https://www.autoflowstudio.net/5%20Ways%20to%20Customer.html</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.autoflowstudio.net/Blog3</loc>
+    <loc>https://www.autoflowstudio.net/5%20signs.html</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.autoflowstudio.net/Blog4</loc>
+    <loc>https://www.autoflowstudio.net/Automation%20Intro.html</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.autoflowstudio.net/Blog5</loc>
+    <loc>https://www.autoflowstudio.net/BPA%20Guide.html</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.autoflowstudio.net/Blog6</loc>
+    <loc>https://www.autoflowstudio.net/BPA%20vs%20Workflow.html</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.autoflowstudio.net/E-commerce%20SMEs.html</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.autoflowstudio.net/Guide%20for%20SME.html</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.autoflowstudio.net/Hidden%20cost.html</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.autoflowstudio.net/Invoicing%20guide.html</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.autoflowstudio.net/Outgrown%20Zapier.html</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.autoflowstudio.net/bottlenecks%20guide.html</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.autoflowstudio.net/documents%20drowning.html</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.autoflowstudio.net/how%20to%20choose.html</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.autoflowstudio.net/no-code%20outgrown.html</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.autoflowstudio.net/working%20for%20you.html</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.autoflowstudio.net/zapier%20expert.html</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.autoflowstudio.net/zapier%20vs%20custom.html</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -68,25 +140,25 @@
   
   <!-- Project Case Studies -->
   <url>
-    <loc>https://www.autoflowstudio.net/project1</loc>
+    <loc>https://www.autoflowstudio.net/project1.html</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.autoflowstudio.net/project2</loc>
+    <loc>https://www.autoflowstudio.net/project2.html</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.autoflowstudio.net/Project3</loc>
+    <loc>https://www.autoflowstudio.net/Project3.html</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.autoflowstudio.net/Project4</loc>
+    <loc>https://www.autoflowstudio.net/Project4.html</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -94,21 +166,21 @@
   
   <!-- Policy Pages -->
   <url>
-    <loc>https://www.autoflowstudio.net/privacy-policy</loc>
+    <loc>https://www.autoflowstudio.net/privacy-policy.html</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://www.autoflowstudio.net/cookie-policy</loc>
+    <loc>https://www.autoflowstudio.net/cookie-policy.html</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   
-  <!-- 404 Page (lower priority) -->
+  <!-- 404 Page -->
   <url>
-    <loc>https://www.autoflowstudio.net/404</loc>
+    <loc>https://www.autoflowstudio.net/404.html</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.1</priority>
