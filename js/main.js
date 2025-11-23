@@ -239,6 +239,56 @@ function initializeNavigation() {
 }
 
 /**
+ * Language Switch
+ */
+function initializeLanguageSwitch() {
+    const langButtons = document.querySelectorAll('.lang-btn');
+    
+    if (langButtons.length === 0) return;
+    
+    langButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const selectedLang = this.getAttribute('data-lang');
+            
+            // Remove active class from all buttons
+            langButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Save language preference
+            localStorage.setItem('preferredLanguage', selectedLang);
+            
+            // Get current page
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            
+            // Switch language
+            if (selectedLang === 'nl') {
+                // Redirect to Dutch version
+                window.location.href = `/nl/${currentPage}`;
+            } else {
+                // Redirect to English version (remove /nl/ if present)
+                window.location.href = `/${currentPage}`;
+            }
+        });
+    });
+    
+    // Load saved language preference on page load
+    const savedLang = localStorage.getItem('preferredLanguage') || 'en';
+    const activeBtn = document.querySelector(`.lang-btn[data-lang="${savedLang}"]`);
+    if (activeBtn) {
+        langButtons.forEach(btn => btn.classList.remove('active'));
+        activeBtn.classList.add('active');
+    }
+}
+
+// Initialize everything when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    initializeNavigation();
+    initializeLanguageSwitch();
+});
+
+/**
  * Scroll effects - optimized
  */
 function initializeScrollEffects() {
