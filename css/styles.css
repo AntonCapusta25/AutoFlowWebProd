@@ -152,6 +152,7 @@ nav.navbar::after {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
 }
 
 .logo {
@@ -159,7 +160,8 @@ nav.navbar::after {
     font-weight: 700;
     color: white;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-    text-decoration: none;       
+    text-decoration: none;
+    flex-shrink: 0;
 }
 
 .nav-links {
@@ -168,6 +170,9 @@ nav.navbar::after {
     margin: 0;
     padding: 0;
     gap: 40px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .nav-links li {
@@ -184,6 +189,7 @@ nav.navbar::after {
     border-radius: 20px;
     transition: all 0.3s ease;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    white-space: nowrap;
 }
 
 .nav-links a:hover,
@@ -200,7 +206,8 @@ nav.navbar::after {
     backdrop-filter: blur(10px);
     border-radius: 50px;
     padding: 5px;
-    margin-left: 20px;
+    margin-left: auto;
+    flex-shrink: 0;
 }
 
 .lang-btn {
@@ -237,6 +244,8 @@ nav.navbar::after {
     font-size: 28px;
     cursor: pointer;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    margin-left: 10px;
+    flex-shrink: 0;
 }
 
 /* Mobile Responsive */
@@ -261,6 +270,7 @@ nav.navbar::after {
         gap: 0;
         padding: 40px 20px;
         transition: left 0.3s ease;
+        transform: translateX(0);
     }
     
     .nav-links.active {
@@ -290,7 +300,6 @@ nav.navbar::after {
         font-size: 0.85rem;
     }
 }
-
 /* Main Content */
 .main-content {
     margin-top: 0;
