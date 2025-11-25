@@ -8,14 +8,14 @@ window.perfStart = performance.now();
 document.addEventListener('DOMContentLoaded', () => {
     // Run critical functions first
     initLoading();
-    
+
     // Queue non-critical initializations
     setTimeout(() => {
         initializeNavigation();
         initializeSmoothScroll();
         initializeScrollEffects();
         initializeScrollDownArrow();
-        
+
         // Lowest priority initializations
         requestIdleCallback(() => {
             initializeFormHandling();
@@ -23,8 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
             initializeCTAButtons();
             initializeNewsletter();
             initializeGSAPInteractions();
-            
-            console.log('✓ All initializations complete in: ' + 
+
+            console.log('✓ All initializations complete in: ' +
                 (performance.now() - window.perfStart).toFixed(0) + 'ms');
         });
     }, 10);
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function initLoading() {
     const loadingScreen = document.querySelector('.loading-screen');
     if (!loadingScreen) return;
-    
+
     // Start progress animation immediately
     const tl = gsap.timeline({
         onComplete: () => {
@@ -43,19 +43,19 @@ function initLoading() {
             console.log('✓ Page loaded in: ' + (performance.now() - window.perfStart).toFixed(0) + 'ms');
         }
     });
-    
+
     // Simplified loading sequence
     tl.to('.loading-progress', {
         width: '100%',
         duration: 1.5, // Reduced time
         ease: 'power3.out'
     })
-    .to('.loading-screen', {
-        opacity: 0,
-        duration: 0.5,
-        ease: 'power3.in'
-    }, '-=0.2');
-    
+        .to('.loading-screen', {
+            opacity: 0,
+            duration: 0.5,
+            ease: 'power3.in'
+        }, '-=0.2');
+
     // Only do fancy letter animations if we have time
     if (window.innerWidth > 768) { // Skip on mobile
         const logoElement = document.getElementById('loadingLogo');
@@ -64,7 +64,7 @@ function initLoading() {
             animateLetters();
         }
     }
-    
+
     // Failsafe - force load after 3 seconds
     setTimeout(() => {
         if (!document.body.classList.contains('loaded')) {
@@ -79,10 +79,10 @@ function initLoading() {
 function splitTextToLetters() {
     const logoElement = document.getElementById('loadingLogo');
     if (!logoElement) return;
-    
+
     const text = logoElement.textContent;
     const fragment = document.createDocumentFragment();
-    
+
     for (let i = 0; i < text.length; i++) {
         const char = text[i];
         if (char === ' ') {
@@ -96,7 +96,7 @@ function splitTextToLetters() {
             fragment.appendChild(letterSpan);
         }
     }
-    
+
     logoElement.innerHTML = '';
     logoElement.appendChild(fragment);
 }
@@ -104,12 +104,12 @@ function splitTextToLetters() {
 function animateLetters() {
     const letters = document.querySelectorAll('.letter');
     if (letters.length === 0) return;
-    
+
     // Simpler letter animation
-    gsap.fromTo(letters, 
+    gsap.fromTo(letters,
         { y: 15, opacity: 0 },
-        { 
-            y: 0, 
+        {
+            y: 0,
             opacity: 1,
             duration: 0.6,
             stagger: 0.05,
@@ -122,25 +122,25 @@ function animateLetters() {
 function initializeScrollDownArrow() {
     const scrollDownArrow = document.getElementById('scrollDownArrow');
     if (!scrollDownArrow) return;
-    
+
     scrollDownArrow.addEventListener('click', () => {
         const nextSection = document.getElementById('what-we-build');
         if (!nextSection) return;
-        
+
         gsap.to(window, {
             duration: 1,
             scrollTo: { y: nextSection, offsetY: 80 },
             ease: "power3.inOut"
         });
     });
-    
+
     // Simplified scroll handler with throttling
     const handleScroll = throttle(() => {
         const opacity = window.scrollY > 50 ? 0 : 1;
         scrollDownArrow.style.opacity = opacity;
         scrollDownArrow.style.pointerEvents = opacity ? 'auto' : 'none';
     }, 100);
-    
+
     window.addEventListener('scroll', handleScroll, { passive: true });
 }
 
@@ -152,19 +152,19 @@ function initializeSmoothScroll() {
     document.addEventListener('click', (e) => {
         const target = e.target.closest('a[href^="#"]');
         if (!target) return;
-        
+
         e.preventDefault();
         const targetId = target.getAttribute('href');
-        
+
         // Handle special case
         if (targetId === '#' || targetId === '#top') {
             gsap.to(window, { duration: 1, scrollTo: 0, ease: "power2.inOut" });
             return;
         }
-        
+
         const targetElement = document.querySelector(targetId);
         if (!targetElement) return;
-        
+
         const navbarHeight = document.querySelector('.navbar')?.offsetHeight || 0;
         gsap.to(window, {
             duration: 1,
@@ -172,11 +172,11 @@ function initializeSmoothScroll() {
             ease: "power2.inOut"
         });
     });
-    
+
     // Simple programmatic scroll function
     window.smoothScrollTo = (target, offset = 0) => {
         if (!target) return;
-        
+
         gsap.to(window, {
             duration: 1,
             scrollTo: { y: typeof target === 'string' ? document.querySelector(target) : target, offsetY: offset },
@@ -191,15 +191,15 @@ function initializeSmoothScroll() {
 function initializeNavigation() {
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const navLinks = document.getElementById('navLinks');
-    
+
     if (mobileMenuBtn && navLinks) {
         mobileMenuBtn.addEventListener('click', () => {
             const isActive = navLinks.classList.contains('mobile-active');
-            
+
             // Toggle menu with simplified animation
             if (!isActive) {
                 navLinks.classList.add('mobile-active');
-                gsap.fromTo(navLinks, 
+                gsap.fromTo(navLinks,
                     { opacity: 0, y: -10 },
                     { opacity: 1, y: 0, duration: 0.3, ease: "power1.out" }
                 );
@@ -216,7 +216,7 @@ function initializeNavigation() {
                 mobileMenuBtn.textContent = '☰';
             }
         });
-        
+
         // Close menu on link click
         navLinks.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
@@ -225,13 +225,13 @@ function initializeNavigation() {
             });
         });
     }
-    
+
     // Set active link
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     document.querySelectorAll('.nav-link').forEach(link => {
         const href = link.getAttribute('href');
-        link.classList.toggle('active', 
-            href === currentPage || 
+        link.classList.toggle('active',
+            href === currentPage ||
             (currentPage === '' && href === 'index.html') ||
             (currentPage === 'index.html' && href === 'index.html')
         );
@@ -243,36 +243,48 @@ function initializeNavigation() {
  */
 function initializeLanguageSwitch() {
     const langButtons = document.querySelectorAll('.lang-btn');
-    
+
     if (langButtons.length === 0) return;
-    
+
     langButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             const selectedLang = this.getAttribute('data-lang');
-            
+
             // Remove active class from all buttons
             langButtons.forEach(btn => btn.classList.remove('active'));
-            
+
             // Add active class to clicked button
             this.classList.add('active');
-            
+
             // Save language preference
             localStorage.setItem('preferredLanguage', selectedLang);
-            
-            // Get current page
-            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-            
+
+            // Get current path
+            const currentPath = window.location.pathname;
+
             // Switch language
             if (selectedLang === 'nl') {
                 // Redirect to Dutch version
-                window.location.href = `/nl/${currentPage}`;
+                if (currentPath.startsWith('/nl/')) {
+                    // Already on Dutch version
+                    return;
+                } else {
+                    // Add /nl/ prefix
+                    window.location.href = `/nl${currentPath}`;
+                }
             } else {
                 // Redirect to English version (remove /nl/ if present)
-                window.location.href = `/${currentPage}`;
+                if (currentPath.startsWith('/nl/')) {
+                    // Remove /nl/ prefix
+                    window.location.href = currentPath.replace('/nl/', '/');
+                } else {
+                    // Already on English version
+                    return;
+                }
             }
         });
     });
-    
+
     // Load saved language preference on page load
     const savedLang = localStorage.getItem('preferredLanguage') || 'en';
     const activeBtn = document.querySelector(`.lang-btn[data-lang="${savedLang}"]`);
@@ -283,7 +295,7 @@ function initializeLanguageSwitch() {
 }
 
 // Initialize everything when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializeNavigation();
     initializeLanguageSwitch();
 });
@@ -294,17 +306,17 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeScrollEffects() {
     const navbar = document.querySelector('.navbar');
     const heroSection = document.querySelector('.hero, .blog-header');
-    
+
     if (navbar && heroSection) {
         let isScrolled = false;
-        
+
         const updateNavbar = throttle(() => {
             const shouldScroll = window.scrollY > (heroSection.offsetHeight - 100);
-            
+
             if (shouldScroll !== isScrolled) {
                 isScrolled = shouldScroll;
                 navbar.classList.toggle('scrolled', shouldScroll);
-                
+
                 if (shouldScroll) {
                     navbar.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
                     navbar.style.backdropFilter = 'blur(10px)';
@@ -316,7 +328,7 @@ function initializeScrollEffects() {
                 }
             }
         }, 100);
-        
+
         window.addEventListener('scroll', updateNavbar, { passive: true });
         updateNavbar(); // Initial call
     }
@@ -337,79 +349,79 @@ function initializeFormHandling() {
  */
 function handleContactFormSubmit(e) {
     e.preventDefault();
-    
+
     const formData = {
         name: document.getElementById('name')?.value?.trim() || '',
         email: document.getElementById('email')?.value?.trim() || '',
         company: document.getElementById('company')?.value?.trim() || '',
         automation: document.getElementById('automation')?.value?.trim() || ''
     };
-    
+
     if (!formData.name || !formData.email) {
         showNotification('Please fill in all required fields.', 'error');
         return;
     }
-    
+
     if (!isValidEmail(formData.email)) {
         showNotification('Please enter a valid email address.', 'error');
         return;
     }
-    
+
     const submitBtn = e.target.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
-    
+
     submitBtn.textContent = '⏳ Sending...';
     submitBtn.disabled = true;
-    
+
     const scriptUrl = 'https://script.google.com/macros/s/AKfycbyq0Y_ILIVb2Ubs9Ye1FKuqLw7LHpOz7u9ZkxHStd_T7EVUaeds9ZqUZRnIzU3h4I1PrQ/exec';
-    
+
     fetch(scriptUrl, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
     })
-    .then(() => {
-        showNotification('Thank you! Your message has been sent successfully. We\'ll get back to you within 24 hours.', 'success');
-        e.target.reset();
-    })
-    .catch(error => {
-        console.error('❌ Contact form submission error:', error);
-        showNotification('Sorry, there was an error sending your message. Please try again or email us directly.', 'error');
-    })
-    .finally(() => {
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-    });
+        .then(() => {
+            showNotification('Thank you! Your message has been sent successfully. We\'ll get back to you within 24 hours.', 'success');
+            e.target.reset();
+        })
+        .catch(error => {
+            console.error('❌ Contact form submission error:', error);
+            showNotification('Sorry, there was an error sending your message. Please try again or email us directly.', 'error');
+        })
+        .finally(() => {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        });
 }
 
 // Newsletter - constant moved to function scope for better memory usage
 function initializeNewsletter() {
     const emailInput = document.querySelector('input[type="email"]');
-    
+
     if (emailInput) {
         const newsletterButton = emailInput.nextElementSibling;
-        
+
         if (newsletterButton && newsletterButton.classList.contains('cta-button')) {
             newsletterButton.addEventListener('click', async (e) => {
                 e.preventDefault();
-                
+
                 const email = emailInput.value.trim();
-                
+
                 if (!email) {
                     showNotification('Please enter your email address.', 'error');
                     return;
                 }
-                
+
                 if (!isValidEmail(email)) {
                     showNotification('Please enter a valid email address.', 'error');
                     return;
                 }
-                
+
                 const originalText = e.target.textContent;
                 e.target.textContent = 'Subscribing...';
                 e.target.disabled = true;
-                
+
                 try {
                     await fetch('https://script.google.com/macros/s/AKfycbyee7JkEOt3kgtLiYHBRc--cbBf3p2GaxKN15Yq_fTlVpfE7VRArUpy9jf-9j0uB8wG/exec', {
                         method: 'POST',
@@ -417,7 +429,7 @@ function initializeNewsletter() {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: email })
                     });
-                    
+
                     showNotification('🎉 Successfully subscribed! Check your email for a welcome message.', 'success');
                     emailInput.value = '';
                 } catch (error) {
@@ -440,20 +452,20 @@ function initializeCTAButtons() {
         if (button.previousElementSibling && button.previousElementSibling.type === 'email') {
             return;
         }
-        
+
         // Identify button type by text and href
         const buttonText = button.textContent.toLowerCase().trim();
         const buttonHref = button.getAttribute('href');
-        
+
         // Let normal links work normally
-        if (buttonText.includes('view full case study') || 
+        if (buttonText.includes('view full case study') ||
             (buttonHref && (buttonHref.includes('Project') || buttonHref.includes('.html')))) {
             return;
         }
-        
+
         // Attach specific handlers based on button text
-        if (buttonText.includes('book') || 
-            buttonText.includes('audit') || 
+        if (buttonText.includes('book') ||
+            buttonText.includes('audit') ||
             buttonText.includes('start your project') ||
             buttonText.includes('schedule') ||
             buttonText.includes('get your free') ||
@@ -496,7 +508,7 @@ function showNotification(message, type = 'info') {
     document.querySelectorAll('.notification').forEach(notification => {
         notification.remove();
     });
-    
+
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
@@ -506,7 +518,7 @@ function showNotification(message, type = 'info') {
             <button class="notification-close">&times;</button>
         </div>
     `;
-    
+
     // Add styles if not already present
     if (!document.querySelector('#notification-styles')) {
         const styles = document.createElement('style');
@@ -572,17 +584,17 @@ function showNotification(message, type = 'info') {
         `;
         document.head.appendChild(styles);
     }
-    
+
     // Add to page
     document.body.appendChild(notification);
-    
+
     // Auto-remove after 5 seconds
     const autoRemoveTimeout = setTimeout(() => {
         if (notification.parentNode) {
             notification.remove();
         }
     }, 5000);
-    
+
     // Handle close button
     notification.querySelector('.notification-close').addEventListener('click', () => {
         clearTimeout(autoRemoveTimeout);
@@ -598,13 +610,13 @@ function initializeAnimations() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 const element = entry.target;
-                
+
                 // Simplified animations - just fade in everything
                 gsap.fromTo(element,
                     { y: 30, opacity: 0 },
                     { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }
                 );
-                
+
                 observer.unobserve(element);
             }
         });
@@ -612,7 +624,7 @@ function initializeAnimations() {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
     });
-    
+
     // Observe elements that should animate
     document.querySelectorAll('.feature-card, .step, .pricing-card, .testimonial, .blog-card, .portfolio-card, .work-stats .stat-item')
         .forEach(el => observer.observe(el));
@@ -624,14 +636,14 @@ function initializeAnimations() {
 function initializeGSAPInteractions() {
     // Only run on desktop
     if (window.innerWidth < 1024) return;
-    
+
     // Simple hover effects for cards
     document.querySelectorAll('.feature-card, .testimonial, .step')
         .forEach(card => {
             card.addEventListener('mouseenter', () => {
                 gsap.to(card, { y: -5, duration: 0.3, ease: "power2.out" });
             });
-            
+
             card.addEventListener('mouseleave', () => {
                 gsap.to(card, { y: 0, duration: 0.3, ease: "power2.out" });
             });
@@ -643,7 +655,7 @@ function initializeGSAPInteractions() {
  */
 function debounce(func, wait) {
     let timeout;
-    return function(...args) {
+    return function (...args) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func(...args), wait);
     };
@@ -651,7 +663,7 @@ function debounce(func, wait) {
 
 function throttle(func, limit) {
     let inThrottle;
-    return function() {
+    return function () {
         if (!inThrottle) {
             func.apply(this, arguments);
             inThrottle = true;
@@ -661,13 +673,13 @@ function throttle(func, limit) {
 }
 
 // RequestIdleCallback polyfill
-window.requestIdleCallback = window.requestIdleCallback || 
-    function(cb) {
-        return setTimeout(function() {
+window.requestIdleCallback = window.requestIdleCallback ||
+    function (cb) {
+        return setTimeout(function () {
             var start = Date.now();
             cb({
                 didTimeout: false,
-                timeRemaining: function() {
+                timeRemaining: function () {
                     return Math.max(0, 50 - (Date.now() - start));
                 }
             });
