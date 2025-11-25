@@ -292,6 +292,63 @@ function initializeLanguageSwitch() {
         langButtons.forEach(btn => btn.classList.remove('active'));
         activeBtn.classList.add('active');
     }
+
+    // Localize all internal links based on current language
+    localizeInternalLinks();
+}
+
+/**
+ * Localize all internal links to match current language
+ */
+function localizeInternalLinks() {
+    const currentPath = window.location.pathname;
+    const isOnDutchVersion = currentPath.startsWith('/nl/');
+
+    // Find all internal links (relative links that don't start with http)
+    document.querySelectorAll('a[href]').forEach(link => {
+        const href = link.getAttribute('href');
+
+        // Skip external links, anchors, and special links
+        if (!href ||
+            href.startsWith('http') ||
+            href.startsWith('#') ||
+            href.startsWith('mailto:') ||
+            href.startsWith('tel:')) {
+            return;
+        }
+
+        // Skip if already processed
+        if (link.hasAttribute('data-localized')) {
+            return;
+        }
+
+        // Mark as processed
+        link.setAttribute('data-localized', 'true');
+
+        // Convert relative paths to absolute
+        let absolutePath = href;
+        if (href.startsWith('../')) {
+            // Remove ../ and add /
+            absolutePath = '/' + href.replace(/\.\.\//g, '');
+        } else if (href.startsWith('./')) {
+            // Remove ./ and add current directory
+            const currentDir = currentPath.substring(0, currentPath.lastIndexOf('/'));
+            absolutePath = currentDir + '/' + href.substring(2);
+        } else if (!href.startsWith('/')) {
+            // Relative to current directory
+            const currentDir = currentPath.substring(0, currentPath.lastIndexOf('/'));
+            absolutePath = currentDir + '/' + href;
+        }
+
+        // Add /nl/ prefix if on Dutch version and not already there
+        if (isOnDutchVersion && !absolutePath.startsWith('/nl/')) {
+            link.setAttribute('href', '/nl' + absolutePath);
+        }
+        // Remove /nl/ prefix if on English version and it's there
+        else if (!isOnDutchVersion && absolutePath.startsWith('/nl/')) {
+            link.setAttribute('href', absolutePath.replace('/nl/', '/'));
+        }
+    });
 }
 
 // Initialize everything when DOM is ready
