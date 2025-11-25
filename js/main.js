@@ -265,10 +265,7 @@ function initializeLanguageSwitch() {
             // Switch language
             if (selectedLang === 'nl') {
                 // Redirect to Dutch version
-                if (currentPath.startsWith('/nl/')) {
-                    // Already on Dutch version
-                    return;
-                } else {
+                if (!currentPath.startsWith('/nl/')) {
                     // Add /nl/ prefix
                     window.location.href = `/nl${currentPath}`;
                 }
@@ -277,9 +274,6 @@ function initializeLanguageSwitch() {
                 if (currentPath.startsWith('/nl/')) {
                     // Remove /nl/ prefix
                     window.location.href = currentPath.replace('/nl/', '/');
-                } else {
-                    // Already on English version
-                    return;
                 }
             }
         });
