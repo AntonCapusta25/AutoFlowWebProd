@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://autoflowstudio.net/sitemap.xml
+Sitemap: https://www.autoflowstudio.net/sitemap.xml
 
 # Allow all major search engines
 User-agent: Googlebot
@@ -14,11 +14,9 @@ Allow: /
 User-agent: Slurp
 Allow: /
 
-# Block access to sensitive files if any exist
-Disallow: /js/
-Disallow: /css/
-Disallow: /*.js$
-Disallow: /*.css$
+# IMPORTANT: CSS and JS are now ALLOWED
+# Google needs to render your site properly for mobile-first indexing
+# Blocking CSS/JS hurts your SEO ranking
 
 # Allow robots to access images and videos
 Allow: /images/

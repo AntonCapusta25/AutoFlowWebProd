@@ -1,3 +1,115 @@
 {
-  "cleanUrls": true
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/10%20repetitive%20tasks.html",
+      "destination": "/blog/10-repetitive-tasks.html",
+      "permanent": true
+    },
+    {
+      "source": "/5%20Ways%20to%20Customer.html",
+      "destination": "/blog/5-ways-to-customer.html",
+      "permanent": true
+    },
+    {
+      "source": "/5%20signs.html",
+      "destination": "/blog/5-signs.html",
+      "permanent": true
+    },
+    {
+      "source": "/Automation%20Intro.html",
+      "destination": "/blog/automation-intro.html",
+      "permanent": true
+    },
+    {
+      "source": "/BPA%20Guide.html",
+      "destination": "/blog/bpa-guide.html",
+      "permanent": true
+    },
+    {
+      "source": "/BPA%20vs%20Workflow.html",
+      "destination": "/blog/bpa-vs-workflow.html",
+      "permanent": true
+    },
+    {
+      "source": "/E-commerce%20SMEs.html",
+      "destination": "/blog/e-commerce-smes.html",
+      "permanent": true
+    },
+    {
+      "source": "/Guide%20for%20SME.html",
+      "destination": "/blog/guide-for-sme.html",
+      "permanent": true
+    },
+    {
+      "source": "/Hidden%20cost.html",
+      "destination": "/blog/hidden-cost.html",
+      "permanent": true
+    },
+    {
+      "source": "/Invoicing%20guide.html",
+      "destination": "/blog/invoicing-guide.html",
+      "permanent": true
+    },
+    {
+      "source": "/Outgrown%20Zapier.html",
+      "destination": "/blog/outgrown-zapier.html",
+      "permanent": true
+    },
+    {
+      "source": "/bottlenecks%20guide.html",
+      "destination": "/blog/bottlenecks-guide.html",
+      "permanent": true
+    },
+    {
+      "source": "/documents%20drowning.html",
+      "destination": "/blog/documents-drowning.html",
+      "permanent": true
+    },
+    {
+      "source": "/how%20to%20choose.html",
+      "destination": "/blog/how-to-choose.html",
+      "permanent": true
+    },
+    {
+      "source": "/no-code%20outgrown.html",
+      "destination": "/blog/no-code-outgrown.html",
+      "permanent": true
+    },
+    {
+      "source": "/working%20for%20you.html",
+      "destination": "/blog/working-for-you.html",
+      "permanent": true
+    },
+    {
+      "source": "/zapier%20expert.html",
+      "destination": "/blog/zapier-expert.html",
+      "permanent": true
+    },
+    {
+      "source": "/zapier%20vs%20custom.html",
+      "destination": "/blog/zapier-vs-custom.html",
+      "permanent": true
+    },
+    {
+      "source": "/project1.html",
+      "destination": "/projects/project-1.html",
+      "permanent": true
+    },
+    {
+      "source": "/project2.html",
+      "destination": "/projects/project-2.html",
+      "permanent": true
+    },
+    {
+      "source": "/Project3.html",
+      "destination": "/projects/project-3.html",
+      "permanent": true
+    },
+    {
+      "source": "/Project4.html",
+      "destination": "/projects/project-4.html",
+      "permanent": true
+    }
+  ]
 }
