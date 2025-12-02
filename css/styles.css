@@ -2984,6 +2984,27 @@ nav.navbar::after {
     .hero-image-container {
         height: 350px;
     }
+
+    /* Logos section tablet optimization */
+    .logos-section {
+        margin: 0 -40px;
+        padding-top: 25px;
+    }
+
+    .logos-label {
+        font-size: 11px;
+        padding: 0 40px;
+    }
+
+    .logo-item {
+        padding: 0 30px;
+        min-width: 160px;
+    }
+
+    .logo-placeholder {
+        font-size: 16px;
+        padding: 10px 20px;
+    }
 }
 
 @media (max-width: 640px) {
@@ -2993,6 +3014,10 @@ nav.navbar::after {
 
     .hero-text-new h1 {
         font-size: 42px;
+    }
+
+    .hero-text-new p {
+        font-size: 16px;
     }
 
     .quote-form {
@@ -3005,5 +3030,35 @@ nav.navbar::after {
 
     .submit-button-new {
         width: 100%;
+    }
+
+    /* Logos section mobile optimization */
+    .logos-section {
+        margin: 0 -20px;
+        padding-top: 20px;
+        margin-top: 30px;
+    }
+
+    .logos-label {
+        font-size: 10px;
+        letter-spacing: 1px;
+        padding: 0 20px;
+        margin-bottom: 15px;
+    }
+
+    .logos-track-container::before,
+    .logos-track-container::after {
+        width: 40px;
+    }
+
+    .logo-item {
+        padding: 0 20px;
+        min-width: 140px;
+    }
+
+    .logo-placeholder {
+        font-size: 14px;
+        padding: 8px 16px;
+        border-width: 1.5px;
     }
 }
