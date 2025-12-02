@@ -2861,8 +2861,12 @@ nav.navbar::after {
 .logos-section {
     padding-top: 15px;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
-    margin: 0 -60px;
-    /* Break out of container to span full width */
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
     padding-left: 0;
     padding-right: 0;
 }
@@ -2987,8 +2991,8 @@ nav.navbar::after {
 
     /* Logos section tablet optimization */
     .logos-section {
-        margin: 0 -40px;
         padding-top: 25px;
+        /* Keep full width logic from main class */
     }
 
     .logos-label {
@@ -3034,9 +3038,9 @@ nav.navbar::after {
 
     /* Logos section mobile optimization */
     .logos-section {
-        margin: 0 -20px;
         padding-top: 20px;
         margin-top: 30px;
+        /* Keep full width logic from main class */
     }
 
     .logos-label {
