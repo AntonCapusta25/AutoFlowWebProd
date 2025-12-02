@@ -745,3 +745,42 @@ window.AutoFlowStudio = {
     throttle,
     smoothScrollTo: null // Will be set after initialization
 };
+
+/**
+ * Quote Form Handler
+ * Handles the "Get a Quick Quote" form submission
+ */
+function initializeQuoteForm() {
+    const quoteForm = document.getElementById('quoteForm');
+    if (!quoteForm) return;
+
+    quoteForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const input = document.getElementById('automationInput');
+        const value = input.value.trim();
+        
+        if (value) {
+            // Show success notification
+            showNotification('Quote request received! We will contact you soon.', 'success');
+            
+            // Clear the input
+            input.value = '';
+            
+            // Optional: Send to analytics or backend
+            console.log('Quote request for:', value);
+            
+            // You can also redirect to contact page with the query
+            // setTimeout(() => {
+            //     window.location.href = `contact.html?automation=${encodeURIComponent(value)}`;
+            // }, 1500);
+        }
+    });
+}
+
+// Add to initialization
+document.addEventListener('DOMContentLoaded', () => {
+    // Add quote form initialization to existing setup
+    setTimeout(() => {
+        initializeQuoteForm();
+    }, 10);
+});
