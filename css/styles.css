@@ -16,7 +16,7 @@ body:not(.loaded) .footer {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #e91e63 0%, #f06292 25%, #ba68c8 50%, #9c27b0 75%, #7b1fa2 100%);
+    background: #0F1115;
     z-index: 99999;
     display: flex;
     align-items: center;
@@ -106,11 +106,34 @@ nav::after {
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
-    color: #1a1a1a;
-    background: #ffffff;
+    background: #0F1115;
+    color: #F8FAFC;
     overflow-x: hidden;
-    margin: 0;
-    padding: 0;
+    position: relative;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+    background-color: #0F1115;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0F1115;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #2d3748;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4a5568;
 }
 
 /* Ensure no white gaps */
@@ -118,7 +141,6 @@ html,
 body {
     margin: 0;
     padding: 0;
-    background: transparent;
 }
 
 /* Navigation */
@@ -269,7 +291,7 @@ nav.navbar::after {
         left: -100%;
         width: 100%;
         height: calc(100vh - 70px);
-        background: linear-gradient(135deg, rgba(233, 30, 99, 0.98), rgba(156, 39, 176, 0.98));
+        background: rgba(15, 17, 21, 0.98);
         backdrop-filter: blur(20px);
         flex-direction: column;
         gap: 0;
@@ -414,10 +436,23 @@ nav.navbar::after {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background: linear-gradient(135deg, #e91e63 0%, #f06292 25%, #ba68c8 50%, #9c27b0 75%, #7b1fa2 100%);
+    background: url('../images/hero-bg-dark-v2.png') no-repeat center bottom;
+    background-size: cover;
+    background-color: #0F1115;
+    /* Fallback */
     z-index: 1;
     margin: 0;
+    margin: 0;
     top: 0;
+    /* Removed mask to allow pixel-perfect match with next section */
+}
+
+/* Gradient Overlay for Smooth Transition */
+/* Gradient Overlay removed to fix black line issue */
+
+/* Hide old animated spheres/background elements */
+.hero-background {
+    display: none !important;
 }
 
 .hero-background {
@@ -687,10 +722,18 @@ nav.navbar::after {
 
 /* Work Examples Carousel */
 .work-examples {
-    background: white;
+    background: #0F1115 !important;
     padding: 80px 20px;
     position: relative;
     overflow: hidden;
+}
+
+.work-examples .section-title {
+    color: #F8FAFC !important;
+}
+
+.work-examples .section-subtitle {
+    color: #94A3B8 !important;
 }
 
 .carousel-container {
@@ -702,9 +745,10 @@ nav.navbar::after {
 .carousel-wrapper {
     overflow: hidden;
     border-radius: 25px;
-    box-shadow: 0 10px 40px rgba(233, 30, 99, 0.08);
-    background: white;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    background: #1A1D24;
     position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .carousel-track {
@@ -714,11 +758,10 @@ nav.navbar::after {
 
 .carousel-slide {
     min-width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    align-items: center;
-    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: 50px 60px;
 }
 
 .carousel-controls {
@@ -815,12 +858,14 @@ nav.navbar::after {
 /* Video Container - Outer wrapper with consistent styling */
 .video-container {
     position: relative;
-    background: linear-gradient(135deg, #f3e5f5, #fce4ec);
+    background: linear-gradient(135deg, #1E293B, #0F172A);
     border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 10px 30px rgba(233, 30, 99, 0.1);
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
     width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
     box-sizing: border-box;
 }
 
@@ -833,13 +878,24 @@ nav.navbar::after {
 .video-wrapper {
     position: relative;
     width: 100%;
-    height: 300px;
+    padding-bottom: 56.25%;
+    /* 16:9 aspect ratio */
+    height: 0;
     border-radius: 15px;
     overflow: hidden;
     background: #000;
     margin-bottom: 20px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     cursor: pointer;
+}
+
+.video-wrapper iframe,
+.video-wrapper .youtube-player {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 /* Video Element */
@@ -1022,13 +1078,13 @@ nav.navbar::after {
 .video-title {
     font-size: 1.2rem;
     font-weight: 600;
-    color: #1a1a1a;
+    color: #F8FAFC;
     margin-bottom: 10px;
     text-align: left;
 }
 
 .video-description {
-    color: #6b7280;
+    color: #94A3B8;
     font-size: 0.95rem;
     line-height: 1.5;
     text-align: left;
@@ -1060,38 +1116,45 @@ nav.navbar::after {
 }
 
 /* Work Content Styles */
+.work-content {
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+}
+
 .work-content h2 {
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 20px;
-    color: #1a1a1a;
+    color: #F8FAFC;
 }
 
 .work-content p {
     font-size: 1.2rem;
-    color: #6b7280;
+    color: #94A3B8;
     margin-bottom: 30px;
     line-height: 1.6;
 }
 
 .work-stats {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 25px;
     margin-bottom: 40px;
 }
 
 .stat-item {
     text-align: center;
     padding: 20px;
-    background: linear-gradient(135deg, #fce4ec, #f3e5f5);
+    background: linear-gradient(135deg, #1E293B, #0F172A);
     border-radius: 15px;
     transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .stat-item:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(233, 30, 99, 0.1);
+    box-shadow: 0 10px 25px rgba(233, 30, 99, 0.15);
 }
 
 .stat-number {
@@ -1116,7 +1179,7 @@ nav.navbar::after {
 }
 
 .section {
-    padding: 80px 20px;
+    padding: 40px 20px;
 }
 
 .section-title {
@@ -1124,13 +1187,13 @@ nav.navbar::after {
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 20px;
-    color: #1a1a1a;
+    color: #F8FAFC;
 }
 
 .section-subtitle {
     text-align: center;
     font-size: 1.2rem;
-    color: #6b7280;
+    color: #94A3B8;
     margin-bottom: 60px;
     max-width: 600px;
     margin-left: auto;
@@ -1144,14 +1207,29 @@ nav.navbar::after {
     margin-bottom: 80px;
 }
 
+.timeline-content {
+    background: #1A1D24;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 2;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 .feature-card {
-    background: white;
+    background: #1A1D24;
     padding: 40px 30px;
     border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     text-align: center;
     transition: all 0.3s ease;
-    border: 1px solid #f1f5f9;
+    border: 1px solid rgba(255, 255, 255, 0.05);
     cursor: pointer;
 }
 
@@ -1175,15 +1253,29 @@ nav.navbar::after {
     font-weight: bold;
 }
 
+.timeline-content h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #F8FAFC;
+}
+
+.timeline-content p {
+    color: #94A3B8;
+    line-height: 1.6;
+    font-size: 1rem;
+    margin: 0;
+}
+
 .feature-card h3 {
     font-size: 1.5rem;
     font-weight: 600;
-    margin-bottom: 15px;
-    color: #1a1a1a;
+    margin-bottom: 1rem;
+    color: #F8FAFC;
 }
 
 .feature-card p {
-    color: #6b7280;
+    color: #94A3B8;
     line-height: 1.6;
 }
 
@@ -1206,6 +1298,15 @@ nav.navbar::after {
 .step:hover {
     background: rgba(233, 30, 99, 0.05);
     transform: translateY(-10px);
+}
+
+.step h3 {
+    color: #F8FAFC;
+    margin: 10px 0;
+}
+
+.step p {
+    color: #94A3B8;
 }
 
 .step:hover .step-number {
@@ -1237,7 +1338,7 @@ nav.navbar::after {
 }
 
 .pricing-card {
-    background: white;
+    background: #1A1D24;
     border: 2px solid #e5e7eb;
     border-radius: 20px;
     padding: 40px 30px;
@@ -1258,6 +1359,13 @@ nav.navbar::after {
     box-shadow: 0 20px 40px rgba(233, 30, 99, 0.1);
 }
 
+.pricing-section {
+    background: #0F1115 !important;
+    padding: 100px 0;
+    position: relative;
+    z-index: 10;
+}
+
 .pricing-card.featured:hover {
     transform: translateY(-5px) scale(1.05);
 }
@@ -1270,7 +1378,8 @@ nav.navbar::after {
 }
 
 .testimonials {
-    background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
+    background: #0F1115 !important;
+    color: #F8FAFC;
 }
 
 .testimonial-grid {
@@ -1281,26 +1390,30 @@ nav.navbar::after {
 }
 
 .testimonial {
-    background: white;
+    background: #1A1D24;
     padding: 30px;
     border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .testimonial-text {
-    font-style: italic;
+    font-size: 1.1rem;
+    color: #94A3B8;
     margin-bottom: 20px;
-    color: #4a5568;
+    font-style: italic;
+    line-height: 1.6;
 }
 
 .testimonial-author {
     font-weight: 600;
-    color: #1a1a1a;
+    color: #F8FAFC;
+    font-size: 1rem;
 }
 
 /* Blog Page Styles */
 .blog-header {
-    background: linear-gradient(135deg, #e91e63 0%, #f06292 25%, #ba68c8 50%, #9c27b0 75%, #7b1fa2 100%);
+    background: #0F1115;
     padding: 70px 20px 80px;
     text-align: center;
     position: relative;
@@ -1407,11 +1520,13 @@ nav.navbar::after {
 }
 
 .blog-card {
-    background: white;
+    background: #1A1D24;
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .blog-card:hover {
@@ -1455,8 +1570,10 @@ nav.navbar::after {
 
 .blog-meta {
     display: flex;
-    gap: 15px;
-    margin-bottom: 15px;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .blog-tag {
@@ -1500,7 +1617,7 @@ nav.navbar::after {
 }
 
 .portfolio-card {
-    background: white;
+    background: #1A1D24;
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -1513,7 +1630,7 @@ nav.navbar::after {
 }
 
 .portfolio-header {
-    background: linear-gradient(135deg, #e91e63 0%, #f06292 25%, #ba68c8 50%, #9c27b0 75%, #7b1fa2 100%);
+    background: #0F1115;
     color: white;
     padding: 30px;
     text-align: center;
@@ -1526,11 +1643,13 @@ nav.navbar::after {
 }
 
 .portfolio-industry {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
     padding: 5px 15px;
     border-radius: 15px;
     display: inline-block;
     font-size: 0.9rem;
+    color: #F8FAFC;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .portfolio-content {
@@ -1543,12 +1662,12 @@ nav.navbar::after {
 
 .portfolio-section h4 {
     font-weight: 600;
-    color: #1a1a1a;
+    color: #F8FAFC;
     margin-bottom: 8px;
 }
 
 .portfolio-section p {
-    color: #6b7280;
+    color: #94A3B8;
     line-height: 1.6;
 }
 
@@ -1559,12 +1678,13 @@ nav.navbar::after {
 }
 
 .tool-tag {
-    background: #e6f3ff;
-    color: #0066cc;
+    background: rgba(33, 150, 243, 0.15);
+    color: #64B5F6;
     padding: 5px 12px;
     border-radius: 15px;
     font-size: 0.85rem;
     font-weight: 500;
+    border: 1px solid rgba(33, 150, 243, 0.3);
 }
 
 /* Contact Page Styles */
@@ -1577,10 +1697,11 @@ nav.navbar::after {
 }
 
 .contact-form {
-    background: white;
+    background: #1A1D24;
     padding: 40px;
     border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .form-group {
@@ -1591,18 +1712,20 @@ nav.navbar::after {
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
-    color: #1a1a1a;
+    color: #F8FAFC;
 }
 
 .form-group input,
 .form-group textarea {
     width: 100%;
     padding: 15px;
-    border: 2px solid #e5e7eb;
+    background: #0F1115;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     font-size: 1rem;
     font-family: inherit;
-    transition: border-color 0.3s ease;
+    transition: all 0.3s ease;
+    color: #F8FAFC;
 }
 
 .form-group input:focus,
@@ -1628,11 +1751,11 @@ nav.navbar::after {
     font-size: 1.3rem;
     font-weight: 600;
     margin-bottom: 15px;
-    color: #1a1a1a;
+    color: #F8FAFC;
 }
 
 .contact-item p {
-    color: #6b7280;
+    color: #94A3B8;
     line-height: 1.6;
 }
 
@@ -1666,10 +1789,11 @@ nav.navbar::after {
 
 /* Enhanced Footer Styles */
 .footer {
-    padding: 60px 0 40px 0;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-    color: white;
-    text-align: center;
+    background: #0B0D10;
+    color: #F8FAFC;
+    padding: 80px 0 40px;
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .footer-content {
@@ -1937,9 +2061,8 @@ nav.navbar::after {
     }
 
     .carousel-slide {
-        grid-template-columns: 1fr;
+        padding: 30px 20px;
         gap: 30px;
-        padding: 20px 15px;
     }
 
     .carousel-controls {
@@ -1961,11 +2084,12 @@ nav.navbar::after {
 
     /* Video Container - Mobile */
     .video-container {
-        padding: 25px 20px;
+        padding: 20px;
     }
 
     .video-wrapper {
-        height: 250px;
+        padding-bottom: 56.25%;
+        /* Maintain 16:9 aspect ratio */
         margin-bottom: 15px;
     }
 
@@ -2018,7 +2142,7 @@ nav.navbar::after {
     }
 
     .stat-item {
-        padding: 15px;
+        padding: 20px 15px;
     }
 
     .stat-number {
@@ -2073,7 +2197,7 @@ nav.navbar::after {
     }
 
     .testimonial {
-        background: white;
+        background: #1A1D24;
         padding: 25px 20px;
         border-radius: 12px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
@@ -2227,7 +2351,7 @@ nav.navbar::after {
     }
 
     .section-subtitle {
-        font-size: 1rem;
+        font-size: 1.1rem;
         padding: 0 5px;
     }
 
@@ -2441,7 +2565,7 @@ nav.navbar::after {
 
     .play-button:hover,
     .pause-button:hover {
-        background: #fff;
+        background: #1A1D24;
         color: #000;
     }
 }
@@ -2705,7 +2829,7 @@ nav.navbar::after {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: #ffffff;
+    background: #1A1D24;
     color: #e91e63;
     /* Brand color text */
     padding: 18px 40px;
@@ -2859,10 +2983,12 @@ nav.navbar::after {
 
 /* ========== LOGOS SECTION ========== */
 .logos-section {
-    padding-top: 15px;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 0;
+    border-top: none;
     width: 100vw;
     position: relative;
+    z-index: 10;
+    background: transparent;
     left: 50%;
     right: 50%;
     margin-left: -50vw;
@@ -3065,4 +3191,11 @@ nav.navbar::after {
         padding: 8px 16px;
         border-width: 1.5px;
     }
+}
+
+/* FORCE GLOBAL DARK BACKGROUND */
+html,
+body {
+    background-color: #0F1115 !important;
+    min-height: 100vh;
 }
