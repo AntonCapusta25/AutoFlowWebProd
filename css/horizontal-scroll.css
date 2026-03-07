@@ -125,7 +125,7 @@
 
 /* Individual gradient backgrounds */
 .project-card:nth-child(1) .timeline-image-placeholder {
-    background: linear-gradient(135deg, #4285F4, #34A853);
+    background: linear-gradient(135deg, #e91e63, #9c27b0);
 }
 
 .project-card:nth-child(2) .timeline-image-placeholder {
@@ -133,15 +133,15 @@
 }
 
 .project-card:nth-child(3) .timeline-image-placeholder {
-    background: linear-gradient(135deg, #00b894, #00cec9);
+    background: linear-gradient(135deg, #e91e63, #c2185b);
 }
 
 .project-card:nth-child(4) .timeline-image-placeholder {
-    background: linear-gradient(135deg, #F47A44, #FF6B35);
+    background: linear-gradient(135deg, #8e24aa, #9c27b0);
 }
 
 .project-card:nth-child(5) .timeline-image-placeholder {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #e91e63, #ad1457);
 }
 
 .project-image-wrapper .video-wrapper {
@@ -167,23 +167,27 @@
 }
 
 .badge-blue {
-    background: rgba(219, 234, 254, 0.95);
-    color: #1e40af;
+    background: rgba(233, 30, 99, 0.15);
+    color: #f48fb1;
+    border: 1px solid rgba(233, 30, 99, 0.2);
 }
 
 .badge-purple {
-    background: rgba(243, 232, 255, 0.95);
-    color: #6b21a8;
+    background: rgba(156, 39, 176, 0.15);
+    color: #ce93d8;
+    border: 1px solid rgba(156, 39, 176, 0.2);
 }
 
 .badge-green {
-    background: rgba(220, 252, 231, 0.95);
-    color: #15803d;
+    background: rgba(233, 30, 99, 0.15);
+    color: #f48fb1;
+    border: 1px solid rgba(233, 30, 99, 0.2);
 }
 
 .badge-orange {
-    background: rgba(254, 243, 199, 0.95);
-    color: #c2410c;
+    background: rgba(156, 39, 176, 0.15);
+    color: #ce93d8;
+    border: 1px solid rgba(156, 39, 176, 0.2);
 }
 
 /* Project Content */

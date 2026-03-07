@@ -40,7 +40,13 @@
     <script src="js/supabase.js" defer></script>
     <script src="js/gsap.js" defer></script>
 
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/cookies-banner.css">
     <link rel="stylesheet" href="css/horizontal-scroll.css">
+    <link rel="stylesheet" href="css/how-it-works-timeline.css">
+    <link rel="stylesheet" href="css/booking.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <script type="text/javascript"
@@ -121,6 +127,104 @@
   "inLanguage": "en"
 }
     </script>
+    <style>
+        .nav-item:hover {
+            color: #fff !important;
+        }
+
+        .nav-item.active {
+            color: #fff !important;
+        }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background-color: #F8FAFC;
+            border-radius: 50%;
+        }
+
+        .mobile-menu-sidebar {
+            display: none;
+        }
+
+        /* Mobile Navbar Styles */
+        @media (max-width: 768px) {
+            nav {
+                width: 95% !important;
+                padding: 10px 16px !important;
+            }
+
+            .mobile-menu-sidebar {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 280px;
+                height: 100vh;
+                background: rgba(26, 29, 36, 0.98);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 80px 30px 30px;
+                gap: 24px;
+                box-shadow: -5px 0 25px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 55;
+            }
+
+            .mobile-menu-sidebar.active {
+                right: 0;
+            }
+
+            .nav-links {
+                display: none !important;
+            }
+
+            .mobile-menu-sidebar .nav-item {
+                font-size: 18px;
+                font-weight: 600;
+                color: #F8FAFC;
+                text-decoration: none;
+                width: 100%;
+                padding: 12px 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            .mobile-menu-btn {
+                display: block !important;
+                margin-left: auto;
+            }
+
+            .nav-actions {
+                display: none !important;
+            }
+        }
+
+        /* Mobile Menu Overlay */
+        .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-menu-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+    </style>
 </head>
 
 <body>
@@ -131,22 +235,71 @@
             <div class="loading-progress"></div>
         </div>
     </div>
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="index.html" class="logo">AutoFlow Studio</a>
-            <ul class="nav-links" id="navLinks">
-                <li><a href="index.html" class="nav-link active">Home</a></li>
-                <li><a href="blog.html" class="nav-link">Blog</a></li>
-                <li><a href="portfolio.html" class="nav-link">Portfolio</a></li>
-                <li><a href="contact.html" class="nav-link">Contact</a></li>
-            </ul>
-            <div class="language-switch">
-                <button class="lang-btn active" data-lang="en">EN</button>
-                <button class="lang-btn" data-lang="nl">NL</button>
+    <nav
+        style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 1000px; z-index: 50; border-radius: 20px; padding: 10px 24px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; border: 1px solid rgba(255, 255, 255, 0.1); background-color: rgba(15, 17, 21, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);">
+        <a href="index.html" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+            <div style="height: 36px; width: auto;">
+                <span style="font-size: 20px; font-weight: 700; color: #F8FAFC;">AutoFlow Studio</span>
             </div>
-            <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+        </a>
+        <div class="nav-links"
+            style="display: flex; align-items: center; gap: 32px; font-weight: 500; font-size: 14px; letter-spacing: 0.05em;">
+            <a href="index.html" class="nav-item active"
+                style="color: #F8FAFC; text-decoration: none; position: relative; font-weight: 600;">Home</a>
+            <a href="blog.html" class="nav-item"
+                style="color: #94A3B8; text-decoration: none; transition: color 0.2s;">Blog</a>
+            <a href="portfolio.html" class="nav-item"
+                style="color: #94A3B8; text-decoration: none; transition: color 0.2s;">Portfolio</a>
+            <a href="contact.html" class="nav-item"
+                style="color: #94A3B8; text-decoration: none; transition: color 0.2s;">Contact</a>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn"
+            style="display: none; background: none; border: none; cursor: pointer; padding: 8px; z-index: 60;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F8FAFC" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+
+        <div style="display: flex; align-items: center; gap: 16px;" class="nav-actions">
+            <!-- Language Selector -->
+            <div style="display: flex; gap: 4px; padding: 4px; background: rgba(0,0,0,0.05); border-radius: 20px;">
+                <button class="lang-btn active" data-lang="en"
+                    style="border: none; cursor: pointer; padding: 4px 12px; border-radius: 16px; font-size: 12px; font-weight: 600; background: #2d3748; color: #F8FAFC; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">EN</button>
+                <button class="lang-btn" data-lang="nl"
+                    style="border: none; cursor: pointer; padding: 4px 12px; border-radius: 16px; font-size: 12px; font-weight: 600; color: #94A3B8; background: transparent;">NL</button>
+            </div>
+
+            <a href="https://autoflow.neetocal.com/meeting-with-auto-flow" target="_blank"
+                style="background: linear-gradient(135deg, #e91e63 0%, #9c27b0 100%); color: white; padding: 10px 24px; border-radius: 9999px; font-weight: 600; font-size: 14px; letter-spacing: 0.02em; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.2); transition: all 0.3s; text-decoration: none; display: inline-block; border: 1px solid rgba(255,255,255,0.1);"
+                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(233, 30, 99, 0.3)'"
+                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(233, 30, 99, 0.2)'">Book
+                Audit</a>
         </div>
     </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay"></div>
+
+    <!-- Mobile Menu Sidebar -->
+    <div class="mobile-menu-sidebar">
+        <button class="mobile-menu-close"
+            style="position: absolute; top: 20px; right: 20px; background: none; border: none; cursor: pointer; padding: 8px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F8FAFC" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        <a href="index.html" class="nav-item active">Home</a>
+        <a href="blog.html" class="nav-item">Blog</a>
+        <a href="portfolio.html" class="nav-item">Portfolio</a>
+        <a href="contact.html" class="nav-item">Contact</a>
+    </div>
 
     <main class="main-content">
         <section class="hero hero-section">
@@ -185,7 +338,9 @@
                         <p>Custom automation tools for startups, founders, and teams. From Google Sheets workflows to AI
                             chatbots - delivered in under 7 days.</p>
                         <a href="https://autoflow.neetocal.com/meeting-with-auto-flow" class="cta-button-new"
-                            target="_blank">Book Free Audit</a>
+                            target="_blank"
+                            style="background: linear-gradient(135deg, #e91e63, #9c27b0); border: none; box-shadow: 0 8px 32px rgba(233, 30, 99, 0.3);">Book
+                            Free Audit</a>
                     </div>
 
                     <!-- Right Side - Image Card -->
@@ -273,45 +428,211 @@
             </div>
         </section>
 
-        <!-- Updated "What We Build" section with 5 cards -->
-        <section class="section" id="what-we-build">
-            <div class="container">
+        <!-- Updated "What We Build" section with horizontal scroll -->
+        <section class="horizontal-scroll-section" id="what-we-build">
+            <div class="section-header-sticky">
                 <h2 class="section-title">What We Build</h2>
                 <p class="section-subtitle">From Google Sheets workflows to AI-powered chatbots, we create automation
-                    tools that save you hours every week.</p>
+                    tools
+                    that save you hours every week.</p>
+            </div>
 
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">SH</div>
+            <!-- Mobile: Horizontal Scroll -->
+            <div class="horizontal-scroll-mobile">
+                <!-- Card 1: Google Sheets -->
+                <div class="project-card">
+                    <div class="project-image-wrapper">
+                        <div class="timeline-image-placeholder">
+                            <img src="images/google-sheets-dark.png" class="project-card-image"
+                                alt="Google Sheets Automation">
+                        </div>
+                    </div>
+                    <div class="project-content">
                         <h3>Google Sheets Automation</h3>
-                        <p>Transform your spreadsheets into powerful databases with automated workflows, data sync, and
-                            custom functions.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">AI</div>
-                        <h3>AI Chatbots</h3>
-                        <p>Custom GPT-powered chatbots for customer support, lead qualification, and internal knowledge
-                            bases.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">AU</div>
-                        <h3>Process Automation</h3>
-                        <p>Eliminate manual tasks with smart workflows that connect your tools and automate repetitive
-                            processes.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">MP</div>
-                        <h3>MCP Integration</h3>
-                        <p>Model Context Protocol connections for Claude and ChatGPT - like USB-C for AI, enabling
-                            seamless data flow between your tools and AI assistants.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">CR</div>
-                        <h3>Custom CRM Systems</h3>
-                        <p>Tailored customer relationship management systems that grow with your team, featuring
-                            automated lead tracking and follow-ups.</p>
+                        <div class="project-features">
+                            <div class="feature-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <p>Automated workflows</p>
+                            </div>
+                            <div class="feature-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <p>Real-time data synchronization</p>
+                            </div>
+                            <div class="feature-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <p>Custom functions and formulas</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Card 2: AI Chatbots -->
+                <div class="project-card">
+                    <div class="project-image-wrapper">
+                        <div class="timeline-image-placeholder">
+                            <img src="images/chatbots-dark.png" class="project-card-image" alt="AI Chatbots">
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3>AI Chatbots</h3>
+                        <div class="project-features">
+                            <div class="feature-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <p>GPT-powered conversations</p>
+                            </div>
+                            <div class="feature-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <p>Lead qualification</p>
+                            </div>
+                            <div class="feature-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <p>Internal knowledge bases</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Process Automation -->
+                <div class="project-card">
+                    <div class="project-image-wrapper">
+                        <div class="timeline-image-placeholder">
+                            <img src="images/workflows-dark.png" class="project-card-image" alt="Process Automation">
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3>Process Automation</h3>
+                        <div class="project-features">
+                            <div class="feature-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <p>Tool integrations</p>
+                            </div>
+                            <div class="feature-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <p>Smart workflows</p>
+                            </div>
+                            <div class="feature-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <p>Eliminate repetitive tasks</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4: MCP Integration -->
+                <div class="project-card">
+                    <div class="project-image-wrapper">
+                        <div class="timeline-image-placeholder">
+                            <img src="images/crm-dark.png" class="project-card-image" alt="MCP Integration">
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3>MCP Integration</h3>
+                        <div class="project-features">
+                            <div class="feature-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <p>Claude & ChatGPT connections</p>
+                            </div>
+                            <div class="feature-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <p>Seamless data flow</p>
+                            </div>
+                            <div class="feature-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <p>USB-C for AI</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 5: Custom CRM -->
+                <div class="project-card">
+                    <div class="project-image-wrapper">
+                        <div class="timeline-image-placeholder">
+                            <img src="images/workflows-dark.png" class="project-card-image" alt="Custom CRM">
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3>Custom CRM Systems</h3>
+                        <div class="project-features">
+                            <div class="feature-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <p>Scalable solutions</p>
+                            </div>
+                            <div class="feature-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <p>Automated lead tracking</p>
+                            </div>
+                            <div class="feature-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <p>Smart follow-ups</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scroll-hint">
+                <span class="scroll-hint-text">← Scroll →</span>
             </div>
         </section>
 
@@ -513,30 +834,149 @@
             </div>
         </section>
 
-        <section class="section">
-            <div class="container">
-                <h2 class="section-title">How It Works</h2>
-                <p class="section-subtitle">Simple, fast, and effective. Get your automation up and running in three
-                    easy steps.</p>
+        <section class="how-it-works-timeline" id="how-it-works">
+            <!-- Background Decorations -->
+            <div class="timeline-bg-decoration">
+                <div class="timeline-bg-circle-1"></div>
+                <div class="timeline-bg-circle-2"></div>
+            </div>
 
-                <div class="steps-container">
-                    <div class="step">
-                        <div class="step-number">1</div>
-                        <h3>Audit & Strategy</h3>
-                        <p>We analyze your current workflows and identify the best automation opportunities for maximum
-                            impact.</p>
+            <div class="timeline-container">
+                <!-- Section Header -->
+                <div class="timeline-header">
+                    <span class="timeline-badge">Start Your Journey</span>
+                    <h2>Your Journey Starts Here</h2>
+                    <p>We've made it incredibly simple to automate your business processes and save time.</p>
+                </div>
+
+                <!-- Timeline Line (Desktop Only) -->
+                <div class="timeline-line"></div>
+
+                <!-- Timeline Items -->
+                <div class="timeline-items">
+                    <!-- Step 1 -->
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-icon icon-orange">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"></path>
+                                    <path
+                                        d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z">
+                                    </path>
+                                </svg>
+                                <span class="timeline-icon-title">Audit & Strategy</span>
+                            </div>
+                            <p>We analyze your current workflows and identify the best automation opportunities for
+                                maximum impact.</p>
+                        </div>
+
+                        <div class="timeline-number-wrapper">
+                            <div class="timeline-number">1</div>
+                            <div class="timeline-number-pulse"></div>
+                        </div>
+
+                        <div class="timeline-image-wrapper">
+                            <div class="timeline-image">
+                                <div class="timeline-image-overlay"></div>
+                                <div class="timeline-image-placeholder">
+                                    <img src="images/timeline-1.png" class="project-card-image" alt="Audit & Strategy">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="step">
-                        <div class="step-number">2</div>
-                        <h3>Build & Test</h3>
-                        <p>Our team builds your custom automation using proven tools and thoroughly tests everything
-                            before delivery.</p>
+
+                    <!-- Step 2 -->
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-icon icon-green">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="16 18 22 12 16 6"></polyline>
+                                    <polyline points="8 6 2 12 8 18"></polyline>
+                                </svg>
+                                <span class="timeline-icon-title">Build & Test</span>
+                            </div>
+                            <p>Our team builds your custom automation using proven tools and thoroughly tests everything
+                                before delivery.</p>
+                        </div>
+
+                        <div class="timeline-number-wrapper">
+                            <div class="timeline-number">2</div>
+                            <div class="timeline-number-pulse"></div>
+                        </div>
+
+                        <div class="timeline-image-wrapper">
+                            <div class="timeline-image">
+                                <div class="timeline-image-overlay"></div>
+                                <div class="timeline-image-placeholder">
+                                    <img src="images/timeline-2.png" class="project-card-image" alt="Build & Test">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="step">
-                        <div class="step-number">3</div>
-                        <h3>Deploy & Support</h3>
-                        <p>We deploy your automation and provide training and ongoing support to ensure smooth
-                            operation.</p>
+
+                    <!-- Step 3 -->
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-icon icon-teal">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                </svg>
+                                <span class="timeline-icon-title">Implement & Support</span>
+                            </div>
+                            <p>We deploy your automation and provide training and ongoing support for smooth operation.
+                            </p>
+                        </div>
+
+                        <div class="timeline-number-wrapper">
+                            <div class="timeline-number">3</div>
+                            <div class="timeline-number-pulse"></div>
+                        </div>
+
+                        <div class="timeline-image-wrapper">
+                            <div class="timeline-image">
+                                <div class="timeline-image-overlay"></div>
+                                <div class="timeline-image-placeholder">
+                                    <img src="images/timeline-3.png" class="project-card-image"
+                                        alt="Implement & Support">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-icon icon-yellow">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                                </svg>
+                                <span class="timeline-icon-title">Grow & Optimize</span>
+                            </div>
+                            <p>Watch your productivity soar and costs decrease. We continue to optimize your automation
+                                for maximum ROI.</p>
+                        </div>
+
+                        <div class="timeline-number-wrapper">
+                            <div class="timeline-number">4</div>
+                            <div class="timeline-number-pulse"></div>
+                        </div>
+
+                        <div class="timeline-image-wrapper">
+                            <div class="timeline-image">
+                                <div class="timeline-image-overlay"></div>
+                                <div class="timeline-image-placeholder">
+                                    <img src="images/timeline-4.png" class="project-card-image" alt="Grow & Optimize">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -566,51 +1006,203 @@
         </section>
     </main>
 
-    <footer class="footer">
-        <div class="footer-content">
-            <!-- Company Branding -->
-            <div class="footer-branding">
-                <h3>AutoFlow Studio</h3>
-                <p class="footer-description">
-                    Building automation solutions that save time and eliminate manual work. Connect with us and stay
-                    updated on the latest automation insights.
-                </p>
-            </div>
-
-            <!-- Social Media Section -->
-            <div class="footer-social-section">
-                <h4>Follow Us</h4>
-                <div class="footer-social-links">
-                    <a href="https://www.instagram.com/auto.flow25" class="footer-social-link" title="Instagram"
-                        target="_blank">
-                        <img src="https://i.ibb.co/67KTsBBp/instagram-1384015.png" alt="Instagram">
-                    </a>
-                    <a href="#" class="footer-social-link" title="TikTok" target="_blank">
-                        <img src="https://i.ibb.co/LzmHMXNb/tiktok-3116491.png" alt="TikTok">
-                    </a>
-                    <a href="#" class="footer-social-link" title="YouTube" target="_blank">
-                        <img src="https://i.ibb.co/9jbRt6k/youtube-1384012.png" alt="YouTube">
-                    </a>
-                    <a href="https://www.linkedin.com/company/auto-flow-studio/" class="footer-social-link"
-                        title="LinkedIn" target="_blank">
-                        <img src="https://i.ibb.co/RknLHqpx/linkedin-1384014.png" alt="LinkedIn">
-                    </a>
+    <section id="booking" class="booking-section">
+        <div class="booking-bg-decoration">
+            <div class="booking-circle-1"></div>
+            <div class="booking-circle-2"></div>
+            <div class="booking-noise"></div>
+        </div>
+        <div class="booking-container">
+            <div class="booking-flex">
+                <div class="booking-text">
+                    <h2 class="booking-title">Book Your <br><span class="text-gradient">Automation Audit</span></h2>
+                    <p class="booking-description">From custom workflows to AI chatbots, we build automation experiences
+                        tailored to your business needs.</p>
+                    <div class="booking-features">
+                        <div class="feature-pill">
+                            <div class="pill-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="lucide lucide-star" aria-hidden="true">
+                                    <path
+                                        d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <span>Expert Automation Engineers</span>
+                        </div>
+                        <div class="feature-pill">
+                            <div class="pill-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="lucide lucide-zap" aria-hidden="true">
+                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                                </svg>
+                            </div>
+                            <span>Custom Built Solutions</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="booking-form-wrapper">
+                    <div class="form-glass-container">
+                        <div class="form-inner">
+                            <form class="form-group" action="https://formspree.io/f/xvgzlowq" method="POST">
+                                <div>
+                                    <label class="input-label">Select Service</label>
+                                    <div class="input-wrapper">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round"
+                                            class="lucide lucide-settings input-icon">
+                                            <path
+                                                d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z">
+                                            </path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                        <select class="booking-select" name="service" required>
+                                            <option value="" selected disabled>-- Select Your Need --</option>
+                                            <option value="sheets">Google Sheets Automation</option>
+                                            <option value="chatbots">AI Chatbots</option>
+                                            <option value="crm">CRM Integration</option>
+                                            <option value="custom">Custom Workflow</option>
+                                            <option value="audit">Free Automation Audit</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="grid-2">
+                                    <div>
+                                        <label class="input-label">Business Size</label>
+                                        <div class="input-wrapper">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="lucide lucide-building input-icon">
+                                                <rect width="16" height="20" x="4" y="2" rx="2" ry="2"></rect>
+                                                <path d="M9 22v-4h6v4"></path>
+                                                <path d="M8 6h.01"></path>
+                                                <path d="M16 6h.01"></path>
+                                                <path d="M12 6h.01"></path>
+                                                <path d="M12 10h.01"></path>
+                                                <path d="M12 14h.01"></path>
+                                                <path d="M16 10h.01"></path>
+                                                <path d="M16 14h.01"></path>
+                                                <path d="M8 10h.01"></path>
+                                                <path d="M8 14h.01"></path>
+                                            </svg>
+                                            <select class="booking-select" name="size" required>
+                                                <option value="solo">Solo-Preneur</option>
+                                                <option value="startup">Startup (1-10)</option>
+                                                <option value="team">Team (10-50)</option>
+                                                <option value="enterprise">Enterprise (50+)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="input-label">Platform</label>
+                                        <div class="input-wrapper">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="lucide lucide-box input-icon">
+                                                <path
+                                                    d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z">
+                                                </path>
+                                                <path d="m3.3 7 8.7 5 8.7-5"></path>
+                                                <path d="M12 22V12"></path>
+                                            </svg>
+                                            <input type="text" placeholder="e.g. Make/Zapier" class="booking-input"
+                                                name="platform">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="input-label">Project Details</label>
+                                    <div class="grid-2">
+                                        <div class="input-wrapper">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="lucide lucide-calendar input-icon">
+                                                <path d="M8 2v4"></path>
+                                                <path d="M16 2v4"></path>
+                                                <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+                                                <path d="M3 10h18"></path>
+                                            </svg>
+                                            <input type="date" required class="booking-input" name="date">
+                                        </div>
+                                        <div class="input-wrapper">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="lucide lucide-users input-icon">
+                                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="9" cy="7" r="4"></circle>
+                                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                            </svg>
+                                            <select name="complexity" required class="booking-select">
+                                                <option value="simple">Simple Tasks</option>
+                                                <option value="moderate">Moderate Flows</option>
+                                                <option value="complex">Complex Systems</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="input-wrapper">
+                                    <input type="text" placeholder="Your Name" required class="booking-input"
+                                        name="name" style="padding-left: 1rem;">
+                                </div>
+                                <div class="input-wrapper">
+                                    <input type="email" placeholder="Email Address" required class="booking-input"
+                                        name="email" style="padding-left: 1rem;">
+                                </div>
+                                <button type="submit" class="booking-submit-btn">
+                                    <div class="btn-content">
+                                        <span>Get Free Audit</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round"
+                                            class="lucide lucide-arrow-right">
+                                            <path d="M5 12h14"></path>
+                                            <path d="m12 5 7 7-7 7"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="shimmer"></div>
+                                </button>
+                                <p class="form-footer-text">No payment required. <br>You'll be contacted to finalize
+                                    details.</p>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
+    </section>
 
-            <!-- Navigation Links -->
-            <div class="footer-navigation">
-                <ul class="footer-links">
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="blog.html">Blog</a></li>
-                    <li><a href="portfolio.html">Portfolio</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                </ul>
-            </div>
-
-            <!-- Copyright -->
-            <div class="footer-bottom">
-                <p>© 2025 AutoFlow Studio. All rights reserved. | autoflowcompany2025@gmail.com</p>
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-flex">
+                <div class="footer-branding">
+                    <a href="index.html" class="footer-logo">AutoFlow Studio</a>
+                    <p class="copyright">© 2026 AutoFlow Studio. All rights reserved.</p>
+                </div>
+                <div class="footer-col">
+                    <p class="footer-label">Contact</p>
+                    <a href="mailto:autoflowcompany2025@gmail.com" class="footer-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                        </svg>
+                        autoflowcompany2025@gmail.com
+                    </a>
+                </div>
+                <div class="footer-col">
+                    <p class="footer-label">Legal</p>
+                    <a href="terms.html" class="footer-link">Terms</a>
+                    <a href="privacy.html" class="footer-link">Privacy</a>
+                    <a href="contact.html" class="footer-link">Contact</a>
+                </div>
             </div>
         </div>
     </footer>
@@ -833,6 +1425,9 @@
     <script src="js/carousel.js"></script>
     <script src="js/tools.js"></script>
     <script src="js/cookies-banner.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="js/horizontal-scroll.js"></script>
+    <script src="js/mobile-menu.js"></script>
 </body>
 
 </html>

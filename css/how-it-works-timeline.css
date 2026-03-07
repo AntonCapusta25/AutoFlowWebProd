@@ -120,7 +120,7 @@
 .timeline-number {
     width: 48px;
     height: 48px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #e91e63, #9c27b0);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -130,13 +130,13 @@
     font-size: 20px;
     position: relative;
     z-index: 10;
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 8px 25px rgba(233, 30, 99, 0.3);
 }
 
 .timeline-number-pulse {
     position: absolute;
     inset: 0;
-    background: #667eea;
+    background: #e91e63;
     border-radius: 50%;
     animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     opacity: 0.2;
@@ -191,27 +191,27 @@
 }
 
 .timeline-icon.icon-orange {
-    background: rgba(25, 118, 210, 0.15);
-    color: #42A5F5;
-    border: 1px solid rgba(66, 165, 245, 0.2);
+    background: rgba(233, 30, 99, 0.15);
+    color: #f48fb1;
+    border: 1px solid rgba(233, 30, 99, 0.2);
 }
 
 .timeline-icon.icon-green {
-    background: rgba(76, 175, 80, 0.15);
-    color: #66BB6A;
-    border: 1px solid rgba(102, 187, 106, 0.2);
+    background: rgba(156, 39, 176, 0.15);
+    color: #ce93d8;
+    border: 1px solid rgba(156, 39, 176, 0.2);
 }
 
 .timeline-icon.icon-teal {
-    background: rgba(156, 39, 176, 0.15);
-    color: #AB47BC;
-    border: 1px solid rgba(171, 71, 188, 0.2);
+    background: rgba(233, 30, 99, 0.15);
+    color: #f48fb1;
+    border: 1px solid rgba(233, 30, 99, 0.2);
 }
 
 .timeline-icon.icon-yellow {
-    background: rgba(251, 192, 45, 0.15);
-    color: #FFEE58;
-    border: 1px solid rgba(255, 238, 88, 0.2);
+    background: rgba(156, 39, 176, 0.15);
+    color: #ce93d8;
+    border: 1px solid rgba(156, 39, 176, 0.2);
 }
 
 .timeline-content h3 {
