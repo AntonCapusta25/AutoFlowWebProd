@@ -71,12 +71,14 @@
     .booking-flex {
         flex-direction: row;
         gap: 6rem;
+        align-items: flex-start;
     }
 }
 
 .booking-text {
-    flex: 1;
+    flex: 1.2;
     text-align: center;
+    min-width: 0;
 }
 
 @media (min-width: 1024px) {
@@ -91,6 +93,8 @@
     color: #F8FAFC;
     margin-bottom: 1.5rem;
     line-height: 1.1;
+    word-break: break-word;
+    hyphens: auto;
 }
 
 @media (min-width: 1024px) {
@@ -129,6 +133,7 @@
     gap: 1.5rem;
     color: #94A3B8;
     font-size: 0.875rem;
+    flex-wrap: wrap;
 }
 
 @media (min-width: 640px) {
@@ -164,7 +169,8 @@
 .booking-form-wrapper {
     flex: 1;
     width: 100%;
-    max-width: 28rem;
+    max-width: 32rem;
+    min-width: 380px;
 }
 
 .form-glass-container {
@@ -249,6 +255,12 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
+}
+
+@media (max-width: 480px) {
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
 }
 
 .booking-submit-btn {
