@@ -74,7 +74,7 @@
     height: 3px;
     background: rgba(255, 255, 255, 0.6);
     border-radius: 50%;
-    box-shadow: 
+    box-shadow:
         8px 0 rgba(255, 255, 255, 0.6),
         16px 0 rgba(255, 255, 255, 0.6),
         0 8px rgba(255, 255, 255, 0.6),
@@ -113,32 +113,35 @@
 }
 
 .blog-card {
-    background: white;
+    background: #1A1D24;
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
     max-width: 400px;
     margin: 0 auto;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .blog-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 .blog-image {
-width: 100%;
-height: 240px;
-border-radius: 15px 15px 0 0;
-overflow: hidden;
+    width: 100%;
+    height: 240px;
+    border-radius: 15px 15px 0 0;
+    overflow: hidden;
+    background: #0F1115;
 }
 
 .blog-image img {
-width: 100%;
-height: 100%; /* Make the image try to fill the height /
+    width: 100%;
+    height: 100%;
+    /* Make the image try to fill the height /
 object-fit: cover; / This will make the image fill the container, potentially cropping */
-display: block;
+    display: block;
 }
 
 /* Mobile responsive */
@@ -165,11 +168,11 @@ display: block;
     font-size: 1.5rem;
     font-weight: 600;
     margin-bottom: 15px;
-    color: #1a1a1a;
+    color: #F8FAFC;
 }
 
 .blog-card p {
-    color: #6b7280;
+    color: #94A3B8;
     margin-bottom: 20px;
 }
 
@@ -192,17 +195,18 @@ display: block;
 }
 
 .blog-article {
-    background: white;
+    background: #1A1D24;
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     margin-bottom: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .article-header {
     padding: 50px 50px 30px;
     text-align: center;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .category-badge {
@@ -221,14 +225,14 @@ display: block;
 .article-title {
     font-size: clamp(2rem, 4vw, 2.8rem);
     font-weight: 700;
-    color: #1a1a1a;
+    color: #F8FAFC;
     margin-bottom: 20px;
     line-height: 1.2;
 }
 
 .article-subtitle {
     font-size: 1.2rem;
-    color: #6b7280;
+    color: #94A3B8;
     margin-bottom: 30px;
     font-weight: 400;
 }
@@ -238,7 +242,7 @@ display: block;
     justify-content: center;
     align-items: center;
     gap: 20px;
-    color: #9ca3af;
+    color: #94A3B8;
     font-size: 14px;
 }
 
@@ -291,7 +295,7 @@ display: block;
 .article-content h2 {
     font-size: 1.8rem;
     font-weight: 700;
-    color: #1a1a1a;
+    color: #F8FAFC;
     margin: 40px 0 20px 0;
     border-left: 4px solid #e91e63;
     padding-left: 20px;
@@ -300,18 +304,19 @@ display: block;
 .article-content h3 {
     font-size: 1.4rem;
     font-weight: 600;
-    color: #4a5568;
+    color: #F8FAFC;
     margin: 30px 0 15px 0;
 }
 
 .article-content p {
     font-size: 1.1rem;
     margin-bottom: 20px;
-    color: #4a5568;
+    color: #94A3B8;
     line-height: 1.7;
 }
 
-.article-content ul, .article-content ol {
+.article-content ul,
+.article-content ol {
     margin: 20px 0;
     padding-left: 30px;
 }
@@ -319,7 +324,7 @@ display: block;
 .article-content li {
     font-size: 1.1rem;
     margin-bottom: 8px;
-    color: #4a5568;
+    color: #94A3B8;
 }
 
 .highlight-box {
@@ -420,8 +425,9 @@ display: block;
 
 /* Related Articles */
 .related-articles {
-    background: #ffffff;
+    background: #0F1115;
     padding: 80px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .related-articles .blog-image {
@@ -441,7 +447,7 @@ display: block;
     align-items: center;
     margin-top: 20px;
     padding-top: 15px;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .blog-date {
@@ -456,7 +462,8 @@ display: block;
         padding: 40px 15px;
     }
 
-    .article-header, .article-content {
+    .article-header,
+    .article-content {
         padding: 30px 25px;
     }
 
@@ -474,13 +481,13 @@ display: block;
     }
 
     .hero-image {
-    height: auto;
-    width: fit-content;
-    max-width: calc(100% - 40px);
-    margin: 20px auto 30px auto;
-    display: block;
+        height: auto;
+        width: fit-content;
+        max-width: calc(100% - 40px);
+        margin: 20px auto 30px auto;
+        display: block;
     }
-    
+
     .blog-cta-section {
         padding: 40px 25px;
     }
@@ -503,6 +510,7 @@ display: block;
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -515,12 +523,20 @@ display: block;
 
 /* Animation for floating elements */
 @keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-20px) rotate(5deg); }
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-20px) rotate(5deg);
+    }
 }
 
 /* Print Styles for Blog Articles */
 @media print {
+
     .blog-header,
     .related-articles,
     .blog-cta-section,
@@ -529,21 +545,22 @@ display: block;
     footer {
         display: none;
     }
-    
+
     .blog-article {
         box-shadow: none;
         border-radius: 0;
     }
-    
+
     .article-content {
         padding: 20px 0;
     }
-    
+
     .article-content h2 {
         border-left: none;
         padding-left: 0;
     }
 }
+
 /* Accessibility Improvements */
 .article-content a:focus,
 .read-more:focus,
@@ -553,15 +570,16 @@ display: block;
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
+
     .highlight-box,
     .results-box {
         border-width: 3px;
     }
-    
+
     .category-badge {
         border: 2px solid white;
     }
-    
+
     .blog-tag {
         border: 1px solid #0066cc;
     }
@@ -569,6 +587,7 @@ display: block;
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
+
     .blog-card,
     .animate-in,
     .blog-header .sphere-1,
@@ -576,7 +595,7 @@ display: block;
         animation: none;
         transition: none;
     }
-    
+
     .blog-card:hover {
         transform: none;
     }

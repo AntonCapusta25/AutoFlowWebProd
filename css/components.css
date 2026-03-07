@@ -92,19 +92,20 @@
 }
 
 .tool-label {
-    background-color: white;
-    color: #1a1a1a;
+    background-color: #1A1D24;
+    color: #F8FAFC;
     padding: 6px 14px;
     border-radius: 15px;
     margin-right: 12px;
     font-size: 0.9rem;
     font-weight: 500;
     font-family: 'Inter', sans-serif;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     opacity: 0;
     transform: translateX(10px);
     transition: all 0.3s ease;
     white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .tool-item:hover .tool-label {
@@ -115,15 +116,16 @@
 .tool-icon {
     width: 50px;
     height: 50px;
-    background: white;
+    background: #1A1D24;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #e91e63;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
     font-size: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .tool-icon-text {
@@ -143,6 +145,7 @@
         opacity: 0;
         transform: translateY(15px);
     }
+
     100% {
         opacity: 1;
         transform: translateY(0);
@@ -185,13 +188,15 @@
 
 .calculator-modal,
 .chat-modal {
-    background: white;
+    background: #1A1D24;
     border-radius: 20px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     position: relative;
     font-family: 'Inter', sans-serif;
     transform: scale(0.95);
     transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #F8FAFC;
 }
 
 .calculator-modal-overlay.visible .calculator-modal,
@@ -215,15 +220,15 @@
 .calculator-modal h2 {
     font-size: 2rem;
     font-weight: 700;
-    color: #1a1a1a;
+    color: #F8FAFC;
     margin-bottom: 8px;
     text-align: center;
     flex-shrink: 0;
 }
 
-.calculator-modal > p {
+.calculator-modal>p {
     font-size: 1rem;
-    color: #6b7280;
+    color: #94A3B8;
     margin-bottom: 20px;
     text-align: center;
     max-width: 80%;
@@ -262,8 +267,8 @@
     position: absolute;
     top: 15px;
     right: 15px;
-    background: #f1f5f9;
-    color: #6b7280;
+    background: rgba(255, 255, 255, 0.1);
+    color: #94A3B8;
     border: none;
     border-radius: 50%;
     width: 32px;
@@ -312,10 +317,11 @@
     -moz-appearance: none;
     cursor: pointer;
 }
+
 .custom-select select:focus {
     outline: none;
     border-color: #e91e63;
-    background-color: white;
+    background-color: #1A1D24;
     box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
 }
 
@@ -347,7 +353,7 @@
     font-size: 0.8rem;
     line-height: 1.3;
     width: 300px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
@@ -473,8 +479,15 @@
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
 }
 
 /* Chat Container - Fixed Layout */
@@ -482,7 +495,8 @@
     display: flex;
     flex-direction: column;
     flex: 1;
-    min-height: 0; /* Critical: allows flex child to shrink below content size */
+    min-height: 0;
+    /* Critical: allows flex child to shrink below content size */
     overflow: hidden;
 }
 
@@ -492,14 +506,9 @@
     overflow-y: auto;
     overflow-x: hidden;
     padding: 20px;
-    background: #f8fafc;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    /* Remove min-height to prevent expansion */
-    min-height: 0;
     /* Ensure proper scrolling behavior */
-    height: 0; /* Forces flex to calculate proper height */
+    height: 0;
+    /* Forces flex to calculate proper height */
 }
 
 .chat-messages::-webkit-scrollbar {
@@ -519,7 +528,8 @@
 .message {
     display: flex;
     animation: messageSlideIn 0.3s ease-out;
-    flex-shrink: 0; /* Prevent messages from shrinking */
+    flex-shrink: 0;
+    /* Prevent messages from shrinking */
 }
 
 @keyframes messageSlideIn {
@@ -527,6 +537,7 @@
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -552,11 +563,11 @@
 }
 
 .message.received p {
-    background: white;
-    color: #1a1a1a;
+    background: #2D3748;
+    color: #F8FAFC;
     border-radius: 18px 18px 18px 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid #f1f5f9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .message.sent {
@@ -587,11 +598,11 @@
     display: flex;
     align-items: center;
     padding: 12px 16px;
-    background: white;
+    background: #2D3748;
     border-radius: 18px 18px 18px 6px;
     max-width: 60px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid #f1f5f9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     flex-shrink: 0;
 }
 
@@ -604,7 +615,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #6b7280;
+    background: #94A3B8;
     animation: typing-bounce 1.4s infinite;
 }
 
@@ -617,12 +628,16 @@
 }
 
 @keyframes typing-bounce {
-    0%, 60%, 100% { 
-        transform: translateY(0); 
+
+    0%,
+    60%,
+    100% {
+        transform: translateY(0);
         opacity: 0.7;
     }
-    30% { 
-        transform: translateY(-6px); 
+
+    30% {
+        transform: translateY(-6px);
         opacity: 1;
     }
 }
@@ -633,18 +648,19 @@
     align-items: center;
     gap: 10px;
     padding: 15px;
-    background: white;
-    border-top: 1px solid #f1f5f9;
+    background: #1A1D24;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
     flex-shrink: 0;
     height: 75px;
     box-sizing: border-box;
-    min-height: 75px; /* Ensure consistent height */
+    min-height: 75px;
+    /* Ensure consistent height */
 }
 
 #chat-upload-btn {
-    background: #f1f5f9;
+    background: rgba(255, 255, 255, 0.05);
     border: none;
-    color: #6b7280;
+    color: #94A3B8;
     cursor: pointer;
     padding: 10px;
     border-radius: 50%;
@@ -659,7 +675,7 @@
 }
 
 #chat-upload-btn:hover {
-    background: #e5e7eb;
+    background: rgba(255, 255, 255, 0.1);
     color: #e91e63;
 }
 
@@ -671,18 +687,19 @@
 .chat-input-area input {
     width: 100%;
     padding: 12px 15px;
-    border: 2px solid #e5e7eb;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
     font-size: 0.9rem;
     font-family: inherit;
-    background: #f8fafc;
+    background: #0F1115;
     box-sizing: border-box;
     outline: none;
+    color: #F8FAFC;
 }
 
 .chat-input-area input:focus {
     border-color: #e91e63;
-    background: white;
+    background: #0F1115;
 }
 
 .chat-input-area input::placeholder {
@@ -736,8 +753,8 @@
     flex-wrap: wrap;
     gap: 8px;
     padding: 10px 20px;
-    background: #f8fafc;
-    border-top: 1px solid #f1f5f9;
+    background: #0F1115;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
     overflow-y: auto;
     flex-shrink: 0;
     min-height: 60px;
@@ -746,9 +763,9 @@
 }
 
 .quick-reply-btn {
-    background: white;
-    border: 1px solid #e5e7eb;
-    color: #6b7280;
+    background: #1A1D24;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94A3B8;
     padding: 8px 16px;
     border-radius: 20px;
     font-size: 0.85rem;
@@ -761,12 +778,12 @@
 .quick-reply-btn:hover {
     border-color: #e91e63;
     color: #e91e63;
-    background: #fce4ec;
+    background: #2D3748;
 }
 
 /* File Message Styles */
 .file-message {
-    background: white;
+    background: #1A1D24;
     border: 1px solid #e5e7eb;
     border-radius: 12px;
     padding: 12px;
@@ -806,13 +823,13 @@
 .file-name {
     font-size: 0.9rem;
     font-weight: 500;
-    color: #1a1a1a;
+    color: #F8FAFC;
     margin: 0;
 }
 
 .file-size {
     font-size: 0.8rem;
-    color: #6b7280;
+    color: #94A3B8;
     margin: 0;
 }
 
@@ -842,14 +859,14 @@
 }
 
 .form-section h3 {
-    color: #1a1a1a;
+    color: #F8FAFC;
     font-size: 1.2rem;
     margin-bottom: 8px;
     font-weight: 600;
 }
 
 .form-subtitle {
-    color: #6b7280;
+    color: #94A3B8;
     font-size: 0.95rem;
     margin-bottom: 20px;
     font-style: italic;
@@ -881,10 +898,10 @@
 }
 
 .option-card {
-    border: 2px solid #e5e7eb;
+    border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 20px;
-    background: white;
+    background: #0F1115;
     transition: all 0.3s ease;
     height: 100%;
     display: flex;
@@ -896,9 +913,9 @@
     box-shadow: 0 4px 12px rgba(233, 30, 99, 0.15);
 }
 
-.team-size-option input[type="radio"]:checked + .option-card,
-.complexity-option input[type="radio"]:checked + .option-card,
-.management-option input[type="radio"]:checked + .option-card {
+.team-size-option input[type="radio"]:checked+.option-card,
+.complexity-option input[type="radio"]:checked+.option-card,
+.management-option input[type="radio"]:checked+.option-card {
     border-color: #e91e63;
     background: linear-gradient(135deg, #fce4ec, #f3e5f5);
     box-shadow: 0 4px 12px rgba(233, 30, 99, 0.2);
@@ -910,20 +927,20 @@
 
 .option-header strong {
     display: block;
-    color: #1a1a1a;
+    color: #F8FAFC;
     font-size: 1.1rem;
     margin-bottom: 4px;
 }
 
 .option-size,
 .option-price {
-    color: #6b7280;
+    color: #94A3B8;
     font-size: 0.9rem;
     font-weight: 500;
 }
 
 .option-description {
-    color: #6b7280;
+    color: #94A3B8;
     font-size: 0.9rem;
     line-height: 1.4;
     margin-bottom: 10px;
@@ -949,9 +966,9 @@
 .counter-btn {
     width: 50px;
     height: 50px;
-    border: 2px solid #e5e7eb;
+    border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 50%;
-    background: white;
+    background: #0F1115;
     color: #e91e63;
     font-size: 1.5rem;
     font-weight: bold;
@@ -978,13 +995,13 @@
 #num-tasks {
     width: 80px;
     height: 50px;
-    border: 2px solid #e5e7eb;
+    border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     text-align: center;
     font-size: 1.5rem;
     font-weight: bold;
-    color: #1a1a1a;
-    background: white;
+    color: #F8FAFC;
+    background: #0F1115;
 }
 
 /* Enhanced checkbox styling */
@@ -1004,13 +1021,13 @@
     align-items: flex-start;
     cursor: pointer;
     padding: 20px;
-    border: 2px solid #e5e7eb;
+    border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    background: white;
+    background: #0F1115;
     transition: all 0.3s ease;
     gap: 12px;
     font-weight: 500;
-    color: #1a1a1a;
+    color: #F8FAFC;
 }
 
 .form-group-checkbox label:hover {
@@ -1018,7 +1035,7 @@
     box-shadow: 0 4px 12px rgba(233, 30, 99, 0.15);
 }
 
-.form-group-checkbox input[type="checkbox"]:checked + label,
+.form-group-checkbox input[type="checkbox"]:checked+label,
 .form-group-checkbox label:has(input[type="checkbox"]:checked) {
     border-color: #e91e63;
     background: linear-gradient(135deg, #fce4ec, #f3e5f5);
@@ -1081,7 +1098,7 @@
 .pricing-calculator-form input[type="number"]:focus {
     outline: none;
     border-color: #e91e63;
-    background-color: white;
+    background-color: #1A1D24;
     box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
 }
 
@@ -1201,12 +1218,12 @@
         flex-direction: column !important;
         gap: 15px !important;
     }
-    
+
     .section div[style*="display: flex"] input[type="email"] {
         width: 100% !important;
         box-sizing: border-box !important;
     }
-    
+
     .section div[style*="display: flex"] .cta-button {
         width: 100% !important;
         max-width: 250px !important;
@@ -1220,18 +1237,18 @@
         padding: 0 !important;
         margin: 0 !important;
     }
-    
+
     .blog-card {
         margin: 0 !important;
         padding: 0 !important;
         width: 100% !important;
         box-sizing: border-box !important;
     }
-    
+
     .blog-content {
         padding: 30px 20px !important;
     }
-    
+
     .section .container {
         padding: 0 15px !important;
     }
@@ -1241,7 +1258,7 @@
     .section .container {
         padding: 0 10px !important;
     }
-    
+
     .blog-content {
         padding: 25px 15px !important;
     }
@@ -1251,43 +1268,44 @@
 /* Mobile Responsive Styles                */
 /*******************************************/
 @media (max-width: 768px) {
+
     /* FAB Mobile Positioning */
     .tools-fab-container {
         bottom: 20px;
         right: 15px;
         align-items: flex-end;
     }
-    
+
     .tools-menu {
         align-items: flex-end;
         margin-bottom: 15px;
     }
-    
+
     .tool-item {
         justify-content: flex-end;
         width: 100%;
     }
-    
+
     .tool-label {
         margin-right: 12px;
         margin-left: 0;
     }
-    
+
     #main-fab {
         width: 55px;
         height: 55px;
     }
-    
+
     .tool-icon {
         width: 45px;
         height: 45px;
         font-size: 20px;
     }
-    
+
     .tool-icon-text {
         font-size: 18px;
     }
-    
+
     /* Calculator Modal Mobile */
     .calculator-modal {
         margin: 8px;
@@ -1298,13 +1316,13 @@
         max-width: none;
         position: relative;
     }
-    
+
     .calculator-modal h2 {
         font-size: 1.6rem;
         margin-bottom: 12px;
         padding: 0 8px;
     }
-    
+
     .close-modal-btn {
         top: 8px;
         right: 8px;
@@ -1312,63 +1330,65 @@
         height: 32px;
         font-size: 22px;
     }
-    
+
     /* Mobile grid layout */
     .mobile-grid {
         grid-template-columns: 1fr;
         gap: 15px;
     }
-    
-    .mobile-grid input, 
+
+    .mobile-grid input,
     .mobile-grid select {
         padding: 10px;
-        font-size: 16px; /* Prevents zoom on iOS */
-        min-height: 40px; /* Better touch targets */
+        font-size: 16px;
+        /* Prevents zoom on iOS */
+        min-height: 40px;
+        /* Better touch targets */
     }
-    
+
     .mobile-grid label {
         font-size: 0.9rem;
         margin-bottom: 6px;
     }
-    
+
     /* Mobile results styling */
     .mobile-price {
         font-size: 2rem;
     }
-    
+
     .mobile-results {
         padding: 12px;
     }
-    
+
     .mobile-results a {
         padding: 10px 25px;
         font-size: 0.9rem;
         width: auto;
         min-height: 40px;
     }
-    
+
     .mobile-results input[type="checkbox"] {
         width: 20px;
         height: 20px;
     }
-    
+
     /* Mobile tooltip adjustments */
     .tooltip-content {
         width: 260px;
         font-size: 0.75rem;
         padding: 10px;
     }
-    
+
     /* Form adjustments */
     form {
         margin-bottom: 20px;
     }
-    
+
     h3 {
         font-size: 1.1rem;
         margin-bottom: 12px;
     }
-    
+
     /* Chat Modal Mobile */
     .chat-modal {
         width: 380px;
@@ -1376,74 +1396,74 @@
         max-width: calc(100vw - 20px);
         margin: 10px;
     }
-    
+
     .chat-messages {
         min-height: 200px;
         padding: 15px;
         gap: 12px;
     }
-    
+
     .chat-header {
         padding: 15px 20px;
     }
-    
+
     .chat-bot-avatar {
         width: 40px;
         height: 40px;
         font-size: 18px;
     }
-    
+
     .chat-header-text h3 {
         font-size: 1rem;
     }
-    
+
     .chat-input-area {
         padding: 15px;
         gap: 10px;
     }
-    
+
     #chat-upload-btn,
     .chat-send-btn {
         width: 42px;
         height: 42px;
     }
-    
+
     .chat-send-btn::before {
         font-size: 14px;
     }
-    
+
     .chat-input-area input {
         padding: 12px 15px;
         font-size: 0.9rem;
     }
-    
+
     .quick-replies {
         padding: 12px 15px;
         gap: 6px;
     }
-    
+
     /* Form Elements Mobile */
     .team-size-options,
     .complexity-options {
         grid-template-columns: 1fr;
     }
-    
+
     .task-counter {
         gap: 15px;
     }
-    
+
     .counter-btn {
         width: 45px;
         height: 45px;
         font-size: 1.3rem;
     }
-    
+
     #num-tasks {
         width: 70px;
         height: 45px;
         font-size: 1.3rem;
     }
-    
+
     .pricing-calculator-form .form-row {
         grid-template-columns: 1fr;
     }
@@ -1452,15 +1472,15 @@
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .price-plus {
         margin: 10px 0;
     }
-    
+
     .price-amount {
         font-size: 2.5rem;
     }
-    
+
     .monthly .price-amount {
         font-size: 1.8rem;
     }
@@ -1471,69 +1491,69 @@
         bottom: 15px;
         right: 10px;
     }
-    
+
     #main-fab {
         width: 50px;
         height: 50px;
     }
-    
+
     .tool-icon {
         width: 40px;
         height: 40px;
         font-size: 18px;
     }
-    
+
     .tool-icon-text {
         font-size: 16px;
     }
-    
+
     .tool-label {
         font-size: 0.8rem;
         padding: 5px 12px;
     }
-    
+
     .calculator-modal {
         margin: 5px;
         padding: 12px;
         width: calc(100% - 10px);
     }
-    
+
     .calculator-modal h2 {
         font-size: 1.4rem;
         padding: 0 5px;
         margin-bottom: 10px;
     }
-    
+
     .mobile-price {
         font-size: 1.8rem;
     }
-    
+
     .tooltip-content {
         width: 220px;
         left: -90px;
         font-size: 0.7rem;
         padding: 8px;
     }
-    
+
     .mobile-results a {
         padding: 8px 20px;
         font-size: 0.85rem;
     }
-    
-    .mobile-grid input, 
+
+    .mobile-grid input,
     .mobile-grid select {
         padding: 8px;
         font-size: 15px;
     }
-    
+
     .mobile-grid label {
         font-size: 0.85rem;
     }
-    
+
     p {
         font-size: 0.8rem;
     }
-    
+
     .chat-modal {
         width: 340px;
         max-height: 80vh;
@@ -1567,15 +1587,15 @@
         padding: 10px 12px;
         font-size: 0.85rem;
     }
-    
+
     .option-card {
         padding: 15px;
     }
-    
+
     .form-section h3 {
         font-size: 1.1rem;
     }
-    
+
     .total-price {
         font-size: 2rem;
     }
@@ -1587,36 +1607,36 @@
         opacity: 1;
         transform: translateX(0);
     }
-    
+
     #main-fab:active {
         transform: scale(0.95);
     }
-    
+
     .close-modal-btn {
         width: 36px;
         height: 36px;
         font-size: 24px;
     }
-    
+
     .close-modal-btn:active {
         background: rgba(107, 114, 128, 0.2);
     }
-    
+
     .complexity-tooltip {
         cursor: pointer;
     }
-    
+
     .complexity-tooltip:active .tooltip-content {
         opacity: 1;
         visibility: visible;
     }
-    
+
     input[type="checkbox"] {
         width: 20px;
         height: 20px;
     }
-    
-    .mobile-grid input, 
+
+    .mobile-grid input,
     .mobile-grid select {
         min-height: 36px;
     }
@@ -1641,6 +1661,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -1649,6 +1670,7 @@
         transition-duration: 0.01ms !important;
     }
 }
+
 /* Hide online status indicators and duplicate attachment elements */
 
 /* Hide the agent status indicator created by JavaScript */
