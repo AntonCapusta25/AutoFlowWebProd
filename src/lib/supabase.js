@@ -12,17 +12,35 @@ export const supabase = createClient(
   supabaseAnonKey || 'placeholder-key'
 )
 
-// Helper: trigger SendGrid notification via Edge Function
+// Helper: trigger Gmail notification via Edge Function
 export async function sendEmailNotification(payload) {
   const edgeUrl = import.meta.env.VITE_SENDGRID_EDGE_URL
-  if (!edgeUrl) return
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+  
+  if (!edgeUrl) {
+    console.warn('⚠️ Edge Function URL not set in .env')
+    return
+  }
+
   try {
-    await fetch(edgeUrl, {
+    console.log('📨 Triggering email Edge Function...', edgeUrl)
+    const res = await fetch(edgeUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${anonKey}`,
+        'apikey': anonKey 
+      },
       body: JSON.stringify(payload),
     })
+    
+    if (!res.ok) {
+      const errText = await res.text()
+      console.error(`❌ Edge Function failed (${res.status}):`, errText)
+    } else {
+      console.log('✅ Edge Function call successful!')
+    }
   } catch (err) {
-    console.error('Email notification error:', err)
+    console.error('❌ Edge Function network error:', err)
   }
 }

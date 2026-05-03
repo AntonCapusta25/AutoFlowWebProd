@@ -1,16 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 /* AutoFlow Studio - Main Styles */
 /* Loading Screen Styles */
 /* Smooth transition setup */
 
-body:not(.loaded) .main-content,
-body:not(.loaded) .navbar,
-body:not(.loaded) .footer {
-    opacity: 0;
-    transform: scale(0.98);
-    pointer-events: none;
-}
+/* loading gate removed — React handles page rendering */
 
 .loading-screen {
     position: fixed;
@@ -68,20 +62,12 @@ body:not(.loaded) .footer {
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
-/* Hide main content initially */
-body:not(.loaded) .main-content,
-body:not(.loaded) .navbar,
-body:not(.loaded) .footer {
-    opacity: 0;
-    pointer-events: none;
-}
-
-body.loaded .main-content,
-body.loaded .navbar,
-body.loaded .footer {
+/* Content always visible in React SPA */
+.main-content,
+nav,
+footer {
     opacity: 1;
     pointer-events: auto;
-    transition: opacity 0.5s ease;
 }
 
 * {
@@ -116,6 +102,35 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Standardized Heading System */
+h1, h2, h3, .heading-font {
+    font-family: 'Space Grotesk', 'Inter', sans-serif !important;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+}
+
+h1 {
+    font-size: clamp(3.5rem, 9vw, 5.5rem);
+    font-weight: 800;
+}
+
+h2 {
+    font-size: clamp(2.5rem, 6vw, 3.8rem);
+    font-weight: 700;
+}
+
+h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+p, .body-font {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #94A3B8;
+}
+
 html {
     background-color: #0F1115;
 }
@@ -148,22 +163,28 @@ body {
 /* Navigation */
 nav.navbar {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    height: 70px;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 1200px;
+    height: 64px;
     background: transparent;
-    border: none;
+    border: 1px solid transparent;
+    border-radius: 50px;
     z-index: 9999;
     pointer-events: auto;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0 24px;
 }
 
 nav.navbar.scrolled {
-    background: linear-gradient(135deg, rgba(233, 30, 99, 0.95), rgba(156, 39, 176, 0.95));
-    backdrop-filter: blur(10px);
-    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    padding: 0 24px;
 }
 
 nav.navbar,
@@ -176,10 +197,10 @@ nav.navbar::after {
 
 .nav-container {
     width: 100%;
-    height: 70px;
-    padding: 0 5vw;
-    display: flex;
-    justify-content: space-between;
+    height: 64px;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
     position: relative;
 }
@@ -198,10 +219,8 @@ nav.navbar::after {
     list-style: none;
     margin: 0;
     padding: 0;
-    gap: 40px;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    gap: 32px;
+    justify-content: center;
 }
 
 .nav-links li {
@@ -234,7 +253,9 @@ nav.navbar::after {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
     border-radius: 50px;
-    padding: 5px;
+    padding: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    justify-self: end;
     margin-left: auto;
     flex-shrink: 0;
 }
@@ -438,7 +459,7 @@ nav.navbar::after {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background: url('../images/hero-bg-dark-v2.png') no-repeat center bottom;
+    background: url('/images/hero-bg-dark-v2.png') no-repeat center bottom;
     background-size: cover;
     background-color: #0F1115;
     /* Fallback */
@@ -666,6 +687,7 @@ nav.navbar::after {
     text-decoration: none;
     font-weight: 600;
     font-size: 1.1rem;
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
     transition: all 0.3s ease;
     box-shadow: 0 10px 30px rgba(233, 30, 99, 0.3);
     transform: translateY(0);
@@ -684,6 +706,18 @@ nav.navbar::after {
 }
 
 /* Animations */
+@keyframes flow-arrow-ani {
+    0% { transform: translateX(-15px); opacity: 0.2; }
+    50% { transform: translateX(0); opacity: 1; stroke-width: 2.5; }
+    100% { transform: translateX(15px); opacity: 0.2; }
+}
+
+.animate-flow-arrow {
+    animation: flow-arrow-ani 1.5s infinite ease-in-out;
+    display: inline-block;
+    filter: drop-shadow(0 0 5px rgba(233, 30, 99, 0.4));
+}
+
 @keyframes float {
 
     0%,
@@ -724,7 +758,7 @@ nav.navbar::after {
 
 /* Work Examples Carousel */
 .work-examples {
-    background: #0F1115 !important;
+    background: #050505 !important;
     padding: 80px 20px;
     position: relative;
     overflow: hidden;
@@ -2987,14 +3021,12 @@ nav.navbar::after {
 .logos-section {
     padding-top: 0;
     border-top: none;
-    width: 100vw;
+    width: 100%;
     position: relative;
     z-index: 10;
     background: transparent;
-    left: 50%;
-    right: 50%;
-    margin-left: -50vw;
-    margin-right: -50vw;
+    margin: 0;
+    left: 0;
     padding-left: 0;
     padding-right: 0;
 }
@@ -3019,34 +3051,16 @@ nav.navbar::after {
 
 .logos-track-container::before,
 .logos-track-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    width: 100px;
-    height: 100%;
-    z-index: 2;
-    pointer-events: none;
-}
-
-.logos-track-container::before {
-    left: 0;
-    /* Fade to transparent from left */
-    background: linear-gradient(to right, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
-}
-
-.logos-track-container::after {
-    right: 0;
-    /* Fade to transparent from right */
-    background: linear-gradient(to left, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+    display: none;
 }
 
 .logos-track {
     display: flex;
-    animation: scroll 40s linear infinite;
+    animation: marqueeScroll 40s linear infinite !important;
     width: max-content;
 }
 
-@keyframes scroll {
+@keyframes marqueeScroll {
     0% {
         transform: translateX(0);
     }
@@ -3065,14 +3079,21 @@ nav.navbar::after {
 }
 
 .logo-placeholder {
-    font-size: 18px;
-    font-weight: 600;
-    color: white;
-    padding: 12px 24px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(5px);
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    color: #F8FAFC;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    padding: 12px 32px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     white-space: nowrap;
 }
 
@@ -3200,7 +3221,9 @@ html,
 body {
     background-color: #0F1115 !important;
     min-height: 100vh;
-}/* AutoFlow Studio - Complete Enhanced Component Styles */
+}
+
+/* AutoFlow Studio - Complete Enhanced Component Styles */
 
 /*******************************************/
 /* Tools FAB Styles                        */
@@ -4895,13 +4918,15 @@ body {
 /* Hide any duplicate paperclip elements */
 .chat-input-area .file-upload-duplicate {
     display: none !important;
-}/* Booking Section & Redesigned Footer Styles */
+}
+
+/* Booking Section & Redesigned Footer Styles */
 
 .booking-section {
     position: relative;
     padding: 3.5rem 0;
     overflow: hidden;
-    background-color: #0F1115;
+    background-color: #050505;
 }
 
 @media (min-width: 768px) {
@@ -4922,7 +4947,7 @@ body {
 
 .booking-circle-1 {
     position: absolute;
-    top: -5rem;
+    top: 5rem;
     right: -5rem;
     width: 600px;
     height: 600px;
@@ -4945,7 +4970,7 @@ body {
 .booking-noise {
     position: absolute;
     inset: 0;
-    background-image: url('../images/noise.png');
+    background-image: url('/images/noise.png');
     opacity: 0.03;
 }
 
@@ -5072,20 +5097,20 @@ body {
 
 .form-glass-container {
     position: relative;
-    padding: 0.25rem;
     border-radius: 1.5rem;
-    background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 2px 20px rgba(255, 255, 255, 0.15), 0 30px 60px rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
 }
 
 .form-inner {
     position: relative;
-    background: rgba(26, 29, 36, 0.95);
-    border-radius: 1.375rem;
+    background: rgba(10, 10, 10, 0.95);
+    border-radius: 1.5rem;
     padding: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: none;
 }
 
 .form-group {
@@ -5141,6 +5166,10 @@ body {
 .booking-select {
     appearance: none;
     cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.2rem;
 }
 
 .booking-select option {
@@ -5219,7 +5248,7 @@ body {
 
 /* New Footer Styles */
 .site-footer {
-    background-color: #0F1115;
+    background-color: #050505;
     color: white;
     padding: 3rem 0;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -5656,13 +5685,15 @@ body {
         padding-left: 20px;
         padding-right: 20px;
     }
-}/* ========================================
+}
+
+/* ========================================
    HORIZONTAL SCROLL PROJECTS SECTION
    ======================================== */
 
 .horizontal-scroll-section {
     /* Mirrored Hero Image (Vertical Flip) - Perfect Left-Right Match */
-    background: url('../images/what-we-build-bg-mirrored.png') no-repeat center top;
+    background: url('/images/what-we-build-bg-mirrored.png') no-repeat center top;
     background-size: cover;
     /* Fixes "not full size" issue */
 
@@ -6097,7 +6128,9 @@ body {
     z-index: -100;
     background: linear-gradient(180deg, #FFFFFF 0%, #FAFAFA 100%);
     overflow: hidden;
-}/* ========================================
+}
+
+/* ========================================
    HOE HET WERKT TIMELINE SECTION
    ======================================== */
 
@@ -6502,5 +6535,109 @@ body {
 
     .timeline-image {
         height: 384px;
+    }
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+/* ========== NEW HORIZONTAL PROCESS SECTION ========== */
+.process-section {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.process-steps-container {
+    display: flex;
+    flex-direction: row;
+    gap: 32px;
+    margin-top: 80px;
+    position: relative;
+    z-index: 5;
+    justify-content: space-between;
+}
+
+.process-step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    max-width: 320px;
+}
+
+.process-icon-wrapper {
+    display: flex;
+    align-items: center;
+    margin-bottom: 32px;
+    position: relative;
+}
+
+.process-icon-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid rgba(156, 39, 176, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.8);
+    box-shadow: 0 0 30px rgba(156, 39, 176, 0.4), inset 0 0 15px rgba(156, 39, 176, 0.2);
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+}
+
+.process-connector {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    padding-left: 16px;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+}
+
+.process-connector svg {
+    width: 100%;
+}
+
+.process-step-number {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #9c27b0;
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+}
+
+.process-step-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 16px;
+}
+
+.process-step-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.05rem;
+    color: #94A3B8;
+    line-height: 1.6;
+}
+
+@media (max-width: 992px) {
+    .process-steps-container {
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    .process-step {
+        max-width: 100%;
+    }
+
+    .process-connector {
+        display: none;
     }
 }

@@ -1,54 +1,80 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { BLOG_POSTS } from '../data/blogPosts'
+import { NL_BLOG_POSTS } from '../data/blogPostsNl'
+import { getT } from '../i18n/translations'
+import CTASection from '../components/CTASection'
 
-const POSTS = [
-  { slug:'10-repetitive-tasks', title:'10 Repetitive Tasks You Should Automate Today', date:'March 2026', excerpt:'Discover the most common time-wasting tasks that can be automated to save your team hours every week.' },
-  { slug:'5-ways-to-customer', title:'5 Ways Automation Improves Customer Experience', date:'February 2026', excerpt:'Learn how smart automation can transform customer interactions and boost satisfaction scores.' },
-  { slug:'bpa-guide', title:'The Complete BPA Guide for SMEs', date:'January 2026', excerpt:'Everything small and medium businesses need to know about Business Process Automation.' },
-  { slug:'zapier-vs-custom', title:'Zapier vs Custom Automation — Which Is Right for You?', date:'January 2026', excerpt:'A no-nonsense comparison to help you choose the right automation approach for your business.' },
-  { slug:'automation-intro', title:'Introduction to Business Automation', date:'December 2025', excerpt:'Start here if you\'re new to automation. A beginner-friendly overview of what automation can do for your business.' },
-  { slug:'outgrown-zapier', title:'Signs You\'ve Outgrown Zapier', date:'December 2025', excerpt:'Are your workflows becoming too complex? Here are the signs it\'s time to move beyond no-code tools.' },
-]
+export default function Blog({ lang = 'en' }) {
+  const t = getT(lang)
+  const posts = lang === 'nl' ? NL_BLOG_POSTS : BLOG_POSTS
+  const base = lang === 'nl' ? '/nl/blog' : '/blog'
 
-export default function Blog() {
   useEffect(() => {
-    document.title = 'Blog - AutoFlow Studio'
-  }, [])
+    document.title = `${t.blog.title} - AutoFlow Studio`
+    document.documentElement.lang = lang
+  }, [lang, t])
 
   return (
-    <main className="main-content">
-      <section className="blog-header">
-        <div className="hero-background">
-          <div className="abstract-element sphere-1" />
-          <div className="abstract-element sphere-2" />
-        </div>
-        <div className="container">
-          <h1>Automation Insights</h1>
-          <p>Practical guides, case studies, and tips to help you automate smarter.</p>
+    <main className="main-content" style={{ background: '#050505' }}>
+      <section style={{
+        paddingTop: '140px', paddingBottom: '60px', textAlign: 'center',
+        background: 'linear-gradient(180deg,#050505 0%,#0a0a0a 100%)',
+        position: 'relative', overflow: 'hidden',
+      }}>
+        <div style={{ position:'absolute',top:'20%',left:'10%',width:'300px',height:'300px',borderRadius:'50%',background:'radial-gradient(circle,rgba(233,30,99,0.07) 0%,transparent 70%)',pointerEvents:'none' }} />
+        <div style={{ maxWidth:'700px',margin:'0 auto',padding:'0 24px',position:'relative',zIndex:1 }}>
+          <span style={{ display:'inline-block',background:'rgba(233,30,99,0.12)',border:'1px solid rgba(233,30,99,0.3)',color:'#e91e63',padding:'6px 18px',borderRadius:'20px',fontSize:'0.75rem',fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',marginBottom:'20px' }}>
+            {t.blog.badge}
+          </span>
+          <h1 style={{ color:'#F8FAFC',fontSize:'clamp(2rem,5vw,3.2rem)',fontWeight:800,marginBottom:'16px',lineHeight:1.15 }}>{t.blog.title}</h1>
+          <p style={{ color:'#94A3B8',fontSize:'1.05rem',lineHeight:1.7,maxWidth:'500px',margin:'0 auto' }}>{t.blog.sub}</p>
         </div>
       </section>
 
-      <section className="section">
-        <div className="container">
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(320px,1fr))',gap:'32px',marginTop:'20px'}}>
-            {POSTS.map((p,i) => (
-              <article key={i} className="blog-card" style={{background:'white',borderRadius:'20px',overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,0.08)',transition:'transform 0.3s,box-shadow 0.3s'}}
-                onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-6px)';e.currentTarget.style.boxShadow='0 12px 40px rgba(0,0,0,0.15)'}}
-                onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.boxShadow='0 4px 20px rgba(0,0,0,0.08)'}}>
-                <div style={{padding:'32px'}}>
-                  <span style={{color:'#94A3B8',fontSize:'0.8rem',fontWeight:600,display:'block',marginBottom:'10px'}}>{p.date}</span>
-                  <h2 style={{color:'#1a1a1a',fontSize:'1.15rem',fontWeight:700,marginBottom:'12px',lineHeight:1.35}}>{p.title}</h2>
-                  <p style={{color:'#6b7280',lineHeight:1.6,marginBottom:'24px',fontSize:'0.9rem'}}>{p.excerpt}</p>
-                  <Link to={`/blog/${p.slug}`}
-                    style={{color:'#e91e63',fontWeight:600,fontSize:'0.875rem',textDecoration:'none',display:'inline-flex',alignItems:'center',gap:'6px'}}>
-                    Read More →
-                  </Link>
-                </div>
-              </article>
-            ))}
+      <section style={{ padding:'60px 24px 100px',background:'#050505' }}>
+        <div style={{ maxWidth:'1200px',margin:'0 auto' }}>
+          <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(340px,1fr))',gap:'24px' }}>
+            {posts.map((post) => {
+              const imgMatch = post.body.match(/<img[^>]+src=["']([^"']+)["']/)
+              const imgSrc = imgMatch ? imgMatch[1] : 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=800'
+              
+              return (
+                <article key={post.slug}
+                  style={{ 
+                    background:'#0a0a0a',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '24px', 
+                    overflow: 'hidden',
+                    boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 2px 20px rgba(255,255,255,0.15), 0 30px 60px rgba(0,0,0,0.8)',
+                    transition:'transform 0.25s,box-shadow 0.25s,border-color 0.25s',
+                    display:'flex', flexDirection:'column' 
+                  }}
+                  onMouseOver={e=>{e.currentTarget.style.transform='translateY(-5px)';e.currentTarget.style.boxShadow='inset 0 0 0 1px rgba(255,255,255,0.1), inset 0 2px 20px rgba(255,255,255,0.25), 0 40px 80px rgba(0,0,0,0.9)';e.currentTarget.style.borderColor='rgba(233,30,99,0.3)'}}
+                  onMouseOut={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 2px 20px rgba(255,255,255,0.15), 0 30px 60px rgba(0,0,0,0.8)';e.currentTarget.style.borderColor='rgba(255,255,255,0.1)'}}>
+                  <div style={{ height:'200px', overflow:'hidden', position:'relative', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
+                    <img src={imgSrc} alt={post.title} style={{ width:'100%', height:'100%', objectFit:'cover', transition:'transform 0.5s ease' }}
+                      onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                      onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'} />
+                  </div>
+                  <div style={{ padding:'28px',display:'flex',flexDirection:'column',flex:1 }}>
+                    <span style={{ color:'#64748B',fontSize:'0.75rem',fontWeight:600,letterSpacing:'0.08em',textTransform:'uppercase',marginBottom:'12px' }}>{post.date}</span>
+                    <h2 style={{ color:'#F8FAFC',fontSize:'1.05rem',fontWeight:700,lineHeight:1.4,marginBottom:'12px',flex:0 }}>{post.title}</h2>
+                    <p style={{ color:'#94A3B8',fontSize:'0.875rem',lineHeight:1.65,marginBottom:'24px',flex:1 }}>
+                      {post.desc.length > 140 ? post.desc.slice(0,140)+'…' : post.desc}
+                    </p>
+                    <Link to={`${base}/${post.slug}`}
+                      style={{ display:'inline-flex',alignItems:'center',gap:'6px',color:'#e91e63',fontWeight:600,fontSize:'0.875rem',textDecoration:'none',marginTop:'auto' }}>
+                      {t.blog.readMore}
+                    </Link>
+                  </div>
+                </article>
+              )
+            })}
           </div>
         </div>
       </section>
+      <CTASection lang={lang} />
     </main>
   )
 }
