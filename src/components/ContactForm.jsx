@@ -12,7 +12,7 @@ function showNotification(msg, type = 'success') {
 }
 
 export default function ContactForm({ lang = 'en' }) {
-  const [form, setForm] = useState({ name:'', email:'', company:'', message:'', service:'', size:'solo' })
+  const [form, setForm] = useState({ name:'', email:'', phone:'', company:'', message:'', service:'', size:'solo' })
   const [loading, setLoading] = useState(false)
   const set = (k,v) => setForm(f=>({...f,[k]:v}))
 
@@ -20,6 +20,7 @@ export default function ContactForm({ lang = 'en' }) {
   const labels = isNl ? {
     name: 'Naam *',
     email: 'Email *',
+    phone: 'Telefoonnummer',
     company: 'Bedrijf',
     service: 'Selecteer Service',
     servicePlaceholder: '-- Kies Uw Behoefte --',
@@ -36,6 +37,7 @@ export default function ContactForm({ lang = 'en' }) {
   } : {
     name: 'Name *',
     email: 'Email *',
+    phone: 'Phone Number',
     company: 'Company',
     service: 'Select Service',
     servicePlaceholder: '-- Select Your Need --',
@@ -58,14 +60,14 @@ export default function ContactForm({ lang = 'en' }) {
     setLoading(true)
     try {
       const { error } = await supabase.from('contact_leads').insert([{
-        name: form.name, email: form.email,
+        name: form.name, email: form.email, phone: form.phone,
         company: form.company, message: form.message,
         service: form.service, size: form.size
       }])
       if (error) throw error
       await sendEmailNotification({ type: 'contact', ...form })
       showNotification(labels.success)
-      setForm({ name:'', email:'', company:'', message:'', service:'', size:'solo' })
+      setForm({ name:'', email:'', phone:'', company:'', message:'', service:'', size:'solo' })
     } catch (err) {
       console.error(err)
       showNotification(labels.errorGeneral, 'error')
@@ -117,6 +119,13 @@ export default function ContactForm({ lang = 'en' }) {
         <div className="input-wrapper">
           <svg className="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
           <input type="email" required value={form.email} onChange={e=>set('email',e.target.value)} className="booking-input" />
+        </div>
+      </div>
+      <div className="form-group">
+        <label className="input-label">{labels.phone}</label>
+        <div className="input-wrapper">
+          <svg className="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <input type="tel" value={form.phone} onChange={e=>set('phone',e.target.value)} className="booking-input" />
         </div>
       </div>
       <div className="form-group">

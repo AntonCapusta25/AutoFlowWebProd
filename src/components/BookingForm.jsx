@@ -10,7 +10,7 @@ function showNotification(msg, type = 'success') {
 }
 
 export default function BookingForm({ title = 'Book Your Automation Audit', lang = 'en' }) {
-  const [form, setForm] = useState({ service:'', size:'solo', platform:'', name:'', email:'' })
+  const [form, setForm] = useState({ service:'', size:'solo', platform:'', name:'', email:'', phone:'' })
   const [loading, setLoading] = useState(false)
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
@@ -22,6 +22,7 @@ export default function BookingForm({ title = 'Book Your Automation Audit', lang
     size: 'Bedrijfsgrootte',
     name: 'Uw Naam',
     email: 'E-mailadres',
+    phone: 'Telefoonnummer',
     note: 'Opmerking (Optioneel)',
     notePlaceholder: 'Heeft u specifieke behoeften of vragen?',
     btn: 'Krijg Gratis Audit',
@@ -37,6 +38,7 @@ export default function BookingForm({ title = 'Book Your Automation Audit', lang
     size: 'Business Size',
     name: 'Your Name',
     email: 'Email Address',
+    phone: 'Phone Number',
     note: 'Leave a Note (Optional)',
     notePlaceholder: 'Any specific needs or questions?',
     btn: 'Get Free Audit',
@@ -56,14 +58,14 @@ export default function BookingForm({ title = 'Book Your Automation Audit', lang
     setLoading(true)
     try {
       const { error } = await supabase.from('booking_leads').insert([{
-        name: form.name, email: form.email,
+        name: form.name, email: form.email, phone: form.phone,
         service: form.service, size: form.size, 
         message: form.message, platform: 'STANDARDIZED',
       }])
       if (error) throw error
       await sendEmailNotification({ type: 'booking', ...form })
       showNotification(labels.success)
-      setForm({ service:'', size:'solo', platform:'', name:'', email:'', message:'' })
+      setForm({ service:'', size:'solo', platform:'', name:'', email:'', phone:'', message:'' })
     } catch (err) {
       console.error(err)
       showNotification(labels.errorGeneral, 'error')
@@ -109,6 +111,10 @@ export default function BookingForm({ title = 'Book Your Automation Audit', lang
       <div className="input-wrapper">
         <svg className="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
         <input type="email" placeholder={labels.email} required className="booking-input" value={form.email} onChange={e=>set('email',e.target.value)} />
+      </div>
+      <div className="input-wrapper">
+        <svg className="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <input type="tel" placeholder={labels.phone} className="booking-input" value={form.phone} onChange={e=>set('phone',e.target.value)} />
       </div>
 
       <div>

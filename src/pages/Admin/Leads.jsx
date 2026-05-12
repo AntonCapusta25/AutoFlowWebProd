@@ -6,10 +6,19 @@ export default function AdminLeads() {
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedLead, setSelectedLead] = useState(null)
+  const [history, setHistory] = useState([])
+  const [selectedIds, setSelectedIds] = useState([])
+  const [noteModalLead, setNoteModalLead] = useState(null)
 
   useEffect(() => {
     fetchLeads()
   }, [])
+
+  useEffect(() => {
+    if (selectedLead) {
+      fetchHistory(selectedLead.id)
+    }
+  }, [selectedLead])
 
   async function fetchLeads() {
     setLoading(true)
@@ -27,21 +36,126 @@ export default function AdminLeads() {
     setLoading(false)
   }
 
+  async function fetchHistory(leadId) {
+    const { data } = await supabase
+      .from('lead_history')
+      .select('*')
+      .eq('lead_id', leadId)
+      .order('created_at', { ascending: false })
+    setHistory(data || [])
+  }
+
   async function updateStatus(id, type, newStatus) {
-    const table = type === 'Booking' ? 'booking_leads' : 'contact_leads'
+    const table = type.toLowerCase() === 'booking' ? 'booking_leads' : 'contact_leads'
     const { error } = await supabase.from(table).update({ status: newStatus }).eq('id', id)
     if (!error) {
       setLeads(prev => prev.map(l => l.id === id ? { ...l, status: newStatus } : l))
       if (selectedLead?.id === id) setSelectedLead(prev => ({ ...prev, status: newStatus }))
+      
+      await supabase.from('lead_history').insert({
+        lead_id: id,
+        lead_type: type.toLowerCase() === 'booking' ? 'booking' : 'contact',
+        event_type: 'status_change',
+        content: `Status updated to ${newStatus}`
+      })
+      if (selectedLead?.id === id) fetchHistory(id)
     }
   }
 
-  async function updateNotes(id, type, notes) {
-    const table = type === 'Booking' ? 'booking_leads' : 'contact_leads'
-    const { error } = await supabase.from(table).update({ notes }).eq('id', id)
+  async function addComment(lead, content) {
+    if (!content.trim()) return
+    const { error } = await supabase.from('lead_history').insert({
+      lead_id: lead.id,
+      lead_type: lead.type.toLowerCase(),
+      event_type: 'note',
+      content: content
+    })
     if (!error) {
-      setLeads(prev => prev.map(l => l.id === id ? { ...l, notes } : l))
+      if (selectedLead?.id === lead.id) fetchHistory(lead.id)
+      // Update local lead's notes summary if needed
+      setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, notes: content } : l))
     }
+  }
+
+  async function logCall(lead) {
+    const table = lead.type === 'Booking' ? 'booking_leads' : 'contact_leads'
+    const newCount = (lead.call_attempts || 0) + 1
+    
+    const { error } = await supabase.from(table).update({ call_attempts: newCount }).eq('id', lead.id)
+    if (!error) {
+      setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, call_attempts: newCount } : l))
+      if (selectedLead?.id === lead.id) setSelectedLead(prev => ({ ...prev, call_attempts: newCount }))
+
+      await supabase.from('lead_history').insert({
+        lead_id: lead.id,
+        lead_type: lead.type.toLowerCase(),
+        event_type: 'call',
+        content: `Call attempt #${newCount}`
+      })
+      fetchHistory(lead.id)
+    }
+  }
+
+  async function deleteHistoryItem(id) {
+    if (!confirm('Delete this comment?')) return
+    const { error } = await supabase.from('lead_history').delete().eq('id', id)
+    if (!error) {
+      setHistory(prev => prev.filter(item => item.id !== id))
+    }
+  }
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'New': return { bg: 'rgba(233, 30, 99, 0.1)', text: '#f472b6', border: 'rgba(233, 30, 99, 0.2)' }
+      case 'Contacted': return { bg: 'rgba(59, 130, 246, 0.1)', text: '#93c5fd', border: 'rgba(59, 130, 246, 0.2)' }
+      case 'In Progress': return { bg: 'rgba(245, 158, 11, 0.1)', text: '#fbbf24', border: 'rgba(245, 158, 11, 0.2)' }
+      case 'Converted': return { bg: 'rgba(16, 185, 129, 0.1)', text: '#6ee7b7', border: 'rgba(16, 185, 129, 0.2)' }
+      case 'Lost': return { bg: 'rgba(239, 68, 68, 0.1)', text: '#f87171', border: 'rgba(239, 68, 68, 0.2)' }
+      default: return { bg: 'rgba(255,255,255,0.05)', text: '#94A3B8', border: 'rgba(255,255,255,0.1)' }
+    }
+  }
+
+  async function deleteLead(lead) {
+    if (!confirm('Are you sure you want to PERMANENTLY delete this lead?')) return
+    const table = lead.type.toLowerCase() === 'booking' ? 'booking_leads' : 'contact_leads'
+    const { error } = await supabase.from(table).delete().eq('id', lead.id)
+    if (error) {
+      console.error('Delete error:', error)
+      alert('Error deleting lead: ' + error.message)
+    } else {
+      setLeads(prev => prev.filter(l => l.id !== lead.id))
+      if (selectedLead?.id === lead.id) setSelectedLead(null)
+    }
+  }
+
+  async function batchDelete() {
+    if (!confirm(`Are you sure you want to delete ${selectedIds.length} leads?`)) return
+    
+    const toDelete = leads.filter(l => selectedIds.includes(l.id))
+    const bookings = toDelete.filter(l => l.type.toLowerCase() === 'booking').map(l => l.id)
+    const contacts = toDelete.filter(l => l.type.toLowerCase() === 'contact').map(l => l.id)
+
+    try {
+      if (bookings.length) {
+        const { error } = await supabase.from('booking_leads').delete().in('id', bookings)
+        if (error) throw error
+      }
+      if (contacts.length) {
+        const { error } = await supabase.from('contact_leads').delete().in('id', contacts)
+        if (error) throw error
+      }
+      
+      setLeads(prev => prev.filter(l => !selectedIds.includes(l.id)))
+      setSelectedIds([])
+      if (selectedLead && selectedIds.includes(selectedLead.id)) setSelectedLead(null)
+    } catch (err) {
+      console.error('Batch delete failed:', err)
+      alert('Error during batch delete: ' + err.message)
+    }
+  }
+
+  function toggleSelect(id) {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
   }
 
   return (
@@ -51,152 +165,302 @@ export default function AdminLeads() {
           <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '2rem', fontWeight: 800, marginBottom: '8px' }}>CRM / Leads</h1>
           <p style={{ color: '#94A3B8' }}>Manage your relationship with potential clients.</p>
         </div>
-        <button onClick={fetchLeads} style={{ padding: '10px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', borderRadius: '12px', cursor: 'pointer' }}>Refresh</button>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          {selectedIds.length > 0 && (
+            <button onClick={batchDelete} style={{ padding: '10px 20px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', borderRadius: '12px', cursor: 'pointer', fontWeight: 600 }}>
+              Delete Selected ({selectedIds.length})
+            </button>
+          )}
+          <button onClick={() => fetchLeads(true)} style={{ padding: '10px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', borderRadius: '12px', cursor: 'pointer' }}>Refresh</button>
+        </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: selectedLead ? '1fr 400px' : '1fr', gap: '24px', transition: 'all 0.3s' }}>
-        {/* Table Container */}
-        <div style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '24px', overflow: 'hidden' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: selectedLead ? '1fr 480px' : '1fr', gap: '24px', transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+        <div style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)', background: 'rgba(255,255,255,0.02)' }}>
-                <th style={{ padding: '20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.85rem' }}>LEAD</th>
-                <th style={{ padding: '20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.85rem' }}>SOURCE</th>
-                <th style={{ padding: '20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.85rem' }}>STATUS</th>
-                <th style={{ padding: '20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.85rem' }}>DATE</th>
+              <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', background: 'rgba(255,255,255,0.02)' }}>
+                <th style={{ padding: '24px 20px', width: '40px' }}>
+                  <input type="checkbox" onChange={e => setSelectedIds(e.target.checked ? leads.map(l => l.id) : [])} checked={selectedIds.length === leads.length && leads.length > 0} />
+                </th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Lead Profile</th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Website</th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Source</th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Phone</th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Latest Comment</th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center' }}>Activity</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="4" style={{ padding: '40px', textAlign: 'center', color: '#94A3B8' }}>Loading leads...</td></tr>
+                <tr><td colSpan="8" style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>Loading inbound leads...</td></tr>
               ) : leads.length === 0 ? (
-                <tr><td colSpan="4" style={{ padding: '40px', textAlign: 'center', color: '#94A3B8' }}>No leads found.</td></tr>
-              ) : leads.map(lead => (
-                <tr 
-                  key={lead.id} 
-                  onClick={() => setSelectedLead(lead)}
-                  style={{ 
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.05)', cursor: 'pointer',
-                    background: selectedLead?.id === lead.id ? 'rgba(233, 30, 99, 0.05)' : 'transparent',
-                    transition: 'background 0.2s'
-                  }}
-                  onMouseOver={e => !selectedLead || selectedLead.id !== lead.id ? e.currentTarget.style.background = 'rgba(255,255,255,0.02)' : null}
-                  onMouseOut={e => !selectedLead || selectedLead.id !== lead.id ? e.currentTarget.style.background = 'transparent' : null}
-                >
-                  <td style={{ padding: '20px' }}>
-                    <p style={{ margin: 0, fontWeight: 700, color: 'white' }}>{lead.name}</p>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#94A3B8' }}>{lead.email}</p>
-                  </td>
-                  <td style={{ padding: '20px' }}>
-                    <span style={{ 
-                      padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700,
-                      background: lead.type === 'Booking' ? 'rgba(156, 39, 176, 0.15)' : 'rgba(59, 130, 246, 0.15)',
-                      color: lead.type === 'Booking' ? '#d8b4fe' : '#93c5fd'
-                    }}>
-                      {lead.type}
-                    </span>
-                  </td>
-                  <td style={{ padding: '20px' }}>
-                    <span style={{ 
-                      padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700,
-                      background: lead.status === 'New' ? 'rgba(233, 30, 99, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-                      color: lead.status === 'New' ? '#f472b6' : '#6ee7b7'
-                    }}>
-                      {lead.status}
-                    </span>
-                  </td>
-                  <td style={{ padding: '20px', color: '#64748B', fontSize: '0.85rem' }}>
-                    {new Date(lead.created_at).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
+                <tr><td colSpan="8" style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>No leads found.</td></tr>
+              ) : leads.map(lead => {
+                const s = getStatusColor(lead.status)
+                return (
+                  <tr 
+                    key={lead.id} 
+                    style={{ 
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                      background: selectedLead?.id === lead.id ? 'rgba(233, 30, 99, 0.04)' : 'transparent',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <td style={{ padding: '20px' }}>
+                      <input type="checkbox" checked={selectedIds.includes(lead.id)} onChange={() => toggleSelect(lead.id)} />
+                    </td>
+                    <td style={{ padding: '20px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #e91e63, #9c27b0)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 800, color: 'white', boxShadow: '0 4px 12px rgba(233, 30, 99, 0.2)' }}>{lead.name.charAt(0)}</div>
+                        <div>
+                          <p style={{ margin: 0, fontWeight: 700, color: 'white', fontSize: '0.95rem' }}>{lead.name}</p>
+                          <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748B' }}>{lead.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ padding: '20px' }}>
+                      {lead.website ? (() => {
+                        let url = lead.website.trim().replace(/^https?:\/*/, '')
+                        const fullUrl = `https://${url}`
+                        return (
+                          <a 
+                            href={fullUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            style={{ 
+                              display: 'flex', alignItems: 'center', gap: '8px', color: '#3b82f6', 
+                              fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none',
+                              background: 'rgba(59, 130, 246, 0.05)', padding: '6px 12px', borderRadius: '8px', width: 'fit-content'
+                            }}
+                          >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            Visit
+                          </a>
+                        )
+                      })() : (
+                        <span style={{ color: '#475569', fontSize: '0.85rem' }}>N/A</span>
+                      )}
+                    </td>
+                    <td style={{ padding: '20px' }}>
+                      <span style={{ 
+                        padding: '6px 12px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase',
+                        background: lead.type.toLowerCase() === 'booking' ? 'rgba(233, 30, 99, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+                        color: lead.type.toLowerCase() === 'booking' ? '#e91e63' : '#3b82f6',
+                        border: `1px solid ${lead.type.toLowerCase() === 'booking' ? 'rgba(233, 30, 99, 0.2)' : 'rgba(59, 130, 246, 0.2)'}`
+                      }}>
+                        {lead.type.toLowerCase() === 'booking' ? 'Booking' : 'Message'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '20px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#CBD5E1', fontSize: '0.85rem', fontWeight: 600 }}>
+                        <span>{lead.phone || 'N/A'}</span>
+                        {lead.phone && (
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigator.clipboard.writeText(lead.phone);
+                              const target = e.currentTarget;
+                              const originalInner = target.innerHTML;
+                              target.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                              setTimeout(() => target.innerHTML = originalInner, 2000);
+                            }}
+                            style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', opacity: 0.5 }}
+                            title="Copy Phone"
+                          >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                    <td style={{ padding: '20px' }}>
+                      <select 
+                        value={lead.status} 
+                        onChange={e => updateStatus(lead.id, lead.type, e.target.value)}
+                        style={{ 
+                          padding: '8px 12px', background: s.bg, border: `1px solid ${s.border}`, 
+                          borderRadius: '10px', color: s.text, fontSize: '0.8rem', fontWeight: 700, outline: 'none', cursor: 'pointer' 
+                        }}
+                      >
+                        <option value="New">New</option>
+                        <option value="Contacted">Contacted</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Converted">Converted</option>
+                        <option value="Lost">Lost</option>
+                      </select>
+                    </td>
+                    <td style={{ padding: '20px' }}>
+                      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ 
+                          flex: 1, padding: '10px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', 
+                          borderRadius: '10px', color: lead.notes ? '#CBD5E1' : '#475569', fontSize: '0.85rem', 
+                          minHeight: '40px', display: 'flex', alignItems: 'center', fontStyle: lead.notes ? 'normal' : 'italic',
+                          maxWidth: '250px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                        }}>
+                          {lead.notes || 'No notes yet...'}
+                        </div>
+                        <button 
+                          onClick={() => setNoteModalLead(lead)}
+                          style={{ 
+                            width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(233, 30, 99, 0.1)', 
+                            border: '1px solid rgba(233, 30, 99, 0.2)', color: '#e91e63', fontSize: '1.2rem', 
+                            fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </td>
+                    <td style={{ padding: '20px', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                        <button 
+                          onClick={() => logCall(lead)}
+                          title="Log Call"
+                          style={{ 
+                            padding: '8px 12px', background: 'rgba(233, 30, 99, 0.08)', border: '1px solid rgba(233, 30, 99, 0.1)', 
+                            color: '#e91e63', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                          <span style={{ fontWeight: 800, fontSize: '0.8rem' }}>{lead.call_attempts || 0}</span>
+                        </button>
+                        
+                        <button 
+                          onClick={() => setSelectedLead(lead)}
+                          title="View History"
+                          style={{ 
+                            padding: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', 
+                            color: '#94A3B8', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
-
-        {/* Details Sidebar */}
         {selectedLead && (
-          <div style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '24px', padding: '32px', position: 'sticky', top: '40px', height: 'fit-content' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h3 style={{ margin: 0, color: 'white' }}>Lead Details</h3>
-              <button onClick={() => setSelectedLead(null)} style={{ background: 'transparent', border: 'none', color: '#94A3B8', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
-            </div>
-
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', color: '#64748B', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px' }}>Status</label>
-              <select 
-                value={selectedLead.status} 
-                onChange={e => updateStatus(selectedLead.id, selectedLead.type, e.target.value)}
-                style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white', outline: 'none' }}
-              >
-                <option value="New">New</option>
-                <option value="Contacted">Contacted</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Converted">Converted</option>
-                <option value="Lost">Lost</option>
-              </select>
-            </div>
-
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', color: '#64748B', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px' }}>Notes</label>
-              <textarea 
-                defaultValue={selectedLead.notes || ''}
-                onBlur={e => updateNotes(selectedLead.id, selectedLead.type, e.target.value)}
-                placeholder="Add private notes about this lead..."
-                style={{ width: '100%', height: '120px', padding: '12px', background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white', outline: 'none', resize: 'none', fontFamily: 'inherit', fontSize: '0.9rem' }}
-              />
-            </div>
-
-            <div style={{ background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '12px', marginBottom: '24px' }}>
-              <div style={{ marginBottom: '12px' }}>
-                <p style={{ margin: '0 0 4px', color: '#64748B', fontSize: '0.75rem', fontWeight: 700 }}>EMAIL</p>
-                <p style={{ margin: 0, color: 'white', fontSize: '0.9rem' }}>{selectedLead.email}</p>
-              </div>
-              {selectedLead.company && (
-                <div style={{ marginBottom: '12px' }}>
-                  <p style={{ margin: '0 0 4px', color: '#64748B', fontSize: '0.75rem', fontWeight: 700 }}>COMPANY</p>
-                  <p style={{ margin: 0, color: 'white', fontSize: '0.9rem' }}>{selectedLead.company}</p>
-                </div>
-              )}
-              {selectedLead.service && (
-                <div style={{ marginBottom: '12px' }}>
-                  <p style={{ margin: '0 0 4px', color: '#64748B', fontSize: '0.75rem', fontWeight: 700 }}>SERVICE INTEREST</p>
-                  <p style={{ margin: 0, color: 'white', fontSize: '0.9rem' }}>{selectedLead.service}</p>
-                </div>
-              )}
-              {selectedLead.size && (
-                <div style={{ marginBottom: '12px' }}>
-                  <p style={{ margin: '0 0 4px', color: '#64748B', fontSize: '0.75rem', fontWeight: 700 }}>BUSINESS SIZE</p>
-                  <p style={{ margin: 0, color: 'white', fontSize: '0.9rem' }}>{selectedLead.size}</p>
-                </div>
-              )}
-              {(selectedLead.message) && (
+          <div style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', padding: '32px', position: 'sticky', top: '40px', maxHeight: 'calc(100vh - 80px)', overflowY: 'auto', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'linear-gradient(135deg, #e91e63, #9c27b0)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 800, color: 'white' }}>{selectedLead.name.charAt(0)}</div>
                 <div>
-                  <p style={{ margin: '0 0 4px', color: '#64748B', fontSize: '0.75rem', fontWeight: 700 }}>MESSAGE / NOTES</p>
-                  <p style={{ margin: 0, color: '#94A3B8', fontSize: '0.85rem', lineHeight: 1.6 }}>{selectedLead.message}</p>
+                  <h3 style={{ margin: 0, color: 'white', fontSize: '1.2rem' }}>{selectedLead.name}</h3>
+                  <p style={{ margin: 0, color: '#64748B', fontSize: '0.85rem' }}>{selectedLead.type} Lead</p>
                 </div>
-              )}
+              </div>
+              <button onClick={() => setSelectedLead(null)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94A3B8', cursor: 'pointer', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
             </div>
 
-            <button 
-              onClick={() => {
-                if (confirm('Are you sure you want to PERMANENTLY delete this lead?')) {
-                  const table = selectedLead.type === 'Booking' ? 'booking_leads' : 'contact_leads'
-                  supabase.from(table).delete().eq('id', selectedLead.id).then(({ error }) => {
-                    if (!error) {
-                      setLeads(prev => prev.filter(l => l.id !== selectedLead.id))
-                      setSelectedLead(null)
-                    }
-                  })
-                }
-              }}
-              style={{ width: '100%', padding: '12px', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', borderRadius: '12px', fontWeight: 600, cursor: 'pointer' }}
-            >
-              Delete Lead
-            </button>
+            <div style={{ marginBottom: '32px' }}>
+              <label style={{ display: 'block', color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>Add Comment</label>
+              <div style={{ position: 'relative' }}>
+                <textarea 
+                  id="sidebar-comment"
+                  placeholder="Share an update or internal note..."
+                  style={{ width: '100%', height: '100px', padding: '16px', background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', color: 'white', outline: 'none', resize: 'none', fontSize: '0.9rem', lineHeight: '1.5' }}
+                />
+                <button 
+                  onClick={() => {
+                    const el = document.getElementById('sidebar-comment')
+                    addComment(selectedLead, el.value)
+                    el.value = ''
+                  }}
+                  style={{ position: 'absolute', bottom: '12px', right: '12px', padding: '8px 16px', background: '#e91e63', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '0.8rem' }}
+                >
+                  Save Comment
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <h4 style={{ color: 'white', fontSize: '0.95rem', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>Timeline</span>
+                <span style={{ fontSize: '0.75rem', color: '#64748B', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '10px' }}>{history.length} events</span>
+              </h4>
+              <div style={{ display: 'grid', gap: '0' }}>
+                {history.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '40px 20px', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '20px' }}>
+                    <p style={{ color: '#64748B', fontSize: '0.85rem' }}>No activity logged for this lead yet.</p>
+                  </div>
+                ) : history.map((item, idx) => (
+                  <div key={item.id} style={{ display: 'flex', gap: '20px', position: 'relative', paddingBottom: idx === history.length - 1 ? 0 : '24px' }}>
+                    {idx !== history.length - 1 && <div style={{ position: 'absolute', left: '7px', top: '24px', bottom: 0, width: '2px', background: 'rgba(255,255,255,0.05)' }} />}
+                    <div style={{ 
+                      width: '16px', height: '16px', borderRadius: '50%', 
+                      background: item.event_type === 'call' ? '#e91e63' : item.event_type === 'note' ? '#3b82f6' : '#10b981', 
+                      zIndex: 1, marginTop: '4px', flexShrink: 0,
+                      boxShadow: `0 0 10px ${item.event_type === 'call' ? 'rgba(233, 30, 99, 0.3)' : 'transparent'}`
+                    }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                        <p style={{ margin: 0, color: 'white', fontSize: '0.9rem', lineHeight: '1.5' }}>{item.content}</p>
+                        {item.event_type === 'note' && (
+                          <button onClick={() => deleteHistoryItem(item.id)} style={{ background: 'transparent', border: 'none', color: '#ef4444', opacity: 0.4, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                          </button>
+                        )}
+                      </div>
+                      <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem' }}>{new Date(item.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ marginTop: '32px', display: 'flex', gap: '12px' }}>
+               <button onClick={() => logCall(selectedLead)} style={{ flex: 1, padding: '14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                 Log Call
+               </button>
+               <button onClick={() => deleteLead(selectedLead)} style={{ padding: '14px', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}>Delete</button>
+            </div>
           </div>
         )}
       </div>
+
+      {noteModalLead && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+          <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '24px', width: '100%', maxWidth: '400px', padding: '24px', boxShadow: '0 30px 60px rgba(0,0,0,0.8)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ margin: 0, color: 'white', fontSize: '1.1rem', fontWeight: 800 }}>New Comment</h3>
+              <button onClick={() => setNoteModalLead(null)} style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
+            
+            <textarea 
+              id="modal-note-input"
+              autoFocus
+              placeholder="What's the update?"
+              style={{ width: '100%', height: '120px', padding: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', color: 'white', outline: 'none', resize: 'none', fontSize: '0.95rem', lineHeight: '1.5', marginBottom: '20px' }}
+            />
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button 
+                onClick={() => {
+                  const content = document.getElementById('modal-note-input').value
+                  addComment(noteModalLead, content)
+                  setNoteModalLead(null)
+                }}
+                style={{ flex: 1, padding: '12px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}
+              >
+                Save Note
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   )
 }

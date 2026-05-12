@@ -2,17 +2,17 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getT } from '../i18n/translations'
 
-const LOGOS_RAW = [
-  'Homemade BV',
-  'Oceanlove',
-  'OpenAI',
-  'Gemini API',
-  'Recraft API',
-  'SendGrid',
-  'Supabase',
-  'Claude AI',
-  'Google Sheets',
-  'Vercel',
+const LOGOS = [
+  { name: 'Gemini', src: '/images/logos/gemini.png', type: 'image' },
+  { name: 'OpenAI', src: '/images/logos/openai.png', type: 'image' },
+  { name: 'Recraft', src: '/images/logos/recraft.png', type: 'image' },
+  { name: 'SendGrid', src: '/images/logos/sendgrid.png', type: 'image' },
+  { name: 'Google Workspace', src: '/images/logos/google-workspace.png', type: 'image' },
+  { name: 'Supabase', src: '/images/logos/supabase.png', type: 'image' },
+  { name: 'Homemade BV', type: 'pill' },
+  { name: 'Oceanlove', type: 'pill' },
+  { name: 'Claude AI', type: 'pill' },
+  { name: 'Vercel', type: 'pill' },
 ]
 
 const TYPEWRITER_ITEMS_EN = [
@@ -194,9 +194,57 @@ export default function Hero({ lang = 'en' }) {
         <div className="logos-label" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>{t.logosLabel}</div>
         <div className="logos-track-container">
           <div className="logos-track">
-            {[...LOGOS_RAW, ...LOGOS_RAW].map((l, i) => (
+            {[...LOGOS, ...LOGOS, ...LOGOS].map((l, i) => (
               <div key={i} className="logo-item">
-                <div className="logo-placeholder" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>{l}</div>
+                <div className="logo-pill" style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '60px',
+                  padding: '0 36px',
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: '50px',
+                  minWidth: 'max-content',
+                  backdropFilter: 'blur(10px)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'default'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
+                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)'
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)'
+                }}>
+                  {l.type === 'image' ? (
+                    <img 
+                      src={l.src} 
+                      alt={l.name} 
+                      style={{ 
+                        height: l.name === 'Gemini' || l.name === 'Recraft' || l.name === 'OpenAI' ? '50px' : '30px', 
+                        width: 'auto', 
+                        maxWidth: '240px',
+                        objectFit: 'contain',
+                        transition: 'all 0.3s'
+                      }}
+                    />
+                  ) : (
+                    <span style={{
+                      fontSize: '1rem',
+                      fontWeight: 700,
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      color: '#F8FAFC',
+                      whiteSpace: 'nowrap',
+                      letterSpacing: '0.02em'
+                    }}>
+                      {l.name}
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
           </div>
