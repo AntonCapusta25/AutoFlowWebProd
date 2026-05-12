@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 
 export default function AdminLayout({ children }) {
   const location = useLocation()
   const navigate = useNavigate()
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -22,13 +24,33 @@ export default function AdminLayout({ children }) {
     <div style={{ display: 'flex', minHeight: '100vh', background: '#050505', color: '#F8FAFC' }}>
       {/* Sidebar */}
       <aside style={{ 
-        width: '260px', background: '#0a0a0a', borderRight: '1px solid rgba(255, 255, 255, 0.1)', 
-        display: 'flex', flexDirection: 'column', padding: '24px' 
+        width: isCollapsed ? '80px' : '260px', background: '#0a0a0a', borderRight: '1px solid rgba(255, 255, 255, 0.1)', 
+        display: 'flex', flexDirection: 'column', padding: isCollapsed ? '24px 12px' : '24px',
+        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        position: 'relative'
       }}>
-        <div style={{ marginBottom: '40px' }}>
-          <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.25rem', fontWeight: 800 }}>
-            Auto<span style={{ color: '#f06292' }}>Flow</span> <span style={{ fontSize: '0.7rem', color: '#94A3B8', verticalAlign: 'middle', marginLeft: '4px' }}>ADMIN</span>
-          </h2>
+        <div style={{ marginBottom: '40px', display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'space-between' }}>
+          {!isCollapsed && (
+            <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
+              Auto<span style={{ color: '#f06292' }}>Flow</span> <span style={{ fontSize: '0.7rem', color: '#94A3B8', verticalAlign: 'middle', marginLeft: '4px' }}>ADMIN</span>
+            </h2>
+          )}
+          {isCollapsed && (
+            <div style={{ width: '40px', height: '40px', background: 'linear-gradient(135deg, #e91e63, #9c27b0)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 900 }}>A</div>
+          )}
+          <button 
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            style={{ 
+              background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94A3B8', 
+              cursor: 'pointer', padding: '8px', borderRadius: '8px', 
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              {isCollapsed ? <polyline points="13 17 18 12 13 7"></polyline> : <polyline points="11 17 6 12 11 7"></polyline>}
+              {isCollapsed ? <line x1="6" y1="12" x2="18" y2="12"></line> : <line x1="18" y1="12" x2="6" y2="12"></line>}
+            </svg>
+          </button>
         </div>
 
         <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -36,14 +58,17 @@ export default function AdminLayout({ children }) {
             <Link 
               key={item.to} to={item.to}
               style={{ 
-                display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', 
+                display: 'flex', alignItems: 'center', gap: isCollapsed ? '0' : '12px', padding: '12px', 
+                justifyContent: isCollapsed ? 'center' : 'flex-start',
                 borderRadius: '12px', textDecoration: 'none', color: location.pathname === item.to ? 'white' : '#94A3B8',
                 background: location.pathname === item.to ? 'rgba(233, 30, 99, 0.1)' : 'transparent',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                overflow: 'hidden'
               }}
+              title={isCollapsed ? item.label : ''}
             >
-              <span style={{ fontSize: '1.2rem' }}>{item.icon}</span>
-              <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{item.label}</span>
+              <span style={{ fontSize: '1.2rem', flexShrink: 0 }}>{item.icon}</span>
+              {!isCollapsed && <span style={{ fontWeight: 600, fontSize: '0.95rem', whiteSpace: 'nowrap' }}>{item.label}</span>}
             </Link>
           ))}
         </nav>
@@ -52,12 +77,14 @@ export default function AdminLayout({ children }) {
           onClick={handleLogout}
           style={{ 
             marginTop: 'auto', padding: '12px', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)', 
-            borderRadius: '12px', color: '#ef4444', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s'
+            borderRadius: '12px', color: '#ef4444', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
           }}
           onMouseOver={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
           onMouseOut={e => e.currentTarget.style.background = 'transparent'}
         >
-          Logout
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          {!isCollapsed && <span>Logout</span>}
         </button>
       </aside>
 
