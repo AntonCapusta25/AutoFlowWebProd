@@ -23,6 +23,7 @@ const AdminDashboard = lazy(() => import('./pages/Admin/Dashboard'))
 const AdminLeads     = lazy(() => import('./pages/Admin/Leads'))
 const AdminOutreach  = lazy(() => import('./pages/Admin/Outreach'))
 const AdminSegments  = lazy(() => import('./pages/Admin/Segments'))
+const AdminSegmentView = lazy(() => import('./pages/Admin/SegmentView'))
 const AdminCampaigns = lazy(() => import('./pages/Admin/Campaigns'))
 const AuthGuard      = lazy(() => import('./components/Admin/AuthGuard'))
 
@@ -69,6 +70,7 @@ function AppContent() {
           <Route path="/admin/leads" element={<AuthGuard><AdminLeads /></AuthGuard>} />
           <Route path="/admin/outreach" element={<AuthGuard><AdminOutreach /></AuthGuard>} />
           <Route path="/admin/segments" element={<AuthGuard><AdminSegments /></AuthGuard>} />
+          <Route path="/admin/segments/:id" element={<AuthGuard><AdminSegmentView /></AuthGuard>} />
           <Route path="/admin/campaigns" element={<AuthGuard><AdminCampaigns /></AuthGuard>} />
 
           <Route path="*"                  element={<NotFound />} />
