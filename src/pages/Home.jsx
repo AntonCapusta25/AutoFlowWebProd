@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import BookingForm from '../components/BookingForm'
 import Hero from '../components/Hero'
 import { getT } from '../i18n/translations'
+import ServiceOrbit from '../components/ServiceOrbit'
 
 // Partners & APIs — duplicated for seamless infinite scroll
 const CAROUSEL_SLIDES = [
@@ -344,6 +345,38 @@ export default function Home({ lang = 'en' }) {
           </div>
         </section>
       )}
+
+      {/* ── Services Orbital Section ── */}
+      <section id="services" style={{ 
+        backgroundColor: '#050505', 
+        padding: '120px 24px 160px', 
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
+          
+          {/* Header */}
+          <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+            <p style={{
+              fontFamily: "'Inter', sans-serif", fontSize: '0.85rem', fontWeight: 600, letterSpacing: '0.2em',
+              color: '#e91e63', textTransform: 'uppercase', marginBottom: '16px'
+            }}>
+              {t.services.badge}
+            </p>
+            <h2 style={{
+              fontFamily: "'Space Grotesk', 'Inter', sans-serif", fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+              fontWeight: 800, color: '#F8FAFC', letterSpacing: '-0.03em', lineHeight: 1.1
+            }}>
+              {t.services.title}
+              <span style={{ background: 'linear-gradient(135deg, #e91e63, #9c27b0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                {t.services.titleHighlight}
+              </span>
+            </h2>
+          </div>
+
+          <ServiceOrbit services={t.services.items} />
+        </div>
+      </section>
 
       {/* ── Process Wrapper to fix grey margins ── */}
       <div style={{ backgroundColor: '#050505', padding: '1px 0' }}>

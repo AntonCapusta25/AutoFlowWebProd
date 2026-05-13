@@ -9,6 +9,7 @@ export default function AdminLeads() {
   const [history, setHistory] = useState([])
   const [selectedIds, setSelectedIds] = useState([])
   const [noteModalLead, setNoteModalLead] = useState(null)
+  const [isActionLoading, setIsActionLoading] = useState(false)
 
   useEffect(() => {
     fetchLeads()
@@ -32,7 +33,9 @@ export default function AdminLeads() {
       ...(contacts.data || []).map(l => ({ ...l, type: 'Contact' }))
     ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 
-    setLeads(combined)
+    const uniqueLeads = Array.from(new Map(combined.map(item => [item.id, item])).values())
+
+    setLeads(uniqueLeads)
     setLoading(false)
   }
 
@@ -46,6 +49,8 @@ export default function AdminLeads() {
   }
 
   async function updateStatus(id, type, newStatus) {
+    if (isActionLoading) return
+    setIsActionLoading(true)
     const table = type.toLowerCase() === 'booking' ? 'booking_leads' : 'contact_leads'
     const { error } = await supabase.from(table).update({ status: newStatus }).eq('id', id)
     if (!error) {
@@ -60,10 +65,12 @@ export default function AdminLeads() {
       })
       if (selectedLead?.id === id) fetchHistory(id)
     }
+    setIsActionLoading(false)
   }
 
   async function addComment(lead, content) {
-    if (!content.trim()) return
+    if (!content.trim() || isActionLoading) return
+    setIsActionLoading(true)
     const { error } = await supabase.from('lead_history').insert({
       lead_id: lead.id,
       lead_type: lead.type.toLowerCase(),
@@ -72,12 +79,14 @@ export default function AdminLeads() {
     })
     if (!error) {
       if (selectedLead?.id === lead.id) fetchHistory(lead.id)
-      // Update local lead's notes summary if needed
       setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, notes: content } : l))
     }
+    setIsActionLoading(false)
   }
 
   async function logCall(lead) {
+    if (isActionLoading) return
+    setIsActionLoading(true)
     const table = lead.type === 'Booking' ? 'booking_leads' : 'contact_leads'
     const newCount = (lead.call_attempts || 0) + 1
     
@@ -90,10 +99,11 @@ export default function AdminLeads() {
         lead_id: lead.id,
         lead_type: lead.type.toLowerCase(),
         event_type: 'call',
-        content: `Call attempt #${newCount}`
+        content: `Call attempt #${newCount} to ${lead.name}`
       })
       fetchHistory(lead.id)
     }
+    setIsActionLoading(false)
   }
 
   async function deleteHistoryItem(id) {
@@ -171,7 +181,7 @@ export default function AdminLeads() {
               Delete Selected ({selectedIds.length})
             </button>
           )}
-          <button onClick={() => fetchLeads(true)} style={{ padding: '10px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', borderRadius: '12px', cursor: 'pointer' }}>Refresh</button>
+          <button onClick={() => fetchLeads()} style={{ padding: '10px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', borderRadius: '12px', cursor: 'pointer' }}>Refresh</button>
         </div>
       </div>
 
@@ -291,26 +301,28 @@ export default function AdminLeads() {
                       </select>
                     </td>
                     <td style={{ padding: '20px' }}>
-                      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div 
+                        onClick={() => setNoteModalLead(lead)}
+                        style={{ 
+                          position: 'relative', display: 'flex', alignItems: 'center', 
+                          background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', 
+                          borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s',
+                          padding: '10px 40px 10px 14px', minHeight: '44px'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(233, 30, 99, 0.3)'}
+                        onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'}
+                      >
                         <div style={{ 
-                          flex: 1, padding: '10px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', 
-                          borderRadius: '10px', color: lead.notes ? '#CBD5E1' : '#475569', fontSize: '0.85rem', 
-                          minHeight: '40px', display: 'flex', alignItems: 'center', fontStyle: lead.notes ? 'normal' : 'italic',
-                          maxWidth: '250px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                          color: lead.notes ? '#CBD5E1' : '#475569', fontSize: '0.85rem', 
+                          fontStyle: lead.notes ? 'normal' : 'italic',
+                          maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
                         }}>
                           {lead.notes || 'No notes yet...'}
                         </div>
-                        <button 
-                          onClick={() => setNoteModalLead(lead)}
-                          style={{ 
-                            width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(233, 30, 99, 0.1)', 
-                            border: '1px solid rgba(233, 30, 99, 0.2)', color: '#e91e63', fontSize: '1.2rem', 
-                            fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            transition: 'all 0.2s'
-                          }}
-                        >
-                          +
-                        </button>
+                        <div style={{ 
+                          position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                          color: '#e91e63', fontSize: '1.1rem', fontWeight: 800, opacity: 0.6
+                        }}>+</div>
                       </div>
                     </td>
                     <td style={{ padding: '20px', textAlign: 'center', position: 'sticky', right: 0, background: selectedLead?.id === lead.id ? '#1a0b12' : '#0a0a0a', zIndex: 10, borderLeft: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.2s' }}>
@@ -374,12 +386,12 @@ export default function AdminLeads() {
               </button>
             </div>
 
-            <div style={{ background: 'rgba(233, 30, 99, 0.05)', border: '1px solid rgba(233, 30, 99, 0.1)', borderRadius: '16px', padding: '20px', marginBottom: '32px' }}>
+            <div style={{ background: 'linear-gradient(145deg, #160a0f, #0a0a0a)', border: '1px solid rgba(233, 30, 99, 0.2)', borderRadius: '16px', padding: '20px', marginBottom: '32px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h4 style={{ margin: 0, color: 'white', fontSize: '0.95rem', fontWeight: 700 }}>Quick Notes</h4>
                 <button 
                   onClick={() => setNoteModalLead(selectedLead)}
-                  style={{ padding: '6px 12px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ padding: '6px 12px', background: 'rgba(233, 30, 99, 0.1)', border: '1px solid rgba(233, 30, 99, 0.2)', color: '#e91e63', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
                 >
                   + Add Note
                 </button>

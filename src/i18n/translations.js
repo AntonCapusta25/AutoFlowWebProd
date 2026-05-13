@@ -49,6 +49,49 @@ export const translations = {
         { title: 'Optimize', desc: 'We continuously monitor and improve your automations.' },
       ],
     },
+    services: {
+      badge: 'OUR EXPERTISE',
+      title: 'What We ',
+      titleHighlight: 'Build',
+      sub: 'We build production-grade automation systems that turn manual bottlenecks into scalable growth engines.',
+      items: [
+        {
+          title: 'AI-Powered CRM Systems',
+          desc: 'High-fidelity dashboards with persistent activity sidebars, real-time lead tracking, and seamless call-logging tools.',
+          icon: 'crm'
+        },
+        {
+          title: 'Lead Generation Engines',
+          desc: 'Custom scraping and enrichment systems that find, verify, and qualify thousands of prospects automatically.',
+          icon: 'lead'
+        },
+        {
+          title: 'Outreach Automation',
+          desc: 'Hyper-personalized email and SMS sequences that sound human and land in the inbox, not the spam folder.',
+          icon: 'outreach'
+        },
+        {
+          title: 'AI Chatbots',
+          desc: '24/7 intelligent support agents for Telegram, WhatsApp, or your website that handle queries and book meetings.',
+          icon: 'bot'
+        },
+        {
+          title: 'Website Integrations',
+          desc: 'Connecting your platform to CRMs, payment gateways, and automated data pipelines for a seamless user journey.',
+          icon: 'web'
+        },
+        {
+          title: 'Custom Business Workflows',
+          desc: 'Complex cross-platform integrations and AI logic that automate the specific, messy parts of your daily operations.',
+          icon: 'custom'
+        },
+        {
+          title: 'Performance Analytics',
+          desc: 'Custom-built dashboards that track your automation ROI, business KPIs, and system performance in real-time.',
+          icon: 'stats'
+        }
+      ]
+    },
     testimonials: {
       badge: 'Testimonials',
       title: 'What Our Clients Say',
@@ -217,6 +260,49 @@ export const translations = {
         { title: 'Implementeren', desc: 'We testen, verfijnen en implementeren in uw systemen.' },
         { title: 'Optimaliseren', desc: 'We monitoren en verbeteren uw automatiseringen continu.' },
       ],
+    },
+    services: {
+      badge: 'ONZE EXPERTISE',
+      title: 'Wat Wij ',
+      titleHighlight: 'Bouwen',
+      sub: 'Wij bouwen professionele automatiseringssystemen die handmatige knelpunten veranderen in schaalbare groeimotoren.',
+      items: [
+        {
+          title: 'AI-Gedreven CRM-Systemen',
+          desc: 'Hoogwaardige dashboards met persistente zijbalken, realtime leadtracking en naadloze call-logging tools.',
+          icon: 'crm'
+        },
+        {
+          title: 'Leadgeneratie Motoren',
+          desc: 'Maatwerk scraping- en verrijkingssystemen die automatisch duizenden prospects vinden, verifiëren en kwalificeren.',
+          icon: 'lead'
+        },
+        {
+          title: 'Outreach Automatisering',
+          desc: 'Hyper-gepersonaliseerde e-mail- en SMS-reeksen die menselijk klinken en in de inbox belanden, niet in de spam.',
+          icon: 'outreach'
+        },
+        {
+          title: 'AI Chatbots',
+          desc: '24/7 intelligente support agents voor Telegram, WhatsApp of uw website die vragen beantwoorden en afspraken inplannen.',
+          icon: 'bot'
+        },
+        {
+          title: 'Website Integraties',
+          desc: 'Het koppelen van uw platform aan CRM\'s, betaalsystemen en geautomatiseerde datapijplijnen voor een naadloze klantreis.',
+          icon: 'web'
+        },
+        {
+          title: 'Maatwerk Workflows',
+          desc: 'Complexe cross-platform integraties en AI-logica die de specifieke, rommelige delen van uw dagelijkse operatie automatiseren.',
+          icon: 'custom'
+        },
+        {
+          title: 'Prestatie Analyse',
+          desc: 'Op maat gemaakte dashboards die uw automatiserings-ROI, zakelijke KPI\'s en systeemprestaties realtime volgen.',
+          icon: 'stats'
+        }
+      ]
     },
     testimonials: {
       badge: 'Getuigenissen',

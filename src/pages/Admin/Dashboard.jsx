@@ -13,23 +13,30 @@ export default function AdminDashboard() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true)
-      const [bookings, contacts, subs, history] = await Promise.all([
+      const [bookings, contacts, outreach, subs, history] = await Promise.all([
         supabase.from('booking_leads').select('*'),
         supabase.from('contact_leads').select('*'),
+        supabase.from('outreach_leads').select('*'),
         supabase.from('newsletter_subs').select('*', { count: 'exact', head: true }),
         supabase.from('lead_history').select('*').order('created_at', { ascending: false })
       ])
+
+      const allLeads = [
+        ...(bookings.data || []).map(l => ({ ...l, type: 'booking' })),
+        ...(contacts.data || []).map(l => ({ ...l, type: 'contact' })),
+        ...(outreach.data || []).map(l => ({ ...l, type: 'outreach', name: l.name || l.email }))
+      ]
 
       setStats({
         bookingLeads: bookings.data?.length || 0,
         contactLeads: contacts.data?.length || 0,
         newsletterSubs: subs.count || 0,
-        totalLeads: (bookings.data?.length || 0) + (contacts.data?.length || 0)
+        totalLeads: allLeads.length,
+        allLeads: allLeads
       })
       setRecentActivity((history.data || []).slice(0, 10))
 
       // Process Status Distribution
-      const allLeads = [...(bookings.data || []), ...(contacts.data || [])]
       const dist = allLeads.reduce((acc, lead) => {
         acc[lead.status] = (acc[lead.status] || 0) + 1
         return acc
@@ -250,25 +257,34 @@ export default function AdminDashboard() {
                 <div style={{ display: 'grid', gap: '20px' }}>
                   {recentActivity.length === 0 ? (
                     <p style={{ color: '#64748B', textAlign: 'center', padding: '40px' }}>No activity recorded yet.</p>
-                  ) : recentActivity.map((item, idx) => (
-                    <div key={item.id} style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
-                      <div style={{ 
-                        width: '44px', height: '44px', borderRadius: '12px', 
-                        background: item.event_type === 'call' ? 'rgba(233, 30, 99, 0.1)' : 'rgba(59, 130, 246, 0.1)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
-                      }}>
-                        {item.event_type === 'call' ? (
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e91e63" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                        ) : (
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                        )}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ margin: '0 0 6px', color: 'white', fontWeight: 600, fontSize: '1rem' }}>{item.content}</p>
-                        <p style={{ margin: 0, color: '#64748B', fontSize: '0.85rem' }}>{new Date(item.created_at).toLocaleString()}</p>
-                      </div>
-                    </div>
-                  ))}
+                  ) : (() => {
+                    const uniqueActivity = Array.from(new Map(recentActivity.map(item => [item.id, item])).values())
+                    return uniqueActivity.map((item, idx) => {
+                      const lead = [...(stats.allLeads || [])].find(l => l.id === item.lead_id)
+                      return (
+                        <div key={item.id} style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
+                          <div style={{ 
+                            width: '44px', height: '44px', borderRadius: '12px', 
+                            background: item.event_type === 'call' ? 'rgba(233, 30, 99, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                          }}>
+                            {item.event_type === 'call' ? (
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e91e63" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                            ) : (
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                            )}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <p style={{ margin: '0 0 4px', color: 'white', fontWeight: 700, fontSize: '0.95rem' }}>
+                              {lead ? lead.name : 'Unknown Lead'}
+                            </p>
+                            <p style={{ margin: '0 0 6px', color: '#94A3B8', fontSize: '0.9rem' }}>{item.content}</p>
+                            <p style={{ margin: 0, color: '#475569', fontSize: '0.75rem', fontWeight: 600 }}>{new Date(item.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                          </div>
+                        </div>
+                      )
+                    })
+                  })()}
                 </div>
               )}
 

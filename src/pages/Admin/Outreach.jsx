@@ -10,6 +10,7 @@ export default function OutreachLeads() {
   const [isImporting, setIsImporting] = useState(false)
   const [selectedIds, setSelectedIds] = useState([])
   const [noteModalLead, setNoteModalLead] = useState(null)
+  const [isActionLoading, setIsActionLoading] = useState(false)
   const [page, setPage] = useState(0)
   const [totalCount, setTotalCount] = useState(0)
   const pageSize = 50
@@ -23,7 +24,6 @@ export default function OutreachLeads() {
       fetchUnifiedHistory(selectedLead.id)
     }
   }, [selectedLead])
-
   async function fetchLeads(targetPage = null) {
     const p = targetPage !== null ? targetPage : page
     setLoading(true)
@@ -39,7 +39,9 @@ export default function OutreachLeads() {
 
     if (!countRes.error) setTotalCount(countRes.count || 0)
     if (!dataRes.error) {
-      setLeads(dataRes.data || [])
+      // Deduplicate by ID
+      const unique = Array.from(new Map((dataRes.data || []).map(item => [item.id, item])).values())
+      setLeads(unique)
       setPage(p)
     }
     setLoading(false)
@@ -56,11 +58,14 @@ export default function OutreachLeads() {
       ...(interactions.data || [])
     ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 
-    setHistory(combined)
+    // Deduplicate by ID
+    const uniqueHistory = Array.from(new Map(combined.map(item => [item.id, item])).values())
+    setHistory(uniqueHistory)
   }
 
   async function addComment(lead, content) {
-    if (!content.trim()) return
+    if (!content.trim() || isActionLoading) return
+    setIsActionLoading(true)
     const { error } = await supabase.from('lead_history').insert({
       lead_id: lead.id,
       lead_type: 'outreach',
@@ -71,9 +76,12 @@ export default function OutreachLeads() {
       if (selectedLead?.id === lead.id) fetchUnifiedHistory(lead.id)
       setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, notes: content } : l))
     }
+    setIsActionLoading(false)
   }
 
   async function updateStatus(id, newStatus) {
+    if (isActionLoading) return
+    setIsActionLoading(true)
     const { error } = await supabase.from('outreach_leads').update({ status: newStatus }).eq('id', id)
     if (!error) {
       setLeads(prev => prev.map(l => l.id === id ? { ...l, status: newStatus } : l))
@@ -87,9 +95,12 @@ export default function OutreachLeads() {
       })
       if (selectedLead?.id === id) fetchUnifiedHistory(id)
     }
+    setIsActionLoading(false)
   }
 
   async function logCall(lead) {
+    if (isActionLoading) return
+    setIsActionLoading(true)
     const newCount = (lead.call_attempts || 0) + 1
     const { error } = await supabase.from('outreach_leads').update({ call_attempts: newCount }).eq('id', lead.id)
     if (!error) {
@@ -100,10 +111,11 @@ export default function OutreachLeads() {
         lead_id: lead.id,
         lead_type: 'outreach',
         event_type: 'call',
-        content: `Call attempt #${newCount}`
+        content: `Call attempt #${newCount} to ${lead.name || lead.email}`
       })
       fetchUnifiedHistory(lead.id)
     }
+    setIsActionLoading(false)
   }
 
   async function deleteHistoryItem(id) {
@@ -299,7 +311,7 @@ export default function OutreachLeads() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                         <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #3b82f6, #10b981)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 800, color: 'white', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)' }}>{(lead.name || lead.email).charAt(0).toUpperCase()}</div>
                         <div>
-                          <p style={{ margin: 0, fontWeight: 700, color: 'white', fontSize: '0.95rem' }}>{lead.name || 'Unnamed'}</p>
+                          <p style={{ margin: 0, fontWeight: 700, color: 'white', fontSize: '0.95rem' }}>{lead.name || lead.email}</p>
                           <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748B' }}>{lead.company || 'Private'}</p>
                         </div>
                       </div>
@@ -365,26 +377,28 @@ export default function OutreachLeads() {
                       </select>
                     </td>
                     <td style={{ padding: '20px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div 
+                        onClick={() => setNoteModalLead(lead)}
+                        style={{ 
+                          position: 'relative', display: 'flex', alignItems: 'center', 
+                          background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', 
+                          borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s',
+                          padding: '10px 40px 10px 14px', minHeight: '44px'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)'}
+                        onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'}
+                      >
                         <div style={{ 
-                          flex: 1, padding: '10px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', 
-                          borderRadius: '10px', color: lead.notes ? '#CBD5E1' : '#475569', fontSize: '0.85rem', 
-                          minHeight: '40px', display: 'flex', alignItems: 'center', fontStyle: lead.notes ? 'normal' : 'italic',
-                          maxWidth: '250px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                          color: lead.notes ? '#CBD5E1' : '#475569', fontSize: '0.85rem', 
+                          fontStyle: lead.notes ? 'normal' : 'italic',
+                          maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
                         }}>
                           {lead.notes || 'No notes yet...'}
                         </div>
-                        <button 
-                          onClick={() => setNoteModalLead(lead)}
-                          style={{ 
-                            width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(233, 30, 99, 0.1)', 
-                            border: '1px solid rgba(233, 30, 99, 0.2)', color: '#e91e63', fontSize: '1.2rem', 
-                            fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            transition: 'all 0.2s'
-                          }}
-                        >
-                          +
-                        </button>
+                        <div style={{ 
+                          position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                          color: '#3b82f6', fontSize: '1.1rem', fontWeight: 800, opacity: 0.6
+                        }}>+</div>
                       </div>
                     </td>
                     <td style={{ padding: '20px', textAlign: 'center', position: 'sticky', right: 0, background: selectedLead?.id === lead.id ? '#1a0b12' : '#0a0a0a', zIndex: 10, borderLeft: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.2s' }}>
