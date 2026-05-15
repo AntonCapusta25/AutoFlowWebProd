@@ -198,7 +198,8 @@ export default function AdminLeads() {
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Source</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Phone</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
-                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Latest Comment</th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Initial Problem</th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Admin Notes</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center', position: 'sticky', right: 0, background: '#0a0a0a', zIndex: 10, borderLeft: '1px solid rgba(255,255,255,0.05)' }}>Activity</th>
               </tr>
             </thead>
@@ -264,25 +265,7 @@ export default function AdminLeads() {
                       </span>
                     </td>
                     <td style={{ padding: '20px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#CBD5E1', fontSize: '0.85rem', fontWeight: 600 }}>
-                        <span>{lead.phone || 'N/A'}</span>
-                        {lead.phone && (
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigator.clipboard.writeText(lead.phone);
-                              const target = e.currentTarget;
-                              const originalInner = target.innerHTML;
-                              target.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-                              setTimeout(() => target.innerHTML = originalInner, 2000);
-                            }}
-                            style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', opacity: 0.5 }}
-                            title="Copy Phone"
-                          >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                          </button>
-                        )}
-                      </div>
+                      <div style={{ color: '#CBD5E1', fontSize: '0.85rem', fontWeight: 600 }}>{lead.phone || 'N/A'}</div>
                     </td>
                     <td style={{ padding: '20px' }}>
                       <select 
@@ -301,28 +284,30 @@ export default function AdminLeads() {
                       </select>
                     </td>
                     <td style={{ padding: '20px' }}>
+                      <div style={{ color: '#CBD5E1', fontSize: '0.85rem', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {lead.message || 'N/A'}
+                      </div>
+                    </td>
+                    <td style={{ padding: '20px' }}>
                       <div 
                         onClick={() => setNoteModalLead(lead)}
                         style={{ 
                           position: 'relative', display: 'flex', alignItems: 'center', 
                           background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', 
                           borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s',
-                          padding: '10px 40px 10px 14px', minHeight: '44px'
+                          padding: '8px 32px 8px 12px', minHeight: '36px', width: 'fit-content'
                         }}
                         onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(233, 30, 99, 0.3)'}
                         onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'}
                       >
                         <div style={{ 
-                          color: lead.notes ? '#CBD5E1' : '#475569', fontSize: '0.85rem', 
+                          color: lead.notes ? '#93c5fd' : '#475569', fontSize: '0.8rem', 
                           fontStyle: lead.notes ? 'normal' : 'italic',
-                          maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                          maxWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
                         }}>
-                          {lead.notes || 'No notes yet...'}
+                          {lead.notes || 'Add note...'}
                         </div>
-                        <div style={{ 
-                          position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
-                          color: '#e91e63', fontSize: '1.1rem', fontWeight: 800, opacity: 0.6
-                        }}>+</div>
+                        <div style={{ position: 'absolute', right: '10px', color: '#e91e63', fontWeight: 800 }}>+</div>
                       </div>
                     </td>
                     <td style={{ padding: '20px', textAlign: 'center', position: 'sticky', right: 0, background: selectedLead?.id === lead.id ? '#1a0b12' : '#0a0a0a', zIndex: 10, borderLeft: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.2s' }}>
@@ -387,8 +372,13 @@ export default function AdminLeads() {
             </div>
 
             <div style={{ background: 'linear-gradient(145deg, #160a0f, #0a0a0a)', border: '1px solid rgba(233, 30, 99, 0.2)', borderRadius: '16px', padding: '20px', marginBottom: '32px' }}>
+              <h4 style={{ margin: 0, color: '#e91e63', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '10px', letterSpacing: '0.1em' }}>User Problem Response</h4>
+              <p style={{ margin: 0, color: 'white', fontSize: '1rem', lineHeight: '1.6', fontWeight: 500 }}>{selectedLead.message || 'No initial problem described.'}</p>
+            </div>
+
+            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '16px', padding: '20px', marginBottom: '32px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h4 style={{ margin: 0, color: 'white', fontSize: '0.95rem', fontWeight: 700 }}>Quick Notes</h4>
+                <h4 style={{ margin: 0, color: 'white', fontSize: '0.95rem', fontWeight: 700 }}>Internal Admin Notes</h4>
                 <button 
                   onClick={() => setNoteModalLead(selectedLead)}
                   style={{ padding: '6px 12px', background: 'rgba(233, 30, 99, 0.1)', border: '1px solid rgba(233, 30, 99, 0.2)', color: '#e91e63', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
@@ -396,7 +386,7 @@ export default function AdminLeads() {
                   + Add Note
                 </button>
               </div>
-              <p style={{ margin: 0, color: '#94A3B8', fontSize: '0.85rem', lineHeight: '1.6' }}>{selectedLead.message || 'No initial message provided.'}</p>
+              <p style={{ margin: 0, color: '#94A3B8', fontSize: '0.85rem', lineHeight: '1.6' }}>{selectedLead.notes || 'No admin notes added yet.'}</p>
             </div>
 
             <div style={{ marginBottom: '32px' }}>

@@ -90,7 +90,7 @@ const CAROUSEL_SLIDES = [
 
 const TESTIMONIALS = [
   { name: 'Sarah Chen', role: 'E-commerce Founder', text: 'AutoFlow Studio automated our entire order processing workflow. What used to take our team 3 hours daily now happens automatically in minutes.', initials: 'SC', color: '#e91e63' },
-  { name: 'Marcus Rodriguez', role: 'Operations Manager', text: 'The Google Sheets automation they built saves us 15 hours per week. The ROI was immediate and the support has been fantastic.', initials: 'MR', color: '#9c27b0' },
+  { name: 'Marcus Rodriguez', role: 'Operations Manager', text: 'The Google Sheets automation they built saves us 15 hours per week. The ROI was immediate and the support has been fantastic.', initials: 'MR', color: '#e91e63' },
   { name: 'Lisa Park', role: 'Startup Founder', text: 'Finally, someone who understands both the technical side and business needs. They delivered exactly what we needed, on time.', initials: 'LP', color: '#e91e63' },
   { name: 'David Müller', role: 'Head of Operations', text: 'Incredible work on our CRM integration. We went from manual data entry to fully automated pipelines in under a week.', initials: 'DM', color: '#7c3aed' },
   { name: 'Emma Visser', role: 'CEO, Homemade BV', text: 'The outreach automation they built scaled our pipeline 10x without adding headcount. Genuinely impressive execution.', initials: 'EV', color: '#0ea5e9' },
@@ -111,7 +111,7 @@ const FlowStyles = () => (
   <style>{`
     @keyframes super-flow {
       0% { transform: translateX(-20px); opacity: 0.1; stroke: #e91e63; }
-      50% { transform: translateX(0); opacity: 1; stroke: #9c27b0; stroke-width: 3px; }
+      50% { transform: translateX(0); opacity: 1; stroke: #e91e63; stroke-width: 3px; }
       100% { transform: translateX(20px); opacity: 0.1; stroke: #e91e63; }
     }
     .process-arrow-animated {
@@ -126,9 +126,10 @@ const FlowStyles = () => (
       gap: 24px;
     }
     .bento-card {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.04);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 32px;
       padding: 40px;
       display: flex;
@@ -137,18 +138,13 @@ const FlowStyles = () => (
       transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
       position: relative;
       overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
     }
     .bento-card:hover {
-      transform: translateY(-5px);
+      transform: translateY(-8px);
       background: rgba(255, 255, 255, 0.08);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    }
-    .bento-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: radial-gradient(circle at top left, rgba(233, 30, 99, 0.1), transparent 70%);
-      pointer-events: none;
+      border-color: rgba(233, 30, 99, 0.3);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(233, 30, 99, 0.2);
     }
     .bento-icon {
       width: 48px;
@@ -286,7 +282,7 @@ export default function Home({ lang = 'en' }) {
             }}>
               {t.startupDreams.title}
               <span style={{
-                background: 'linear-gradient(135deg, #e91e63, #9c27b0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', minWidth: '4ch', textAlign: 'left'
+                background: 'linear-gradient(135deg, #e91e63, #e91e63)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', minWidth: '4ch', textAlign: 'left'
               }}>
                 {dreamText}<span style={{ opacity: 0.7, animation: 'blink 1s step-start infinite' }}>|</span>
               </span>
@@ -446,7 +442,7 @@ export default function Home({ lang = 'en' }) {
                       border: 'none',
                       cursor: 'pointer',
                       background: i === currentSlide
-                        ? 'linear-gradient(135deg,#e91e63,#9c27b0)'
+                        ? 'linear-gradient(135deg,#e91e63,#e91e63)'
                         : 'rgba(255,255,255,0.3)',
                       transition: 'all 0.3s ease',
                       padding: 0,
@@ -482,7 +478,7 @@ export default function Home({ lang = 'en' }) {
               fontWeight: 800, color: '#F8FAFC', letterSpacing: '-0.03em', lineHeight: 1.1
             }}>
               {t.services.title}
-              <span style={{ background: 'linear-gradient(135deg, #e91e63, #9c27b0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              <span style={{ background: 'linear-gradient(135deg, #e91e63, #e91e63)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 {t.services.titleHighlight}
               </span>
             </h2>
@@ -545,7 +541,7 @@ export default function Home({ lang = 'en' }) {
             <div style={{ marginBottom: 'auto' }}>
               <p style={{
                 fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.1rem', fontWeight: 700, letterSpacing: '0.2em',
-                color: '#9c27b0', textTransform: 'uppercase', marginBottom: '20px'
+                color: '#e91e63', textTransform: 'uppercase', marginBottom: '20px'
               }}>
                 {t.timeline.badge}
               </p>
@@ -605,7 +601,7 @@ export default function Home({ lang = 'en' }) {
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
             <h2 style={{ fontFamily: "'Space Grotesk', 'Inter', sans-serif", color: '#F8FAFC', fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 800, lineHeight: 1.2, margin: '0 0 16px' }}>
               {t.testimonials.title}<br />
-              <span style={{ background: 'linear-gradient(135deg,#e91e63,#9c27b0)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              <span style={{ background: 'linear-gradient(135deg,#e91e63,#e91e63)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 {t.testimonials.sub}
               </span>
             </h2>
@@ -639,7 +635,7 @@ export default function Home({ lang = 'en' }) {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
-                  <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: `linear-gradient(135deg,${testimonial.color},#9c27b0)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', color: 'white', flexShrink: 0 }}>
+                  <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: `linear-gradient(135deg,${testimonial.color},#e91e63)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', color: 'white', flexShrink: 0 }}>
                     {testimonial.initials}
                   </div>
                   <div>
@@ -676,7 +672,7 @@ export default function Home({ lang = 'en' }) {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
-                  <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: `linear-gradient(135deg,${testimonial.color},#9c27b0)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', color: 'white', flexShrink: 0 }}>
+                  <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: `linear-gradient(135deg,${testimonial.color},#e91e63)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', color: 'white', flexShrink: 0 }}>
                     {testimonial.initials}
                   </div>
                   <div>

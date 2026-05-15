@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getT } from '../i18n/translations'
 
+
+
 const LOGOS = [
   { name: 'Gemini', src: '/images/logos/gemini.png', type: 'image' },
   { name: 'OpenAI', src: '/images/logos/openai.png', type: 'image' },
@@ -55,6 +57,8 @@ export default function Hero({ lang = 'en' }) {
   const navigate = useNavigate()
   const inputRef = useRef(null)
 
+
+
   // Headline typewriter state
   const headlineWords = t.hero.headlineWords || []
   const [headlineText, setHeadlineText] = useState('')
@@ -90,7 +94,7 @@ export default function Hero({ lang = 'en' }) {
     return () => clearTimeout(timeout)
   }, [headlineCharIdx, headlineDeleting, headlineWordIdx, headlineWords])
 
-  const inputLabel = isNl ? 'Wat wil je automatiseren?' : 'What do you want to automate?'
+  const inputLabel = isNl ? 'Welk probleem heeft u?' : 'What problem do you have?'
   const sendText = isNl ? 'Stuur' : 'Send'
 
 
@@ -126,10 +130,9 @@ export default function Hero({ lang = 'en' }) {
 
   const handleSend = (e) => {
     e.preventDefault()
-    if (inputVal.trim()) {
-      navigate(`${prefix}/contact?q=${encodeURIComponent(inputVal)}`)
-    }
+    window.dispatchEvent(new CustomEvent('open-booking', { detail: { query: inputVal } }))
   }
+
 
   return (
     <>
@@ -281,14 +284,14 @@ export default function Hero({ lang = 'en' }) {
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '12px',
             padding: '8px 8px 8px 24px',
-            display: 'flex', alignItems: 'center', gap: '16px',
-            width: '100%', maxWidth: '700px',
+            display: 'flex', alignItems: 'center', gap: '12px',
+            width: '95%', maxWidth: '850px',
             backdropFilter: 'blur(20px)',
             boxShadow: '0 20px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
           }}>
             <label style={{
               fontFamily: "'Space Grotesk', sans-serif",
-              fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.12em',
+              fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.1em',
               color: '#e91e63', textTransform: 'uppercase', whiteSpace: 'nowrap', flexShrink: 0,
             }}>
               {inputLabel}
@@ -302,8 +305,8 @@ export default function Hero({ lang = 'en' }) {
                   placeholder={typeText}
                   style={{
                     width: '100%', background: 'transparent', border: 'none', outline: 'none',
-                    color: '#FFFFFF', fontSize: '1.05rem', fontFamily: "'Inter', sans-serif",
-                    fontWeight: 400, padding: '12px 0',
+                    color: '#FFFFFF', fontSize: '0.95rem', fontFamily: "'Inter', sans-serif",
+                    fontWeight: 400, padding: '10px 0',
                   }}
                 />
               </div>
@@ -323,6 +326,7 @@ export default function Hero({ lang = 'en' }) {
         </div>
 
       </div>
+
 
       {/* ── Partners strip (Integrated into Hero bottom) ── */}
       <div className="logos-section" style={{ paddingTop: '20px', paddingBottom: '30px', background: 'transparent' }}>

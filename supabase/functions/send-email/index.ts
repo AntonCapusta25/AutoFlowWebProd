@@ -5,7 +5,7 @@
 const CLIENT_ID = Deno.env.get('GOOGLE_CLIENT_ID') ?? ''
 const CLIENT_SECRET = Deno.env.get('GOOGLE_CLIENT_SECRET') ?? ''
 const REFRESH_TOKEN = Deno.env.get('GOOGLE_REFRESH_TOKEN') ?? ''
-const ADMIN_EMAIL = 'autoflowcompany2025@gmail.com'
+const ADMIN_EMAIL = 'info@autoflowstudio.net'
 
 async function getAccessToken() {
   const res = await fetch('https://oauth2.googleapis.com/token', {

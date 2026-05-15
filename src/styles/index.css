@@ -363,6 +363,11 @@ nav.navbar::after {
     flex-shrink: 0;
 }
 
+.mobile-menu-overlay {
+    display: none;
+}
+
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .nav-container {
@@ -383,9 +388,10 @@ nav.navbar::after {
         left: 0;
         width: 100vw;
         height: 100dvh;
-        background: rgba(10, 10, 10, 0.98);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+        background: radial-gradient(circle at 70% 30%, rgba(233, 30, 99, 0.15), transparent 40%),
+                    rgba(5, 5, 5, 0.98);
+        backdrop-filter: blur(40px);
+        -webkit-backdrop-filter: blur(40px);
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -393,7 +399,7 @@ nav.navbar::after {
         z-index: 9999;
         opacity: 0;
         visibility: hidden;
-        transition: opacity 0.3s ease, visibility 0.3s ease;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
     }
 
     .mobile-menu-overlay.active {
@@ -404,7 +410,7 @@ nav.navbar::after {
     .mobile-nav-links {
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 12px;
         list-style: none;
         padding: 0;
         margin: 0;
@@ -412,35 +418,81 @@ nav.navbar::after {
         align-items: center;
     }
 
+    .mobile-nav-links li {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .mobile-menu-overlay.active .mobile-nav-links li {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Staggered entry */
+    .mobile-nav-links li:nth-child(1) { transition-delay: 0.1s; }
+    .mobile-nav-links li:nth-child(2) { transition-delay: 0.15s; }
+    .mobile-nav-links li:nth-child(3) { transition-delay: 0.2s; }
+    .mobile-nav-links li:nth-child(4) { transition-delay: 0.25s; }
+    .mobile-nav-links li:nth-child(5) { transition-delay: 0.3s; }
+
     .mobile-nav-links a {
-        font-size: 2.2rem;
+        font-family: "'Space Grotesk', sans-serif";
+        font-size: 2.5rem;
         font-weight: 800;
         color: white;
         text-decoration: none;
-        padding: 10px;
+        padding: 10px 40px;
         text-align: center;
         display: block;
+        letter-spacing: -0.03em;
+        transition: all 0.3s ease;
     }
 
-    .nav-links a {
-        display: block;
-        width: 100%;
-        text-align: center;
-        padding: 20px;
-        font-size: 1.1rem;
+    .mobile-nav-links a.active {
+        color: #e91e63;
+        text-shadow: 0 0 30px rgba(233, 30, 99, 0.5);
     }
 
-    .language-switch {
-        margin-left: auto;
-        margin-right: 10px;
+    .mobile-lang-li {
+        margin-top: 40px !important;
+    }
+
+    .mobile-lang-switch {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.05);
         padding: 4px;
+        border-radius: 50px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .lang-btn {
-        padding: 6px 14px;
-        font-size: 0.85rem;
+    .mobile-lang-switch button {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.5);
+        padding: 10px 24px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .mobile-lang-switch button.active {
+        background: white;
+        color: black;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .mobile-lang-switch .divider {
+        width: 1px;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        display: none; /* Hidden because we use pill styling */
     }
 }
+
 
 /* Main Content */
 .main-content {
@@ -5135,8 +5187,8 @@ body {
     flex: 1;
     width: 100%;
     max-width: 32rem;
-    min-width: 380px;
 }
+
 
 .form-glass-container {
     position: relative;
@@ -5155,6 +5207,13 @@ body {
     padding: 2rem;
     border: none;
 }
+
+@media (max-width: 480px) {
+    .form-inner {
+        padding: 1.25rem;
+    }
+}
+
 
 .form-group {
     display: flex;

@@ -4,6 +4,11 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import CookiesBanner from './components/CookiesBanner'
 import PriceCalculator from './components/PriceCalculator'
+import PromoBanner from './components/PromoBanner'
+import MultiStepBooking from './components/MultiStepBooking'
+import { useState, useEffect } from 'react'
+
+
 import Home from './pages/Home'
 import Portfolio from './pages/Portfolio'
 import Contact from './pages/Contact'
@@ -40,6 +45,19 @@ export default function App() {
 function AppContent() {
   const location = useLocation()
   const isAdmin = location.pathname.startsWith('/admin')
+  const [isBookingOpen, setIsBookingOpen] = useState(false)
+  const [initialQuery, setInitialQuery] = useState('')
+  const isNl = location.pathname.startsWith('/nl')
+
+  useEffect(() => {
+    const handleOpen = (e) => {
+      if (e.detail?.query) setInitialQuery(e.detail.query)
+      setIsBookingOpen(true)
+    }
+    window.addEventListener('open-booking', handleOpen)
+    return () => window.removeEventListener('open-booking', handleOpen)
+  }, [])
+
 
   return (
     <>
@@ -78,7 +96,18 @@ function AppContent() {
       </Suspense>
       {!isAdmin && <Footer />}
       {!isAdmin && <CookiesBanner />}
+      {!isAdmin && <PromoBanner onCTA={() => window.dispatchEvent(new CustomEvent('open-booking'))} />}
+      {!isAdmin && (
+        <MultiStepBooking 
+          isOpen={isBookingOpen} 
+          onClose={() => setIsBookingOpen(false)} 
+          initialQuery={initialQuery}
+          lang={isNl ? 'nl' : 'en'}
+        />
+      )}
+
       {/* {!isAdmin && <PriceCalculator />} */}
+
     </>
   )
 }
