@@ -22,12 +22,12 @@ export const translations = {
       titleHighlight: 'dreaming.',
       sub: 'We know how it feels when everything is slow and messy. We don\'t just "connect apps"—we build custom code that actually works and stays that way.',
       cards: [
-        { img: 'startup_capture.jpg', title: 'Fix the Mess', desc: 'Stop using duct-tape and hope. We replace broken links with custom code that just works.' },
+        { img: 'fix-the-mess.jpg', title: 'Fix the Mess', desc: 'Stop using duct-tape and hope. We replace broken links with custom code that just works.' },
         { img: 'startup_plan.jpg', title: 'From 2 Weeks to 3 Days', desc: 'We cut onboarding by 80%. What used to take weeks of manual work now happens in days.' },
         { img: 'startup_automate.png', title: 'No More Broken Links', desc: 'Ditch the "fragile" tools. We build professional CRMs and systems that won\'t break when you scale.' },
-        { img: 'startup_work.jpg', title: 'We\'ve Been There', desc: 'We know the pain of slow operations. We know exactly what to fix and how to do it without the high price tag.' },
-        { img: 'startup_scale.jpg', title: 'More Growth, Less Work', desc: 'Grow your business without hiring more people to do boring stuff. Our tools do the busywork for you.' },
-        { img: 'startup_build.jpg', title: 'Built for the Long Run', desc: "Focus on your big ideas. We'll make sure the background stuff is solid and ready to grow with you." },
+        { img: 'weve-been-there.jpg', title: 'We\'ve Been There', desc: 'We know the pain of slow operations. We know exactly what to fix and how to do it without the high price tag.' },
+        { img: 'more-growth.jpg', title: 'More Growth, Less Work', desc: 'Grow your business without hiring more people to do boring stuff. Our tools do the busywork for you.' },
+        { img: 'built-for-long-run.jpg', title: 'Built for the Long Run', desc: "Focus on your big ideas. We'll make sure the background stuff is solid and ready to grow with you." },
       ],
       banner: {
         title: 'Keep dreaming and building what matters.',
@@ -235,12 +235,12 @@ export const translations = {
       titleHighlight: 'dromen.',
       sub: 'We weten hoe het voelt als alles traag en rommelig is. We "koppelen niet alleen apps"—we bouwen maatwerk code die écht werkt en zo blijft.',
       cards: [
-        { img: 'startup_capture.jpg', title: 'Ruim de Rommel Op', desc: 'Stop met houtje-touwtje oplossingen. Wij vervangen kapotte koppelingen door code die gewoon werkt.' },
+        { img: 'fix-the-mess.jpg', title: 'Ruim de Rommel Op', desc: 'Stop met houtje-touwtje oplossingen. Wij vervangen kapotte koppelingen door code die gewoon werkt.' },
         { img: 'startup_plan.jpg', title: 'Van 2 Weken naar 3 Dagen', desc: 'We verkortten de onboarding met 80%. Wat eerst weken handmatig werk was, gebeurt nu in een paar dagen.' },
         { img: 'startup_automate.png', title: 'Geen Kapotte Koppelingen Meer', desc: 'Weg met de kwetsbare tools. Wij bouwen professionele CRM\'s en systemen die niet breken als je groeit.' },
-        { img: 'startup_work.jpg', title: 'We Kennen de Pijn', desc: 'We weten hoe frustrerend trage processen zijn. We weten precies wat we moeten fixen, zonder de hoofdprijs.' },
-        { img: 'startup_scale.jpg', title: 'Meer Groei, Minder Werk', desc: 'Schaal je bedrijf zonder extra mensen aan te nemen voor saai werk. Onze tools doen het werk voor je.' },
-        { img: 'startup_build.jpg', title: 'Klaar voor de Toekomst', desc: "Focus op je grote ideeën. Wij zorgen dat alles op de achtergrond staat als een huis en met je meegroeit." },
+        { img: 'weve-been-there.jpg', title: 'We Kennen de Pijn', desc: 'We weten hoe frustrerend trage processen zijn. We weten precies wat we moeten fixen, zonder de hoofdprijs.' },
+        { img: 'more-growth.jpg', title: 'Meer Groei, Minder Werk', desc: 'Schaal je bedrijf zonder extra mensen aan te nemen voor saai werk. Onze tools doen het werk voor je.' },
+        { img: 'built-for-long-run.jpg', title: 'Klaar voor de Toekomst', desc: "Focus op je grote ideeën. Wij zorgen dat alles op de achtergrond staat als een huis en met je meegroeit." },
       ],
       banner: {
         title: 'Blijf dromen en bouwen aan wat echt telt.',

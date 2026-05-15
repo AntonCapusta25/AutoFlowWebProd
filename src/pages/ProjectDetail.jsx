@@ -128,7 +128,6 @@ export default function ProjectDetail({ lang = 'en' }) {
               }) : <p>{isNl ? 'Gedetailleerde case study volgt binnenkort...' : 'Detailed case study content coming soon...'}</p>}
             </div>
 
-            <CTASection lang={lang} />
           </div>
 
           {/* Sidebar - Stats & Info */}
@@ -170,6 +169,7 @@ export default function ProjectDetail({ lang = 'en' }) {
 
         </div>
       </div>
+      <CTASection lang={lang} />
     </main>
   )
 }

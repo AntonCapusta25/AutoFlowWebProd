@@ -5,16 +5,25 @@ import { getT } from '../i18n/translations'
 
 
 const LOGOS = [
-  { name: 'Gemini', src: '/images/logos/gemini.png', type: 'image' },
-  { name: 'ChatGPT', src: '/images/logos/chatgpt_white.png', type: 'image' },
-  { name: 'Recraft', src: '/images/logos/recraft.png', type: 'image' },
-  { name: 'Claude AI', type: 'pill' },
-  { name: 'SendGrid', src: '/images/logos/sendgrid.png', type: 'image' },
-  { name: 'Google Workspace', src: '/images/logos/google-workspace.png', type: 'image' },
+  { name: 'Gemini', src: '/images/logos/gemini_new.png', type: 'image' },
+  { name: 'Google AI Studio', src: '/images/logos/google_ai_studio_new.png', type: 'image' },
+  { name: 'Google Cloud', src: '/images/logos/gcloud_new.png', type: 'image' },
+  { name: 'Anthropic', src: '/images/logos/anthropic_new.png', type: 'image' },
+  { name: 'Claude', src: '/images/logos/flower_new.png', type: 'image' },
+  { name: 'Mistral', src: '/images/logos/mistral_new.png', type: 'image' },
+  { name: 'Llama', src: '/images/logos/llama_new.png', type: 'image' },
+  { name: 'Meta', src: '/images/logos/meta_new.png', type: 'image' },
+  { name: 'ChatGPT', src: '/images/logos/chatgpt_icon_new.png', type: 'image' },
+  { name: 'Recraft', src: '/images/logos/recraft_icon_new.png', type: 'image' },
+  { name: 'Vercel', src: '/images/logos/vercel_new.png', type: 'image' },
+  { name: 'Gmail', src: '/images/logos/gmail_new.png', type: 'image' },
+  { name: 'Google Drive', src: '/images/logos/gdrive_new.png', type: 'image' },
+  { name: 'Google Meet', src: '/images/logos/gmeet_new.png', type: 'image' },
   { name: 'Supabase', src: '/images/logos/supabase.png', type: 'image' },
-  { name: 'Homemade BV', type: 'pill' },
-  { name: 'Oceanlove', type: 'pill' },
-  { name: 'Vercel', type: 'pill' },
+  { name: 'Stripe', src: '/images/logos/bars_new.png', type: 'image' },
+  { name: 'SendGrid', src: '/images/logos/sendgrid.png', type: 'image' },
+  { name: 'Homemade', src: '/images/logos/homemade_new.png', type: 'image' },
+  { name: 'Oceanlove', src: '/images/logos/oceanlove_new.png', type: 'image' },
 ]
 
 const TYPEWRITER_ITEMS_EN = [
@@ -162,6 +171,38 @@ export default function Hero({ lang = 'en' }) {
           align-items: center;
           justify-content: center;
         }
+        
+        .logo-pill {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 60px;
+          padding: 0 36px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 50px;
+          min-width: max-content;
+          backdrop-filter: blur(10px);
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          cursor: default;
+        }
+        
+        .logo-pill:hover {
+          background: rgba(255,255,255,0.08);
+          border-color: #e91e63;
+          transform: scale(1.05);
+          box-shadow: 0 0 25px rgba(233, 30, 99, 0.3);
+        }
+        
+        .logo-pill img {
+          transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .logo-pill:hover img {
+          filter: drop-shadow(0 0 10px rgba(233, 30, 99, 0.8)) brightness(1.5) !important;
+          transform: scale(1.1);
+        }
+
         @media (min-width: 769px) {
           .mobile-only-br {
             display: none;
@@ -206,9 +247,8 @@ export default function Hero({ lang = 'en' }) {
             height: 36px !important;
             padding: 0 16px !important;
           }
-          .logo-pill svg {
-            width: 70px !important;
-            height: auto !important;
+          .logo-pill img {
+            height: 20px !important;
           }
         }
         @keyframes blink {
@@ -335,40 +375,17 @@ export default function Hero({ lang = 'en' }) {
           <div className="logos-track">
             {[...LOGOS, ...LOGOS, ...LOGOS].map((l, i) => (
               <div key={i} className="logo-item">
-                <div className="logo-pill" style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: '60px',
-                  padding: '0 36px',
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: '50px',
-                  minWidth: 'max-content',
-                  backdropFilter: 'blur(10px)',
-                  transition: 'all 0.3s ease',
-                  cursor: 'default'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
-                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)'
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
-                  e.currentTarget.style.transform = 'translateY(0) scale(1)'
-                }}>
+                <div className="logo-pill">
                   {l.type === 'image' ? (
                     <img 
                       src={l.src} 
                       alt={l.name} 
                       style={{ 
-                        height: l.name === 'Recraft' ? '46px' : '32px', 
+                        height: l.name === 'Recraft' ? '46px' : l.name === 'Oceanlove' ? '48px' : '32px', 
                         width: 'auto', 
                         maxWidth: '240px',
                         objectFit: 'contain',
-                        transition: 'all 0.3s'
+                        filter: l.type === 'image' ? 'brightness(0) invert(1)' : 'none'
                       }}
                     />
                   ) : l.svg ? (

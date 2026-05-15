@@ -64,10 +64,10 @@ export default function BlogPost({ lang = 'en' }) {
               </Link>
             ) : <div style={{flex:1}} />}
           </div>
-
-          <CTASection lang={lang} />
         </div>
       </section>
+
+      <CTASection lang={lang} />
 
       <style>{`
         .blog-body { color: #CBD5E1; font-size: 1rem; line-height: 1.8; }

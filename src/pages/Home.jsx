@@ -316,6 +316,43 @@ export default function Home({ lang = 'en' }) {
     return () => clearTimeout(timeout)
   }, [dreamCharIdx, dreamDeleting, dreamWordIdx, dreamWords])
 
+  const BUILD_WORDS_EN = ['Build.', 'Create.', 'Optimize.', 'Improve.', 'Speed Up.']
+  const BUILD_WORDS_NL = ['Bouwen.', 'Creëren.', 'Optimaliseren.', 'Verbeteren.', 'Versnellen.']
+  const buildWords = lang === 'nl' ? BUILD_WORDS_NL : BUILD_WORDS_EN
+
+  const [buildText, setBuildText] = useState('')
+  const [buildWordIdx, setBuildWordIdx] = useState(0)
+  const [buildCharIdx, setBuildCharIdx] = useState(0)
+  const [buildDeleting, setBuildDeleting] = useState(false)
+
+  // Typewriter effect for "Build"
+  useEffect(() => {
+    const current = buildWords[buildWordIdx]
+    let timeout
+
+    if (!buildDeleting) {
+      if (buildCharIdx < current.length) {
+        timeout = setTimeout(() => {
+          setBuildText(current.slice(0, buildCharIdx + 1))
+          setBuildCharIdx(c => c + 1)
+        }, 80) // Typing speed
+      } else {
+        timeout = setTimeout(() => setBuildDeleting(true), 2000) // Pause before deleting
+      }
+    } else {
+      if (buildCharIdx > 0) {
+        timeout = setTimeout(() => {
+          setBuildText(current.slice(0, buildCharIdx - 1))
+          setBuildCharIdx(c => c - 1)
+        }, 40) // Deleting speed
+      } else {
+        setBuildDeleting(false)
+        setBuildWordIdx(i => (i + 1) % buildWords.length)
+      }
+    }
+    return () => clearTimeout(timeout)
+  }, [buildCharIdx, buildDeleting, buildWordIdx, buildWords])
+
   useEffect(() => {
     timerRef.current = setInterval(() => {
       setCurrentSlide(prev => {
@@ -334,6 +371,163 @@ export default function Home({ lang = 'en' }) {
       <FlowStyles />
       {/* ── Hero ── */}
       <Hero lang={lang} />
+
+      {/* ── Services Orbital Section ── */}
+      <section id="services" style={{ 
+        backgroundColor: '#050505', 
+        padding: '120px 24px 160px', 
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          
+          {/* Header */}
+          <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+            <p style={{
+              fontFamily: "'Inter', sans-serif", fontSize: '0.85rem', fontWeight: 600, letterSpacing: '0.2em',
+              color: '#e91e63', textTransform: 'uppercase', marginBottom: '16px'
+            }}>
+              {t.services.badge}
+            </p>
+            <h2 style={{
+              fontFamily: "'Space Grotesk', 'Inter', sans-serif", fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+              fontWeight: 800, color: '#F8FAFC', letterSpacing: '-0.03em', lineHeight: 1.1
+            }}>
+              {t.services.title}
+              <span style={{
+                background: 'linear-gradient(135deg, #e91e63, #e91e63)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', textAlign: 'left'
+              }}>
+                {buildText}<span style={{ opacity: 0.7, animation: 'blink 1s step-start infinite' }}>|</span>
+              </span>
+            </h2>
+          </div>
+
+          <div className="bento-grid">
+            {/* 1. Tall Card - Outreach Automation */}
+            <motion.div 
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              className="bento-card card-tall"
+            >
+              <div className="card-glow" />
+              <div className="card-pattern" />
+              <div style={{ position: 'absolute', top: '10%', right: '-5%', opacity: 0.1, zIndex: 1 }}>
+                <svg width="200" height="200" viewBox="0 0 200 200">
+                  <circle cx="100" cy="100" r="80" fill="none" stroke="#e91e63" strokeWidth="1" strokeDasharray="4 4" />
+                  <circle cx="100" cy="100" r="40" fill="none" stroke="#e91e63" strokeWidth="1" />
+                </svg>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
+                <motion.div whileHover={{ scale: 1.1, rotate: 5 }} className="bento-icon">{ICONS[t.services.items[2].icon]}</motion.div>
+                <div className="badge-tag">Agents v2.1</div>
+              </div>
+              <div style={{ marginTop: 'auto', position: 'relative', zIndex: 2 }}>
+                <h3 className="bento-title">{t.services.items[2].title}</h3>
+                <p className="bento-desc">{t.services.items[2].desc}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '20px' }}>
+                   <div className="status-dot" />
+                   <span style={{ fontFamily: 'Inter', fontSize: '0.7rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Active Inbound/Outbound</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* 2. Top Mid - Smart Reporting */}
+            <motion.div 
+              whileHover={{ y: -8 }}
+              className="bento-card card-topmid"
+            >
+              <div className="card-glow" style={{ background: 'radial-gradient(circle at top right, rgba(233, 30, 99, 0.1) 0%, transparent 60%)' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
+                <motion.div whileHover={{ scale: 1.1 }} className="bento-icon" style={{ marginBottom: 0 }}>{ICONS[t.services.items[1].icon]}</motion.div>
+                <div className="status-dot" />
+              </div>
+              <div style={{ marginTop: 'auto', position: 'relative', zIndex: 2 }}>
+                <h3 className="bento-title" style={{ fontSize: '1.2rem', marginBottom: '4px' }}>{t.services.items[1].title}</h3>
+                <p className="bento-desc" style={{ fontSize: '0.85rem' }}>{t.services.items[1].desc}</p>
+              </div>
+            </motion.div>
+
+            {/* 3. Big Featured - Custom CRM Systems */}
+            <motion.div 
+              whileHover={{ scale: 1.02 }}
+              className="bento-card card-big"
+            >
+              <div className="card-glow" style={{ width: '200%', height: '200%', opacity: 1 }} />
+              <div className="card-pattern" style={{ opacity: 0.5 }} />
+              <div style={{ position: 'absolute', inset: 0, opacity: 0.05, zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="400" height="400" viewBox="0 0 400 400">
+                  <path d="M0,200 Q100,100 200,200 T400,200" fill="none" stroke="#e91e63" strokeWidth="2" />
+                  <path d="M0,220 Q100,120 200,220 T400,220" fill="none" stroke="#e91e63" strokeWidth="2" />
+                </svg>
+              </div>
+              <div style={{ position: 'relative', zIndex: 2 }}>
+                <p className="bento-desc" style={{ marginBottom: '12px', fontSize: '0.75rem', letterSpacing: '0.2em', fontWeight: 700, color: '#e91e63' }}>CORE PLATFORM</p>
+                <h3 className="bento-title">{t.services.items[0].title}</h3>
+                <p className="bento-desc" style={{ fontSize: '1rem', maxWidth: '360px', margin: '0 auto', opacity: 0.9 }}>
+                  {t.services.items[0].desc}
+                </p>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '24px' }}>
+                  <div className="badge-tag">Scalable</div>
+                  <div className="badge-tag">Secure</div>
+                  <div className="badge-tag">Real-time</div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* 4. Bot Mid - Website Integrations */}
+            <motion.div 
+              whileHover={{ y: -8 }}
+              className="bento-card card-botmid"
+            >
+              <div className="card-glow" style={{ background: 'radial-gradient(circle at bottom left, rgba(233, 30, 99, 0.1) 0%, transparent 60%)' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
+                <motion.div whileHover={{ scale: 1.1 }} className="bento-icon" style={{ marginBottom: 0 }}>{ICONS[t.services.items[4].icon]}</motion.div>
+                <div className="badge-tag">Pipes</div>
+              </div>
+              <div style={{ marginTop: 'auto', position: 'relative', zIndex: 2 }}>
+                <h3 className="bento-title" style={{ fontSize: '1.2rem', marginBottom: '4px' }}>{t.services.items[4].title}</h3>
+                <p className="bento-desc" style={{ fontSize: '0.85rem' }}>{t.services.items[4].desc}</p>
+              </div>
+            </motion.div>
+
+            {/* 5. Wide Card - AI Chatbots */}
+            <motion.div 
+              whileHover={{ x: 10 }}
+              className="bento-card card-wide"
+            >
+              <div className="card-glow" style={{ left: '-50%', width: '100%', height: '100%' }} />
+              <motion.div whileHover={{ scale: 1.1, rotate: -5 }} className="bento-icon" style={{ position: 'relative', zIndex: 2 }}>{ICONS[t.services.items[3].icon]}</motion.div>
+              <div style={{ flex: 1, position: 'relative', zIndex: 2 }}>
+                <h3 className="bento-title" style={{ fontSize: '1.4rem', marginBottom: '4px' }}>{t.services.items[3].title}</h3>
+                <p className="bento-desc">{t.services.items[3].desc}</p>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', opacity: 0.8, position: 'relative', zIndex: 2 }}>
+                <div className="badge-tag">Self-Learning</div>
+                <div className="badge-tag">24/7 Active</div>
+              </div>
+            </motion.div>
+
+            {/* 6. Small 1 - Custom Business Workflows */}
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="bento-card card-small1"
+            >
+              <div className="card-pattern" style={{ opacity: 0.2 }} />
+              <h3 className="bento-title" style={{ position: 'relative', zIndex: 2 }}>{t.services.items[5].title}</h3>
+              <p className="bento-desc" style={{ position: 'relative', zIndex: 2 }}>{t.services.items[5].desc}</p>
+            </motion.div>
+
+            {/* 7. Small 2 - Performance Analytics */}
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="bento-card card-small2"
+            >
+              <div className="card-pattern" style={{ opacity: 0.2 }} />
+              <h3 className="bento-title" style={{ position: 'relative', zIndex: 2 }}>{t.services.items[6].title}</h3>
+              <p className="bento-desc" style={{ position: 'relative', zIndex: 2 }}>{t.services.items[6].desc}</p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
       {/* ── Startup Dreams Section ── */}
       <section style={{ backgroundColor: '#050505', padding: '120px 24px', position: 'relative' }}>
@@ -527,167 +721,12 @@ export default function Home({ lang = 'en' }) {
         </section>
       )}
 
-      {/* ── Services Orbital Section ── */}
-      <section id="services" style={{ 
-        backgroundColor: '#050505', 
-        padding: '120px 24px 160px', 
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          
-          {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-            <p style={{
-              fontFamily: "'Inter', sans-serif", fontSize: '0.85rem', fontWeight: 600, letterSpacing: '0.2em',
-              color: '#e91e63', textTransform: 'uppercase', marginBottom: '16px'
-            }}>
-              {t.services.badge}
-            </p>
-            <h2 style={{
-              fontFamily: "'Space Grotesk', 'Inter', sans-serif", fontSize: 'clamp(2.5rem, 6vw, 4rem)',
-              fontWeight: 800, color: '#F8FAFC', letterSpacing: '-0.03em', lineHeight: 1.1
-            }}>
-              {t.services.title}
-              <span style={{ background: 'linear-gradient(135deg, #e91e63, #e91e63)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                {t.services.titleHighlight}
-              </span>
-            </h2>
-          </div>
-
-          <div className="bento-grid">
-            {/* 1. Tall Card - Outreach Automation */}
-            <motion.div 
-              whileHover={{ y: -8, transition: { duration: 0.3 } }}
-              className="bento-card card-tall"
-            >
-              <div className="card-glow" />
-              <div className="card-pattern" />
-              <div style={{ position: 'absolute', top: '10%', right: '-5%', opacity: 0.1, zIndex: 1 }}>
-                <svg width="200" height="200" viewBox="0 0 200 200">
-                  <circle cx="100" cy="100" r="80" fill="none" stroke="#e91e63" strokeWidth="1" strokeDasharray="4 4" />
-                  <circle cx="100" cy="100" r="40" fill="none" stroke="#e91e63" strokeWidth="1" />
-                </svg>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
-                <motion.div whileHover={{ scale: 1.1, rotate: 5 }} className="bento-icon">{ICONS[t.services.items[2].icon]}</motion.div>
-                <div className="badge-tag">Agents v2.1</div>
-              </div>
-              <div style={{ marginTop: 'auto', position: 'relative', zIndex: 2 }}>
-                <h3 className="bento-title">{t.services.items[2].title}</h3>
-                <p className="bento-desc">{t.services.items[2].desc}</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '20px' }}>
-                   <div className="status-dot" />
-                   <span style={{ fontFamily: 'Inter', fontSize: '0.7rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Active Inbound/Outbound</span>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* 2. Top Mid - Smart Reporting */}
-            <motion.div 
-              whileHover={{ y: -8 }}
-              className="bento-card card-topmid"
-            >
-              <div className="card-glow" style={{ background: 'radial-gradient(circle at top right, rgba(233, 30, 99, 0.1) 0%, transparent 60%)' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
-                <motion.div whileHover={{ scale: 1.1 }} className="bento-icon" style={{ marginBottom: 0 }}>{ICONS[t.services.items[1].icon]}</motion.div>
-                <div className="status-dot" />
-              </div>
-              <div style={{ marginTop: 'auto', position: 'relative', zIndex: 2 }}>
-                <h3 className="bento-title" style={{ fontSize: '1.2rem', marginBottom: '4px' }}>{t.services.items[1].title}</h3>
-                <p className="bento-desc" style={{ fontSize: '0.85rem' }}>{t.services.items[1].desc}</p>
-              </div>
-            </motion.div>
-
-            {/* 3. Big Featured - Custom CRM Systems */}
-            <motion.div 
-              whileHover={{ scale: 1.02 }}
-              className="bento-card card-big"
-            >
-              <div className="card-glow" style={{ width: '200%', height: '200%', opacity: 1 }} />
-              <div className="card-pattern" style={{ opacity: 0.5 }} />
-              <div style={{ position: 'absolute', inset: 0, opacity: 0.05, zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="400" height="400" viewBox="0 0 400 400">
-                  <path d="M0,200 Q100,100 200,200 T400,200" fill="none" stroke="#e91e63" strokeWidth="2" />
-                  <path d="M0,220 Q100,120 200,220 T400,220" fill="none" stroke="#e91e63" strokeWidth="2" />
-                </svg>
-              </div>
-              <div style={{ position: 'relative', zIndex: 2 }}>
-                <p className="bento-desc" style={{ marginBottom: '12px', fontSize: '0.75rem', letterSpacing: '0.2em', fontWeight: 700, color: '#e91e63' }}>CORE PLATFORM</p>
-                <h3 className="bento-title">{t.services.items[0].title}</h3>
-                <p className="bento-desc" style={{ fontSize: '1rem', maxWidth: '360px', margin: '0 auto', opacity: 0.9 }}>
-                  {t.services.items[0].desc}
-                </p>
-                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '24px' }}>
-                  <div className="badge-tag">Scalable</div>
-                  <div className="badge-tag">Secure</div>
-                  <div className="badge-tag">Real-time</div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* 4. Bot Mid - Website Integrations */}
-            <motion.div 
-              whileHover={{ y: -8 }}
-              className="bento-card card-botmid"
-            >
-              <div className="card-glow" style={{ background: 'radial-gradient(circle at bottom left, rgba(233, 30, 99, 0.1) 0%, transparent 60%)' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
-                <motion.div whileHover={{ scale: 1.1 }} className="bento-icon" style={{ marginBottom: 0 }}>{ICONS[t.services.items[4].icon]}</motion.div>
-                <div className="badge-tag">Pipes</div>
-              </div>
-              <div style={{ marginTop: 'auto', position: 'relative', zIndex: 2 }}>
-                <h3 className="bento-title" style={{ fontSize: '1.2rem', marginBottom: '4px' }}>{t.services.items[4].title}</h3>
-                <p className="bento-desc" style={{ fontSize: '0.85rem' }}>{t.services.items[4].desc}</p>
-              </div>
-            </motion.div>
-
-            {/* 5. Wide Card - AI Chatbots */}
-            <motion.div 
-              whileHover={{ x: 10 }}
-              className="bento-card card-wide"
-            >
-              <div className="card-glow" style={{ left: '-50%', width: '100%', height: '100%' }} />
-              <motion.div whileHover={{ scale: 1.1, rotate: -5 }} className="bento-icon" style={{ position: 'relative', zIndex: 2 }}>{ICONS[t.services.items[3].icon]}</motion.div>
-              <div style={{ flex: 1, position: 'relative', zIndex: 2 }}>
-                <h3 className="bento-title" style={{ fontSize: '1.4rem', marginBottom: '4px' }}>{t.services.items[3].title}</h3>
-                <p className="bento-desc">{t.services.items[3].desc}</p>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', opacity: 0.8, position: 'relative', zIndex: 2 }}>
-                <div className="badge-tag">Self-Learning</div>
-                <div className="badge-tag">24/7 Active</div>
-              </div>
-            </motion.div>
-
-            {/* 6. Small 1 - Custom Business Workflows */}
-            <motion.div 
-              whileHover={{ scale: 1.05 }}
-              className="bento-card card-small1"
-            >
-              <div className="card-pattern" style={{ opacity: 0.2 }} />
-              <h3 className="bento-title" style={{ position: 'relative', zIndex: 2 }}>{t.services.items[5].title}</h3>
-              <p className="bento-desc" style={{ position: 'relative', zIndex: 2 }}>{t.services.items[5].desc}</p>
-            </motion.div>
-
-            {/* 7. Small 2 - Performance Analytics */}
-            <motion.div 
-              whileHover={{ scale: 1.05 }}
-              className="bento-card card-small2"
-            >
-              <div className="card-pattern" style={{ opacity: 0.2 }} />
-              <h3 className="bento-title" style={{ position: 'relative', zIndex: 2 }}>{t.services.items[6].title}</h3>
-              <p className="bento-desc" style={{ position: 'relative', zIndex: 2 }}>{t.services.items[6].desc}</p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
       {/* ── Process Wrapper to fix grey margins ── */}
       <div style={{ backgroundColor: '#050505', padding: '1px 0' }}>
         <section className="process-section" id="how-it-works" style={{
           position: 'relative',
           minHeight: '75vh',
-          background: `url('/images/process_bg.png') center center / cover no-repeat`,
+          background: `url('/images/process-bg.jpg') center center / cover no-repeat`,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',

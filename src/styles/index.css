@@ -3164,7 +3164,7 @@ nav.navbar::after {
 
 .logos-track {
     display: flex;
-    animation: marqueeScroll 40s linear infinite !important;
+    animation: marqueeScroll 60s linear infinite !important;
     width: max-content;
 }
 
@@ -5110,8 +5110,6 @@ body {
     color: #F8FAFC;
     margin-bottom: 1.5rem;
     line-height: 1.1;
-    word-break: break-word;
-    hyphens: auto;
 }
 
 @media (min-width: 1024px) {
