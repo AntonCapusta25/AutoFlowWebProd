@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { motion, useMotionValue, useSpring } from 'framer-motion'
 import BookingForm from '../components/BookingForm'
 import Hero from '../components/Hero'
 import { getT } from '../i18n/translations'
@@ -121,70 +122,140 @@ const FlowStyles = () => (
     }
     .bento-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-auto-rows: 280px;
-      gap: 24px;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 280px) 200px;
+      grid-template-areas: 
+        "tall topmid big big"
+        "tall botmid big big"
+        "wide wide small1 small2";
+      gap: 20px;
     }
     .bento-card {
-      background: rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 32px;
-      padding: 40px;
+      padding: 32px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      transition: border-color 0.4s ease, background 0.4s ease;
       position: relative;
       overflow: hidden;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+      cursor: pointer;
     }
     .bento-card:hover {
-      transform: translateY(-8px);
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(233, 30, 99, 0.3);
-      box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(233, 30, 99, 0.2);
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(233, 30, 99, 0.4);
+    }
+    .card-glow {
+      position: absolute;
+      width: 150%;
+      height: 150%;
+      background: radial-gradient(circle at center, rgba(233, 30, 99, 0.08) 0%, transparent 60%);
+      top: -25%;
+      left: -25%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .card-pattern {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 24px 24px;
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 1;
     }
     .bento-icon {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, rgba(233, 30, 99, 0.1), rgba(156, 39, 176, 0.1));
-      border-radius: 12px;
+      width: 50px;
+      height: 50px;
+      background: rgba(233, 30, 99, 0.1);
+      border: 1px solid rgba(233, 30, 99, 0.2);
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #e91e63;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
+      z-index: 2;
     }
     .bento-title {
-      font-family: "'Space Grotesk', sans-serif";
-      font-size: 1.25rem;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem;
       font-weight: 700;
-      color: #F8FAFC;
+      color: #FFFFFF;
       margin-bottom: 12px;
-      letter-spacing: -0.01em;
+      letter-spacing: -0.02em;
+      z-index: 2;
     }
     .bento-desc {
-      font-family: "'Inter', sans-serif";
+      font-family: 'Inter', sans-serif;
       font-size: 0.95rem;
-      line-height: 1.6;
+      line-height: 1.5;
       color: #94A3B8;
       margin: 0;
+      z-index: 2;
     }
-    @media (max-width: 1000px) {
+    .card-tall { grid-area: tall; }
+    .card-topmid { grid-area: topmid; }
+    .card-botmid { grid-area: botmid; }
+    .card-big { 
+      grid-area: big; 
+      justify-content: center;
+      text-align: center;
+    }
+    .card-big .bento-title { font-size: 2.8rem; line-height: 1.1; margin-bottom: 16px; }
+    .card-wide { 
+      grid-area: wide; 
+      flex-direction: row !important; 
+      align-items: center; 
+      gap: 24px;
+    }
+    .card-wide .bento-icon { margin-bottom: 0; flex-shrink: 0; }
+    .card-small1 { grid-area: small1; padding: 24px; }
+    .card-small2 { grid-area: small2; padding: 24px; }
+    .card-small1 .bento-title, .card-small2 .bento-title { font-size: 1.1rem; margin-bottom: 6px; }
+    .card-small1 .bento-desc, .card-small2 .bento-desc { font-size: 0.85rem; }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e91e63;
+      box-shadow: 0 0 10px rgba(233, 30, 99, 0.5);
+    }
+    .badge-tag {
+      font-family: 'Inter', sans-serif;
+      background: rgba(233, 30, 99, 0.1);
+      border: 1px solid rgba(233, 30, 99, 0.2);
+      color: #e91e63;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      z-index: 2;
+    }
+    
+    @media (max-width: 1200px) {
       .bento-grid {
         grid-template-columns: repeat(2, 1fr);
-        grid-auto-rows: minmax(180px, auto);
-      }
-      .bento-card {
-        grid-area: auto !important;
+        grid-template-rows: auto;
+        grid-template-areas: 
+          "big big"
+          "tall topmid"
+          "tall botmid"
+          "wide wide"
+          "small1 small2";
       }
     }
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
       .bento-grid {
         grid-template-columns: 1fr;
+        grid-template-areas: "big" "tall" "topmid" "botmid" "wide" "small1" "small2";
       }
+      .card-wide { flex-direction: column !important; align-items: flex-start; }
     }
   `}</style>
 )
@@ -485,28 +556,128 @@ export default function Home({ lang = 'en' }) {
           </div>
 
           <div className="bento-grid">
-            {t.services.items.map((service, i) => {
-              let gridArea = ''
-              if (i === 0) gridArea = 'span 2 / span 2' 
-              else if (i === 1) gridArea = 'span 1 / span 1'
-              else if (i === 2) gridArea = 'span 1 / span 1'
-              else if (i === 3) gridArea = 'span 1 / span 1' 
-              else if (i === 4) gridArea = 'span 1 / span 1'
-              else if (i === 5) gridArea = 'span 1 / span 1'
-              else if (i === 6) gridArea = 'span 1 / span 3'
-              
-              return (
-                <div key={i} className="bento-card" style={{ gridArea }}>
-                  <div className="bento-icon">
-                    {ICONS[service.icon] || ICONS.custom}
-                  </div>
-                  <div>
-                    <h3 className="bento-title">{service.title}</h3>
-                    <p className="bento-desc">{service.desc}</p>
-                  </div>
+            {/* 1. Tall Card - Outreach Automation */}
+            <motion.div 
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              className="bento-card card-tall"
+            >
+              <div className="card-glow" />
+              <div className="card-pattern" />
+              <div style={{ position: 'absolute', top: '10%', right: '-5%', opacity: 0.1, zIndex: 1 }}>
+                <svg width="200" height="200" viewBox="0 0 200 200">
+                  <circle cx="100" cy="100" r="80" fill="none" stroke="#e91e63" strokeWidth="1" strokeDasharray="4 4" />
+                  <circle cx="100" cy="100" r="40" fill="none" stroke="#e91e63" strokeWidth="1" />
+                </svg>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
+                <motion.div whileHover={{ scale: 1.1, rotate: 5 }} className="bento-icon">{ICONS[t.services.items[2].icon]}</motion.div>
+                <div className="badge-tag">Agents v2.1</div>
+              </div>
+              <div style={{ marginTop: 'auto', position: 'relative', zIndex: 2 }}>
+                <h3 className="bento-title">{t.services.items[2].title}</h3>
+                <p className="bento-desc">{t.services.items[2].desc}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '20px' }}>
+                   <div className="status-dot" />
+                   <span style={{ fontFamily: 'Inter', fontSize: '0.7rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Active Inbound/Outbound</span>
                 </div>
-              )
-            })}
+              </div>
+            </motion.div>
+
+            {/* 2. Top Mid - Smart Reporting */}
+            <motion.div 
+              whileHover={{ y: -8 }}
+              className="bento-card card-topmid"
+            >
+              <div className="card-glow" style={{ background: 'radial-gradient(circle at top right, rgba(233, 30, 99, 0.1) 0%, transparent 60%)' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
+                <motion.div whileHover={{ scale: 1.1 }} className="bento-icon" style={{ marginBottom: 0 }}>{ICONS[t.services.items[1].icon]}</motion.div>
+                <div className="status-dot" />
+              </div>
+              <div style={{ marginTop: 'auto', position: 'relative', zIndex: 2 }}>
+                <h3 className="bento-title" style={{ fontSize: '1.2rem', marginBottom: '4px' }}>{t.services.items[1].title}</h3>
+                <p className="bento-desc" style={{ fontSize: '0.85rem' }}>{t.services.items[1].desc}</p>
+              </div>
+            </motion.div>
+
+            {/* 3. Big Featured - Custom CRM Systems */}
+            <motion.div 
+              whileHover={{ scale: 1.02 }}
+              className="bento-card card-big"
+            >
+              <div className="card-glow" style={{ width: '200%', height: '200%', opacity: 1 }} />
+              <div className="card-pattern" style={{ opacity: 0.5 }} />
+              <div style={{ position: 'absolute', inset: 0, opacity: 0.05, zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="400" height="400" viewBox="0 0 400 400">
+                  <path d="M0,200 Q100,100 200,200 T400,200" fill="none" stroke="#e91e63" strokeWidth="2" />
+                  <path d="M0,220 Q100,120 200,220 T400,220" fill="none" stroke="#e91e63" strokeWidth="2" />
+                </svg>
+              </div>
+              <div style={{ position: 'relative', zIndex: 2 }}>
+                <p className="bento-desc" style={{ marginBottom: '12px', fontSize: '0.75rem', letterSpacing: '0.2em', fontWeight: 700, color: '#e91e63' }}>CORE PLATFORM</p>
+                <h3 className="bento-title">{t.services.items[0].title}</h3>
+                <p className="bento-desc" style={{ fontSize: '1rem', maxWidth: '360px', margin: '0 auto', opacity: 0.9 }}>
+                  {t.services.items[0].desc}
+                </p>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '24px' }}>
+                  <div className="badge-tag">Scalable</div>
+                  <div className="badge-tag">Secure</div>
+                  <div className="badge-tag">Real-time</div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* 4. Bot Mid - Website Integrations */}
+            <motion.div 
+              whileHover={{ y: -8 }}
+              className="bento-card card-botmid"
+            >
+              <div className="card-glow" style={{ background: 'radial-gradient(circle at bottom left, rgba(233, 30, 99, 0.1) 0%, transparent 60%)' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
+                <motion.div whileHover={{ scale: 1.1 }} className="bento-icon" style={{ marginBottom: 0 }}>{ICONS[t.services.items[4].icon]}</motion.div>
+                <div className="badge-tag">Pipes</div>
+              </div>
+              <div style={{ marginTop: 'auto', position: 'relative', zIndex: 2 }}>
+                <h3 className="bento-title" style={{ fontSize: '1.2rem', marginBottom: '4px' }}>{t.services.items[4].title}</h3>
+                <p className="bento-desc" style={{ fontSize: '0.85rem' }}>{t.services.items[4].desc}</p>
+              </div>
+            </motion.div>
+
+            {/* 5. Wide Card - AI Chatbots */}
+            <motion.div 
+              whileHover={{ x: 10 }}
+              className="bento-card card-wide"
+            >
+              <div className="card-glow" style={{ left: '-50%', width: '100%', height: '100%' }} />
+              <motion.div whileHover={{ scale: 1.1, rotate: -5 }} className="bento-icon" style={{ position: 'relative', zIndex: 2 }}>{ICONS[t.services.items[3].icon]}</motion.div>
+              <div style={{ flex: 1, position: 'relative', zIndex: 2 }}>
+                <h3 className="bento-title" style={{ fontSize: '1.4rem', marginBottom: '4px' }}>{t.services.items[3].title}</h3>
+                <p className="bento-desc">{t.services.items[3].desc}</p>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', opacity: 0.8, position: 'relative', zIndex: 2 }}>
+                <div className="badge-tag">Self-Learning</div>
+                <div className="badge-tag">24/7 Active</div>
+              </div>
+            </motion.div>
+
+            {/* 6. Small 1 - Custom Business Workflows */}
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="bento-card card-small1"
+            >
+              <div className="card-pattern" style={{ opacity: 0.2 }} />
+              <h3 className="bento-title" style={{ position: 'relative', zIndex: 2 }}>{t.services.items[5].title}</h3>
+              <p className="bento-desc" style={{ position: 'relative', zIndex: 2 }}>{t.services.items[5].desc}</p>
+            </motion.div>
+
+            {/* 7. Small 2 - Performance Analytics */}
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="bento-card card-small2"
+            >
+              <div className="card-pattern" style={{ opacity: 0.2 }} />
+              <h3 className="bento-title" style={{ position: 'relative', zIndex: 2 }}>{t.services.items[6].title}</h3>
+              <p className="bento-desc" style={{ position: 'relative', zIndex: 2 }}>{t.services.items[6].desc}</p>
+            </motion.div>
           </div>
         </div>
       </section>
