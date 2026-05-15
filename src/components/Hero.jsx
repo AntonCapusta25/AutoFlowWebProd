@@ -6,14 +6,13 @@ import { getT } from '../i18n/translations'
 
 const LOGOS = [
   { name: 'Gemini', src: '/images/logos/gemini.png', type: 'image' },
-  { name: 'OpenAI', src: '/images/logos/openai.png', type: 'image' },
-  { name: 'Recraft', src: '/images/logos/recraft.png', type: 'image' },
+  { name: 'ChatGPT', src: '/images/logos/chatgpt_white.png', type: 'image' },
+  { name: 'Claude AI', type: 'pill' },
   { name: 'SendGrid', src: '/images/logos/sendgrid.png', type: 'image' },
   { name: 'Google Workspace', src: '/images/logos/google-workspace.png', type: 'image' },
   { name: 'Supabase', src: '/images/logos/supabase.png', type: 'image' },
   { name: 'Homemade BV', type: 'pill' },
   { name: 'Oceanlove', type: 'pill' },
-  { name: 'Claude AI', type: 'pill' },
   { name: 'Vercel', type: 'pill' },
 ]
 
