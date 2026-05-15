@@ -948,7 +948,7 @@ function initializeEnhancedChatbot() {
             if (action === 'external_calendar') {
                 addMessage("📅 **Opening calendar...**\n\nRedirecting you to book your free consultation!");
                 setTimeout(() => {
-                    window.open('https://autoflow.neetocal.com/meeting-with-auto-flow', '_blank');
+                    window.open('https://calendar.app.google/bnsr9k5VHi5EYgdM8', '_blank');
                     showCompletionMessage();
                 }, 2000);
                 return;

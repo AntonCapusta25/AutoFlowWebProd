@@ -84,7 +84,7 @@ export default function Contact({ lang = 'en' }) {
               <div style={{ background:'linear-gradient(135deg,#e91e63,#9c27b0)',borderRadius:'16px',padding:'28px' }}>
                 <h3 style={{ color:'white',fontSize:'1.1rem',fontWeight:700,marginBottom:'10px' }}>{t.bookTitle}</h3>
                 <p style={{ color:'rgba(255,255,255,0.8)',lineHeight:1.6,marginBottom:'20px',fontSize:'0.875rem' }}>{t.bookSub}</p>
-                <a href="https://autoflow.neetocal.com/meeting-with-auto-flow" target="_blank" rel="noreferrer"
+                <a href="https://calendar.app.google/bnsr9k5VHi5EYgdM8" target="_blank" rel="noreferrer"
                   style={{ display:'inline-block',background:'white',color:'#e91e63',padding:'11px 22px',borderRadius:'50px',fontWeight:700,fontSize:'0.875rem',textDecoration:'none',boxShadow:'0 4px 15px rgba(0,0,0,0.15)' }}>
                   {t.bookBtn}
                 </a>

@@ -10,8 +10,9 @@ export const translations = {
       contact: 'Contact',
     },
     hero: {
-      headline: 'Automate the Work You Hate',
-      sub: 'Custom automation tools for startups, founders, and teams. From Google Sheets workflows to AI chatbots — delivered in under 7 days.',
+      headlinePrefix: 'Automate your ',
+      headlineWords: ['CRM systems.', 'sales pipelines.', 'smart reporting.', 'client onboarding.', 'marketing funnels.', 'web applications.'],
+      sub: 'Custom software and automation systems that drastically improve your ROI. From professional CRMs to full web applications — built for scale and delivered in under 7 days.',
       cta: 'Book Free Audit',
     },
     logosLabel: 'Our Partners & APIs',
@@ -56,14 +57,14 @@ export const translations = {
       sub: 'We build production-grade automation systems that turn manual bottlenecks into scalable growth engines.',
       items: [
         {
-          title: 'AI-Powered CRM Systems',
+          title: 'Custom CRM Systems',
           desc: 'High-fidelity dashboards with persistent activity sidebars, real-time lead tracking, and seamless call-logging tools.',
           icon: 'crm'
         },
         {
-          title: 'Lead Generation Engines',
-          desc: 'Custom scraping and enrichment systems that find, verify, and qualify thousands of prospects automatically.',
-          icon: 'lead'
+          title: 'Smart Reporting',
+          desc: 'Automated dashboards and custom reports that aggregate your data, giving you real-time visibility into your most critical metrics.',
+          icon: 'stats'
         },
         {
           title: 'Outreach Automation',
@@ -200,7 +201,7 @@ export const translations = {
       title: 'Frequently Asked Questions',
       sub: 'Everything you need to know about our automation services.',
       items: [
-        { q: 'What kind of processes can you automate?', a: 'Almost any repetitive digital task. From lead generation and data entry to complex AI-driven workflows and cross-platform integrations.' },
+        { q: 'What kind of processes can you automate?', a: 'Almost any repetitive digital task. From smart reporting and data entry to complex AI-driven workflows and cross-platform integrations.' },
         { q: 'How long does a typical project take?', a: 'Simple automations can be ready in 3-5 days. Complex custom systems usually take 2-4 weeks.' },
         { q: 'Do I need to pay for software like Zapier or Make?', a: 'It depends on the solution. We often use custom code to bypass high subscription costs, but some projects benefit from specialized platforms.' },
         { q: 'Is my data secure?', a: 'Absolutely. We prioritize security and data privacy, building systems that comply with industry standards and your internal policies.' },
@@ -222,8 +223,9 @@ export const translations = {
       contact: 'Contact',
     },
     hero: {
-      headline: 'Automatiseer het Werk dat Je Haat',
-      sub: 'Maatwerk automatiseringstools voor startups, founders en teams. Van Google Sheets workflows tot AI chatbots — opgeleverd binnen 7 dagen.',
+      headlinePrefix: 'Automatiseer je ',
+      headlineWords: ['CRM systemen.', 'sales pijplijnen.', 'slimme rapportages.', 'klant onboarding.', 'marketing funnels.', 'webapplicaties.'],
+      sub: 'Maatwerk software en automatiseringssystemen die je ROI drastisch verhogen. Van professionele CRM\'s tot volledige webapplicaties — gebouwd om te schalen en geleverd binnen 7 dagen.',
       cta: 'Boek Gratis Audit',
     },
     logosLabel: 'Onze Partners & API\'s',
@@ -268,14 +270,14 @@ export const translations = {
       sub: 'Wij bouwen professionele automatiseringssystemen die handmatige knelpunten veranderen in schaalbare groeimotoren.',
       items: [
         {
-          title: 'AI-Gedreven CRM-Systemen',
+          title: 'Maatwerk CRM-Systemen',
           desc: 'Hoogwaardige dashboards met persistente zijbalken, realtime leadtracking en naadloze call-logging tools.',
           icon: 'crm'
         },
         {
-          title: 'Leadgeneratie Motoren',
-          desc: 'Maatwerk scraping- en verrijkingssystemen die automatisch duizenden prospects vinden, verifiëren en kwalificeren.',
-          icon: 'lead'
+          title: 'Slimme Rapportages',
+          desc: 'Geautomatiseerde dashboards en rapporten die uw data samenvoegen voor direct, real-time inzicht in uw belangrijkste statistieken.',
+          icon: 'stats'
         },
         {
           title: 'Outreach Automatisering',
@@ -412,7 +414,7 @@ export const translations = {
       title: 'Veelgestelde Vragen',
       sub: 'Alles wat je moet weten over onze automatiseringsdiensten.',
       items: [
-        { q: 'Welke processen kunnen jullie automatiseren?', a: 'Bijna elk herhalend digitaal proces. Van leadgeneratie en data-invoer tot complexe AI-gestuurde workflows en platformonafhankelijke integraties.' },
+        { q: 'Welke processen kunnen jullie automatiseren?', a: 'Bijna elk herhalend digitaal proces. Van slimme rapportages en data-invoer tot complexe AI-gestuurde workflows en platformonafhankelijke integraties.' },
         { q: 'Hoe lang duurt een gemiddeld project?', a: 'Eenvoudige automatiseringen kunnen binnen 3-5 dagen klaar zijn. Complexe maatwerksystemen duren meestal 2-4 weken.' },
         { q: 'Moet ik betalen voor software zoals Zapier of Make?', a: 'Dat hangt af van de oplossing. We gebruiken vaak eigen code om hoge abonnementskosten te vermijden, maar sommige projecten profiteren van gespecialiseerde platforms.' },
         { q: 'Is mijn data veilig?', a: 'Absoluut. We geven prioriteit aan beveiliging en gegevensprivacy en bouwen systemen die voldoen aan de industriestandaarden en jouw interne beleid.' },

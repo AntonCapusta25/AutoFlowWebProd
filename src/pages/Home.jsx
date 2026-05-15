@@ -3,7 +3,50 @@ import { Link } from 'react-router-dom'
 import BookingForm from '../components/BookingForm'
 import Hero from '../components/Hero'
 import { getT } from '../i18n/translations'
-import ServiceOrbit from '../components/ServiceOrbit'
+const ICONS = {
+  crm: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
+      <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
+    </svg>
+  ),
+  lead: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  ),
+  outreach: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+    </svg>
+  ),
+  bot: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 8V4H8" /><rect x="4" y="8" width="16" height="12" rx="2" />
+      <path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" />
+    </svg>
+  ),
+  web: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+      <line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" />
+    </svg>
+  ),
+  custom: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" />
+    </svg>
+  ),
+  stats: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10" />
+      <line x1="12" y1="20" x2="12" y2="4" />
+      <line x1="6" y1="20" x2="6" y2="14" />
+    </svg>
+  ),
+}
 
 // Partners & APIs — duplicated for seamless infinite scroll
 const CAROUSEL_SLIDES = [
@@ -75,6 +118,77 @@ const FlowStyles = () => (
       animation: super-flow 1.5s infinite ease-in-out !important;
       filter: drop-shadow(0 0 8px rgba(233, 30, 99, 0.6)) !important;
       overflow: visible !important;
+    }
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 280px;
+      gap: 24px;
+    }
+    .bento-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 32px;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .bento-card:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .bento-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at top left, rgba(233, 30, 99, 0.1), transparent 70%);
+      pointer-events: none;
+    }
+    .bento-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, rgba(233, 30, 99, 0.1), rgba(156, 39, 176, 0.1));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e91e63;
+      margin-bottom: 20px;
+    }
+    .bento-title {
+      font-family: "'Space Grotesk', sans-serif";
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #F8FAFC;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+    .bento-desc {
+      font-family: "'Inter', sans-serif";
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #94A3B8;
+      margin: 0;
+    }
+    @media (max-width: 1000px) {
+      .bento-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: minmax(180px, auto);
+      }
+      .bento-card {
+        grid-area: auto !important;
+      }
+    }
+    @media (max-width: 600px) {
+      .bento-grid {
+        grid-template-columns: 1fr;
+      }
     }
   `}</style>
 )
@@ -353,7 +467,7 @@ export default function Home({ lang = 'en' }) {
         position: 'relative',
         overflow: 'hidden'
       }}>
-        <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '60px' }}>
@@ -374,7 +488,30 @@ export default function Home({ lang = 'en' }) {
             </h2>
           </div>
 
-          <ServiceOrbit services={t.services.items} />
+          <div className="bento-grid">
+            {t.services.items.map((service, i) => {
+              let gridArea = ''
+              if (i === 0) gridArea = 'span 2 / span 2' 
+              else if (i === 1) gridArea = 'span 1 / span 1'
+              else if (i === 2) gridArea = 'span 1 / span 1'
+              else if (i === 3) gridArea = 'span 1 / span 1' 
+              else if (i === 4) gridArea = 'span 1 / span 1'
+              else if (i === 5) gridArea = 'span 1 / span 1'
+              else if (i === 6) gridArea = 'span 1 / span 3'
+              
+              return (
+                <div key={i} className="bento-card" style={{ gridArea }}>
+                  <div className="bento-icon">
+                    {ICONS[service.icon] || ICONS.custom}
+                  </div>
+                  <div>
+                    <h3 className="bento-title">{service.title}</h3>
+                    <p className="bento-desc">{service.desc}</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </div>
       </section>
 
@@ -388,7 +525,7 @@ export default function Home({ lang = 'en' }) {
           flexDirection: 'column',
           justifyContent: 'space-between',
           padding: '120px 80px 100px',
-          maxWidth: '1400px',
+          maxWidth: '1200px',
           width: 'calc(100% - 48px)',
           margin: '100px auto',
           borderRadius: '40px',

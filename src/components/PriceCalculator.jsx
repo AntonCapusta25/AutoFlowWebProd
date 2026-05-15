@@ -120,7 +120,7 @@ export default function PriceCalculator() {
               <p style={{color:'#9ca3af',fontSize:'0.8rem',lineHeight:1.4,margin:'0 0 16px',maxWidth:'350px',marginLeft:'auto',marginRight:'auto'}}>
                 Rough estimate — final price depends on your specific requirements.
               </p>
-              <a href="https://autoflow.neetocal.com/meeting-with-auto-flow" target="_blank" rel="noreferrer"
+              <a href="https://calendar.app.google/bnsr9k5VHi5EYgdM8" target="_blank" rel="noreferrer"
                 style={{display:'inline-block',background:'linear-gradient(135deg,#e91e63,#9c27b0)',color:'white',padding:'12px 30px',borderRadius:'50px',textDecoration:'none',fontWeight:600,fontSize:'0.95rem',boxShadow:'0 8px 25px rgba(233,30,99,0.3)'}}>
                 Schedule a free consultation
               </a>

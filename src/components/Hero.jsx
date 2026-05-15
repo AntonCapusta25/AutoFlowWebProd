@@ -55,10 +55,47 @@ export default function Hero({ lang = 'en' }) {
   const navigate = useNavigate()
   const inputRef = useRef(null)
 
+  // Headline typewriter state
+  const headlineWords = t.hero.headlineWords || []
+  const [headlineText, setHeadlineText] = useState('')
+  const [headlineWordIdx, setHeadlineWordIdx] = useState(0)
+  const [headlineCharIdx, setHeadlineCharIdx] = useState(0)
+  const [headlineDeleting, setHeadlineDeleting] = useState(false)
+
+  useEffect(() => {
+    if (!headlineWords.length) return
+    const current = headlineWords[headlineWordIdx]
+    let timeout
+
+    if (!headlineDeleting) {
+      if (headlineCharIdx < current.length) {
+        timeout = setTimeout(() => {
+          setHeadlineText(current.slice(0, headlineCharIdx + 1))
+          setHeadlineCharIdx(c => c + 1)
+        }, 60)
+      } else {
+        timeout = setTimeout(() => setHeadlineDeleting(true), 3000)
+      }
+    } else {
+      if (headlineCharIdx > 0) {
+        timeout = setTimeout(() => {
+          setHeadlineText(current.slice(0, headlineCharIdx - 1))
+          setHeadlineCharIdx(c => c - 1)
+        }, 30)
+      } else {
+        setHeadlineDeleting(false)
+        setHeadlineWordIdx(i => (i + 1) % headlineWords.length)
+      }
+    }
+    return () => clearTimeout(timeout)
+  }, [headlineCharIdx, headlineDeleting, headlineWordIdx, headlineWords])
+
   const inputLabel = isNl ? 'Wat wil je automatiseren?' : 'What do you want to automate?'
   const sendText = isNl ? 'Stuur' : 'Send'
 
-  // Typewriter effect
+
+
+  // Typewriter effect for input box
   useEffect(() => {
     const prefixStr = isNl ? 'Wij automatiseren het ' : 'We automate '
     const current = prefixStr + typeItems[itemIdx]
@@ -95,45 +132,143 @@ export default function Hero({ lang = 'en' }) {
   }
 
   return (
-    <section className="hero hero-section" style={{ 
-      minHeight: '100vh', 
-      paddingTop: '160px', 
-      paddingBottom: '0',
-      background: `url('/images/hero-night-sky.jpg') center bottom / cover no-repeat`,
-      backgroundColor: '#050505',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      position: 'relative'
-    }}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '0 24px' }}>
-        
-        {/* Top Section: Text in Night Sky */}
-        <div style={{ textAlign: 'center', marginTop: '2vh' }}>
-          <h1 style={{ 
-            fontFamily: "'Space Grotesk', 'Inter', sans-serif", 
-            fontSize: 'clamp(3rem, 6vw, 4.5rem)', 
-            fontWeight: 800, 
-            lineHeight: 1.15, 
-            marginBottom: '24px', 
-            letterSpacing: '-0.02em',
-            textShadow: '0 4px 20px rgba(0,0,0,0.5)'
-          }}>
-            {t.hero.headline}
-          </h1>
-          <p style={{ 
+    <>
+      <style>{`
+        .hero-section {
+          min-height: 100vh;
+          padding-top: 160px;
+        }
+        .hero-title {
+          font-size: clamp(3rem, 6vw, 4.5rem);
+          line-height: 1;
+        }
+        .glass-pill {
+          display: inline-flex;
+          align-items: center;
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+          border-radius: 50px;
+          padding: 0 40px;
+          margin-left: 16px;
+          vertical-align: middle;
+          min-height: 1.5em;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+        @media (min-width: 769px) {
+          .mobile-only-br {
+            display: none;
+          }
+        }
+        @media (max-width: 768px) {
+          .hero-section {
+            min-height: 100vh !important;
+            padding-top: 120px !important;
+            padding-bottom: 60px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+          }
+          .hero-title {
+            font-size: clamp(2.5rem, 12vw, 3.5rem) !important;
+            line-height: 1.05 !important;
+            margin-bottom: 16px !important;
+          }
+          .hero-subtext {
+            font-size: 0.95rem !important;
+            margin-bottom: 20px !important;
+            padding: 0 15px;
+            line-height: 1.5 !important;
+          }
+          .hero-search-box {
+            display: none !important;
+          }
+          .hero-search-btn {
+            width: 100% !important;
+            padding: 12px !important;
+          }
+          .glass-pill {
+            margin-left: 0;
+            margin-top: 4px;
+            padding: 0 12px;
+            height: 1.2em;
+            font-size: 0.8em;
+            min-width: 8ch !important;
+          }
+          .logo-pill {
+            height: 36px !important;
+            padding: 0 16px !important;
+          }
+          .logo-pill svg {
+            width: 70px !important;
+            height: auto !important;
+          }
+        }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+        .type-cursor {
+          display: inline-block;
+          width: 2px;
+          height: 0.8em;
+          background-color: #e91e63;
+          margin-left: 4px;
+          animation: blink 1s step-end infinite;
+          vertical-align: middle;
+        }
+      `}</style>
+      <section className="hero hero-section" style={{ 
+        paddingBottom: '0',
+        background: `url('/images/hero-night-sky.jpg') center bottom / cover no-repeat`,
+        backgroundColor: '#050505',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        position: 'relative'
+      }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '0 24px' }}>
+          
+          {/* Top Section: Text in Night Sky */}
+          <div style={{ textAlign: 'center', marginTop: '2vh' }}>
+            <h1 className="hero-title" style={{ 
+              fontFamily: "'Space Grotesk', 'Inter', sans-serif", 
+              fontWeight: 800, 
+              lineHeight: 1.15, 
+              marginBottom: '24px', 
+              letterSpacing: '-0.02em',
+              textShadow: '0 4px 20px rgba(0,0,0,0.5)'
+            }}>
+              {t.hero.headlinePrefix}
+              <br className="mobile-only-br" />
+              <span className="glass-pill" style={{ minWidth: '12ch', justifyContent: 'flex-start' }}>
+                <span style={{
+                  background: 'linear-gradient(135deg, #e91e63, #9c27b0)', 
+                  WebkitBackgroundClip: 'text', 
+                  WebkitTextFillColor: 'transparent',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {headlineText}
+                </span>
+              </span>
+            </h1>
+          <p className="hero-subtext" style={{ 
             fontFamily: "'Inter', sans-serif", 
             fontSize: 'clamp(1.1rem, 2vw, 1.3rem)', 
             color: 'rgba(255,255,255,0.85)', 
             marginBottom: '40px', 
             lineHeight: 1.6, 
-            maxWidth: '600px',
+            maxWidth: '700px',
             margin: '0 auto',
             textShadow: '0 2px 10px rgba(0,0,0,0.5)'
           }}>
             {t.hero.sub}
           </p>
-          <a href="https://autoflow.neetocal.com/meeting-with-auto-flow" className="cta-button" target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: '20px' }}>
+          <a href="https://calendar.app.google/bnsr9k5VHi5EYgdM8" className="cta-button" target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: '20px' }}>
             {t.hero.cta}
           </a>
         </div>
@@ -141,7 +276,7 @@ export default function Hero({ lang = 'en' }) {
         {/* Bottom Section: Typewriter on Desk */}
         <div style={{ paddingBottom: '40px', display: 'flex', justifyContent: 'center' }}>
           {/* Typewriter Input Box */}
-          <div style={{
+          <div className="hero-search-box" style={{
             background: 'rgba(20,22,28,0.7)',
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '12px',
@@ -158,7 +293,7 @@ export default function Hero({ lang = 'en' }) {
             }}>
               {inputLabel}
             </label>
-            <form onSubmit={handleSend} style={{ flex: 1, display: 'flex', gap: '12px' }}>
+            <form onSubmit={handleSend} style={{ flex: 1, display: 'flex', gap: '12px', width: '100%' }}>
               <div style={{ flex: 1, position: 'relative' }}>
                 <input
                   ref={inputRef}
@@ -172,7 +307,7 @@ export default function Hero({ lang = 'en' }) {
                   }}
                 />
               </div>
-              <button type="submit" style={{
+              <button className="hero-search-btn" type="submit" style={{
                 background: inputVal.trim() ? 'linear-gradient(135deg,#e91e63,#9c27b0)' : 'rgba(255,255,255,0.08)',
                 color: inputVal.trim() ? '#fff' : 'rgba(255,255,255,0.4)',
                 border: 'none', borderRadius: '8px', padding: '12px 32px',
@@ -225,13 +360,15 @@ export default function Hero({ lang = 'en' }) {
                       src={l.src} 
                       alt={l.name} 
                       style={{ 
-                        height: l.name === 'Gemini' || l.name === 'Recraft' || l.name === 'OpenAI' ? '50px' : '30px', 
+                        height: l.name === 'Recraft' ? '46px' : '32px', 
                         width: 'auto', 
                         maxWidth: '240px',
                         objectFit: 'contain',
                         transition: 'all 0.3s'
                       }}
                     />
+                  ) : l.svg ? (
+                    l.svg
                   ) : (
                     <span style={{
                       fontSize: '1rem',
@@ -251,5 +388,6 @@ export default function Hero({ lang = 'en' }) {
         </div>
       </div>
     </section>
+    </>
   )
 }

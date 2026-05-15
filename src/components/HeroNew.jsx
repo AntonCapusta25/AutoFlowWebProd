@@ -189,7 +189,7 @@ export default function HeroNew({ lang = 'en' }) {
               : 'From Google Sheets workflows to AI chatbots — delivered in 7 days.'}
           </p>
           <a
-            href="https://autoflow.neetocal.com/meeting-with-auto-flow"
+            href="https://calendar.app.google/bnsr9k5VHi5EYgdM8"
             target="_blank" rel="noreferrer"
             style={{
               fontFamily: "'Space Grotesk', sans-serif",
