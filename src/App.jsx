@@ -23,14 +23,15 @@ const BlogPost     = lazy(() => import('./pages/BlogPost'))
 const ProjectDetail = lazy(() => import('./pages/ProjectDetail'))
 
 // Admin (Lazy)
-const AdminLogin     = lazy(() => import('./pages/Admin/Login'))
-const AdminDashboard = lazy(() => import('./pages/Admin/Dashboard'))
-const AdminLeads     = lazy(() => import('./pages/Admin/Leads'))
-const AdminOutreach  = lazy(() => import('./pages/Admin/Outreach'))
-const AdminSegments  = lazy(() => import('./pages/Admin/Segments'))
-const AdminSegmentView = lazy(() => import('./pages/Admin/SegmentView'))
-const AdminCampaigns = lazy(() => import('./pages/Admin/Campaigns'))
-const AuthGuard      = lazy(() => import('./components/Admin/AuthGuard'))
+import AdminLogin from './pages/Admin/Login'
+import AdminDashboard from './pages/Admin/Dashboard'
+import AdminLeads from './pages/Admin/Leads'
+import AdminOutreach from './pages/Admin/Outreach'
+import AdminSegments from './pages/Admin/Segments'
+import AdminSegmentView from './pages/Admin/SegmentView'
+import AdminCampaigns from './pages/Admin/Campaigns'
+import AuthGuard from './components/Admin/AuthGuard'
+
 
 const Loading = () => <div style={{ minHeight: '100vh', background: '#0F1115' }} />
 

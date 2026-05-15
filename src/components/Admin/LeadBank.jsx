@@ -260,25 +260,55 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         headers.forEach((header, index) => {
           let val = values[index]?.replace(/^["']|["']$/g, '').trim()
           if (!val) return
-          if (header.includes('email')) lead.email = val
+          if (header.includes('email')) lead.email = val.toLowerCase()
           if (header.includes('name')) lead.name = val
           if (header.includes('company')) lead.company = val
           if (header.includes('website') || header.includes('url')) lead.website = val
           if (header.includes('linkedin')) lead.linkedin = val
-          if (header.includes('industry')) lead.industry = val
+          if (header.includes('industry')) lead.industry = val || importIndustry
           if (header.includes('location')) lead.location = val
           if (header.includes('phone') || header.includes('tel')) lead.phone = val
         })
-        if (lead.email) newLeads.push(lead)
+        
+        if (lead.email) {
+          if (importTags) {
+            const extraTags = importTags.split(',').map(t => t.trim()).filter(Boolean)
+            lead.tags = extraTags
+          }
+          newLeads.push(lead)
+        }
       }
+
       if (newLeads.length > 0) {
-        const { error } = await supabase.from('outreach_leads').insert(newLeads)
-        if (!error) { fetchLeads() }
+        const emailsToImport = [...new Set(newLeads.map(l => l.email))]
+        const existingEmails = new Set()
+        for (let i = 0; i < emailsToImport.length; i += 1000) {
+          const chunk = emailsToImport.slice(i, i + 1000)
+          const { data } = await supabase.from('outreach_leads').select('email').in('email', chunk)
+          if (data) data.forEach(d => existingEmails.add(d.email.toLowerCase()))
+        }
+
+        const uniqueLeads = newLeads.filter(l => !existingEmails.has(l.email))
+        const duplicateCount = newLeads.length - uniqueLeads.length
+
+        if (uniqueLeads.length > 0) {
+          const { error } = await supabase.from('outreach_leads').insert(uniqueLeads)
+          if (!error) {
+            alert(`Import Successful!\nAdded: ${uniqueLeads.length} new leads.\nSkipped: ${duplicateCount} duplicates.`)
+            fetchLeads()
+            setShowImportModal(false)
+          } else {
+            alert('Import Error: ' + error.message)
+          }
+        } else {
+          alert(`No new leads found. All ${newLeads.length} leads are already in the database.`)
+        }
       }
       setIsImporting(false)
     }
     reader.readAsText(file)
   }
+
 
   async function batchIndustryUpdate() {
     if (!selectedIds.length) return
@@ -335,6 +365,58 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
     setSelectedIds(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id])
   }
 
+  async function deduplicateDatabase() {
+    if (!confirm('This will scan your entire database for duplicate emails and keep only the most recent one for each. Proceed?')) return
+    
+    setIsActionLoading(true)
+    try {
+      // 1. Fetch all email addresses and IDs (using chunks if necessary, but 10k is usually safe for this metadata)
+      const { data, error } = await supabase.from('outreach_leads').select('id, email, created_at').limit(50000)
+      
+      if (error) throw error
+      if (!data) return
+
+      // 2. Group by email
+      const emailMap = {}
+      data.forEach(lead => {
+        const email = (lead.email || '').toLowerCase().trim()
+        if (!email) return
+        if (!emailMap[email]) emailMap[email] = []
+        emailMap[email].push(lead)
+      })
+
+      // 3. Identify duplicates to delete
+      const idsToDelete = []
+      Object.values(emailMap).forEach(leads => {
+        if (leads.length > 1) {
+          // Sort by created_at descending (newest first)
+          leads.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+          // Keep the first (newest), add others to delete list
+          leads.slice(1).forEach(l => idsToDelete.push(l.id))
+        }
+      })
+
+      if (idsToDelete.length === 0) {
+        alert('No duplicates found! Your database is clean.')
+      } else {
+        if (confirm(`Found ${idsToDelete.length} duplicates. Delete them now?`)) {
+          // Delete in chunks of 500
+          for (let i = 0; i < idsToDelete.length; i += 500) {
+            const chunk = idsToDelete.slice(i, i + 500)
+            await supabase.from('outreach_leads').delete().in('id', chunk)
+          }
+          alert(`Success! Removed ${idsToDelete.length} duplicate leads.`)
+          fetchLeads()
+        }
+      }
+    } catch (err) {
+      console.error('Dedup error:', err)
+      alert('Cleanup failed: ' + err.message)
+    } finally {
+      setIsActionLoading(false)
+    }
+  }
+
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
@@ -375,6 +457,9 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
               </button>
             </div>
           )}
+          <button onClick={deduplicateDatabase} disabled={isActionLoading} style={{ padding: '10px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#94A3B8', borderRadius: '12px', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }}>
+            {isActionLoading ? 'Cleaning...' : 'Cleanup Duplicates'}
+          </button>
           <button onClick={() => setShowImportModal(true)} style={{ padding: '10px 20px', background: 'linear-gradient(135deg, #e91e63, #9c27b0)', color: 'white', borderRadius: '12px', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem', border: 'none' }}>
             {isImporting ? 'Importing...' : 'Upload CSV'}
           </button>
