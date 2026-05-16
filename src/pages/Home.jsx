@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, useMotionValue, useSpring } from 'framer-motion'
+import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion'
 import BookingForm from '../components/BookingForm'
 import Hero from '../components/Hero'
 import { getT } from '../i18n/translations'
@@ -353,6 +353,15 @@ export default function Home({ lang = 'en' }) {
     return () => clearTimeout(timeout)
   }, [buildCharIdx, buildDeleting, buildWordIdx, buildWords])
 
+  const [activeStep, setActiveStep] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveStep(s => (s + 1) % t.timeline.steps.length)
+    }, 3000)
+    return () => clearInterval(timer)
+  }, [t.timeline.steps.length])
+
   useEffect(() => {
     timerRef.current = setInterval(() => {
       setCurrentSlide(prev => {
@@ -529,6 +538,228 @@ export default function Home({ lang = 'en' }) {
           </div>
         </div>
       </section>
+
+      {/* ── Process Wrapper ── */}
+      <div style={{ backgroundColor: '#050505', padding: '1px 0' }}>
+        <section className="process-section" id="how-it-works" style={{
+          position: 'relative',
+          padding: '120px 24px',
+          backgroundColor: '#050505',
+          overflow: 'hidden'
+        }}>
+          {/* decorative glows */}
+          <div style={{ position: 'absolute', top: '20px', left: '-80px', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(233,30,99,0.1) 0%,transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+          <div style={{ position: 'absolute', bottom: '40px', right: '-60px', width: '350px', height: '350px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(156,39,176,0.1) 0%,transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+
+          <div className="process-grid" style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '80px',
+            alignItems: 'center',
+            position: 'relative',
+            zIndex: 1
+          }}>
+
+            {/* Left: Steps */}
+            <div>
+              <p style={{
+                fontFamily: "'Space Grotesk', sans-serif", fontSize: '1rem', fontWeight: 700, letterSpacing: '0.2em',
+                color: '#e91e63', textTransform: 'uppercase', marginBottom: '20px'
+              }}>
+                {t.timeline.badge}
+              </p>
+              <h2 style={{
+                fontFamily: "'Inter', sans-serif", fontSize: 'clamp(2.5rem, 4vw, 3.5rem)',
+                fontWeight: 800, color: '#FFFFFF', marginBottom: '48px', letterSpacing: '-0.02em', lineHeight: 1.1
+              }}>
+                {t.timeline.title}
+              </h2>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {t.timeline.steps.map((s, idx) => (
+                  <motion.div
+                    key={idx}
+                    layout
+                    initial={false}
+                    animate={{
+                      background: activeStep === idx
+                        ? 'rgba(255, 255, 255, 0.08)'
+                        : 'rgba(255, 255, 255, 0.01)',
+                      borderColor: activeStep === idx
+                        ? 'rgba(233, 30, 99, 0.4)'
+                        : 'rgba(255, 255, 255, 0.04)',
+                    }}
+                    transition={{ 
+                      layout: { type: 'spring', stiffness: 30, damping: 22, mass: 1.8 },
+                      default: { duration: 1.6, ease: [0.22, 1, 0.36, 1] }
+                    }}
+                    onClick={() => setActiveStep(idx)}
+                    whileHover={{ x: activeStep === idx ? 0 : 8 }}
+                    style={{
+                      padding: '28px 32px',
+                      borderRadius: '24px',
+                      cursor: 'pointer',
+                      border: '1px solid',
+                      position: 'relative',
+                      boxShadow: activeStep === idx
+                        ? '0 20px 40px rgba(0,0,0,0.3)'
+                        : 'none',
+                      backdropFilter: 'blur(20px)',
+                      WebkitBackdropFilter: 'blur(20px)',
+                      willChange: 'transform, height, opacity'
+                    }}
+                  >
+                    {activeStep === idx && (
+                      <motion.div
+                        layoutId="active-step-bar"
+                        transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
+                        style={{
+                          position: 'absolute',
+                          left: 0,
+                          top: '20%',
+                          bottom: '20%',
+                          width: '4px',
+                          background: '#e91e63',
+                          borderRadius: '0 4px 4px 0',
+                          boxShadow: '0 0 15px rgba(233, 30, 99, 0.5)'
+                        }}
+                      />
+                    )}
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                        <motion.span
+                          animate={{
+                            color: activeStep === idx ? '#e91e63' : '#334155'
+                          }}
+                          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                          style={{
+                            fontFamily: "'Space Grotesk', sans-serif",
+                            fontSize: '1.25rem',
+                            fontWeight: 800,
+                          }}
+                        >
+                          {idx + 1}
+                        </motion.span>
+                        <motion.h3
+                          animate={{
+                            color: activeStep === idx ? '#FFFFFF' : '#475569'
+                          }}
+                          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                          style={{
+                            fontFamily: "'Inter', sans-serif",
+                            fontSize: '1.4rem',
+                            fontWeight: 700,
+                            margin: 0,
+                          }}
+                        >
+                          {s.title}
+                        </motion.h3>
+                      </div>
+
+                      <AnimatePresence>
+                        {activeStep === idx && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                            animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+                            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                            transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
+                            style={{ overflow: 'hidden' }}
+                          >
+                            <p style={{
+                              fontFamily: "'Inter', sans-serif",
+                              fontSize: '1.05rem',
+                              color: '#94A3B8',
+                              lineHeight: 1.6,
+                              margin: 0,
+                              paddingLeft: '48px',
+                              maxWidth: '420px'
+                            }}>
+                              {s.desc}
+                            </p>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right: Dynamic Image */}
+            <div className="process-image-container" style={{ 
+              position: 'relative', 
+              height: '640px'
+            }}>
+              {/* Full Glassmorphism Card in Background (Offset) */}
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: '24px -24px -24px 24px',
+                  borderRadius: '48px',
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  backdropFilter: 'blur(40px)',
+                  WebkitBackdropFilter: 'blur(40px)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  boxShadow: '0 40px 80px rgba(0,0,0,0.4)',
+                  zIndex: 0
+                }}
+              />
+
+              <AnimatePresence mode="popLayout">
+                <motion.div
+                  key={activeStep}
+                  initial={{ opacity: 0, scale: 1.05 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ 
+                    type: 'spring',
+                    stiffness: 35,
+                    damping: 25,
+                    mass: 1.5
+                  }}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: '48px',
+                    overflow: 'hidden',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    boxShadow: '0 50px 100px -30px rgba(0,0,0,0.8)',
+                    zIndex: 2,
+                    background: '#0a0a0a',
+                    willChange: 'transform, opacity'
+                  }}
+                >
+                  <img
+                    src={
+                      activeStep === 0 ? '/images/weve-been-there.jpg' :
+                        activeStep === 1 ? '/images/build-step.jpg' :
+                          activeStep === 2 ? '/images/built-for-long-run.jpg' :
+                            '/images/more-growth.jpg'
+                    }
+                    alt=""
+                    style={{ 
+                      width: '100%', 
+                      height: '100%', 
+                      objectFit: 'cover'
+                    }}
+                  />
+                  
+                  {/* Subtle Light Detail */}
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.05), transparent 60%)',
+                    pointerEvents: 'none'
+                  }} />
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+          </div>
+        </section>
+      </div>
 
       {/* ── Startup Dreams Section ── */}
       <section style={{ backgroundColor: '#050505', padding: '120px 24px', position: 'relative' }}>
@@ -721,80 +952,6 @@ export default function Home({ lang = 'en' }) {
           </div>
         </section>
       )}
-
-      {/* ── Process Wrapper to fix grey margins ── */}
-      <div style={{ backgroundColor: '#050505', padding: '1px 0' }}>
-        <section className="process-section" id="how-it-works" style={{
-          position: 'relative',
-          minHeight: '75vh',
-          background: `url('/images/process-bg.jpg') center center / cover no-repeat`,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          padding: '120px 80px 100px',
-          maxWidth: '1200px',
-          width: 'calc(100% - 48px)',
-          margin: '100px auto',
-          borderRadius: '40px',
-          overflow: 'hidden',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 2px 20px rgba(255,255,255,0.15), 0 30px 60px rgba(0,0,0,0.8)'
-        }}>
-          {/* Dark overlay fading to the right */}
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'linear-gradient(to right, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.8) 45%, rgba(0,0,0,0) 100%)',
-            zIndex: 1
-          }} />
-
-          <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%', position: 'relative', zIndex: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
-
-            <div style={{ marginBottom: 'auto' }}>
-              <p style={{
-                fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.1rem', fontWeight: 700, letterSpacing: '0.2em',
-                color: '#e91e63', textTransform: 'uppercase', marginBottom: '20px'
-              }}>
-                {t.timeline.badge}
-              </p>
-              <h2 style={{
-                fontFamily: "'Inter', sans-serif", fontSize: 'clamp(3rem, 5vw, 4.5rem)',
-                fontWeight: 700, color: '#FFFFFF', marginBottom: '32px', letterSpacing: '-0.02em', lineHeight: 1.1,
-                maxWidth: '600px'
-              }}>
-                {t.timeline.title}
-              </h2>
-            </div>
-
-            <div className="process-steps-container">
-              {t.timeline.steps.map((s, idx) => (
-                <div key={idx} className="process-step">
-                  <div className="process-icon-wrapper">
-                    <div className="process-icon-circle">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#e0e0e0' }}>
-                        {idx === 0 && <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />}
-                        {idx === 1 && <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />}
-                        {idx === 2 && <> <path d="M22 12h-4l-3 9L9 3l-3 9H2" /> </>}
-                        {idx === 3 && <> <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /> </>}
-                      </svg>
-                    </div>
-                    {idx < t.timeline.steps.length - 1 && (
-                      <div className="process-connector">
-                        <svg className="process-arrow-animated" width="40" height="24" viewBox="0 0 40 24" fill="none" stroke="rgba(156, 39, 176, 0.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="0" y1="12" x2="36" y2="12"></line>
-                          <polyline points="28 4 36 12 28 20"></polyline>
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                  <div className="process-step-number">0{idx + 1}</div>
-                  <h3 className="process-step-title">{s.title}</h3>
-                  <p className="process-step-desc">{s.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      </div>
 
       {/* ── Testimonials ── */}
       <section style={{

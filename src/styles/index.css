@@ -6644,101 +6644,34 @@ body {
     }
 }
 
-/* ========== NEW HORIZONTAL PROCESS SECTION ========== */
+/* ========== MODERN 2-COLUMN PROCESS SECTION ========== */
 .process-section {
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: none;
 }
 
-.process-steps-container {
-    display: flex;
-    flex-direction: row;
-    gap: 32px;
-    margin-top: 80px;
-    position: relative;
-    z-index: 5;
-    justify-content: space-between;
-}
-
-.process-step {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    max-width: 320px;
-}
-
-.process-icon-wrapper {
-    display: flex;
-    align-items: center;
-    margin-bottom: 32px;
-    position: relative;
-}
-
-.process-icon-circle {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: 2px solid rgba(156, 39, 176, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.8);
-    box-shadow: 0 0 30px rgba(156, 39, 176, 0.4), inset 0 0 15px rgba(156, 39, 176, 0.2);
-    position: relative;
-    z-index: 2;
-    flex-shrink: 0;
-}
-
-.process-connector {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    padding-left: 16px;
-    position: relative;
-    z-index: 1;
-    width: 100%;
-}
-
-.process-connector svg {
-    width: 100%;
-}
-
-.process-step-number {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #9c27b0;
-    margin-bottom: 12px;
-    letter-spacing: 0.05em;
-}
-
-.process-step-title {
-    font-family: 'Inter', sans-serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #FFFFFF;
-    margin-bottom: 16px;
-}
-
-.process-step-desc {
-    font-family: 'Inter', sans-serif;
-    font-size: 1.05rem;
-    color: #94A3B8;
-    line-height: 1.6;
-}
-
-@media (max-width: 992px) {
-    .process-steps-container {
-        flex-direction: column;
-        gap: 40px;
+@media (max-width: 991px) {
+    .process-grid {
+        grid-template-columns: 1fr !important;
+        gap: 60px !important;
     }
-
-    .process-step {
-        max-width: 100%;
+    .process-image-container {
+        height: 500px !important;
+        margin-top: 40px;
     }
+}
 
-    .process-connector {
-        display: none;
+@media (max-width: 768px) {
+    .process-section {
+        padding: 80px 24px !important;
+    }
+    .process-image-container {
+        height: 380px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .process-image-container {
+        height: 280px !important;
     }
 }
 /* Custom CRM Checkboxes */
