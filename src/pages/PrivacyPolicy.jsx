@@ -14,7 +14,7 @@ export default function PrivacyPolicy() {
           <h2 style={{color:'#F8FAFC',marginBottom:'12px',fontSize:'1.2rem'}}>Data Storage</h2>
           <p style={{marginBottom:'24px'}}>Your data is stored securely in Supabase (EU region). We do not sell your personal information to third parties.</p>
           <h2 style={{color:'#F8FAFC',marginBottom:'12px',fontSize:'1.2rem'}}>Contact</h2>
-          <p>For any privacy concerns, contact us at <a href="mailto:autoflowcompany2025@gmail.com" style={{color:'#e91e63'}}>autoflowcompany2025@gmail.com</a>.</p>
+          <p>For any privacy concerns, contact us at <a href="mailto:info@autoflowstudio.net" style={{color:'#e91e63'}}>info@autoflowstudio.net</a>.</p>
         </div>
       </div>
     </main>

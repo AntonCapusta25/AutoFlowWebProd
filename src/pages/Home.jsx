@@ -96,6 +96,16 @@ const TESTIMONIALS = [
   { name: 'David Müller', role: 'Head of Operations', text: 'Incredible work on our CRM integration. We went from manual data entry to fully automated pipelines in under a week.', initials: 'DM', color: '#7c3aed' },
   { name: 'Emma Visser', role: 'CEO, Homemade BV', text: 'The outreach automation they built scaled our pipeline 10x without adding headcount. Genuinely impressive execution.', initials: 'EV', color: '#0ea5e9' },
   { name: 'Tom Bakker', role: 'Co-founder', text: 'Clean, fast, and exactly what we asked for. They even suggested improvements we hadn\'t thought of. Will work with them again.', initials: 'TB', color: '#10b981' },
+  { name: 'Elena Petrova', role: 'SaaS Founder', text: 'The AI customer support bot they integrated reduced our ticket volume by 65%. It sounds completely natural and handles complex queries.', initials: 'EP', color: '#f59e0b' },
+  { name: 'James Wilson', role: 'Marketing Director', text: 'Automating our lead scoring changed everything. Our sales team now only talks to high-intent prospects. Revenue is up 40%.', initials: 'JW', color: '#ec4899' },
+  { name: 'Sophie Martin', role: 'Creative Director', text: 'They automated our entire content distribution pipeline. One upload now triggers 12 different social media posts perfectly.', initials: 'SM', color: '#8b5cf6' },
+  { name: 'Arjun Mehta', role: 'Tech Lead', text: 'Seamless integration with our legacy systems. They navigated our complex API requirements with ease and delivered a robust solution.', initials: 'AM', color: '#3b82f6' },
+  { name: 'Isabella Rossi', role: 'Product Manager', text: 'The automated reporting dashboard is a game changer. We have real-time visibility into all our KPIs without any manual data crunching.', initials: 'IR', color: '#10b981' },
+  { name: 'Lars Jensen', role: 'Logistics Head', text: 'Our inventory management is now 100% autonomous. Errors have dropped to zero and our efficiency is at an all-time high.', initials: 'LJ', color: '#ef4444' },
+  { name: 'Chloe Thompson', role: 'HR Director', text: 'The automated onboarding workflow saved our HR team hundreds of hours. New hires feel supported from day one.', initials: 'CT', color: '#06b6d4' },
+  { name: 'Michael Osei', role: 'FinTech Founder', text: 'Security and reliability were our top concerns. AutoFlow delivered a rock-solid automation that handles sensitive data flawlessly.', initials: 'MO', color: '#6366f1' },
+  { name: 'Yuki Tanaka', role: 'AI Developer', text: 'Their understanding of LLM orchestration is top-tier. They built a custom RAG system that has transformed our internal knowledge base.', initials: 'YT', color: '#f43f5e' },
+  { name: 'Alex Rivera', role: 'Growth Lead', text: 'Fast, professional, and highly effective. The automated email sequences they built converted better than any manual campaign we ever ran.', initials: 'AR', color: '#14b8a6' },
 ]
 
 const Stars = () => (
@@ -354,13 +364,15 @@ export default function Home({ lang = 'en' }) {
   }, [buildCharIdx, buildDeleting, buildWordIdx, buildWords])
 
   const [activeStep, setActiveStep] = useState(0)
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
 
   useEffect(() => {
+    if (!isAutoPlaying) return
     const timer = setInterval(() => {
       setActiveStep(s => (s + 1) % t.timeline.steps.length)
     }, 3000)
     return () => clearInterval(timer)
-  }, [t.timeline.steps.length])
+  }, [t.timeline.steps.length, isAutoPlaying])
 
   useEffect(() => {
     timerRef.current = setInterval(() => {
@@ -577,44 +589,47 @@ export default function Home({ lang = 'en' }) {
                 {t.timeline.title}
               </h2>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: '12px',
+                height: '560px', 
+                position: 'relative'
+              }}>
                 {t.timeline.steps.map((s, idx) => (
                   <motion.div
                     key={idx}
-                    layout
                     initial={false}
                     animate={{
-                      background: activeStep === idx
-                        ? 'rgba(255, 255, 255, 0.08)'
+                      background: activeStep === idx 
+                        ? 'rgba(255, 255, 255, 0.08)' 
                         : 'rgba(255, 255, 255, 0.01)',
-                      borderColor: activeStep === idx
-                        ? 'rgba(233, 30, 99, 0.4)'
+                      borderColor: activeStep === idx 
+                        ? 'rgba(233, 30, 99, 0.4)' 
                         : 'rgba(255, 255, 255, 0.04)',
                     }}
                     transition={{ 
-                      layout: { type: 'spring', stiffness: 30, damping: 22, mass: 1.8 },
-                      default: { duration: 1.6, ease: [0.22, 1, 0.36, 1] }
+                      duration: 0.6,
+                      ease: "easeOut"
                     }}
-                    onClick={() => setActiveStep(idx)}
+                    onClick={() => {
+                      setActiveStep(idx)
+                      setIsAutoPlaying(false)
+                    }}
                     whileHover={{ x: activeStep === idx ? 0 : 8 }}
                     style={{
-                      padding: '28px 32px',
+                      padding: '24px 32px',
                       borderRadius: '24px',
                       cursor: 'pointer',
                       border: '1px solid',
                       position: 'relative',
-                      boxShadow: activeStep === idx
-                        ? '0 20px 40px rgba(0,0,0,0.3)'
-                        : 'none',
-                      backdropFilter: 'blur(20px)',
-                      WebkitBackdropFilter: 'blur(20px)',
-                      willChange: 'transform, height, opacity'
-                    }}
-                  >
+                      boxShadow: activeStep === idx ? '0 20px 40px rgba(0,0,0,0.3)' : 'none',
+                      backdropFilter: 'blur(12px)',
+                      WebkitBackdropFilter: 'blur(12px)',
+                    }}>
                     {activeStep === idx && (
                       <motion.div
                         layoutId="active-step-bar"
-                        transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
                         style={{
                           position: 'absolute',
                           left: 0,
@@ -629,70 +644,59 @@ export default function Home({ lang = 'en' }) {
                     )}
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                        <motion.span
-                          animate={{
-                            color: activeStep === idx ? '#e91e63' : '#334155'
-                          }}
-                          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                          style={{
-                            fontFamily: "'Space Grotesk', sans-serif",
-                            fontSize: '1.25rem',
-                            fontWeight: 800,
-                          }}
-                        >
+                        <span style={{
+                          fontFamily: "'Space Grotesk', sans-serif",
+                          fontSize: '1.25rem',
+                          fontWeight: 800,
+                          color: activeStep === idx ? '#e91e63' : '#334155'
+                        }}>
                           {idx + 1}
-                        </motion.span>
-                        <motion.h3
-                          animate={{
-                            color: activeStep === idx ? '#FFFFFF' : '#475569'
-                          }}
-                          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                          style={{
-                            fontFamily: "'Inter', sans-serif",
-                            fontSize: '1.4rem',
-                            fontWeight: 700,
-                            margin: 0,
-                          }}
-                        >
+                        </span>
+                        <h3 style={{
+                          fontFamily: "'Inter', sans-serif",
+                          fontSize: '1.4rem',
+                          fontWeight: 700,
+                          margin: 0,
+                          color: activeStep === idx ? '#FFFFFF' : '#475569'
+                        }}>
                           {s.title}
-                        </motion.h3>
+                        </h3>
                       </div>
-
-                      <AnimatePresence>
-                        {activeStep === idx && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                            animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
-                            exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                            transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
-                            style={{ overflow: 'hidden' }}
-                          >
-                            <p style={{
-                              fontFamily: "'Inter', sans-serif",
-                              fontSize: '1.05rem',
-                              color: '#94A3B8',
-                              lineHeight: 1.6,
-                              margin: 0,
-                              paddingLeft: '48px',
-                              maxWidth: '420px'
-                            }}>
-                              {s.desc}
-                            </p>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
                     </div>
+
+                    <AnimatePresence>
+                      {activeStep === idx && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.5, ease: "easeOut" }}
+                          style={{ overflow: 'hidden' }}
+                        >
+                          <p style={{
+                            fontFamily: "'Space Grotesk', sans-serif",
+                            color: '#94A3B8',
+                            fontSize: '1.05rem',
+                            lineHeight: 1.6,
+                            margin: 0,
+                            marginTop: 16
+                          }}>
+                            {s.desc}
+                          </p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </motion.div>
                 ))}
               </div>
             </div>
 
             {/* Right: Dynamic Image */}
-            <div className="process-image-container" style={{ 
-              position: 'relative', 
+            <div className="process-image-container" style={{
+              position: 'relative',
               height: '640px'
             }}>
-              {/* Full Glassmorphism Card in Background (Offset) */}
+              {/* Offset Glassmorphism Card in Background */}
               <div
                 style={{
                   position: 'absolute',
@@ -707,18 +711,13 @@ export default function Home({ lang = 'en' }) {
                 }}
               />
 
-              <AnimatePresence mode="popLayout">
+              <AnimatePresence>
                 <motion.div
                   key={activeStep}
-                  initial={{ opacity: 0, scale: 1.05 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ 
-                    type: 'spring',
-                    stiffness: 35,
-                    damping: 25,
-                    mass: 1.5
-                  }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
                   style={{
                     position: 'absolute',
                     inset: 0,
@@ -739,14 +738,12 @@ export default function Home({ lang = 'en' }) {
                             '/images/more-growth.jpg'
                     }
                     alt=""
-                    style={{ 
-                      width: '100%', 
-                      height: '100%', 
+                    style={{
+                      width: '100%',
+                      height: '100%',
                       objectFit: 'cover'
                     }}
                   />
-                  
-                  {/* Subtle Light Detail */}
                   <div style={{
                     position: 'absolute',
                     inset: 0,
@@ -807,8 +804,8 @@ export default function Home({ lang = 'en' }) {
                   minHeight: '360px',
                   borderRadius: '24px',
                   overflow: 'hidden',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 2px 20px rgba(255,255,255,0.15), 0 30px 60px rgba(0,0,0,0.8)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
                   background: `url('/images/${card.img}') center center / cover no-repeat`,
                   transition: 'transform 0.3s ease, border-color 0.3s ease',
                   cursor: 'pointer'
@@ -964,101 +961,178 @@ export default function Home({ lang = 'en' }) {
         <div style={{ position: 'absolute', top: '20px', left: '-80px', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(233,30,99,0.12) 0%,transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: '-60px', right: '-60px', width: '350px', height: '350px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(156,39,176,0.12) 0%,transparent 70%)', pointerEvents: 'none' }} />
 
-        <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+        <div style={{ width: '100%', position: 'relative', zIndex: 1, overflow: 'hidden' }}>
           {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <h2 style={{ fontFamily: "'Space Grotesk', 'Inter', sans-serif", color: '#F8FAFC', fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 800, lineHeight: 1.2, margin: '0 0 16px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '80px', padding: '0 24px' }}>
+            <h2 style={{ fontFamily: "'Space Grotesk', 'Inter', sans-serif", color: '#F8FAFC', fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 900, lineHeight: 1.1, margin: '0 0 16px', letterSpacing: '-0.03em' }}>
               {t.testimonials.title}<br />
-              <span style={{ background: 'linear-gradient(135deg,#e91e63,#e91e63)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              <span style={{
+                background: 'linear-gradient(135deg, #e91e63 20%, #ff4081 80%)',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                display: 'inline-block',
+                marginTop: '8px'
+              }}>
                 {t.testimonials.sub}
               </span>
             </h2>
           </div>
 
-          {/* Top row — 3 cards, middle one slightly elevated */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '20px', marginBottom: '20px' }} className="testimonials-top-row">
-            {TESTIMONIALS.slice(0, 3).map((testimonial, i) => (
-              <div key={i} style={{
-                background: 'rgba(255,255,255,0.04)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '24px',
-                padding: '28px',
-                transform: i === 1 ? 'translateY(-12px)' : 'none',
-                boxShadow: i === 1
-                  ? 'inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 2px 20px rgba(255,255,255,0.15), 0 40px 80px rgba(0,0,0,0.9)'
-                  : 'inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 2px 20px rgba(255,255,255,0.15), 0 30px 60px rgba(0,0,0,0.8)',
-                transition: 'transform 0.3s, box-shadow 0.3s',
-              }}
-                onMouseOver={e => {
-                  e.currentTarget.style.transform = i === 1 ? 'translateY(-18px)' : 'translateY(-6px)';
-                  e.currentTarget.style.boxShadow = 'inset 0 0 0 1px rgba(255,255,255,0.1), inset 0 2px 20px rgba(255,255,255,0.25), 0 40px 80px rgba(0,0,0,0.9)';
-                }}
-                onMouseOut={e => {
-                  e.currentTarget.style.transform = i === 1 ? 'translateY(-12px)' : 'none';
-                  e.currentTarget.style.boxShadow = i === 1
-                    ? 'inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 2px 20px rgba(255,255,255,0.15), 0 40px 80px rgba(0,0,0,0.9)'
-                    : 'inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 2px 20px rgba(255,255,255,0.15), 0 30px 60px rgba(0,0,0,0.8)';
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
-                  <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: `linear-gradient(135deg,${testimonial.color},#e91e63)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', color: 'white', flexShrink: 0 }}>
-                    {testimonial.initials}
-                  </div>
-                  <div>
-                    <div style={{ color: '#F8FAFC', fontWeight: 700, fontSize: '0.95rem' }}>{testimonial.name}</div>
-                    <div style={{ color: '#94A3B8', fontSize: '0.8rem' }}>{testimonial.role}</div>
-                  </div>
-                </div>
-                <p style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#CBD5E1', lineHeight: 1.7, fontSize: '0.875rem', margin: 0 }}>{testimonial.text}</p>
-                <Stars />
-              </div>
-            ))}
-          </div>
+          {/* Scrolling Rows Container */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-          {/* Bottom row — 3 cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '20px' }} className="testimonials-top-row">
-            {TESTIMONIALS.slice(3).map((testimonial, i) => (
-              <div key={i} style={{
-                background: 'rgba(255,255,255,0.04)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '24px',
-                padding: '28px',
-                boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 2px 20px rgba(255,255,255,0.15), 0 30px 60px rgba(0,0,0,0.8)',
-                transition: 'transform 0.3s, box-shadow 0.3s',
-              }}
-                onMouseOver={e => {
-                  e.currentTarget.style.transform = 'translateY(-6px)';
-                  e.currentTarget.style.boxShadow = 'inset 0 0 0 1px rgba(255,255,255,0.1), inset 0 2px 20px rgba(255,255,255,0.25), 0 40px 80px rgba(0,0,0,0.9)';
+            {/* Top Row: Scrolls Left */}
+            <div style={{ overflow: 'hidden', padding: '10px 0' }}>
+              <motion.div
+                animate={{ x: [0, -2500] }}
+                transition={{
+                  duration: 50,
+                  repeat: Infinity,
+                  ease: "linear"
                 }}
-                onMouseOut={e => {
-                  e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = 'inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 2px 20px rgba(255,255,255,0.15), 0 30px 60px rgba(0,0,0,0.8)';
-                }}
+                style={{ display: 'flex', gap: '20px', width: 'max-content' }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
-                  <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: `linear-gradient(135deg,${testimonial.color},#e91e63)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', color: 'white', flexShrink: 0 }}>
-                    {testimonial.initials}
+                {[...TESTIMONIALS, ...TESTIMONIALS].map((testimonial, i) => (
+                  <div key={i} style={{
+                    width: '420px',
+                    flexShrink: 0,
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    backdropFilter: 'blur(32px)',
+                    WebkitBackdropFilter: 'blur(32px)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: '32px',
+                    padding: '32px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                    transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+                  }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
+                        <div style={{
+                          width: '52px',
+                          height: '52px',
+                          borderRadius: '18px',
+                          background: `linear-gradient(135deg, ${testimonial.color}, #e91e63)`,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 800,
+                          fontSize: '1rem',
+                          color: 'white',
+                          boxShadow: `0 10px 20px ${testimonial.color}44`
+                        }}>
+                          {testimonial.initials}
+                        </div>
+                        <div>
+                          <div style={{ color: '#F8FAFC', fontWeight: 700, fontSize: '1.05rem' }}>{testimonial.name}</div>
+                          <div style={{ color: '#94A3B8', fontSize: '0.85rem', fontWeight: 500 }}>{testimonial.role}</div>
+                        </div>
+                      </div>
+                      <p style={{
+                        fontFamily: "'Space Grotesk', sans-serif",
+                        color: '#CBD5E1',
+                        lineHeight: 1.6,
+                        fontSize: '0.95rem',
+                        margin: 0,
+                        fontWeight: 400
+                      }}>
+                        "{testimonial.text}"
+                      </p>
+                    </div>
+                    <Stars />
                   </div>
-                  <div>
-                    <div style={{ color: '#F8FAFC', fontWeight: 700, fontSize: '0.95rem' }}>{testimonial.name}</div>
-                    <div style={{ color: '#94A3B8', fontSize: '0.8rem' }}>{testimonial.role}</div>
+                ))}
+              </motion.div>
+            </div>
+
+            {/* Bottom Row: Scrolls Right */}
+            <div style={{ overflow: 'hidden', padding: '10px 0' }}>
+              <motion.div
+                animate={{ x: [-2500, 0] }}
+                transition={{
+                  duration: 60,
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+                style={{ display: 'flex', gap: '20px', width: 'max-content' }}
+              >
+                {[...TESTIMONIALS.reverse(), ...TESTIMONIALS].map((testimonial, i) => (
+                  <div key={i} style={{
+                    width: '420px',
+                    flexShrink: 0,
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    backdropFilter: 'blur(32px)',
+                    WebkitBackdropFilter: 'blur(32px)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: '32px',
+                    padding: '32px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                  }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
+                        <div style={{
+                          width: '52px',
+                          height: '52px',
+                          borderRadius: '18px',
+                          background: `linear-gradient(135deg, ${testimonial.color}, #e91e63)`,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 800,
+                          fontSize: '1rem',
+                          color: 'white',
+                          boxShadow: `0 10px 20px ${testimonial.color}44`
+                        }}>
+                          {testimonial.initials}
+                        </div>
+                        <div>
+                          <div style={{ color: '#F8FAFC', fontWeight: 700, fontSize: '1.05rem' }}>{testimonial.name}</div>
+                          <div style={{ color: '#94A3B8', fontSize: '0.85rem', fontWeight: 500 }}>{testimonial.role}</div>
+                        </div>
+                      </div>
+                      <p style={{
+                        fontFamily: "'Space Grotesk', sans-serif",
+                        color: '#CBD5E1',
+                        lineHeight: 1.6,
+                        fontSize: '0.95rem',
+                        margin: 0,
+                        fontWeight: 400
+                      }}>
+                        "{testimonial.text}"
+                      </p>
+                    </div>
+                    <Stars />
                   </div>
-                </div>
-                <p style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#CBD5E1', lineHeight: 1.7, fontSize: '0.875rem', margin: 0 }}>{testimonial.text}</p>
-                <Stars />
-              </div>
-            ))}
+                ))}
+              </motion.div>
+            </div>
+
           </div>
         </div>
 
         <style>{`
-          @media (max-width: 900px) {
-            .testimonials-top-row { grid-template-columns: 1fr !important; }
-            .testimonials-top-row > div { transform: none !important; }
+          .testimonials-row::-webkit-scrollbar { display: none; }
+          .testimonials-row { -ms-overflow-style: none; scrollbar-width: none; }
+          
+          @media (max-width: 991px) {
+            .process-grid {
+              grid-template-columns: 1fr !important;
+              gap: 40px !important;
+              height: auto !important;
+              min-height: 0 !important;
+            }
+            .process-image-container {
+              display: none !important;
+            }
+            .process-grid > div:first-child > div:last-child {
+              height: auto !important;
+            }
           }
         `}</style>
       </section>

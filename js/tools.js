@@ -964,7 +964,7 @@ function initializeEnhancedChatbot() {
             }
             
             if (action === 'email_support') {
-                addMessage("📧 **Email Support**\n\nFor technical issues, email us at: **autoflowcompany2025@gmail.com**\n\nWe typically respond within 4 hours.");
+                addMessage("📧 **Email Support**\n\nFor technical issues, email us at: **info@autoflowstudio.net**\n\nWe typically respond within 4 hours.");
                 setTimeout(() => showCompletionMessage(), 1000);
                 return;
             }
