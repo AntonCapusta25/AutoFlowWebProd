@@ -63,7 +63,7 @@ export const translations = {
         },
         {
           title: 'Smart Reporting',
-          desc: 'Automated dashboards and custom reports that aggregate your data, giving you real-time visibility into your most critical metrics.',
+          desc: 'Automated dashboards and real-time reports for your most critical business metrics.',
           icon: 'stats'
         },
         {
@@ -276,7 +276,7 @@ export const translations = {
         },
         {
           title: 'Slimme Rapportages',
-          desc: 'Geautomatiseerde dashboards en rapporten die uw data samenvoegen voor direct, real-time inzicht in uw belangrijkste statistieken.',
+          desc: 'Geautomatiseerde dashboards en realtime rapporten voor uw belangrijkste bedrijfsstatistieken.',
           icon: 'stats'
         },
         {

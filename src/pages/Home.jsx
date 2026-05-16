@@ -373,14 +373,14 @@ export default function Home({ lang = 'en' }) {
       <Hero lang={lang} />
 
       {/* ── Services Orbital Section ── */}
-      <section id="services" style={{ 
-        backgroundColor: '#050505', 
-        padding: '120px 24px 160px', 
+      <section id="services" style={{
+        backgroundColor: '#050505',
+        padding: '120px 24px 160px',
         position: 'relative',
         overflow: 'hidden'
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          
+
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '60px' }}>
             <p style={{
@@ -404,18 +404,15 @@ export default function Home({ lang = 'en' }) {
 
           <div className="bento-grid">
             {/* 1. Tall Card - Outreach Automation */}
-            <motion.div 
+            <motion.div
               whileHover={{ y: -8, transition: { duration: 0.3 } }}
               className="bento-card card-tall"
+              style={{
+                background: "url('/images/outreach-automation.png') center center / cover no-repeat",
+              }}
             >
-              <div className="card-glow" />
-              <div className="card-pattern" />
-              <div style={{ position: 'absolute', top: '10%', right: '-5%', opacity: 0.1, zIndex: 1 }}>
-                <svg width="200" height="200" viewBox="0 0 200 200">
-                  <circle cx="100" cy="100" r="80" fill="none" stroke="#e91e63" strokeWidth="1" strokeDasharray="4 4" />
-                  <circle cx="100" cy="100" r="40" fill="none" stroke="#e91e63" strokeWidth="1" />
-                </svg>
-              </div>
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(5,5,5,0.85) 0%, rgba(5,5,5,0.3) 50%, rgba(5,5,5,0) 100%)', zIndex: 1 }} />
+              <div className="card-glow" style={{ zIndex: 1 }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
                 <motion.div whileHover={{ scale: 1.1, rotate: 5 }} className="bento-icon">{ICONS[t.services.items[2].icon]}</motion.div>
                 <div className="badge-tag">Agents v2.1</div>
@@ -424,18 +421,22 @@ export default function Home({ lang = 'en' }) {
                 <h3 className="bento-title">{t.services.items[2].title}</h3>
                 <p className="bento-desc">{t.services.items[2].desc}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '20px' }}>
-                   <div className="status-dot" />
-                   <span style={{ fontFamily: 'Inter', fontSize: '0.7rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Active Inbound/Outbound</span>
+                  <div className="status-dot" />
+                  <span style={{ fontFamily: 'Inter', fontSize: '0.7rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Active Inbound/Outbound</span>
                 </div>
               </div>
             </motion.div>
 
             {/* 2. Top Mid - Smart Reporting */}
-            <motion.div 
+            <motion.div
               whileHover={{ y: -8 }}
               className="bento-card card-topmid"
+              style={{
+                background: "url('/images/smart-reporting.png') center center / cover no-repeat",
+              }}
             >
-              <div className="card-glow" style={{ background: 'radial-gradient(circle at top right, rgba(233, 30, 99, 0.1) 0%, transparent 60%)' }} />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(5,5,5,0.85) 0%, rgba(5,5,5,0.3) 50%, rgba(5,5,5,0) 100%)', zIndex: 1 }} />
+              <div className="card-glow" style={{ background: 'radial-gradient(circle at top right, rgba(233, 30, 99, 0.1) 0%, transparent 60%)', zIndex: 1 }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
                 <motion.div whileHover={{ scale: 1.1 }} className="bento-icon" style={{ marginBottom: 0 }}>{ICONS[t.services.items[1].icon]}</motion.div>
                 <div className="status-dot" />
@@ -447,7 +448,7 @@ export default function Home({ lang = 'en' }) {
             </motion.div>
 
             {/* 3. Big Featured - Custom CRM Systems */}
-            <motion.div 
+            <motion.div
               whileHover={{ scale: 1.02 }}
               className="bento-card card-big"
             >
@@ -474,7 +475,7 @@ export default function Home({ lang = 'en' }) {
             </motion.div>
 
             {/* 4. Bot Mid - Website Integrations */}
-            <motion.div 
+            <motion.div
               whileHover={{ y: -8 }}
               className="bento-card card-botmid"
             >
@@ -490,7 +491,7 @@ export default function Home({ lang = 'en' }) {
             </motion.div>
 
             {/* 5. Wide Card - AI Chatbots */}
-            <motion.div 
+            <motion.div
               whileHover={{ x: 10 }}
               className="bento-card card-wide"
             >
@@ -507,7 +508,7 @@ export default function Home({ lang = 'en' }) {
             </motion.div>
 
             {/* 6. Small 1 - Custom Business Workflows */}
-            <motion.div 
+            <motion.div
               whileHover={{ scale: 1.05 }}
               className="bento-card card-small1"
             >
@@ -517,7 +518,7 @@ export default function Home({ lang = 'en' }) {
             </motion.div>
 
             {/* 7. Small 2 - Performance Analytics */}
-            <motion.div 
+            <motion.div
               whileHover={{ scale: 1.05 }}
               className="bento-card card-small2"
             >
@@ -607,38 +608,38 @@ export default function Home({ lang = 'en' }) {
           </div>
         </div>
 
-          {/* Premium Bottom Banner */}
-          <div style={{ marginTop: '50px', width: '100%', display: 'flex', justifyContent: 'center' }}>
-            <Link to={lang === 'nl' ? '/nl/contact' : '/contact'} style={{ textDecoration: 'none', width: '100%', maxWidth: '1200px' }}>
-              <div style={{
-                width: '100%', borderRadius: '32px', overflow: 'hidden', position: 'relative',
-                minHeight: '240px', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '60px 80px',
-                background: `url('/images/${t.startupDreams.banner.img}') center center / cover no-repeat`,
-                backgroundColor: '#050505',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                boxShadow: 'inset 0 0 100px rgba(0,0,0,0.6), 0 40px 80px rgba(0,0,0,0.8)',
-                transition: 'transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
-                cursor: 'pointer'
-              }}
-                onMouseOver={e => { e.currentTarget.style.transform = 'scale(1.01)'; e.currentTarget.style.borderColor = 'rgba(233,30,99,0.4)'; e.currentTarget.style.boxShadow = 'inset 0 0 100px rgba(0,0,0,0.4), 0 50px 100px rgba(0,0,0,0.9)'; }}
-                onMouseOut={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.boxShadow = 'inset 0 0 100px rgba(0,0,0,0.6), 0 40px 80px rgba(0,0,0,0.8)'; }}>
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.4) 40%, rgba(5,5,5,0) 100%)' }} />
-                <div style={{ position: 'relative', zIndex: 1, maxWidth: '400px', textAlign: 'left' }}>
-                  <h3 style={{
-                    fontFamily: "'Space Grotesk', 'Inter', sans-serif", fontSize: '2.4rem', fontWeight: 800, color: '#F8FAFC',
-                    marginBottom: '12px', letterSpacing: '-0.02em', lineHeight: 1.1
-                  }}>
-                    {t.startupDreams.banner.title}
-                  </h3>
-                  <p style={{
-                    fontFamily: "'Inter', sans-serif", fontSize: '1.2rem', color: '#CBD5E1', lineHeight: 1.5, opacity: 0.9
-                  }}>
-                    {t.startupDreams.banner.sub}
-                  </p>
-                </div>
+        {/* Premium Bottom Banner */}
+        <div style={{ marginTop: '50px', width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <Link to={lang === 'nl' ? '/nl/contact' : '/contact'} style={{ textDecoration: 'none', width: '100%', maxWidth: '1200px' }}>
+            <div style={{
+              width: '100%', borderRadius: '32px', overflow: 'hidden', position: 'relative',
+              minHeight: '240px', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '60px 80px',
+              background: `url('/images/${t.startupDreams.banner.img}') center center / cover no-repeat`,
+              backgroundColor: '#050505',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: 'inset 0 0 100px rgba(0,0,0,0.6), 0 40px 80px rgba(0,0,0,0.8)',
+              transition: 'transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
+              cursor: 'pointer'
+            }}
+              onMouseOver={e => { e.currentTarget.style.transform = 'scale(1.01)'; e.currentTarget.style.borderColor = 'rgba(233,30,99,0.4)'; e.currentTarget.style.boxShadow = 'inset 0 0 100px rgba(0,0,0,0.4), 0 50px 100px rgba(0,0,0,0.9)'; }}
+              onMouseOut={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.boxShadow = 'inset 0 0 100px rgba(0,0,0,0.6), 0 40px 80px rgba(0,0,0,0.8)'; }}>
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.4) 40%, rgba(5,5,5,0) 100%)' }} />
+              <div style={{ position: 'relative', zIndex: 1, maxWidth: '400px', textAlign: 'left' }}>
+                <h3 style={{
+                  fontFamily: "'Space Grotesk', 'Inter', sans-serif", fontSize: '2.4rem', fontWeight: 800, color: '#F8FAFC',
+                  marginBottom: '12px', letterSpacing: '-0.02em', lineHeight: 1.1
+                }}>
+                  {t.startupDreams.banner.title}
+                </h3>
+                <p style={{
+                  fontFamily: "'Inter', sans-serif", fontSize: '1.2rem', color: '#CBD5E1', lineHeight: 1.5, opacity: 0.9
+                }}>
+                  {t.startupDreams.banner.sub}
+                </p>
               </div>
-            </Link>
-          </div>
+            </div>
+          </Link>
+        </div>
       </section>
 
       {/* ── Case Studies Carousel (Hidden for now) ── */}
