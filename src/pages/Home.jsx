@@ -984,139 +984,145 @@ export default function Home({ lang = 'en' }) {
 
             {/* Top Row: Scrolls Left */}
             <div style={{ overflow: 'hidden', padding: '10px 0' }}>
-              <motion.div
-                animate={{ x: [0, -2500] }}
-                transition={{
-                  duration: 50,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-                style={{ display: 'flex', gap: '20px', width: 'max-content' }}
-              >
+              <div className="marquee-track-left" style={{ display: 'flex', width: 'max-content' }}>
                 {[...TESTIMONIALS, ...TESTIMONIALS].map((testimonial, i) => (
-                  <div key={i} style={{
-                    width: '420px',
-                    flexShrink: 0,
-                    background: 'rgba(255, 255, 255, 0.03)',
-                    backdropFilter: 'blur(32px)',
-                    WebkitBackdropFilter: 'blur(32px)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    borderRadius: '32px',
-                    padding: '32px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
-                    transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
-                  }}>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
-                        <div style={{
-                          width: '52px',
-                          height: '52px',
-                          borderRadius: '18px',
-                          background: `linear-gradient(135deg, ${testimonial.color}, #e91e63)`,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 800,
-                          fontSize: '1rem',
-                          color: 'white',
-                          boxShadow: `0 10px 20px ${testimonial.color}44`
+                  <div key={`top-${i}`} style={{ paddingRight: '20px', flexShrink: 0 }}>
+                    <div style={{
+                      width: '420px',
+                      height: '100%',
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      backdropFilter: 'blur(32px)',
+                      WebkitBackdropFilter: 'blur(32px)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: '32px',
+                      padding: '32px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                    }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
+                          <div style={{
+                            width: '52px',
+                            height: '52px',
+                            borderRadius: '18px',
+                            background: `linear-gradient(135deg, ${testimonial.color}, #e91e63)`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 800,
+                            fontSize: '1rem',
+                            color: 'white',
+                            boxShadow: `0 10px 20px ${testimonial.color}44`
+                          }}>
+                            {testimonial.initials}
+                          </div>
+                          <div>
+                            <div style={{ color: '#F8FAFC', fontWeight: 700, fontSize: '1.05rem' }}>{testimonial.name}</div>
+                            <div style={{ color: '#94A3B8', fontSize: '0.85rem', fontWeight: 500 }}>{testimonial.role}</div>
+                          </div>
+                        </div>
+                        <p style={{
+                          fontFamily: "'Space Grotesk', sans-serif",
+                          color: '#CBD5E1',
+                          lineHeight: 1.6,
+                          fontSize: '0.95rem',
+                          margin: 0,
+                          fontWeight: 400
                         }}>
-                          {testimonial.initials}
-                        </div>
-                        <div>
-                          <div style={{ color: '#F8FAFC', fontWeight: 700, fontSize: '1.05rem' }}>{testimonial.name}</div>
-                          <div style={{ color: '#94A3B8', fontSize: '0.85rem', fontWeight: 500 }}>{testimonial.role}</div>
-                        </div>
+                          "{testimonial.text}"
+                        </p>
                       </div>
-                      <p style={{
-                        fontFamily: "'Space Grotesk', sans-serif",
-                        color: '#CBD5E1',
-                        lineHeight: 1.6,
-                        fontSize: '0.95rem',
-                        margin: 0,
-                        fontWeight: 400
-                      }}>
-                        "{testimonial.text}"
-                      </p>
+                      <Stars />
                     </div>
-                    <Stars />
                   </div>
                 ))}
-              </motion.div>
+              </div>
             </div>
 
             {/* Bottom Row: Scrolls Right */}
             <div style={{ overflow: 'hidden', padding: '10px 0' }}>
-              <motion.div
-                animate={{ x: [-2500, 0] }}
-                transition={{
-                  duration: 60,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-                style={{ display: 'flex', gap: '20px', width: 'max-content' }}
-              >
-                {[...TESTIMONIALS.reverse(), ...TESTIMONIALS].map((testimonial, i) => (
-                  <div key={i} style={{
-                    width: '420px',
-                    flexShrink: 0,
-                    background: 'rgba(255, 255, 255, 0.03)',
-                    backdropFilter: 'blur(32px)',
-                    WebkitBackdropFilter: 'blur(32px)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    borderRadius: '32px',
-                    padding: '32px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
-                  }}>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
-                        <div style={{
-                          width: '52px',
-                          height: '52px',
-                          borderRadius: '18px',
-                          background: `linear-gradient(135deg, ${testimonial.color}, #e91e63)`,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 800,
-                          fontSize: '1rem',
-                          color: 'white',
-                          boxShadow: `0 10px 20px ${testimonial.color}44`
+              <div className="marquee-track-right" style={{ display: 'flex', width: 'max-content' }}>
+                {[...[...TESTIMONIALS].reverse(), ...[...TESTIMONIALS].reverse()].map((testimonial, i) => (
+                  <div key={`bot-${i}`} style={{ paddingRight: '20px', flexShrink: 0 }}>
+                    <div style={{
+                      width: '420px',
+                      height: '100%',
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      backdropFilter: 'blur(32px)',
+                      WebkitBackdropFilter: 'blur(32px)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: '32px',
+                      padding: '32px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                    }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
+                          <div style={{
+                            width: '52px',
+                            height: '52px',
+                            borderRadius: '18px',
+                            background: `linear-gradient(135deg, ${testimonial.color}, #e91e63)`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 800,
+                            fontSize: '1rem',
+                            color: 'white',
+                            boxShadow: `0 10px 20px ${testimonial.color}44`
+                          }}>
+                            {testimonial.initials}
+                          </div>
+                          <div>
+                            <div style={{ color: '#F8FAFC', fontWeight: 700, fontSize: '1.05rem' }}>{testimonial.name}</div>
+                            <div style={{ color: '#94A3B8', fontSize: '0.85rem', fontWeight: 500 }}>{testimonial.role}</div>
+                          </div>
+                        </div>
+                        <p style={{
+                          fontFamily: "'Space Grotesk', sans-serif",
+                          color: '#CBD5E1',
+                          lineHeight: 1.6,
+                          fontSize: '0.95rem',
+                          margin: 0,
+                          fontWeight: 400
                         }}>
-                          {testimonial.initials}
-                        </div>
-                        <div>
-                          <div style={{ color: '#F8FAFC', fontWeight: 700, fontSize: '1.05rem' }}>{testimonial.name}</div>
-                          <div style={{ color: '#94A3B8', fontSize: '0.85rem', fontWeight: 500 }}>{testimonial.role}</div>
-                        </div>
+                          "{testimonial.text}"
+                        </p>
                       </div>
-                      <p style={{
-                        fontFamily: "'Space Grotesk', sans-serif",
-                        color: '#CBD5E1',
-                        lineHeight: 1.6,
-                        fontSize: '0.95rem',
-                        margin: 0,
-                        fontWeight: 400
-                      }}>
-                        "{testimonial.text}"
-                      </p>
+                      <Stars />
                     </div>
-                    <Stars />
                   </div>
                 ))}
-              </motion.div>
+              </div>
             </div>
 
           </div>
         </div>
 
         <style>{`
+          @keyframes marqueeLeft {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-50%, 0, 0); }
+          }
+          @keyframes marqueeRight {
+            0% { transform: translate3d(-50%, 0, 0); }
+            100% { transform: translate3d(0, 0, 0); }
+          }
+          .marquee-track-left {
+            animation: marqueeLeft 60s linear infinite;
+            will-change: transform;
+          }
+          .marquee-track-right {
+            animation: marqueeRight 60s linear infinite;
+            will-change: transform;
+          }
+          .marquee-track-left:hover, .marquee-track-right:hover {
+            animation-play-state: paused;
+          }
           .testimonials-row::-webkit-scrollbar { display: none; }
           .testimonials-row { -ms-overflow-style: none; scrollbar-width: none; }
           
