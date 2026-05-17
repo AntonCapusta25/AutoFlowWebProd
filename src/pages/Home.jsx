@@ -984,15 +984,21 @@ export default function Home({ lang = 'en' }) {
 
             {/* Top Row: Scrolls Left */}
             <div style={{ overflow: 'hidden', padding: '10px 0' }}>
-              <div className="marquee-track-left" style={{ display: 'flex', width: 'max-content' }}>
+              <motion.div
+                animate={{ x: [0, -7040] }}
+                transition={{
+                  duration: 150,
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+                style={{ display: 'flex', width: 'max-content', willChange: 'transform' }}
+              >
                 {[...TESTIMONIALS, ...TESTIMONIALS].map((testimonial, i) => (
                   <div key={`top-${i}`} style={{ paddingRight: '20px', flexShrink: 0 }}>
                     <div style={{
                       width: '420px',
                       height: '100%',
-                      background: 'rgba(255, 255, 255, 0.03)',
-                      backdropFilter: 'blur(32px)',
-                      WebkitBackdropFilter: 'blur(32px)',
+                      background: '#111111',
                       border: '1px solid rgba(255, 255, 255, 0.08)',
                       borderRadius: '32px',
                       padding: '32px',
@@ -1038,20 +1044,26 @@ export default function Home({ lang = 'en' }) {
                     </div>
                   </div>
                 ))}
-              </div>
+              </motion.div>
             </div>
 
             {/* Bottom Row: Scrolls Right */}
             <div style={{ overflow: 'hidden', padding: '10px 0' }}>
-              <div className="marquee-track-right" style={{ display: 'flex', width: 'max-content' }}>
+              <motion.div
+                animate={{ x: [-7040, 0] }}
+                transition={{
+                  duration: 180,
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+                style={{ display: 'flex', width: 'max-content', willChange: 'transform' }}
+              >
                 {[...[...TESTIMONIALS].reverse(), ...[...TESTIMONIALS].reverse()].map((testimonial, i) => (
                   <div key={`bot-${i}`} style={{ paddingRight: '20px', flexShrink: 0 }}>
                     <div style={{
                       width: '420px',
                       height: '100%',
-                      background: 'rgba(255, 255, 255, 0.03)',
-                      backdropFilter: 'blur(32px)',
-                      WebkitBackdropFilter: 'blur(32px)',
+                      background: '#111111',
                       border: '1px solid rgba(255, 255, 255, 0.08)',
                       borderRadius: '32px',
                       padding: '32px',
@@ -1097,32 +1109,13 @@ export default function Home({ lang = 'en' }) {
                     </div>
                   </div>
                 ))}
-              </div>
+              </motion.div>
             </div>
 
           </div>
         </div>
 
         <style>{`
-          @keyframes marqueeLeft {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-50%, 0, 0); }
-          }
-          @keyframes marqueeRight {
-            0% { transform: translate3d(-50%, 0, 0); }
-            100% { transform: translate3d(0, 0, 0); }
-          }
-          .marquee-track-left {
-            animation: marqueeLeft 60s linear infinite;
-            will-change: transform;
-          }
-          .marquee-track-right {
-            animation: marqueeRight 60s linear infinite;
-            will-change: transform;
-          }
-          .marquee-track-left:hover, .marquee-track-right:hover {
-            animation-play-state: paused;
-          }
           .testimonials-row::-webkit-scrollbar { display: none; }
           .testimonials-row { -ms-overflow-style: none; scrollbar-width: none; }
           

@@ -6707,3 +6707,24 @@ input[type="checkbox"]:checked::after {
 input[type="checkbox"]:hover {
     border-color: rgba(233, 30, 99, 0.5);
 }
+
+@keyframes marqueeLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marqueeRight {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+.marquee-track-left {
+  display: flex;
+  width: max-content;
+  animation: marqueeLeft 150s linear infinite;
+  will-change: transform;
+}
+.marquee-track-right {
+  display: flex;
+  width: max-content;
+  animation: marqueeRight 180s linear infinite;
+  will-change: transform;
+}
