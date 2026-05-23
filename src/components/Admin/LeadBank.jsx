@@ -31,6 +31,8 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
     { label: 'New' },
     { label: 'Contacted' },
     { label: 'In Progress' },
+    { label: 'Meeting Booked' },
+    { label: 'Waiting for Invoice' },
     { label: 'Converted' },
     { label: 'Lost' }
   ]
@@ -194,6 +196,8 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       case 'New': return { bg: 'rgba(233, 30, 99, 0.1)', text: 'rgb(244, 114, 182)', border: '1px solid rgba(233, 30, 99, 0.2)' }
       case 'Contacted': return { bg: 'rgba(59, 130, 246, 0.1)', text: '#93c5fd', border: '1px solid rgba(59, 130, 246, 0.2)' }
       case 'In Progress': return { bg: 'rgba(245, 158, 11, 0.1)', text: '#fcd34d', border: '1px solid rgba(245, 158, 11, 0.2)' }
+      case 'Meeting Booked': return { bg: 'rgba(168, 85, 247, 0.1)', text: '#c084fc', border: '1px solid rgba(168, 85, 247, 0.2)' }
+      case 'Waiting for Invoice': return { bg: 'rgba(6, 182, 212, 0.1)', text: '#67e8f9', border: '1px solid rgba(6, 182, 212, 0.2)' }
       case 'Converted': return { bg: 'rgba(16, 185, 129, 0.1)', text: '#6ee7b7', border: '1px solid rgba(16, 185, 129, 0.2)' }
       case 'Lost': return { bg: 'rgba(239, 68, 68, 0.1)', text: '#fca5a5', border: '1px solid rgba(239, 68, 68, 0.2)' }
       // legacy support
@@ -642,6 +646,8 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                         <option value="New" style={{ background: '#0a0a0a', color: 'white' }}>New</option>
                         <option value="Contacted" style={{ background: '#0a0a0a', color: 'white' }}>Contacted</option>
                         <option value="In Progress" style={{ background: '#0a0a0a', color: 'white' }}>In Progress</option>
+                        <option value="Meeting Booked" style={{ background: '#0a0a0a', color: 'white' }}>Meeting Booked</option>
+                        <option value="Waiting for Invoice" style={{ background: '#0a0a0a', color: 'white' }}>Waiting for Invoice</option>
                         <option value="Converted" style={{ background: '#0a0a0a', color: 'white' }}>Converted</option>
                         <option value="Lost" style={{ background: '#0a0a0a', color: 'white' }}>Lost</option>
                       </select>
