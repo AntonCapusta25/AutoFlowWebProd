@@ -9,6 +9,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   const [isImporting, setIsImporting] = useState(false)
   const [selectedIds, setSelectedIds] = useState([])
   const [noteModalLead, setNoteModalLead] = useState(null)
+  const [callModalLead, setCallModalLead] = useState(null)
   const [isActionLoading, setIsActionLoading] = useState(false)
   const [page, setPage] = useState(0)
   const [totalCount, setTotalCount] = useState(0)
@@ -152,7 +153,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
     setIsActionLoading(false)
   }
 
-  async function logCall(lead) {
+  async function logCall(lead, noteContent) {
     if (isActionLoading) return
     setIsActionLoading(true)
     const newCount = (lead.call_attempts || 0) + 1
@@ -161,13 +162,17 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, call_attempts: newCount } : l))
       if (selectedLead?.id === lead.id) setSelectedLead(prev => ({ ...prev, call_attempts: newCount }))
 
+      const finalContent = noteContent 
+        ? `Call attempt #${newCount}: ${noteContent}`
+        : `Call attempt #${newCount} to ${lead.name || lead.email}`
+
       await supabase.from('lead_history').insert({
         lead_id: lead.id,
         lead_type: 'outreach',
         event_type: 'call',
-        content: `Call attempt #${newCount} to ${lead.name || lead.email}`
+        content: finalContent
       })
-      fetchUnifiedHistory(lead.id)
+      if (selectedLead?.id === lead.id) fetchUnifiedHistory(lead.id)
     }
     setIsActionLoading(false)
   }
@@ -645,7 +650,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                     </td>
                     <td style={{ padding: '20px', textAlign: 'center', position: 'sticky', right: 0, background: selectedLead?.id === lead.id ? '#1a0b12' : '#0a0a0a', zIndex: 10, borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <button onClick={() => logCall(lead)} style={{ padding: '8px 12px', background: 'rgba(233, 30, 99, 0.08)', border: '1px solid rgba(233, 30, 99, 0.1)', color: '#e91e63', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <button onClick={() => setCallModalLead(lead)} style={{ padding: '8px 12px', background: 'rgba(233, 30, 99, 0.08)', border: '1px solid rgba(233, 30, 99, 0.1)', color: '#e91e63', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                           <span style={{ fontWeight: 800, fontSize: '0.8rem' }}>{lead.call_attempts || 0}</span>
                         </button>
@@ -800,7 +805,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
             </div>
 
             <div style={{ marginTop: 'auto', display: 'flex', gap: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '24px' }}>
-              <button onClick={() => logCall(selectedLead)} style={{ flex: 1, padding: '14px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 8px 20px rgba(233, 30, 99, 0.3)' }}>
+              <button onClick={() => setCallModalLead(selectedLead)} style={{ flex: 1, padding: '14px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 8px 20px rgba(233, 30, 99, 0.3)' }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                 Log Call
               </button>
@@ -831,6 +836,38 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
               <button onClick={() => setShowImportModal(false)} style={{ padding: '10px 20px', background: 'transparent', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {callModalLead && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+          <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '24px', width: '100%', maxWidth: '400px', padding: '24px', boxShadow: '0 30px 60px rgba(0,0,0,0.8)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ margin: 0, color: 'white', fontSize: '1.1rem', fontWeight: 800 }}>Log Call Details</h3>
+              <button onClick={() => setCallModalLead(null)} style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
+            
+            <textarea 
+              id="modal-call-input"
+              autoFocus
+              placeholder="How did the call go?"
+              style={{ width: '100%', height: '120px', padding: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', color: 'white', outline: 'none', resize: 'none', fontSize: '0.95rem', lineHeight: '1.5', marginBottom: '20px' }}
+            />
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button 
+                onClick={() => {
+                  const content = document.getElementById('modal-call-input').value
+                  logCall(callModalLead, content)
+                  setCallModalLead(null)
+                }}
+                style={{ flex: 1, padding: '12px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}
+              >
+                Log Call
+              </button>
             </div>
           </div>
         </div>
