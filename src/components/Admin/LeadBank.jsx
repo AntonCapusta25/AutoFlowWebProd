@@ -157,10 +157,14 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
     if (isActionLoading) return
     setIsActionLoading(true)
     const newCount = (lead.call_attempts || 0) + 1
-    const { error } = await supabase.from('outreach_leads').update({ call_attempts: newCount }).eq('id', lead.id)
+    
+    const updatePayload = { call_attempts: newCount }
+    if (noteContent) updatePayload.notes = noteContent
+
+    const { error } = await supabase.from('outreach_leads').update(updatePayload).eq('id', lead.id)
     if (!error) {
-      setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, call_attempts: newCount } : l))
-      if (selectedLead?.id === lead.id) setSelectedLead(prev => ({ ...prev, call_attempts: newCount }))
+      setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, call_attempts: newCount, ...(noteContent ? { notes: noteContent } : {}) } : l))
+      if (selectedLead?.id === lead.id) setSelectedLead(prev => ({ ...prev, call_attempts: newCount, ...(noteContent ? { notes: noteContent } : {}) }))
 
       const finalContent = noteContent 
         ? `Call attempt #${newCount}: ${noteContent}`

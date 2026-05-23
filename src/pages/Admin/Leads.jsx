@@ -72,15 +72,20 @@ export default function AdminLeads() {
   async function addComment(lead, content) {
     if (!content.trim() || isActionLoading) return
     setIsActionLoading(true)
-    const { error } = await supabase.from('lead_history').insert({
-      lead_id: lead.id,
-      lead_type: lead.type.toLowerCase(),
-      event_type: 'note',
-      content: content
-    })
-    if (!error) {
+    const table = lead.type === 'Booking' ? 'booking_leads' : 'contact_leads'
+    const [historyRes, leadRes] = await Promise.all([
+      supabase.from('lead_history').insert({
+        lead_id: lead.id,
+        lead_type: lead.type.toLowerCase(),
+        event_type: 'note',
+        content: content
+      }),
+      supabase.from(table).update({ notes: content }).eq('id', lead.id)
+    ])
+    if (!historyRes.error && !leadRes.error) {
       if (selectedLead?.id === lead.id) fetchHistory(lead.id)
       setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, notes: content } : l))
+      if (selectedLead?.id === lead.id) setSelectedLead(prev => ({ ...prev, notes: content }))
     }
     setIsActionLoading(false)
   }
@@ -91,10 +96,13 @@ export default function AdminLeads() {
     const table = lead.type === 'Booking' ? 'booking_leads' : 'contact_leads'
     const newCount = (lead.call_attempts || 0) + 1
     
-    const { error } = await supabase.from(table).update({ call_attempts: newCount }).eq('id', lead.id)
+    const updatePayload = { call_attempts: newCount }
+    if (noteContent) updatePayload.notes = noteContent
+
+    const { error } = await supabase.from(table).update(updatePayload).eq('id', lead.id)
     if (!error) {
-      setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, call_attempts: newCount } : l))
-      if (selectedLead?.id === lead.id) setSelectedLead(prev => ({ ...prev, call_attempts: newCount }))
+      setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, call_attempts: newCount, ...(noteContent ? { notes: noteContent } : {}) } : l))
+      if (selectedLead?.id === lead.id) setSelectedLead(prev => ({ ...prev, call_attempts: newCount, ...(noteContent ? { notes: noteContent } : {}) }))
 
       const finalContent = noteContent 
         ? `Call attempt #${newCount}: ${noteContent}`
