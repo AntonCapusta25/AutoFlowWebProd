@@ -94,16 +94,16 @@ export default function ProjectDetail({ lang = 'en' }) {
                 switch(block.type) {
                   case 'heading':
                     const Tag = block.level === 3 ? 'h3' : 'h2'
-                    return <Tag key={i} style={{ color: '#F8FAFC', fontSize: block.level === 3 ? '1.5rem' : '2.25rem', fontWeight: 800, marginTop: '48px', marginBottom: '24px', background: 'linear-gradient(135deg, #fff 0%, #94a3b8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{block.text}</Tag>
+                    return <Tag key={i} style={{ color: '#F8FAFC', fontSize: block.level === 3 ? '1.5rem' : '2.25rem', fontWeight: 800, marginTop: '48px', marginBottom: '24px', background: 'linear-gradient(135deg, #fff 0%, #94a3b8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }} dangerouslySetInnerHTML={{ __html: block.text }} />
                   case 'paragraph':
-                    return <p key={i} style={{ marginBottom: '24px' }}>{block.text}</p>
+                    return <p key={i} style={{ marginBottom: '24px' }} dangerouslySetInnerHTML={{ __html: block.text }} />
                   case 'list':
                     return (
                       <ul key={i} style={{ marginBottom: '32px', paddingLeft: '20px', listStyleType: 'none' }}>
                         {block.items.map((item, j) => (
                           <li key={j} style={{ marginBottom: '12px', position: 'relative', paddingLeft: '24px' }}>
                             <span style={{ position: 'absolute', left: 0, color: '#e91e63', fontWeight: 900 }}>•</span>
-                            {item}
+                            <span dangerouslySetInnerHTML={{ __html: item }} />
                           </li>
                         ))}
                       </ul>
@@ -111,8 +111,8 @@ export default function ProjectDetail({ lang = 'en' }) {
                   case 'box':
                     return (
                       <div key={i} style={{ background: 'rgba(233, 30, 99, 0.05)', borderLeft: '4px solid #e91e63', padding: '32px', borderRadius: '0 16px 16px 0', margin: '40px 0' }}>
-                        <h4 style={{ color: '#F8FAFC', fontSize: '1.25rem', fontWeight: 700, marginBottom: '12px' }}>{block.title}</h4>
-                        <p style={{ margin: 0, fontSize: '1.05rem', color: '#CBD5E1' }}>{block.content}</p>
+                        <h4 style={{ color: '#F8FAFC', fontSize: '1.25rem', fontWeight: 700, marginBottom: '12px' }} dangerouslySetInnerHTML={{ __html: block.title }} />
+                        <p style={{ margin: 0, fontSize: '1.05rem', color: '#CBD5E1' }} dangerouslySetInnerHTML={{ __html: block.content }} />
                       </div>
                     )
                   case 'testimonial':
