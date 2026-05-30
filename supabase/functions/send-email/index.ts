@@ -2,30 +2,54 @@
 // Deploy: supabase functions deploy send-email
 // Secrets: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN
 
-const CLIENT_ID = Deno.env.get('GOOGLE_CLIENT_ID') ?? ''
+const CLIENT_ID     = Deno.env.get('GOOGLE_CLIENT_ID')     ?? ''
 const CLIENT_SECRET = Deno.env.get('GOOGLE_CLIENT_SECRET') ?? ''
 const REFRESH_TOKEN = Deno.env.get('GOOGLE_REFRESH_TOKEN') ?? ''
-const ADMIN_EMAIL = 'info@autoflowstudio.net'
+const ADMIN_EMAIL   = 'info@autoflowstudio.net'
+
+const CORS = {
+  'Access-Control-Allow-Origin':  '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
 
 // Replace {{variable}} placeholders in subject/body templates
 function interpolate(template: string, vars: Record<string, string>): string {
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? `{{${key}}}`)
 }
 
-async function getAccessToken() {
-  const res = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    body: JSON.stringify({
-      client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET,
-      refresh_token: REFRESH_TOKEN,
-      grant_type: 'refresh_token',
-    }),
+// ── CRITICAL: Google OAuth token endpoint requires form-encoded body, NOT JSON ──
+async function getAccessToken(): Promise<string> {
+  if (!CLIENT_ID || !CLIENT_SECRET || !REFRESH_TOKEN) {
+    throw new Error(
+      `Missing OAuth secrets — CLIENT_ID:${!!CLIENT_ID} CLIENT_SECRET:${!!CLIENT_SECRET} REFRESH_TOKEN:${!!REFRESH_TOKEN}. ` +
+      `Set them via: supabase secrets set GOOGLE_CLIENT_ID=... GOOGLE_CLIENT_SECRET=... GOOGLE_REFRESH_TOKEN=...`
+    )
+  }
+
+  const params = new URLSearchParams({
+    client_id:     CLIENT_ID,
+    client_secret: CLIENT_SECRET,
+    refresh_token: REFRESH_TOKEN,
+    grant_type:    'refresh_token',
+  })
+
+  console.log('[OAuth] Requesting access token...')
+  const res  = await fetch('https://oauth2.googleapis.com/token', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body:    params.toString(),
   })
   const data = await res.json()
-  if (!res.ok) throw new Error(`OAuth error: ${data.error_description || data.error}`)
+
+  if (!res.ok) {
+    console.error('[OAuth] Token error:', JSON.stringify(data))
+    throw new Error(`OAuth failed (${res.status}): ${data.error} — ${data.error_description}`)
+  }
+
+  console.log('[OAuth] Token obtained successfully')
   return data.access_token
 }
+
 
 function createRawMessage(to: string, subject: string, html: string) {
   const str = [
@@ -46,16 +70,18 @@ function createRawMessage(to: string, subject: string, html: string) {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type' } })
+    return new Response('ok', { headers: CORS })
   }
 
   try {
     const body = await req.json()
     const { type, name, email, company, message, service, size, platform, recipient, subject: customSubject } = body
+    console.log(`[send-email] type=${type} recipient=${recipient || email}`)
 
     // ── 1. Campaigns ────────────────────────────────────────────────────────
     if (type === 'campaign') {
       const accessToken = await getAccessToken()
+      console.log('[campaign] Sending to:', recipient)
       const raw = createRawMessage(recipient, customSubject || 'Update from AutoFlow Studio', message)
       const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
         method: 'POST',
@@ -66,7 +92,8 @@ Deno.serve(async (req) => {
         const errBody = await res.text()
         throw new Error(`Gmail Campaign error ${res.status}: ${errBody}`)
       }
-      return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } })
+      console.log('[campaign] Sent OK')
+      return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json', ...CORS } })
     }
 
     // ── 2. Status-Change Notifications ──────────────────────────────────────
@@ -113,6 +140,7 @@ Deno.serve(async (req) => {
 </html>`
 
       const accessToken = await getAccessToken()
+      console.log('[status_change] Sending to:', to, 'subject:', finalSubject)
       const raw = createRawMessage(to, finalSubject, wrappedHtml)
       const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
         method: 'POST',
@@ -123,7 +151,8 @@ Deno.serve(async (req) => {
         const err = await res.json()
         throw new Error(`Status-change email failed: ${JSON.stringify(err)}`)
       }
-      return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } })
+      console.log('[status_change] Sent OK')
+      return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json', ...CORS } })
     }
 
     // ── 3. Lead form submissions (booking / contact) ─────────────────────────
@@ -222,6 +251,7 @@ Deno.serve(async (req) => {
     `
 
     // Send to Admin
+    console.log('[lead] Sending admin notification to:', ADMIN_EMAIL)
     const adminRaw = createRawMessage(ADMIN_EMAIL, adminSubject, adminHtml)
     const adminRes = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
       method: 'POST',
@@ -232,8 +262,10 @@ Deno.serve(async (req) => {
       const err = await adminRes.json()
       throw new Error(`Admin email failed: ${JSON.stringify(err)}`)
     }
+    console.log('[lead] Admin email sent OK')
 
     // Send to Customer
+    console.log('[lead] Sending customer confirmation to:', email)
     const customerRaw = createRawMessage(email, customerSubject, customerHtml)
     const customerRes = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
       method: 'POST',
@@ -244,14 +276,16 @@ Deno.serve(async (req) => {
       const err = await customerRes.json()
       throw new Error(`Customer email failed: ${JSON.stringify(err)}`)
     }
+    console.log('[lead] Customer email sent OK')
 
     return new Response(JSON.stringify({ success: true }), {
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Content-Type': 'application/json', ...CORS },
     })
   } catch (err) {
+    console.error('[send-email] ERROR:', err.message)
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Content-Type': 'application/json', ...CORS },
     })
   }
 })

@@ -168,6 +168,7 @@ export default function AdminLeads() {
       case 'Waiting for Invoice': return { bg: 'rgba(6, 182, 212, 0.1)', text: '#67e8f9', border: 'rgba(6, 182, 212, 0.2)' }
       case 'Converted': return { bg: 'rgba(16, 185, 129, 0.1)', text: '#6ee7b7', border: 'rgba(16, 185, 129, 0.2)' }
       case 'Lost': return { bg: 'rgba(239, 68, 68, 0.1)', text: '#f87171', border: 'rgba(239, 68, 68, 0.2)' }
+      case 'No Response': return { bg: 'rgba(100, 116, 139, 0.1)', text: '#94a3b8', border: 'rgba(100, 116, 139, 0.2)' }
       default: return { bg: 'rgba(255,255,255,0.05)', text: '#94A3B8', border: 'rgba(255,255,255,0.1)' }
     }
   }
@@ -346,6 +347,7 @@ export default function AdminLeads() {
                         <option value="In Progress">In Progress</option>
                         <option value="Meeting Booked">Meeting Booked</option>
                         <option value="Waiting for Invoice">Waiting for Invoice</option>
+                        <option value="No Response">No Response</option>
                         <option value="Converted">Converted</option>
                         <option value="Lost">Lost</option>
                       </select>

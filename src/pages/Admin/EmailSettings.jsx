@@ -8,6 +8,7 @@ const STATUSES = [
   { key: 'In Progress',        color: '#fbbf24', bg: 'rgba(245,158,11,0.1)',       border: 'rgba(245,158,11,0.2)',      icon: '⚙️' },
   { key: 'Meeting Booked',     color: '#c084fc', bg: 'rgba(168,85,247,0.1)',       border: 'rgba(168,85,247,0.2)',      icon: '🗓️' },
   { key: 'Waiting for Invoice',color: '#67e8f9', bg: 'rgba(6,182,212,0.1)',        border: 'rgba(6,182,212,0.2)',       icon: '📄' },
+  { key: 'No Response',        color: '#94a3b8', bg: 'rgba(100,116,139,0.1)',      border: 'rgba(100,116,139,0.2)',     icon: '🔇' },
   { key: 'Converted',          color: '#6ee7b7', bg: 'rgba(16,185,129,0.1)',       border: 'rgba(16,185,129,0.2)',      icon: '🎉' },
   { key: 'Lost',               color: '#f87171', bg: 'rgba(239,68,68,0.1)',        border: 'rgba(239,68,68,0.2)',       icon: '👋' },
 ]
@@ -25,6 +26,7 @@ const DEFAULT_TEMPLATES = {
   'In Progress':         { subject: "Your automation project is underway, {{name}}", body: "<p>Hi {{name}},</p>\n<p>We're actively working on your request. We'll update you shortly with our findings and next steps.</p>\n<p>Best,<br/>AutoFlow Studio</p>" },
   'Meeting Booked':      { subject: "Your strategy call is confirmed, {{name}} 🗓️", body: "<p>Hi {{name}},</p>\n<p>Great news — your strategy call has been confirmed. We look forward to speaking with you and exploring how we can transform your workflow.</p>\n<p>Best,<br/>AutoFlow Studio</p>" },
   'Waiting for Invoice': { subject: "Invoice incoming, {{name}} 📄", body: "<p>Hi {{name}},</p>\n<p>We're preparing your invoice and will send it across shortly. Feel free to reach out if you have any questions in the meantime.</p>\n<p>Best,<br/>AutoFlow Studio</p>" },
+  'No Response':         { subject: "Checking in, {{name}} 👋", body: "<p>Hi {{name}},</p>\n<p>We noticed we haven't been able to connect with you yet. We'd love to learn more about your automation needs — feel free to reply or book a time that suits you.</p>\n<p>Best,<br/>AutoFlow Studio</p>" },
   'Converted':           { subject: "Welcome to AutoFlow Studio, {{name}} 🎉", body: "<p>Hi {{name}},</p>\n<p>We're thrilled to welcome you as a client! Our team will be in touch to kick off your automation journey. Get ready to save hours every week.</p>\n<p>Best,<br/>AutoFlow Studio</p>" },
   'Lost':                { subject: "A note from AutoFlow Studio, {{name}}", body: "<p>Hi {{name}},</p>\n<p>Thank you for considering AutoFlow Studio. We understand this might not be the right time — but we're here whenever you're ready to explore automation. Feel free to reach back out any time.</p>\n<p>Best,<br/>AutoFlow Studio</p>" },
 }
