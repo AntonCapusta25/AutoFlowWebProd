@@ -11,12 +11,6 @@ const STATUSES = [
   { key: 'No Response',        color: '#94a3b8', bg: 'rgba(100,116,139,0.1)',      border: 'rgba(100,116,139,0.2)',     icon: '🔇' },
   { key: 'Converted',          color: '#6ee7b7', bg: 'rgba(16,185,129,0.1)',       border: 'rgba(16,185,129,0.2)',      icon: '🎉' },
   { key: 'Lost',               color: '#f87171', bg: 'rgba(239,68,68,0.1)',        border: 'rgba(239,68,68,0.2)',       icon: '👋' },
-  
-  // Outbound / Scraped Lead Statuses
-  { key: 'Scraped',            color: '#94a3b8', bg: 'rgba(148,163,184,0.1)',      border: 'rgba(148,163,184,0.2)',     icon: '🔍' },
-  { key: 'Interested',         color: '#6ee7b7', bg: 'rgba(16,185,129,0.1)',       border: 'rgba(16,185,129,0.2)',      icon: '🔥' },
-  { key: 'Not Interested',     color: '#fca5a5', bg: 'rgba(239,68,68,0.1)',        border: 'rgba(239,68,68,0.2)',       icon: '👎' },
-  { key: 'Promoted',           color: '#f472b6', bg: 'rgba(233,30,99,0.1)',        border: 'rgba(233,30,99,0.2)',       icon: '🚀' },
 ]
 
 const VARIABLE_CHIPS = [
@@ -35,12 +29,6 @@ const DEFAULT_TEMPLATES = {
   'No Response':         { subject: "Checking in, {{name}} 👋", body: "<p>Hi {{name}},</p>\n<p>We noticed we haven't been able to connect with you yet. We'd love to learn more about your automation needs — feel free to reply or book a time that suits you.</p>\n<p>Best,<br/>AutoFlow Studio</p>" },
   'Converted':           { subject: "Welcome to AutoFlow Studio, {{name}} 🎉", body: "<p>Hi {{name}},</p>\n<p>We're thrilled to welcome you as a client! Our team will be in touch to kick off your automation journey. Get ready to save hours every week.</p>\n<p>Best,<br/>AutoFlow Studio</p>" },
   'Lost':                { subject: "A note from AutoFlow Studio, {{name}}", body: "<p>Hi {{name}},</p>\n<p>Thank you for considering AutoFlow Studio. We understand this might not be the right time — but we're here whenever you're ready to explore automation. Feel free to reach back out any time.</p>\n<p>Best,<br/>AutoFlow Studio</p>" },
-  
-  // Outbound / Scraped Lead Default Templates
-  'Scraped':            { subject: "Enquiry from AutoFlow Studio", body: "<p>Hi {{name}},</p>\n<p>We found your business and would love to explore how we can automate your workflows.</p>\n<p>Best,<br/>AutoFlow Studio</p>" },
-  'Interested':         { subject: "Great speaking with you, {{name}}!", body: "<p>Hi {{name}},</p>\n<p>Thanks for your interest in AutoFlow Studio. Let's book a call to discuss how we can partner.</p>\n<p>Best,<br/>AutoFlow Studio</p>" },
-  'Not Interested':     { subject: "Thank you from AutoFlow Studio", body: "<p>Hi {{name}},</p>\n<p>Thank you for your time. Let us know if anything changes in the future.</p>\n<p>Best,<br/>AutoFlow Studio</p>" },
-  'Promoted':           { subject: "Welcome to the next stage, {{name}}!", body: "<p>Hi {{name}},</p>\n<p>We have promoted your profile. Our team will contact you shortly.</p>\n<p>Best,<br/>AutoFlow Studio</p>" },
 }
 
 function interpolatePreview(text, vars) {

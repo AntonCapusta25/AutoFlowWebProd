@@ -37,7 +37,7 @@ export default function AdminCampaigns() {
     
     try {
       if (targetType === 'all') {
-        const { data } = await supabase.from('outreach_leads').select('id, email').neq('status', 'Promoted')
+        const { data } = await supabase.from('outreach_leads').select('id, email').neq('status', 'Lost')
         targets = data || []
       } else if (targetType === 'segment' && selectedSegmentId) {
         const seg = segments.find(s => s.id === selectedSegmentId)

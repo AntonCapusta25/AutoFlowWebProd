@@ -50,11 +50,14 @@ export default function AdminLeads() {
   }
 
   const [emailSentFor, setEmailSentFor] = useState(null) // lead id that just got an email
-  const [isEmailDropdownOpen, setIsEmailDropdownOpen] = useState(false)
+  const [customEmailLead, setCustomEmailLead] = useState(null)
+  const [customEmailSubject, setCustomEmailSubject] = useState('')
+  const [customEmailBody, setCustomEmailBody] = useState('')
+  const [selectedTemplate, setSelectedTemplate] = useState('')
   const [emailSending, setEmailSending] = useState(false)
 
   useEffect(() => {
-    setIsEmailDropdownOpen(false)
+    setCustomEmailLead(null)
   }, [selectedLead])
 
   async function updateStatus(id, type, newStatus) {
@@ -147,14 +150,52 @@ export default function AdminLeads() {
 
       setEmailSentFor(lead.id)
       setTimeout(() => setEmailSentFor(null), 3000)
-    } catch (err) {
-      console.error('Failed to send manual email:', err)
-      alert('Error sending email: ' + err.message)
     } finally {
       setEmailSending(false)
     }
   }
 
+  function openCustomEmailModal(lead) {
+    setCustomEmailLead(lead)
+    setCustomEmailSubject('')
+    setCustomEmailBody('')
+    setSelectedTemplate('')
+  }
+
+  async function handleTemplateChange(templateKey) {
+    setSelectedTemplate(templateKey)
+    if (!templateKey) {
+      setCustomEmailSubject('')
+      setCustomEmailBody('')
+      return
+    }
+    
+    try {
+      const { data: tmpl } = await supabase
+        .from('email_templates')
+        .select('subject, body')
+        .eq('status', templateKey)
+        .single()
+        
+      if (tmpl) {
+        const vars = {
+          name: customEmailLead.name || 'there',
+          status: templateKey,
+          company: customEmailLead.company || '',
+          service: customEmailLead.service || ''
+        }
+        
+        const interpolateVars = (str) => {
+          return str.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? `{{${key}}}`)
+        }
+        
+        setCustomEmailSubject(interpolateVars(tmpl.subject || ''))
+        setCustomEmailBody(interpolateVars(tmpl.body || ''))
+      }
+    } catch (err) {
+      console.error('Failed to load template:', err)
+    }
+  }
 
   async function addComment(lead, content) {
     if (!content.trim() || isActionLoading) return
@@ -555,96 +596,40 @@ export default function AdminLeads() {
                 Log Call
               </button>
 
-              <div style={{ position: 'relative', flex: 1 }}>
-                <button 
-                  onClick={() => setIsEmailDropdownOpen(!isEmailDropdownOpen)} 
-                  disabled={emailSending}
-                  style={{ 
-                    width: '100%', padding: '14px', 
-                    background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.3)', 
-                    color: '#c084fc', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', 
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={e => {
-                    if (!emailSending) {
-                      e.currentTarget.style.background = 'rgba(168, 85, 247, 0.15)'
-                      e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.5)'
-                    }
-                  }}
-                  onMouseLeave={e => {
-                    if (!emailSending) {
-                      e.currentTarget.style.background = 'rgba(168, 85, 247, 0.1)'
-                      e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)'
-                    }
-                  }}
-                >
-                  {emailSending ? (
-                    <>
-                      <div style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#c084fc', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
-                      Sending…
-                    </>
-                  ) : (
-                    <>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                        <polyline points="22,6 12,13 2,6"/>
-                      </svg>
-                      Send Email
-                    </>
-                  )}
-                </button>
-
-                {isEmailDropdownOpen && (
-                  <div style={{ 
-                    position: 'absolute', bottom: '100%', left: 0, right: 0, marginBottom: '8px', 
-                    background: '#111', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '16px', 
-                    padding: '8px', boxShadow: '0 20px 40px rgba(0,0,0,0.6)', zIndex: 100,
-                    display: 'flex', flexDirection: 'column', gap: '4px'
-                  }}>
-                    <div style={{ padding: '6px 8px 10px', borderBottom: '1px solid rgba(255,255,255,0.06)', color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      Choose Template
-                    </div>
-                    <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      {[
-                        { key: 'New',                 icon: '✨' },
-                        { key: 'Contacted',          icon: '📞' },
-                        { key: 'In Progress',        icon: '⚙️' },
-                        { key: 'Meeting Booked',     icon: '🗓️' },
-                        { key: 'Waiting for Invoice',icon: '📄' },
-                        { key: 'No Response',        icon: '🔇' },
-                        { key: 'Converted',          icon: '🎉' },
-                        { key: 'Lost',               icon: '👋' },
-                      ].map(status => (
-                        <button
-                          key={status.key}
-                          onClick={() => {
-                            sendManualEmail(selectedLead, status.key)
-                            setIsEmailDropdownOpen(false)
-                          }}
-                          style={{
-                            display: 'flex', alignItems: 'center', gap: '10px', width: '100%',
-                            padding: '8px 12px', background: 'transparent', border: 'none',
-                            color: 'white', borderRadius: '8px', cursor: 'pointer', textAlign: 'left',
-                            fontSize: '0.85rem', fontWeight: 600, transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={e => {
-                            e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
-                            e.currentTarget.style.color = '#c084fc'
-                          }}
-                          onMouseLeave={e => {
-                            e.currentTarget.style.background = 'transparent'
-                            e.currentTarget.style.color = 'white'
-                          }}
-                        >
-                          <span style={{ fontSize: '1rem' }}>{status.icon}</span>
-                          <span>{status.key}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+              <button 
+                onClick={() => openCustomEmailModal(selectedLead)} 
+                disabled={emailSending}
+                style={{ 
+                  flex: 1, padding: '14px', 
+                  background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.3)', 
+                  color: '#c084fc', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', 
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(168, 85, 247, 0.15)'
+                  e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.5)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'rgba(168, 85, 247, 0.1)'
+                  e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)'
+                }}
+              >
+                {emailSending ? (
+                  <>
+                    <div style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#c084fc', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
+                    Sending…
+                  </>
+                ) : (
+                  <>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                      <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                    Send Email
+                  </>
                 )}
-              </div>
+              </button>
 
               <button onClick={() => deleteLead(selectedLead)} style={{ padding: '14px', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}>Delete</button>
             </div>
@@ -711,6 +696,135 @@ export default function AdminLeads() {
                 style={{ flex: 1, padding: '12px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}
               >
                 Log Call
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {customEmailLead && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+          <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '24px', width: '100%', maxWidth: '600px', padding: '28px', boxShadow: '0 30px 60px rgba(0,0,0,0.8)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h3 style={{ margin: 0, color: 'white', fontSize: '1.25rem', fontWeight: 800 }}>Send Email to {customEmailLead.name || customEmailLead.email}</h3>
+              <button onClick={() => setCustomEmailLead(null)} style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
+            
+            {/* Load Template */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', color: '#64748B', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                Load Template
+              </label>
+              <select
+                value={selectedTemplate}
+                onChange={e => handleTemplateChange(e.target.value)}
+                style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', outline: 'none', cursor: 'pointer' }}
+              >
+                <option value="" style={{ background: '#111' }}>-- Custom / Blank --</option>
+                {[
+                  { key: 'New', label: 'New Lead' },
+                  { key: 'Contacted', label: 'Contacted' },
+                  { key: 'In Progress', label: 'In Progress' },
+                  { key: 'Meeting Booked', label: 'Meeting Booked' },
+                  { key: 'Waiting for Invoice', label: 'Waiting for Invoice' },
+                  { key: 'No Response', label: 'No Response' },
+                  { key: 'Converted', label: 'Converted' },
+                  { key: 'Lost', label: 'Lost' },
+                ].map(opt => (
+                  <option key={opt.key} value={opt.key} style={{ background: '#111' }}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Subject */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', color: '#64748B', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                Subject
+              </label>
+              <input
+                type="text"
+                value={customEmailSubject}
+                onChange={e => setCustomEmailSubject(e.target.value)}
+                placeholder="Enter email subject..."
+                style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            {/* Body */}
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', color: '#64748B', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                Email Body (HTML supported)
+              </label>
+              <textarea
+                value={customEmailBody}
+                onChange={e => setCustomEmailBody(e.target.value)}
+                placeholder="Type your message here..."
+                style={{ width: '100%', height: '180px', padding: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', color: 'white', outline: 'none', resize: 'none', fontSize: '0.95rem', lineHeight: '1.5', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button 
+                onClick={() => setCustomEmailLead(null)}
+                style={{ flex: 1, padding: '14px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#94A3B8', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={async () => {
+                  if (!customEmailSubject.trim() || !customEmailBody.trim()) {
+                    alert('Please enter a subject and a body.')
+                    return
+                  }
+                  
+                  setEmailSending(true)
+                  try {
+                    const { error } = await supabase.functions.invoke('send-email', {
+                      body: {
+                        type: 'status_change',
+                        recipient: customEmailLead.email,
+                        name:      customEmailLead.name || 'there',
+                        company:   customEmailLead.company || '',
+                        service:   customEmailLead.service || '',
+                        status:    selectedTemplate || 'Custom',
+                        subject:   customEmailSubject,
+                        body:      customEmailBody,
+                      }
+                    })
+
+                    if (error) throw error
+
+                    await supabase.from('lead_history').insert({
+                      lead_id: customEmailLead.id,
+                      lead_type: customEmailLead.type.toLowerCase() === 'booking' ? 'booking' : 'contact',
+                      event_type: 'email_sent',
+                      content: `Manual email sent: "${customEmailSubject}"`
+                    })
+
+                    if (selectedLead?.id === customEmailLead.id) {
+                      fetchHistory(customEmailLead.id)
+                    }
+
+                    setEmailSentFor(customEmailLead.id)
+                    setTimeout(() => setEmailSentFor(null), 3000)
+                    setCustomEmailLead(null)
+                  } catch (err) {
+                    console.error('Failed to send custom email:', err)
+                    alert('Error sending email: ' + err.message)
+                  } finally {
+                    setEmailSending(false)
+                  }
+                }}
+                disabled={emailSending}
+                style={{ flex: 1, padding: '14px', background: 'linear-gradient(135deg, #e91e63, #9c27b0)', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              >
+                {emailSending ? (
+                  <>
+                    <div style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
+                    Sending…
+                  </>
+                ) : 'Send Email'}
               </button>
             </div>
           </div>
