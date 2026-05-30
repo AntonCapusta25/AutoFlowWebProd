@@ -50,6 +50,12 @@ export default function AdminLeads() {
   }
 
   const [emailSentFor, setEmailSentFor] = useState(null) // lead id that just got an email
+  const [isEmailDropdownOpen, setIsEmailDropdownOpen] = useState(false)
+  const [emailSending, setEmailSending] = useState(false)
+
+  useEffect(() => {
+    setIsEmailDropdownOpen(false)
+  }, [selectedLead])
 
   async function updateStatus(id, type, newStatus) {
     if (isActionLoading) return
@@ -98,6 +104,55 @@ export default function AdminLeads() {
       }
     }
     setIsActionLoading(false)
+  }
+
+  async function sendManualEmail(lead, statusKey) {
+    if (emailSending) return
+    setEmailSending(true)
+    try {
+      const { data: tmpl } = await supabase
+        .from('email_templates')
+        .select('subject, body, enabled')
+        .eq('status', statusKey)
+        .single()
+
+      if (!tmpl) {
+        alert(`No template found for status: ${statusKey}`)
+        return
+      }
+
+      const { error } = await supabase.functions.invoke('send-email', {
+        body: {
+          type: 'status_change',
+          recipient: lead.email,
+          name:      lead.name,
+          company:   lead.company || '',
+          service:   lead.service || '',
+          status:    statusKey,
+          subject:   tmpl.subject,
+          body:      tmpl.body,
+        }
+      })
+
+      if (error) throw error
+
+      await supabase.from('lead_history').insert({
+        lead_id: lead.id,
+        lead_type: lead.type.toLowerCase() === 'booking' ? 'booking' : 'contact',
+        event_type: 'email_sent',
+        content: `Manual email sent: "${tmpl.subject}" (Template: ${statusKey})`
+      })
+
+      if (selectedLead?.id === lead.id) fetchHistory(lead.id)
+
+      setEmailSentFor(lead.id)
+      setTimeout(() => setEmailSentFor(null), 3000)
+    } catch (err) {
+      console.error('Failed to send manual email:', err)
+      alert('Error sending email: ' + err.message)
+    } finally {
+      setEmailSending(false)
+    }
   }
 
 
@@ -220,6 +275,7 @@ export default function AdminLeads() {
     <AdminLayout>
       <style>{`
         @keyframes toastSlide { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
       {emailSentFor && (
         <div style={{
@@ -473,9 +529,9 @@ export default function AdminLeads() {
                     {idx !== history.length - 1 && <div style={{ position: 'absolute', left: '7px', top: '24px', bottom: 0, width: '2px', background: 'rgba(255,255,255,0.05)' }} />}
                     <div style={{ 
                       width: '16px', height: '16px', borderRadius: '50%', 
-                      background: item.event_type === 'call' ? '#e91e63' : item.event_type === 'note' ? '#3b82f6' : '#10b981', 
+                      background: item.event_type === 'call' ? '#e91e63' : item.event_type === 'note' ? '#3b82f6' : item.event_type === 'email_sent' ? '#a855f7' : '#10b981', 
                       zIndex: 1, marginTop: '4px', flexShrink: 0,
-                      boxShadow: `0 0 10px ${item.event_type === 'call' ? 'rgba(233, 30, 99, 0.3)' : 'transparent'}`
+                      boxShadow: `0 0 10px ${item.event_type === 'call' ? 'rgba(233, 30, 99, 0.3)' : item.event_type === 'email_sent' ? 'rgba(168, 85, 247, 0.3)' : 'transparent'}`
                     }} />
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
@@ -498,6 +554,98 @@ export default function AdminLeads() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                 Log Call
               </button>
+
+              <div style={{ position: 'relative', flex: 1 }}>
+                <button 
+                  onClick={() => setIsEmailDropdownOpen(!isEmailDropdownOpen)} 
+                  disabled={emailSending}
+                  style={{ 
+                    width: '100%', padding: '14px', 
+                    background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.3)', 
+                    color: '#c084fc', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={e => {
+                    if (!emailSending) {
+                      e.currentTarget.style.background = 'rgba(168, 85, 247, 0.15)'
+                      e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.5)'
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!emailSending) {
+                      e.currentTarget.style.background = 'rgba(168, 85, 247, 0.1)'
+                      e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)'
+                    }
+                  }}
+                >
+                  {emailSending ? (
+                    <>
+                      <div style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#c084fc', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
+                      Sending…
+                    </>
+                  ) : (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                        <polyline points="22,6 12,13 2,6"/>
+                      </svg>
+                      Send Email
+                    </>
+                  )}
+                </button>
+
+                {isEmailDropdownOpen && (
+                  <div style={{ 
+                    position: 'absolute', bottom: '100%', left: 0, right: 0, marginBottom: '8px', 
+                    background: '#111', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '16px', 
+                    padding: '8px', boxShadow: '0 20px 40px rgba(0,0,0,0.6)', zIndex: 100,
+                    display: 'flex', flexDirection: 'column', gap: '4px'
+                  }}>
+                    <div style={{ padding: '6px 8px 10px', borderBottom: '1px solid rgba(255,255,255,0.06)', color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Choose Template
+                    </div>
+                    <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      {[
+                        { key: 'New',                 icon: '✨' },
+                        { key: 'Contacted',          icon: '📞' },
+                        { key: 'In Progress',        icon: '⚙️' },
+                        { key: 'Meeting Booked',     icon: '🗓️' },
+                        { key: 'Waiting for Invoice',icon: '📄' },
+                        { key: 'No Response',        icon: '🔇' },
+                        { key: 'Converted',          icon: '🎉' },
+                        { key: 'Lost',               icon: '👋' },
+                      ].map(status => (
+                        <button
+                          key={status.key}
+                          onClick={() => {
+                            sendManualEmail(selectedLead, status.key)
+                            setIsEmailDropdownOpen(false)
+                          }}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: '10px', width: '100%',
+                            padding: '8px 12px', background: 'transparent', border: 'none',
+                            color: 'white', borderRadius: '8px', cursor: 'pointer', textAlign: 'left',
+                            fontSize: '0.85rem', fontWeight: 600, transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
+                            e.currentTarget.style.color = '#c084fc'
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.background = 'transparent'
+                            e.currentTarget.style.color = 'white'
+                          }}
+                        >
+                          <span style={{ fontSize: '1rem' }}>{status.icon}</span>
+                          <span>{status.key}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <button onClick={() => deleteLead(selectedLead)} style={{ padding: '14px', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}>Delete</button>
             </div>
           </div>
