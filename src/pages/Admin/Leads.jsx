@@ -49,6 +49,8 @@ export default function AdminLeads() {
     setHistory(data || [])
   }
 
+  const [emailSentFor, setEmailSentFor] = useState(null) // lead id that just got an email
+
   async function updateStatus(id, type, newStatus) {
     if (isActionLoading) return
     setIsActionLoading(true)
@@ -65,9 +67,39 @@ export default function AdminLeads() {
         content: `Status updated to ${newStatus}`
       })
       if (selectedLead?.id === id) fetchHistory(id)
+
+      // ── Email trigger ──
+      try {
+        const { data: tmpl } = await supabase
+          .from('email_templates')
+          .select('subject, body, enabled')
+          .eq('status', newStatus)
+          .single()
+
+        if (tmpl?.enabled && tmpl.subject && tmpl.body) {
+          const lead = leads.find(l => l.id === id)
+          await supabase.functions.invoke('send-email', {
+            body: {
+              type: 'status_change',
+              recipient: lead?.email || '',
+              name:      lead?.name    || '',
+              company:   lead?.company || '',
+              service:   lead?.service || '',
+              status:    newStatus,
+              subject:   tmpl.subject,
+              body:      tmpl.body,
+            }
+          })
+          setEmailSentFor(id)
+          setTimeout(() => setEmailSentFor(null), 3000)
+        }
+      } catch (emailErr) {
+        console.warn('Email send skipped:', emailErr.message)
+      }
     }
     setIsActionLoading(false)
   }
+
 
   async function addComment(lead, content) {
     if (!content.trim() || isActionLoading) return
@@ -185,6 +217,24 @@ export default function AdminLeads() {
 
   return (
     <AdminLayout>
+      <style>{`
+        @keyframes toastSlide { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+      `}</style>
+      {emailSentFor && (
+        <div style={{
+          position: 'fixed', bottom: '32px', right: '32px', zIndex: 9999,
+          background: '#031a0e', border: '1px solid rgba(16,185,129,0.4)',
+          color: '#6ee7b7', padding: '14px 24px', borderRadius: '14px',
+          fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '10px',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.5)', animation: 'toastSlide 0.3s ease-out'
+        }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+          </svg>
+          Email sent to lead
+        </div>
+      )}
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
         <div>
           <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '2rem', fontWeight: 800, marginBottom: '8px' }}>CRM / Leads</h1>

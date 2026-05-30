@@ -13,34 +13,21 @@ export const supabase = createClient(
 )
 
 // Helper: trigger Gmail notification via Edge Function
+// Uses supabase.functions.invoke — no separate env var needed,
+// works in all environments as long as VITE_SUPABASE_URL is set.
 export async function sendEmailNotification(payload) {
-  const edgeUrl = import.meta.env.VITE_SENDGRID_EDGE_URL
-  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-  
-  if (!edgeUrl) {
-    console.warn('⚠️ Edge Function URL not set in .env')
-    return
-  }
-
   try {
-    console.log('📨 Triggering email Edge Function...', edgeUrl)
-    const res = await fetch(edgeUrl, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${anonKey}`,
-        'apikey': anonKey 
-      },
-      body: JSON.stringify(payload),
+    console.log('📨 Triggering email Edge Function...', payload.type)
+    const { data, error } = await supabase.functions.invoke('send-email', {
+      body: payload,
     })
-    
-    if (!res.ok) {
-      const errText = await res.text()
-      console.error(`❌ Edge Function failed (${res.status}):`, errText)
+    if (error) {
+      console.error('❌ Edge Function error:', error)
     } else {
-      console.log('✅ Edge Function call successful!')
+      console.log('✅ Edge Function call successful!', data)
     }
   } catch (err) {
     console.error('❌ Edge Function network error:', err)
   }
 }
+

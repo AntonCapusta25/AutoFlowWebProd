@@ -30,6 +30,7 @@ import AdminOutreach from './pages/Admin/Outreach'
 import AdminSegments from './pages/Admin/Segments'
 import AdminSegmentView from './pages/Admin/SegmentView'
 import AdminCampaigns from './pages/Admin/Campaigns'
+import AdminEmailSettings from './pages/Admin/EmailSettings'
 import AuthGuard from './components/Admin/AuthGuard'
 
 
@@ -91,6 +92,7 @@ function AppContent() {
           <Route path="/admin/segments" element={<AuthGuard><AdminSegments /></AuthGuard>} />
           <Route path="/admin/segments/:id" element={<AuthGuard><AdminSegmentView /></AuthGuard>} />
           <Route path="/admin/campaigns" element={<AuthGuard><AdminCampaigns /></AuthGuard>} />
+          <Route path="/admin/email-settings" element={<AuthGuard><AdminEmailSettings /></AuthGuard>} />
 
           <Route path="*"                  element={<NotFound />} />
         </Routes>

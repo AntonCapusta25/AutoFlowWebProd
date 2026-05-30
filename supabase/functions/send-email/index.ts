@@ -7,6 +7,11 @@ const CLIENT_SECRET = Deno.env.get('GOOGLE_CLIENT_SECRET') ?? ''
 const REFRESH_TOKEN = Deno.env.get('GOOGLE_REFRESH_TOKEN') ?? ''
 const ADMIN_EMAIL = 'info@autoflowstudio.net'
 
+// Replace {{variable}} placeholders in subject/body templates
+function interpolate(template: string, vars: Record<string, string>): string {
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? `{{${key}}}`)
+}
+
 async function getAccessToken() {
   const res = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
@@ -48,24 +53,86 @@ Deno.serve(async (req) => {
     const body = await req.json()
     const { type, name, email, company, message, service, size, platform, recipient, subject: customSubject } = body
 
-    const accessToken = await getAccessToken()
-
-    // 1. Handle Campaigns (Single email to recipient)
+    // ── 1. Campaigns ────────────────────────────────────────────────────────
     if (type === 'campaign') {
+      const accessToken = await getAccessToken()
       const raw = createRawMessage(recipient, customSubject || 'Update from AutoFlow Studio', message)
       const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ raw }),
       })
-      if (!res.ok) throw new Error(`Gmail Campaign error: ${res.status}`)
+      if (!res.ok) {
+        const errBody = await res.text()
+        throw new Error(`Gmail Campaign error ${res.status}: ${errBody}`)
+      }
       return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } })
     }
 
-    // 2. Handle Leads (Two emails: Admin Notification + Customer Auto-Reply)
+    // ── 2. Status-Change Notifications ──────────────────────────────────────
+    if (type === 'status_change') {
+      const { recipient: to, name: leadName, status, subject: tmplSubject, body: tmplBody, company, service } = body
+      if (!to || !tmplSubject || !tmplBody) throw new Error('Missing required status_change fields: recipient, subject, body')
+
+      const vars: Record<string, string> = {
+        name:    leadName  || 'there',
+        status:  status    || '',
+        company: company   || '',
+        service: service   || '',
+      }
+
+      const finalSubject = interpolate(tmplSubject, vars)
+      const finalBodyInner = interpolate(tmplBody, vars)
+
+      const wrappedHtml = `<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:0;background:#0f172a;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background:#0f172a;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="600" border="0" cellspacing="0" cellpadding="0" style="background:#1e293b;border-radius:24px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);">
+        <tr>
+          <td style="background:linear-gradient(135deg,#ec4899,#8b5cf6);padding:40px;text-align:center;">
+            <h1 style="color:#fff;margin:0;font-size:28px;font-weight:800;letter-spacing:-0.025em;">AutoFlow Studio</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:40px;background:#1e293b;">
+            ${finalBodyInner}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:30px 40px;background:#0f172a;text-align:center;">
+            <p style="color:#64748b;font-size:14px;margin:0;">© 2026 AutoFlow Studio. All rights reserved.</p>
+            <p style="color:#475569;font-size:12px;margin-top:10px;">You received this because you contacted us via autoflowstudio.net</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
+
+      const accessToken = await getAccessToken()
+      const raw = createRawMessage(to, finalSubject, wrappedHtml)
+      const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ raw }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(`Status-change email failed: ${JSON.stringify(err)}`)
+      }
+      return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } })
+    }
+
+    // ── 3. Lead form submissions (booking / contact) ─────────────────────────
     if (!email || !name) {
       throw new Error(`Missing required lead info: name=${name}, email=${email}`);
     }
+
+    const accessToken = await getAccessToken()
+
 
     const adminSubject = "New Lead"
     const adminHtml = `
