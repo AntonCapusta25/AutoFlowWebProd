@@ -24,17 +24,22 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   const [importIndustry, setImportIndustry] = useState('')
   const [importTags, setImportTags] = useState('')
   const [newNote, setNewNote] = useState('')
+  const [emailSentFor, setEmailSentFor] = useState(null)
+  const [isEmailDropdownOpen, setIsEmailDropdownOpen] = useState(false)
+  const [emailSending, setEmailSending] = useState(false)
   const pageSize = 50
+
+  useEffect(() => {
+    setIsEmailDropdownOpen(false)
+  }, [selectedLead])
 
   const statusOptions = [
     { label: 'All' },
-    { label: 'New' },
+    { label: 'Scraped' },
     { label: 'Contacted' },
-    { label: 'In Progress' },
-    { label: 'Meeting Booked' },
-    { label: 'Waiting for Invoice' },
-    { label: 'Converted' },
-    { label: 'Lost' }
+    { label: 'Interested' },
+    { label: 'Not Interested' },
+    { label: 'Promoted' }
   ]
 
   async function fetchLeads(targetPage = null) {
@@ -151,8 +156,86 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         content: `Status updated to ${newStatus}`
       })
       if (selectedLead?.id === id) fetchUnifiedHistory(id)
+
+      // ── Email trigger ──
+      try {
+        const { data: tmpl } = await supabase
+          .from('email_templates')
+          .select('subject, body, enabled')
+          .eq('status', newStatus)
+          .single()
+
+        if (tmpl?.enabled && tmpl.subject && tmpl.body) {
+          const lead = leads.find(l => l.id === id)
+          await supabase.functions.invoke('send-email', {
+            body: {
+              type: 'status_change',
+              recipient: lead?.email || '',
+              name:      lead?.name    || 'there',
+              company:   lead?.company || '',
+              service:   lead?.industry || '',
+              status:    newStatus,
+              subject:   tmpl.subject,
+              body:      tmpl.body,
+            }
+          })
+          setEmailSentFor(id)
+          setTimeout(() => setEmailSentFor(null), 3000)
+        }
+      } catch (emailErr) {
+        console.warn('Email send skipped:', emailErr.message)
+      }
     }
     setIsActionLoading(false)
+  }
+
+  async function sendManualEmail(lead, statusKey) {
+    if (emailSending) return
+    setEmailSending(true)
+    try {
+      const { data: tmpl } = await supabase
+        .from('email_templates')
+        .select('subject, body, enabled')
+        .eq('status', statusKey)
+        .single()
+
+      if (!tmpl) {
+        alert(`No template found for status: ${statusKey}`)
+        return
+      }
+
+      const { error } = await supabase.functions.invoke('send-email', {
+        body: {
+          type: 'status_change',
+          recipient: lead.email,
+          name:      lead.name || 'there',
+          company:   lead.company || '',
+          service:   lead.industry || '',
+          status:    statusKey,
+          subject:   tmpl.subject,
+          body:      tmpl.body,
+        }
+      })
+
+      if (error) throw error
+
+      await supabase.from('lead_history').insert({
+        lead_id: lead.id,
+        lead_type: 'outreach',
+        event_type: 'email_sent',
+        content: `Manual email sent: "${tmpl.subject}" (Template: ${statusKey})`
+      })
+
+      if (selectedLead?.id === lead.id) fetchUnifiedHistory(lead.id)
+
+      setEmailSentFor(lead.id)
+      setTimeout(() => setEmailSentFor(null), 3000)
+    } catch (err) {
+      console.error('Failed to send manual email:', err)
+      alert('Error sending email: ' + err.message)
+    } finally {
+      setEmailSending(false)
+    }
   }
 
   async function logCall(lead, noteContent) {
@@ -210,7 +293,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   }
 
   async function deleteLead(lead) {
-    if (!confirm('Permanently delete this scraped lead?')) return
+    if (!confirm('Permanently delete this outbound lead?')) return
     const { error } = await supabase.from('outreach_leads').delete().eq('id', lead.id)
     if (!error) {
       setLeads(prev => prev.filter(l => l.id !== lead.id))
@@ -432,6 +515,24 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
   return (
     <>
+      <style>{`
+        @keyframes toastSlide { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
+      {emailSentFor && (
+        <div style={{
+          position: 'fixed', bottom: '32px', right: '32px', zIndex: 9999,
+          background: '#031a0e', border: '1px solid rgba(16,185,129,0.4)',
+          color: '#6ee7b7', padding: '14px 24px', borderRadius: '14px',
+          fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '10px',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.5)', animation: 'toastSlide 0.3s ease-out'
+        }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+          </svg>
+          Email sent to lead
+        </div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
         <div>
           <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '2rem', fontWeight: 800, marginBottom: '8px' }}>{title}</h1>
@@ -505,7 +606,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                 <th style={{ padding: '24px 20px', width: '40px' }}>
                   <input type="checkbox" onChange={e => setSelectedIds(e.target.checked ? leads.map(l => l.id) : [])} checked={selectedIds.length === leads.length && leads.length > 0} />
                 </th>
-                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Scraped Profile</th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Outbound Profile</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Website</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Phone</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -558,9 +659,9 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="9" style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>Loading scraped leads...</td></tr>
+                <tr><td colSpan="9" style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>Loading outbound leads...</td></tr>
               ) : leads.length === 0 ? (
-                <tr><td colSpan="9" style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>No outreach leads match table filters.</td></tr>
+                <tr><td colSpan="9" style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>No outbound leads match table filters.</td></tr>
               ) : leads.map(lead => {
                 return (
                   <tr key={lead.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)', background: selectedLead?.id === lead.id ? 'rgba(233, 30, 99, 0.04)' : 'transparent', transition: 'all 0.2s' }}>
@@ -628,7 +729,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                     </td>
                     <td style={{ padding: '20px' }}>
                       <select
-                        value={lead.status || 'New'}
+                        value={lead.status || 'Scraped'}
                         onChange={(e) => updateStatus(lead.id, e.target.value)}
                         style={{
                           padding: '8px 12px',
@@ -643,13 +744,11 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                         }}
                         onClick={e => e.stopPropagation()}
                       >
-                        <option value="New" style={{ background: '#0a0a0a', color: 'white' }}>New</option>
+                        <option value="Scraped" style={{ background: '#0a0a0a', color: 'white' }}>Scraped</option>
                         <option value="Contacted" style={{ background: '#0a0a0a', color: 'white' }}>Contacted</option>
-                        <option value="In Progress" style={{ background: '#0a0a0a', color: 'white' }}>In Progress</option>
-                        <option value="Meeting Booked" style={{ background: '#0a0a0a', color: 'white' }}>Meeting Booked</option>
-                        <option value="Waiting for Invoice" style={{ background: '#0a0a0a', color: 'white' }}>Waiting for Invoice</option>
-                        <option value="Converted" style={{ background: '#0a0a0a', color: 'white' }}>Converted</option>
-                        <option value="Lost" style={{ background: '#0a0a0a', color: 'white' }}>Lost</option>
+                        <option value="Interested" style={{ background: '#0a0a0a', color: 'white' }}>Interested</option>
+                        <option value="Not Interested" style={{ background: '#0a0a0a', color: 'white' }}>Not Interested</option>
+                        <option value="Promoted" style={{ background: '#0a0a0a', color: 'white' }}>Promoted</option>
                       </select>
                     </td>
                     <td style={{ padding: '20px' }}>
@@ -799,7 +898,12 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                 {history.map((item, idx) => (
                   <div key={item.id} style={{ display: 'flex', gap: '20px', position: 'relative', paddingBottom: idx === history.length - 1 ? '0' : '24px' }}>
                     {idx !== history.length - 1 && <div style={{ position: 'absolute', left: '7px', top: '24px', bottom: 0, width: '2px', background: 'rgba(255, 255, 255, 0.05)' }} />}
-                    <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: item.event_type === 'call' ? '#e91e63' : item.event_type === 'status_change' ? '#3b82f6' : '#10b981', zIndex: 1, marginTop: '4px', flexShrink: 0, boxShadow: item.event_type === 'call' ? '0 0 10px rgba(233, 30, 99, 0.3)' : 'none' }} />
+                    <div style={{ 
+                      width: '16px', height: '16px', borderRadius: '50%', 
+                      background: item.event_type === 'call' ? '#e91e63' : item.event_type === 'status_change' ? '#3b82f6' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '#a855f7' : '#10b981', 
+                      zIndex: 1, marginTop: '4px', flexShrink: 0, 
+                      boxShadow: item.event_type === 'call' ? '0 0 10px rgba(233, 30, 99, 0.3)' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '0 0 10px rgba(168, 85, 247, 0.3)' : 'none' 
+                    }} />
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
                         <p style={{ margin: 0, color: 'white', fontSize: '0.9rem', lineHeight: '1.5' }}>{item.content}</p>
@@ -819,6 +923,95 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                 Log Call
               </button>
+
+              <div style={{ position: 'relative', flex: 1 }}>
+                <button 
+                  onClick={() => setIsEmailDropdownOpen(!isEmailDropdownOpen)} 
+                  disabled={emailSending}
+                  style={{ 
+                    width: '100%', padding: '14px', 
+                    background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.3)', 
+                    color: '#c084fc', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={e => {
+                    if (!emailSending) {
+                      e.currentTarget.style.background = 'rgba(168, 85, 247, 0.15)'
+                      e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.5)'
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!emailSending) {
+                      e.currentTarget.style.background = 'rgba(168, 85, 247, 0.1)'
+                      e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)'
+                    }
+                  }}
+                >
+                  {emailSending ? (
+                    <>
+                      <div style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#c084fc', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
+                      Sending…
+                    </>
+                  ) : (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                        <polyline points="22,6 12,13 2,6"/>
+                      </svg>
+                      Send Email
+                    </>
+                  )}
+                </button>
+
+                {isEmailDropdownOpen && (
+                  <div style={{ 
+                    position: 'absolute', bottom: '100%', left: 0, right: 0, marginBottom: '8px', 
+                    background: '#111', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '16px', 
+                    padding: '8px', boxShadow: '0 20px 40px rgba(0,0,0,0.6)', zIndex: 100,
+                    display: 'flex', flexDirection: 'column', gap: '4px'
+                  }}>
+                    <div style={{ padding: '6px 8px 10px', borderBottom: '1px solid rgba(255,255,255,0.06)', color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Choose Template
+                    </div>
+                    <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      {[
+                        { key: 'Scraped',            icon: '🔍' },
+                        { key: 'Contacted',          icon: '📞' },
+                        { key: 'Interested',         icon: '🔥' },
+                        { key: 'Not Interested',     icon: '👎' },
+                        { key: 'Promoted',           icon: '🚀' },
+                      ].map(status => (
+                        <button
+                          key={status.key}
+                          onClick={() => {
+                            sendManualEmail(selectedLead, status.key)
+                            setIsEmailDropdownOpen(false)
+                          }}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: '10px', width: '100%',
+                            padding: '8px 12px', background: 'transparent', border: 'none',
+                            color: 'white', borderRadius: '8px', cursor: 'pointer', textAlign: 'left',
+                            fontSize: '0.85rem', fontWeight: 600, transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
+                            e.currentTarget.style.color = '#c084fc'
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.background = 'transparent'
+                            e.currentTarget.style.color = 'white'
+                          }}
+                        >
+                          <span style={{ fontSize: '1rem' }}>{status.icon}</span>
+                          <span>{status.key}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <button onClick={() => deleteLead(selectedLead)} style={{ padding: '14px', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}>Delete</button>
             </div>
           </div>

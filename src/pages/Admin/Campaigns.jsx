@@ -146,7 +146,7 @@ export default function AdminCampaigns() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
                   <input type="radio" checked={targetType === 'all'} onChange={() => setTargetType('all')} />
-                  <span style={{ color: targetType === 'all' ? 'white' : '#94A3B8' }}>All Scraped Leads</span>
+                  <span style={{ color: targetType === 'all' ? 'white' : '#94A3B8' }}>All Outbound Leads</span>
                 </label>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
                   <input type="radio" checked={targetType === 'inbound'} onChange={() => setTargetType('inbound')} />

@@ -5,8 +5,8 @@ export default function OutreachLeads() {
   return (
     <AdminLayout>
       <LeadBank 
-        title="Lead Bank / Outreach" 
-        subtitle="Manage and promote your scraped potential leads."
+        title="Outbound" 
+        subtitle="Manage and promote your outbound potential leads."
       />
     </AdminLayout>
   )
