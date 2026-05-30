@@ -113,6 +113,20 @@ Deno.serve(async (req) => {
 
       const wrappedHtml = `<!DOCTYPE html>
 <html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    /* Force text elements to inherit white/grey color and styles in dark theme */
+    p, span, td, div, h1, h2, h3, h4, li {
+      color: #f8fafc !important;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    }
+    a {
+      color: #ec4899 !important;
+      text-decoration: underline;
+    }
+  </style>
+</head>
 <body style="margin:0;padding:0;background:#0f172a;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
   <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background:#0f172a;padding:40px 20px;">
     <tr><td align="center">
@@ -123,14 +137,14 @@ Deno.serve(async (req) => {
           </td>
         </tr>
         <tr>
-          <td style="padding:40px;background:#1e293b;">
+          <td style="padding:40px;background:#1e293b;color:#f8fafc;font-size:16px;line-height:1.6;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
             ${finalBodyInner}
           </td>
         </tr>
         <tr>
           <td style="padding:30px 40px;background:#0f172a;text-align:center;">
-            <p style="color:#64748b;font-size:14px;margin:0;">© 2026 AutoFlow Studio. All rights reserved.</p>
-            <p style="color:#475569;font-size:12px;margin-top:10px;">You received this because you contacted us via autoflowstudio.net</p>
+            <p style="color:#64748b !important;font-size:14px;margin:0;">© 2026 AutoFlow Studio. All rights reserved.</p>
+            <p style="color:#475569 !important;font-size:12px;margin-top:10px;">You received this because you contacted us via autoflowstudio.net</p>
           </td>
         </tr>
       </table>
