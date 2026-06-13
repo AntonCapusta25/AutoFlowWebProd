@@ -9,7 +9,7 @@ export function AdminProvider({ children }) {
   const [salespeople, setSalespeople] = useState([])
   const [loading, setLoading] = useState(true)
 
-  const refreshProfile = useCallback(async (userId) => {
+  const refreshProfile = useCallback(async (userId, email) => {
     if (!userId) return null
     try {
       let { data, error } = await supabase
@@ -20,12 +20,13 @@ export function AdminProvider({ children }) {
 
       if (error && error.code === 'PGRST116') {
         // Fallback: create profile if trigger hasn't run
-        const fallbackName = user?.email ? user.email.split('@')[0] : 'User'
+        const fallbackEmail = email || ''
+        const fallbackName = fallbackEmail ? fallbackEmail.split('@')[0] : 'User'
         const { data: newProf, error: insError } = await supabase
           .from('profiles')
           .insert({
             id: userId,
-            email: user?.email || '',
+            email: fallbackEmail,
             role: 'salesperson',
             name: fallbackName
           })
@@ -45,7 +46,7 @@ export function AdminProvider({ children }) {
       console.error('Error loading user profile:', err)
     }
     return null
-  }, [user?.email])
+  }, [])
 
   const fetchSalespeople = useCallback(async (isAdmin) => {
     if (!isAdmin) {
@@ -68,43 +69,33 @@ export function AdminProvider({ children }) {
   useEffect(() => {
     let active = true
 
-    async function checkUser() {
-      setLoading(true)
-      const { data: { session } } = await supabase.auth.getSession()
-      
+    async function handleAuth(session) {
       if (!active) return
-
-      if (session?.user) {
-        setUser(session.user)
-        const prof = await refreshProfile(session.user.id)
-        if (prof && active) {
-          await fetchSalespeople(prof.role === 'admin')
+      try {
+        setLoading(true)
+        if (session?.user) {
+          setUser(session.user)
+          const prof = await refreshProfile(session.user.id, session.user.email)
+          if (prof && active) {
+            await fetchSalespeople(prof.role === 'admin')
+          }
+        } else {
+          setUser(null)
+          setProfile(null)
+          setSalespeople([])
         }
-      } else {
-        setUser(null)
-        setProfile(null)
-        setSalespeople([])
+      } catch (err) {
+        console.error('Error checking user session:', err)
+      } finally {
+        if (active) {
+          setLoading(false)
+        }
       }
-      setLoading(false)
     }
 
-    checkUser()
-
+    // Single auth state change listener (invoked immediately on registration with current session)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!active) return
-      
-      if (session?.user) {
-        setUser(session.user)
-        const prof = await refreshProfile(session.user.id)
-        if (prof && active) {
-          await fetchSalespeople(prof.role === 'admin')
-        }
-      } else {
-        setUser(null)
-        setProfile(null)
-        setSalespeople([])
-      }
-      setLoading(false)
+      await handleAuth(session)
     })
 
     return () => {

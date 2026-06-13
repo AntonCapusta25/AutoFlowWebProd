@@ -125,7 +125,7 @@ export default function AdminLayout({ children }) {
               width: '36px',
               height: '36px',
               borderRadius: '50%',
-              background: profile.role === 'admin' ? 'linear-gradient(135deg, #e91e63, #9c27b0)' : 'linear-gradient(135deg, #3b82f6, #10b981)',
+              background: profile?.role === 'admin' ? 'linear-gradient(135deg, #e91e63, #9c27b0)' : 'linear-gradient(135deg, #3b82f6, #10b981)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -134,21 +134,21 @@ export default function AdminLayout({ children }) {
               color: 'white',
               flexShrink: 0
             }}>
-              {(profile.name || profile.email).charAt(0).toUpperCase()}
+              {(profile?.name || profile?.email || 'User').charAt(0).toUpperCase()}
             </div>
             <div style={{ minWidth: 0 }}>
               <p style={{ margin: 0, fontWeight: 700, fontSize: '0.85rem', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {profile.name || profile.email.split('@')[0]}
+                {profile?.name || profile?.email?.split('@')[0] || 'User'}
               </p>
               <p style={{ 
                 margin: 0, 
                 fontSize: '0.7rem', 
                 fontWeight: 800, 
                 textTransform: 'uppercase', 
-                color: profile.role === 'admin' ? '#f06292' : '#4ade80',
+                color: profile?.role === 'admin' ? '#f06292' : '#4ade80',
                 letterSpacing: '0.05em'
               }}>
-                {profile.role}
+                {profile?.role || 'salesperson'}
               </p>
             </div>
           </div>
