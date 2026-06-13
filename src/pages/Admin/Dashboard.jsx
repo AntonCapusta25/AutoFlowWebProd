@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import AdminLayout from '../../components/Admin/AdminLayout'
+import { useAdmin } from '../../components/Admin/AdminContext'
 
 export default function AdminDashboard() {
+  const { isAdmin, salespeople } = useAdmin()
+  const [assigneeFilter, setAssigneeFilter] = useState('all')
   const [stats, setStats] = useState({ 
     totalLeads: 0, 
     bookingLeads: 0, 
@@ -32,24 +35,50 @@ export default function AdminDashboard() {
         return { label, dayStart: dayStart.toISOString(), dayEnd: dayEnd.toISOString() }
       }).reverse()
 
+      // Define queries
+      let bQuery = supabase.from('booking_leads').select('*', { count: 'exact', head: true })
+      let cQuery = supabase.from('contact_leads').select('*', { count: 'exact', head: true })
+      let oQuery = supabase.from('outreach_leads').select('*', { count: 'exact', head: true })
+      let subsQuery = supabase.from('newsletter_subs').select('*', { count: 'exact', head: true })
+      let hQuery = supabase.from('lead_history').select('*').order('created_at', { ascending: false }).limit(20)
+
+      // Apply assignee filters if user is admin and not querying 'all'
+      if (isAdmin) {
+        if (assigneeFilter === 'unassigned') {
+          bQuery = bQuery.is('assignee_id', null)
+          cQuery = cQuery.is('assignee_id', null)
+          oQuery = oQuery.is('assignee_id', null)
+        } else if (assigneeFilter !== 'all') {
+          bQuery = bQuery.eq('assignee_id', assigneeFilter)
+          cQuery = cQuery.eq('assignee_id', assigneeFilter)
+          oQuery = oQuery.eq('assignee_id', assigneeFilter)
+        }
+      }
+
       // 1. Overall Stats & Recent History
       const [bookings, contacts, outreach, subs, history] = await Promise.all([
-        supabase.from('booking_leads').select('*', { count: 'exact', head: true }),
-        supabase.from('contact_leads').select('*', { count: 'exact', head: true }),
-        supabase.from('outreach_leads').select('*', { count: 'exact', head: true }),
-        supabase.from('newsletter_subs').select('*', { count: 'exact', head: true }),
-        supabase.from('lead_history').select('*').order('created_at', { ascending: false }).limit(20)
+        bQuery,
+        cQuery,
+        oQuery,
+        subsQuery,
+        hQuery
       ])
 
       // 2. Parallel Daily Counts
-      const [dailyLeadResults, dailyCallResults] = await Promise.all([
-        Promise.all(last7Days.map(({ dayStart, dayEnd }) => 
-          supabase.from('outreach_leads').select('*', { count: 'exact', head: true }).gte('created_at', dayStart).lt('created_at', dayEnd)
-        )),
-        Promise.all(last7Days.map(({ dayStart, dayEnd }) => 
-          supabase.from('lead_history').select('*', { count: 'exact', head: true }).eq('event_type', 'call').gte('created_at', dayStart).lt('created_at', dayEnd)
-        ))
-      ])
+      const dailyLeadResults = await Promise.all(last7Days.map(({ dayStart, dayEnd }) => {
+        let q = supabase.from('outreach_leads').select('*', { count: 'exact', head: true }).gte('created_at', dayStart).lt('created_at', dayEnd)
+        if (isAdmin && assigneeFilter === 'unassigned') q = q.is('assignee_id', null)
+        else if (isAdmin && assigneeFilter !== 'all') q = q.eq('assignee_id', assigneeFilter)
+        return q
+      }))
+
+      const dailyCallResults = await Promise.all(last7Days.map(({ dayStart, dayEnd }) => {
+        let q = supabase.from('lead_history').select('*', { count: 'exact', head: true }).eq('event_type', 'call').gte('created_at', dayStart).lt('created_at', dayEnd)
+        if (isAdmin && assigneeFilter !== 'all' && assigneeFilter !== 'unassigned') {
+          q = q.eq('admin_id', assigneeFilter)
+        }
+        return q
+      }))
 
       const dailyLeads = last7Days.map((day, i) => ({ date: day.label, count: dailyLeadResults[i].count || 0 }))
       const dailyCalls = last7Days.map((day, i) => ({ date: day.label, count: dailyCallResults[i].count || 0 }))
@@ -86,10 +115,11 @@ export default function AdminDashboard() {
       let hasMore = true
 
       while (hasMore) {
-        const { data: statusChunk } = await supabase
-          .from('outreach_leads')
-          .select('status')
-          .range(fromIdx, fromIdx + pageSize - 1)
+        let statusQuery = supabase.from('outreach_leads').select('status')
+        if (isAdmin && assigneeFilter === 'unassigned') statusQuery = statusQuery.is('assignee_id', null)
+        else if (isAdmin && assigneeFilter !== 'all') statusQuery = statusQuery.eq('assignee_id', assigneeFilter)
+
+        const { data: statusChunk } = await statusQuery.range(fromIdx, fromIdx + pageSize - 1)
         
         if (statusChunk && statusChunk.length > 0) {
           allStatuses = [...allStatuses, ...statusChunk]
@@ -110,7 +140,7 @@ export default function AdminDashboard() {
       setLoading(false)
     }
     fetchData()
-  }, [])
+  }, [assigneeFilter, isAdmin])
 
   const StatCard = ({ title, value, icon, color }) => (
     <div style={{ 
@@ -248,21 +278,43 @@ export default function AdminDashboard() {
               <h1 style={{ fontSize: '2.5rem', fontWeight: 900, margin: '0 0 8px', letterSpacing: '-0.02em' }}>Dashboard</h1>
               <p style={{ color: '#94A3B8', fontSize: '1.1rem', fontWeight: 500 }}>Real-time growth analytics and activity.</p>
             </div>
-            <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', padding: '6px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-              {['activity', 'growth', 'analytics'].map(tab => (
-                <button 
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  style={{ 
-                    padding: '10px 24px', borderRadius: '12px', border: 'none', cursor: 'pointer', transition: 'all 0.2s',
-                    background: activeTab === tab ? '#e91e63' : 'transparent',
-                    color: activeTab === tab ? 'white' : '#94A3B8',
-                    fontWeight: 700, fontSize: '0.9rem', textTransform: 'capitalize'
-                  }}
-                >
-                  {tab}
-                </button>
-              ))}
+            <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+              {isAdmin && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Filter Agent:</span>
+                  <select
+                    value={assigneeFilter}
+                    onChange={e => setAssigneeFilter(e.target.value)}
+                    style={{
+                      padding: '10px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
+                      color: 'white', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 600, outline: 'none', cursor: 'pointer'
+                    }}
+                  >
+                    <option value="all" style={{ background: '#0a0a0a', color: 'white' }}>All Agents</option>
+                    <option value="unassigned" style={{ background: '#0a0a0a', color: 'white' }}>Unassigned Leads</option>
+                    {salespeople.map(sp => (
+                      <option key={sp.id} value={sp.id} style={{ background: '#0a0a0a', color: 'white' }}>{sp.name || sp.email}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', padding: '6px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                {['activity', 'growth', 'analytics'].map(tab => (
+                  <button 
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    style={{ 
+                      padding: '10px 24px', borderRadius: '12px', border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                      background: activeTab === tab ? '#e91e63' : 'transparent',
+                      color: activeTab === tab ? 'white' : '#94A3B8',
+                      fontWeight: 700, fontSize: '0.9rem', textTransform: 'capitalize'
+                    }}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

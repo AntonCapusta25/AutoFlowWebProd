@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import AdminLayout from '../../components/Admin/AdminLayout'
+import { useAdmin } from '../../components/Admin/AdminContext'
 
 export default function AdminLeads() {
+  const { isAdmin, salespeople } = useAdmin()
+  const [assigneeFilter, setAssigneeFilter] = useState('all')
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedLead, setSelectedLead] = useState(null)
@@ -14,7 +17,7 @@ export default function AdminLeads() {
 
   useEffect(() => {
     fetchLeads()
-  }, [])
+  }, [assigneeFilter, isAdmin])
 
   useEffect(() => {
     if (selectedLead) {
@@ -24,9 +27,23 @@ export default function AdminLeads() {
 
   async function fetchLeads() {
     setLoading(true)
+    
+    let bookingsQuery = supabase.from('booking_leads').select('*')
+    let contactsQuery = supabase.from('contact_leads').select('*')
+
+    if (isAdmin) {
+      if (assigneeFilter === 'unassigned') {
+        bookingsQuery = bookingsQuery.is('assignee_id', null)
+        contactsQuery = contactsQuery.is('assignee_id', null)
+      } else if (assigneeFilter !== 'all') {
+        bookingsQuery = bookingsQuery.eq('assignee_id', assigneeFilter)
+        contactsQuery = contactsQuery.eq('assignee_id', assigneeFilter)
+      }
+    }
+
     const [bookings, contacts] = await Promise.all([
-      supabase.from('booking_leads').select('*').order('created_at', { ascending: false }),
-      supabase.from('contact_leads').select('*').order('created_at', { ascending: false })
+      bookingsQuery.order('created_at', { ascending: false }),
+      contactsQuery.order('created_at', { ascending: false })
     ])
 
     const combined = [
@@ -38,6 +55,42 @@ export default function AdminLeads() {
 
     setLeads(uniqueLeads)
     setLoading(false)
+  }
+
+  async function handleAssignLead(leadId, leadType, assigneeId) {
+    if (isActionLoading) return
+    setIsActionLoading(true)
+    const table = leadType.toLowerCase() === 'booking' ? 'booking_leads' : 'contact_leads'
+    const cleanAssigneeId = assigneeId === '' ? null : assigneeId
+    
+    const agent = salespeople.find(sp => sp.id === cleanAssigneeId)
+    const agentName = agent ? (agent.name || agent.email) : 'Unassigned'
+
+    const { error } = await supabase
+      .from(table)
+      .update({ assignee_id: cleanAssigneeId })
+      .eq('id', leadId)
+
+    if (error) {
+      alert('Failed to assign lead: ' + error.message)
+    } else {
+      setLeads(prev => prev.map(l => l.id === leadId ? { ...l, assignee_id: cleanAssigneeId } : l))
+      if (selectedLead?.id === leadId) {
+        setSelectedLead(prev => ({ ...prev, assignee_id: cleanAssigneeId }))
+      }
+      
+      await supabase.from('lead_history').insert({
+        lead_id: leadId,
+        lead_type: leadType.toLowerCase(),
+        event_type: 'status_change',
+        content: `Lead assigned to: ${agentName}`
+      })
+      
+      if (selectedLead?.id === leadId) {
+        fetchHistory(leadId)
+      }
+    }
+    setIsActionLoading(false)
   }
 
   async function fetchHistory(leadId) {
@@ -333,7 +386,7 @@ export default function AdminLeads() {
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
           <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '2rem', fontWeight: 800, marginBottom: '8px' }}>CRM / Leads</h1>
           <p style={{ color: '#94A3B8' }}>Manage your relationship with potential clients.</p>
@@ -348,6 +401,30 @@ export default function AdminLeads() {
         </div>
       </div>
 
+      {isAdmin && salespeople.length > 0 && (
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '28px' }}>
+          <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Filter by Agent:</p>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {[{ id: 'all', label: 'All Leads' }, { id: 'unassigned', label: 'Unassigned' }, ...salespeople.map(sp => ({ id: sp.id, label: sp.name || sp.email }))].map(opt => (
+              <button
+                key={opt.id}
+                onClick={() => setAssigneeFilter(opt.id)}
+                style={{
+                  padding: '8px 16px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer',
+                  border: assigneeFilter === opt.id ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                  background: assigneeFilter === opt.id ? 'linear-gradient(135deg, #e91e63, #9c27b0)' : 'rgba(255,255,255,0.03)',
+                  color: assigneeFilter === opt.id ? 'white' : '#94A3B8',
+                  boxShadow: assigneeFilter === opt.id ? '0 4px 15px rgba(233,30,99,0.3)' : 'none',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'grid', gridTemplateColumns: selectedLead ? '1fr 480px' : '1fr', gap: '24px', transition: 'all 0.4s' }}>
         <div style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
@@ -361,6 +438,7 @@ export default function AdminLeads() {
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Source</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Phone</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
+                {isAdmin && <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Assignee</th>}
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Initial Problem</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Admin Notes</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center', position: 'sticky', right: 0, background: '#0a0a0a', zIndex: 10, borderLeft: '1px solid rgba(255,255,255,0.05)' }}>Activity</th>
@@ -368,9 +446,9 @@ export default function AdminLeads() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="8" style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>Loading inbound leads...</td></tr>
+                <tr><td colSpan={isAdmin ? '9' : '8'} style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>Loading inbound leads...</td></tr>
               ) : leads.length === 0 ? (
-                <tr><td colSpan="8" style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>No leads found.</td></tr>
+                <tr><td colSpan={isAdmin ? '9' : '8'} style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>No leads found.</td></tr>
               ) : leads.map(lead => {
                 const s = getStatusColor(lead.status)
                 return (
@@ -449,6 +527,28 @@ export default function AdminLeads() {
                         <option value="Lost">Lost</option>
                       </select>
                     </td>
+                    {isAdmin && (
+                      <td style={{ padding: '20px' }}>
+                        <select
+                          value={lead.assignee_id || ''}
+                          onChange={e => handleAssignLead(lead.id, lead.type, e.target.value)}
+                          onClick={e => e.stopPropagation()}
+                          style={{
+                            padding: '8px 12px', background: lead.assignee_id ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.03)',
+                            border: lead.assignee_id ? '1px solid rgba(99,102,241,0.3)' : '1px solid rgba(255,255,255,0.08)',
+                            borderRadius: '10px', color: lead.assignee_id ? '#a5b4fc' : '#64748B',
+                            fontSize: '0.8rem', fontWeight: 600, outline: 'none', cursor: 'pointer', maxWidth: '140px'
+                          }}
+                        >
+                          <option value="" style={{ background: '#0a0a0a', color: '#94A3B8' }}>Unassigned</option>
+                          {salespeople.map(sp => (
+                            <option key={sp.id} value={sp.id} style={{ background: '#0a0a0a', color: 'white' }}>
+                              {sp.name || sp.email}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                    )}
                     <td style={{ padding: '20px' }}>
                       <div style={{ color: '#CBD5E1', fontSize: '0.85rem', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {lead.message || 'N/A'}

@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import { useAdmin } from './AdminContext'
 
 export default function AdminLayout({ children }) {
   const location = useLocation()
   const navigate = useNavigate()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [segments, setSegments] = useState([])
+  const { profile, isAdmin } = useAdmin()
 
   useEffect(() => {
     async function fetchSegments() {
@@ -31,8 +33,12 @@ export default function AdminLayout({ children }) {
       children: segments.map(s => ({ to: `/admin/segments/${s.id}`, label: s.name }))
     },
     { to: '/admin/campaigns', label: 'Campaigns', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> },
-    { to: '/admin/email-settings', label: 'Email Settings', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline><circle cx="18" cy="18" r="3" fill="currentColor" stroke="none"></circle><line x1="21" y1="18" x2="23" y2="18" stroke="currentColor"></line><line x1="15" y1="18" x2="13" y2="18" stroke="currentColor"></line><line x1="18" y1="21" x2="18" y2="23" stroke="currentColor"></line><line x1="18" y1="15" x2="18" y2="13" stroke="currentColor"></line></svg> },
+    ...(isAdmin ? [
+      { to: '/admin/team', label: 'Team Members', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> }
+    ] : []),
+    { to: '/admin/email-settings', label: 'Email Settings', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"><circle cx="18" cy="18" r="3" fill="currentColor" stroke="none"></circle></polyline><line x1="21" y1="18" x2="23" y2="18" stroke="currentColor"></line><line x1="15" y1="18" x2="13" y2="18" stroke="currentColor"></line><line x1="18" y1="21" x2="18" y2="23" stroke="currentColor"></line><line x1="18" y1="15" x2="18" y2="13" stroke="currentColor"></line></svg> },
   ]
+
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#050505', color: '#F8FAFC' }}>
@@ -102,6 +108,51 @@ export default function AdminLayout({ children }) {
             </div>
           ))}
         </nav>
+
+        {!isCollapsed && profile && (
+          <div style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: '16px',
+            padding: '12px 16px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              background: profile.role === 'admin' ? 'linear-gradient(135deg, #e91e63, #9c27b0)' : 'linear-gradient(135deg, #3b82f6, #10b981)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 800,
+              fontSize: '0.85rem',
+              color: 'white',
+              flexShrink: 0
+            }}>
+              {(profile.name || profile.email).charAt(0).toUpperCase()}
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <p style={{ margin: 0, fontWeight: 700, fontSize: '0.85rem', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {profile.name || profile.email.split('@')[0]}
+              </p>
+              <p style={{ 
+                margin: 0, 
+                fontSize: '0.7rem', 
+                fontWeight: 800, 
+                textTransform: 'uppercase', 
+                color: profile.role === 'admin' ? '#f06292' : '#4ade80',
+                letterSpacing: '0.05em'
+              }}>
+                {profile.role}
+              </p>
+            </div>
+          </div>
+        )}
 
         <button 
           onClick={handleLogout}

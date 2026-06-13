@@ -1,32 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '../../lib/supabase'
+import { AdminProvider, useAdmin } from './AdminContext'
 
-export default function AuthGuard({ children }) {
-  const [loading, setLoading] = useState(true)
-  const [session, setSession] = useState(null)
+function AuthGuardContent({ children }) {
+  const { user, loading } = useAdmin()
   const navigate = useNavigate()
 
   useEffect(() => {
-    // Check current session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setLoading(false)
-      if (!session) {
-        navigate('/admin/login')
-      }
-    })
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      if (!session) {
-        navigate('/admin/login')
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [navigate])
+    if (!loading && !user) {
+      navigate('/admin/login')
+    }
+  }, [user, loading, navigate])
 
   if (loading) {
     return (
@@ -42,5 +26,14 @@ export default function AuthGuard({ children }) {
     )
   }
 
-  return session ? children : null
+  return user ? children : null
 }
+
+export default function AuthGuard({ children }) {
+  return (
+    <AdminProvider>
+      <AuthGuardContent>{children}</AuthGuardContent>
+    </AdminProvider>
+  )
+}
+

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
+import { useAdmin } from './AdminContext'
 
 export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle = "Manage your leads." }) {
+  const { isAdmin, salespeople } = useAdmin()
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedLead, setSelectedLead] = useState(null)
@@ -15,6 +17,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   const [totalCount, setTotalCount] = useState(0)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
+  const [assigneeFilter, setAssigneeFilter] = useState('all')
   const [activeIndustries, setActiveIndustries] = useState([])
   const [tableIndustryFilter, setTableIndustryFilter] = useState('')
   const [tableTagFilter, setTableTagFilter] = useState('')
@@ -72,6 +75,15 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         query = query.or(`name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,company.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%`)
       }
 
+      // Apply Assignee Filter (admin only)
+      if (isAdmin) {
+        if (assigneeFilter === 'unassigned') {
+          query = query.is('assignee_id', null)
+        } else if (assigneeFilter !== 'all') {
+          query = query.eq('assignee_id', assigneeFilter)
+        }
+      }
+
       const { data, count, error } = await query
         .order('created_at', { ascending: false })
         .range(p * pageSize, (p + 1) * pageSize - 1)
@@ -90,7 +102,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
   useEffect(() => {
     fetchLeads(0)
-  }, [searchTerm, statusFilter, tableIndustryFilter, tableTagFilter, JSON.stringify(filters)])
+  }, [searchTerm, statusFilter, assigneeFilter, tableIndustryFilter, tableTagFilter, JSON.stringify(filters)])
 
   useEffect(() => {
     async function fetchFilterOptions() {
@@ -503,6 +515,36 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
     }
   }
 
+  async function handleAssignLead(leadId, assigneeId) {
+    if (isActionLoading) return
+    setIsActionLoading(true)
+    const cleanAssigneeId = assigneeId === '' ? null : assigneeId
+    const agent = salespeople.find(sp => sp.id === cleanAssigneeId)
+    const agentName = agent ? (agent.name || agent.email) : 'Unassigned'
+
+    const { error } = await supabase
+      .from('outreach_leads')
+      .update({ assignee_id: cleanAssigneeId })
+      .eq('id', leadId)
+
+    if (error) {
+      alert('Failed to assign lead: ' + error.message)
+    } else {
+      setLeads(prev => prev.map(l => l.id === leadId ? { ...l, assignee_id: cleanAssigneeId } : l))
+      if (selectedLead?.id === leadId) {
+        setSelectedLead(prev => ({ ...prev, assignee_id: cleanAssigneeId }))
+      }
+      await supabase.from('lead_history').insert({
+        lead_id: leadId,
+        lead_type: 'outreach',
+        event_type: 'status_change',
+        content: `Lead assigned to: ${agentName}`
+      })
+      if (selectedLead?.id === leadId) fetchUnifiedHistory(leadId)
+    }
+    setIsActionLoading(false)
+  }
+
   const toggleSelect = (id) => {
     setSelectedIds(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id])
   }
@@ -579,7 +621,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           Email sent to lead
         </div>
       )}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isAdmin && salespeople.length > 0 ? '16px' : '40px' }}>
         <div>
           <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '2rem', fontWeight: 800, marginBottom: '8px' }}>{title}</h1>
           <p style={{ color: '#94A3B8' }}>{subtitle}</p>
@@ -626,6 +668,30 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           <button onClick={() => fetchLeads()} style={{ padding: '10px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', borderRadius: '12px', cursor: 'pointer' }}>Refresh</button>
         </div>
       </div>
+
+      {isAdmin && salespeople.length > 0 && (
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '28px' }}>
+          <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Filter by Agent:</p>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {[{ id: 'all', label: 'All Leads' }, { id: 'unassigned', label: 'Unassigned' }, ...salespeople.map(sp => ({ id: sp.id, label: sp.name || sp.email }))].map(opt => (
+              <button
+                key={opt.id}
+                onClick={() => setAssigneeFilter(opt.id)}
+                style={{
+                  padding: '8px 16px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer',
+                  border: assigneeFilter === opt.id ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                  background: assigneeFilter === opt.id ? 'linear-gradient(135deg, #3b82f6, #10b981)' : 'rgba(255,255,255,0.03)',
+                  color: assigneeFilter === opt.id ? 'white' : '#94A3B8',
+                  boxShadow: assigneeFilter === opt.id ? '0 4px 15px rgba(59,130,246,0.3)' : 'none',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: '16px', marginBottom: '40px', alignItems: 'center' }}>
         <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Quick Filter Status:</p>
@@ -700,14 +766,15 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                   </div>
                 </th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Latest Comment</th>
+                {isAdmin && <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Assignee</th>}
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center', position: 'sticky', right: 0, background: '#0a0a0a', zIndex: 10, borderLeft: '1px solid rgba(255,255,255,0.05)' }}>Activity</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="9" style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>Loading outbound leads...</td></tr>
+                <tr><td colSpan={isAdmin ? '10' : '9'} style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>Loading outbound leads...</td></tr>
               ) : leads.length === 0 ? (
-                <tr><td colSpan="9" style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>No outbound leads match table filters.</td></tr>
+                <tr><td colSpan={isAdmin ? '10' : '9'} style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>No outbound leads match table filters.</td></tr>
               ) : leads.map(lead => {
                 return (
                   <tr key={lead.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)', background: selectedLead?.id === lead.id ? 'rgba(233, 30, 99, 0.04)' : 'transparent', transition: 'all 0.2s' }}>
@@ -806,6 +873,28 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                         <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#3b82f6', fontSize: '1.1rem', fontWeight: 800, opacity: 0.6 }}>+</div>
                       </div>
                     </td>
+                    {isAdmin && (
+                      <td style={{ padding: '20px' }}>
+                        <select
+                          value={lead.assignee_id || ''}
+                          onChange={e => handleAssignLead(lead.id, e.target.value)}
+                          onClick={e => e.stopPropagation()}
+                          style={{
+                            padding: '8px 12px', background: lead.assignee_id ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.03)',
+                            border: lead.assignee_id ? '1px solid rgba(59,130,246,0.3)' : '1px solid rgba(255,255,255,0.08)',
+                            borderRadius: '10px', color: lead.assignee_id ? '#93c5fd' : '#64748B',
+                            fontSize: '0.8rem', fontWeight: 600, outline: 'none', cursor: 'pointer', maxWidth: '140px'
+                          }}
+                        >
+                          <option value="" style={{ background: '#0a0a0a', color: '#94A3B8' }}>Unassigned</option>
+                          {salespeople.map(sp => (
+                            <option key={sp.id} value={sp.id} style={{ background: '#0a0a0a', color: 'white' }}>
+                              {sp.name || sp.email}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                    )}
                     <td style={{ padding: '20px', textAlign: 'center', position: 'sticky', right: 0, background: selectedLead?.id === lead.id ? '#1a0b12' : '#0a0a0a', zIndex: 10, borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                         <button onClick={() => setCallModalLead(lead)} style={{ padding: '8px 12px', background: 'rgba(233, 30, 99, 0.08)', border: '1px solid rgba(233, 30, 99, 0.1)', color: '#e91e63', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
