@@ -16,27 +16,20 @@ export default function AdminDashboard() {
   })
 
   const [recentActivity, setRecentActivity] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [coreLoading, setCoreLoading] = useState(true)
+  const [growthLoading, setGrowthLoading] = useState(false)
+  const [analyticsLoading, setAnalyticsLoading] = useState(false)
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('activity')
   const [dailyData, setDailyData] = useState({ dailyLeads: [], dailyCalls: [] })
   const [statusDistribution, setStatusDistribution] = useState([])
   const [leaderboard, setLeaderboard] = useState([])
 
+  // 1. Fetch Core Stats (Total counts & recent activity feed)
   useEffect(() => {
-    async function fetchData() {
-      setLoading(true)
+    async function fetchCoreData() {
+      setCoreLoading(true)
       try {
-        // Build last 7 days in local time
-        const last7Days = [...Array(7)].map((_, i) => {
-          const d = new Date()
-          d.setDate(d.getDate() - i)
-          const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate())
-          const dayEnd = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)
-          const label = `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`
-          return { label, dayStart: dayStart.toISOString(), dayEnd: dayEnd.toISOString() }
-        }).reverse()
-
-        // Define queries
         let bQuery = supabase.from('booking_leads').select('*', { count: 'exact', head: true })
         let cQuery = supabase.from('contact_leads').select('*', { count: 'exact', head: true })
         let oQuery = supabase.from('outreach_leads').select('*', { count: 'exact', head: true })
@@ -69,7 +62,6 @@ export default function AdminDashboard() {
           }
         }
 
-        // 1. Overall Stats & Recent History
         const [bookings, contacts, outreach, subs, history] = await Promise.all([
           bQuery,
           cQuery,
@@ -78,7 +70,54 @@ export default function AdminDashboard() {
           hQuery
         ])
 
-        // 2. Parallel Daily Counts
+        const leadIds = [...new Set(history.data?.map(h => h.lead_id).filter(Boolean) || [])]
+        let activityLeads = []
+        if (leadIds.length > 0) {
+          const [bLeads, oLeads] = await Promise.all([
+            supabase.from('booking_leads').select('id, name').in('id', leadIds),
+            supabase.from('outreach_leads').select('id, name, email').in('id', leadIds)
+          ])
+          activityLeads = [...(bLeads.data || []), ...(oLeads.data || []).map(l => ({ ...l, name: l.name || l.email }))]
+        }
+
+        const totalLeadsCount = (bookings.count || 0) + (contacts.count || 0) + (outreach.count || 0)
+
+        setStats({
+          bookingLeads: bookings.count || 0,
+          contactLeads: contacts.count || 0,
+          newsletterSubs: subs.count || 0,
+          totalLeads: totalLeadsCount,
+          allLeads: [],
+          activityLeads: activityLeads
+        })
+        
+        setRecentActivity(history.data || [])
+      } catch (err) {
+        console.error('Error fetching core dashboard data:', err)
+      } finally {
+        setCoreLoading(false)
+      }
+    }
+
+    fetchCoreData()
+  }, [assigneeFilter, isAdmin, user])
+
+  // 2. Fetch Growth Data (Daily Counts) lazily when the Growth tab is active
+  useEffect(() => {
+    if (activeTab !== 'growth') return
+
+    async function fetchGrowthData() {
+      setGrowthLoading(true)
+      try {
+        const last7Days = [...Array(7)].map((_, i) => {
+          const d = new Date()
+          d.setDate(d.getDate() - i)
+          const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+          const dayEnd = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)
+          const label = `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`
+          return { label, dayStart: dayStart.toISOString(), dayEnd: dayEnd.toISOString() }
+        }).reverse()
+
         const dailyLeadResults = await Promise.all(last7Days.map(({ dayStart, dayEnd }) => {
           let q = supabase.from('outreach_leads').select('*', { count: 'exact', head: true }).gte('created_at', dayStart).lt('created_at', dayEnd)
           if (isAdmin) {
@@ -109,32 +148,24 @@ export default function AdminDashboard() {
         const dailyLeads = last7Days.map((day, i) => ({ date: day.label, count: dailyLeadResults[i].count || 0 }))
         const dailyCalls = last7Days.map((day, i) => ({ date: day.label, count: dailyCallResults[i].count || 0 }))
 
-        // 3. Fetch names for leads in recent activity
-        const leadIds = [...new Set(history.data?.map(h => h.lead_id).filter(Boolean) || [])]
-        let activityLeads = []
-        if (leadIds.length > 0) {
-          const [bLeads, oLeads] = await Promise.all([
-            supabase.from('booking_leads').select('id, name').in('id', leadIds),
-            supabase.from('outreach_leads').select('id, name, email').in('id', leadIds)
-          ])
-          activityLeads = [...(bLeads.data || []), ...(oLeads.data || []).map(l => ({ ...l, name: l.name || l.email }))]
-        }
-
-        const totalLeadsCount = (bookings.count || 0) + (contacts.count || 0) + (outreach.count || 0)
-
-        setStats({
-          bookingLeads: bookings.count || 0,
-          contactLeads: contacts.count || 0,
-          newsletterSubs: subs.count || 0,
-          totalLeads: totalLeadsCount,
-          allLeads: [],
-          activityLeads: activityLeads
-        })
-        
-        setRecentActivity(history.data || [])
         setDailyData({ dailyLeads, dailyCalls })
-        
-        // 4. Status distribution (Fetch ALL statuses in chunks of 1000 to bypass cap)
+      } catch (err) {
+        console.error('Error fetching growth data:', err)
+      } finally {
+        setGrowthLoading(false)
+      }
+    }
+
+    fetchGrowthData()
+  }, [activeTab, assigneeFilter, isAdmin, user])
+
+  // 3. Fetch Analytics Data (Status distribution) lazily when Analytics tab is active
+  useEffect(() => {
+    if (activeTab !== 'analytics') return
+
+    async function fetchAnalyticsData() {
+      setAnalyticsLoading(true)
+      try {
         let allStatuses = []
         let fromIdx = 0
         const pageSize = 1000
@@ -168,8 +199,23 @@ export default function AdminDashboard() {
           return acc
         }, {})
         setStatusDistribution(Object.entries(dist).map(([name, value]) => ({ name, value })))
+      } catch (err) {
+        console.error('Error fetching analytics data:', err)
+      } finally {
+        setAnalyticsLoading(false)
+      }
+    }
 
-        // 5. Fetch Leaderboard Data (for all salespeople)
+    fetchAnalyticsData()
+  }, [activeTab, assigneeFilter, isAdmin, user])
+
+  // 4. Fetch Leaderboard Data lazily when Leaderboard tab is active
+  useEffect(() => {
+    if (activeTab !== 'leaderboard') return
+
+    async function fetchLeaderboardData() {
+      setLeaderboardLoading(true)
+      try {
         let boardData = []
         if (salespeople && salespeople.length > 0) {
           const boardResults = await Promise.all(salespeople.map(async (sp) => {
@@ -205,13 +251,14 @@ export default function AdminDashboard() {
         }
         setLeaderboard(boardData)
       } catch (err) {
-        console.error('Error fetching dashboard data:', err)
+        console.error('Error fetching leaderboard data:', err)
       } finally {
-        setLoading(false)
+        setLeaderboardLoading(false)
       }
     }
-    fetchData()
-  }, [assigneeFilter, isAdmin, user, salespeople])
+
+    fetchLeaderboardData()
+  }, [activeTab, salespeople])
 
   const StatCard = ({ title, value, icon, color }) => (
     <div style={{ 
@@ -335,7 +382,7 @@ export default function AdminDashboard() {
 
   return (
     <AdminLayout>
-      {loading ? (
+      {coreLoading ? (
         <div style={{ height: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8' }}>
           <div style={{ textAlign: 'center' }}>
             <style>{`
@@ -461,81 +508,165 @@ export default function AdminDashboard() {
               )}
 
               {activeTab === 'growth' && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.01)', padding: '32px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                    <h4 style={{ color: 'white', marginBottom: '24px', fontSize: '1.1rem', fontWeight: 800 }}>Leads Added (7 Days)</h4>
-                    <BarChart data={dailyData.dailyLeads} color="#e91e63" />
+                growthLoading ? (
+                  <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{
+                        width: '100px',
+                        height: '3px',
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
+                        position: 'relative',
+                        margin: '0 auto 12px'
+                      }}>
+                        <div style={{
+                          position: 'absolute',
+                          top: 0,
+                          height: '100%',
+                          width: '40%',
+                          background: 'linear-gradient(90deg, transparent, #e91e63, #3b82f6, transparent)',
+                          borderRadius: '10px',
+                          animation: 'dash-bar-sweep 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite'
+                        }} />
+                      </div>
+                      <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.15em' }}>LOADING METRICS...</p>
+                    </div>
                   </div>
-                  <div style={{ background: 'rgba(255,255,255,0.01)', padding: '32px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                    <h4 style={{ color: 'white', marginBottom: '24px', fontSize: '1.1rem', fontWeight: 800 }}>Calls Logged (7 Days)</h4>
-                    <BarChart data={dailyData.dailyCalls} color="#3b82f6" />
+                ) : (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.01)', padding: '32px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                      <h4 style={{ color: 'white', marginBottom: '24px', fontSize: '1.1rem', fontWeight: 800 }}>Leads Added (7 Days)</h4>
+                      <BarChart data={dailyData.dailyLeads} color="#e91e63" />
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.01)', padding: '32px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                      <h4 style={{ color: 'white', marginBottom: '24px', fontSize: '1.1rem', fontWeight: 800 }}>Calls Logged (7 Days)</h4>
+                      <BarChart data={dailyData.dailyCalls} color="#3b82f6" />
+                    </div>
                   </div>
-                </div>
+                )
               )}
 
               {activeTab === 'analytics' && (
-                <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-                  <h4 style={{ color: 'white', marginBottom: '32px', fontSize: '1.2rem', fontWeight: 800, textAlign: 'center' }}>Lead Status Distribution</h4>
-                  <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <PieChart data={statusDistribution} />
+                analyticsLoading ? (
+                  <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{
+                        width: '100px',
+                        height: '3px',
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
+                        position: 'relative',
+                        margin: '0 auto 12px'
+                      }}>
+                        <div style={{
+                          position: 'absolute',
+                          top: 0,
+                          height: '100%',
+                          width: '40%',
+                          background: 'linear-gradient(90deg, transparent, #e91e63, #10b981, transparent)',
+                          borderRadius: '10px',
+                          animation: 'dash-bar-sweep 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite'
+                        }} />
+                      </div>
+                      <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.15em' }}>ANALYZING DISTRIBUTION...</p>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+                    <h4 style={{ color: 'white', marginBottom: '32px', fontSize: '1.2rem', fontWeight: 800, textAlign: 'center' }}>Lead Status Distribution</h4>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      <PieChart data={statusDistribution} />
+                    </div>
+                  </div>
+                )
               )}
 
               {activeTab === 'leaderboard' && (
-                <div style={{ background: 'rgba(255,255,255,0.01)', padding: '32px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                  <h4 style={{ color: 'white', marginBottom: '24px', fontSize: '1.2rem', fontWeight: 800 }}>Team Leaderboard</h4>
-                  {leaderboard.length === 0 ? (
-                    <p style={{ color: '#64748B', fontSize: '0.9rem', textAlign: 'center', padding: '20px' }}>No salespeople stats available.</p>
-                  ) : (
-                    <div style={{ overflowX: 'auto' }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                        <thead>
-                          <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', color: '#94A3B8', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            <th style={{ padding: '12px 10px', fontWeight: 600 }}>Rank</th>
-                            <th style={{ padding: '12px 10px', fontWeight: 600 }}>Agent Name</th>
-                            <th style={{ padding: '12px 10px', fontWeight: 600 }}>Total Leads</th>
-                            <th style={{ padding: '12px 10px', fontWeight: 600 }}>Converted Leads</th>
-                            <th style={{ padding: '12px 10px', fontWeight: 600 }}>Calls Logged</th>
-                            <th style={{ padding: '12px 10px', fontWeight: 600 }}>Conversion Rate</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {leaderboard.map((item, idx) => {
-                            const isCurrentUser = item.id === user?.id
-                            return (
-                              <tr key={item.id} style={{ 
-                                borderBottom: '1px solid rgba(255,255,255,0.04)', 
-                                fontSize: '0.9rem', 
-                                background: isCurrentUser ? 'rgba(233, 30, 99, 0.05)' : 'transparent',
-                                fontWeight: isCurrentUser ? 700 : 500,
-                                transition: 'all 0.2s'
-                              }}>
-                                <td style={{ padding: '16px 10px', fontSize: '1.1rem', color: idx === 0 ? '#fbbf24' : idx === 1 ? '#cbd5e1' : idx === 2 ? '#cd7f32' : '#64748B' }}>
-                                  {idx === 0 ? '🏆 1' : idx === 1 ? '🥈 2' : idx === 2 ? '🥉 3' : `${idx + 1}`}
-                                </td>
-                                <td style={{ padding: '16px 10px', color: isCurrentUser ? '#e91e63' : 'white' }}>
-                                  {item.name} {isCurrentUser && <span style={{ fontSize: '0.7rem', background: '#e91e63', color: 'white', padding: '2px 8px', borderRadius: '20px', marginLeft: '8px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>You</span>}
-                                </td>
-                                <td style={{ padding: '16px 10px', color: '#cbd5e1' }}>{item.totalLeads}</td>
-                                <td style={{ padding: '16px 10px', color: '#10b981', fontWeight: 700 }}>{item.convertedLeads}</td>
-                                <td style={{ padding: '16px 10px', color: '#3b82f6' }}>{item.callsLogged}</td>
-                                <td style={{ padding: '16px 10px' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                    <span style={{ color: '#e91e63', fontWeight: 700, width: '40px' }}>{item.conversionRate}%</span>
-                                    <div style={{ width: '80px', height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden' }}>
-                                      <div style={{ width: `${item.conversionRate}%`, height: '100%', background: 'linear-gradient(90deg, #e91e63, #9c27b0)', borderRadius: '10px' }} />
-                                    </div>
-                                  </div>
-                                </td>
-                              </tr>
-                            )
-                          })}
-                        </tbody>
-                      </table>
+                leaderboardLoading ? (
+                  <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{
+                        width: '100px',
+                        height: '3px',
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
+                        position: 'relative',
+                        margin: '0 auto 12px'
+                      }}>
+                        <div style={{
+                          position: 'absolute',
+                          top: 0,
+                          height: '100%',
+                          width: '40%',
+                          background: 'linear-gradient(90deg, transparent, #fbbf24, #e91e63, transparent)',
+                          borderRadius: '10px',
+                          animation: 'dash-bar-sweep 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite'
+                        }} />
+                      </div>
+                      <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.15em' }}>COMPILING LEADERBOARD...</p>
                     </div>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <div style={{ background: 'rgba(255,255,255,0.01)', padding: '32px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                    <h4 style={{ color: 'white', marginBottom: '24px', fontSize: '1.2rem', fontWeight: 800 }}>Team Leaderboard</h4>
+                    {leaderboard.length === 0 ? (
+                      <p style={{ color: '#64748B', fontSize: '0.9rem', textAlign: 'center', padding: '20px' }}>No salespeople stats available.</p>
+                    ) : (
+                      <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', color: '#94A3B8', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                              <th style={{ padding: '12px 10px', fontWeight: 600 }}>Rank</th>
+                              <th style={{ padding: '12px 10px', fontWeight: 600 }}>Agent Name</th>
+                              <th style={{ padding: '12px 10px', fontWeight: 600 }}>Total Leads</th>
+                              <th style={{ padding: '12px 10px', fontWeight: 600 }}>Converted Leads</th>
+                              <th style={{ padding: '12px 10px', fontWeight: 600 }}>Calls Logged</th>
+                              <th style={{ padding: '12px 10px', fontWeight: 600 }}>Conversion Rate</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {leaderboard.map((item, idx) => {
+                              const isCurrentUser = item.id === user?.id
+                              return (
+                                <tr key={item.id} style={{ 
+                                  borderBottom: '1px solid rgba(255,255,255,0.04)', 
+                                  fontSize: '0.9rem', 
+                                  background: isCurrentUser ? 'rgba(233, 30, 99, 0.05)' : 'transparent',
+                                  fontWeight: isCurrentUser ? 700 : 500,
+                                  transition: 'all 0.2s'
+                                }}>
+                                  <td style={{ padding: '16px 10px', fontSize: '1.1rem', color: idx === 0 ? '#fbbf24' : idx === 1 ? '#cbd5e1' : idx === 2 ? '#cd7f32' : '#64748B' }}>
+                                    {idx === 0 ? '🏆 1' : idx === 1 ? '🥈 2' : idx === 2 ? '🥉 3' : `${idx + 1}`}
+                                  </td>
+                                  <td style={{ padding: '16px 10px', color: isCurrentUser ? '#e91e63' : 'white' }}>
+                                    {item.name} {isCurrentUser && <span style={{ fontSize: '0.7rem', background: '#e91e63', color: 'white', padding: '2px 8px', borderRadius: '20px', marginLeft: '8px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>You</span>}
+                                  </td>
+                                  <td style={{ padding: '16px 10px', color: '#cbd5e1' }}>{item.totalLeads}</td>
+                                  <td style={{ padding: '16px 10px', color: '#10b981', fontWeight: 700 }}>{item.convertedLeads}</td>
+                                  <td style={{ padding: '16px 10px', color: '#3b82f6' }}>{item.callsLogged}</td>
+                                  <td style={{ padding: '16px 10px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                      <span style={{ color: '#e91e63', fontWeight: 700, width: '40px' }}>{item.conversionRate}%</span>
+                                      <div style={{ width: '80px', height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden' }}>
+                                        <div style={{ width: `${item.conversionRate}%`, height: '100%', background: 'linear-gradient(90deg, #e91e63, #9c27b0)', borderRadius: '10px' }} />
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                              )
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                )
               )}
             </div>
           </div>
