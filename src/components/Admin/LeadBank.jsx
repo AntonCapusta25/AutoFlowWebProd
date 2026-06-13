@@ -210,6 +210,34 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       } catch (emailErr) {
         console.warn('Email send skipped:', emailErr.message)
       }
+
+      // ── Auto-create deal when Meeting Booked ──
+      if (newStatus === 'Meeting Booked') {
+        try {
+          const { data: existing } = await supabase
+            .from('deals')
+            .select('id')
+            .eq('lead_id', id)
+            .maybeSingle()
+
+          if (!existing) {
+            const lead = leads.find(l => l.id === id) || selectedLead
+            const spName = profile?.name || profile?.email?.split('@')[0] || 'Unknown'
+            await supabase.from('deals').insert({
+              lead_id: id,
+              lead_type: 'outreach',
+              lead_name: lead?.name || lead?.email || 'Unknown',
+              lead_email: lead?.email || null,
+              lead_company: lead?.company || null,
+              salesperson_id: user?.id || null,
+              salesperson_name: spName,
+              status: 'pipeline'
+            })
+          }
+        } catch (dealErr) {
+          console.warn('Deal auto-create skipped:', dealErr.message)
+        }
+      }
     }
     setIsActionLoading(false)
   }
@@ -1139,26 +1167,9 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                 )}
               </button>
 
-              <button
-                onClick={() => submitToDeal(selectedLead)}
-                disabled={isActionLoading}
-                title="Submit this lead to the deals pipeline"
-                style={{
-                  flex: 1, padding: '14px',
-                  background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)',
-                  color: '#6ee7b7', borderRadius: '12px', fontWeight: 700, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.18)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.1)' }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                Pipeline
-              </button>
-
               <button onClick={() => deleteLead(selectedLead)} style={{ padding: '14px', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}>Delete</button>
             </div>
+
           </div>
         )}
       </div>
