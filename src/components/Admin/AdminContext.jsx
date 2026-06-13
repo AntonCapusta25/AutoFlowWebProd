@@ -142,6 +142,89 @@ export function AdminProvider({ children }) {
     }
   }, [refreshProfile, fetchSalespeople])
 
+  const [notifications, setNotifications] = useState([])
+
+  const fetchNotifications = useCallback(async (userId) => {
+    if (!userId) return
+    try {
+      const { data } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(50)
+      if (data) {
+        setNotifications(data)
+      }
+    } catch (err) {
+      console.error('Error fetching notifications:', err)
+    }
+  }, [])
+
+  const markAsRead = useCallback(async (id) => {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', id)
+      if (!error) {
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n))
+      }
+    } catch (err) {
+      console.error('Error marking notification as read:', err)
+    }
+  }, [])
+
+  const markAllAsRead = useCallback(async () => {
+    if (!user?.id) return
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false)
+      if (!error) {
+        setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
+      }
+    } catch (err) {
+      console.error('Error marking all notifications as read:', err)
+    }
+  }, [user?.id])
+
+  useEffect(() => {
+    if (!user?.id) {
+      setNotifications([])
+      return
+    }
+
+    fetchNotifications(user.id)
+
+    const channel = supabase
+      .channel(`user-notifications-${user.id}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${user.id}`
+      }, (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setNotifications(prev => [payload.new, ...prev].slice(0, 50))
+          window.dispatchEvent(new CustomEvent('new-notification', { detail: payload.new }))
+        } else if (payload.eventType === 'UPDATE') {
+          setNotifications(prev => prev.map(n => n.id === payload.new.id ? payload.new : n))
+        } else if (payload.eventType === 'DELETE') {
+          setNotifications(prev => prev.filter(n => n.id !== payload.old.id))
+        }
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user?.id, fetchNotifications])
+
+  const unreadCount = notifications.filter(n => !n.is_read).length
+
   const realUser = user
   const realProfile = profile
   const realIsAdmin = profile?.role === 'admin' || profile?.role === 'Napoleon'
@@ -166,7 +249,11 @@ export function AdminProvider({ children }) {
     salespeople,
     loading,
     refreshProfile: () => refreshProfile(realUser?.id, realUser?.email),
-    refreshSalespeople: () => fetchSalespeople()
+    refreshSalespeople: () => fetchSalespeople(),
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead
   }
 
   return (

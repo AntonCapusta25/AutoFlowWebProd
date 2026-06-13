@@ -33,6 +33,7 @@ import AdminCampaigns from './pages/Admin/Campaigns'
 import AdminEmailSettings from './pages/Admin/EmailSettings'
 import AdminTeam from './pages/Admin/Team'
 import AdminDeals from './pages/Admin/Deals'
+import AdminChat from './pages/Admin/Chat'
 import AuthGuard, { AdminGuard } from './components/Admin/AuthGuard'
 
 
@@ -91,6 +92,7 @@ function AppContent() {
           <Route path="/admin/dashboard" element={<AuthGuard><AdminDashboard /></AuthGuard>} />
           <Route path="/admin/leads" element={<AdminGuard><AdminLeads /></AdminGuard>} />
           <Route path="/admin/outreach" element={<AuthGuard><AdminOutreach /></AuthGuard>} />
+          <Route path="/admin/chat" element={<AuthGuard><AdminChat /></AuthGuard>} />
           <Route path="/admin/segments" element={<AdminGuard><AdminSegments /></AdminGuard>} />
           <Route path="/admin/segments/:id" element={<AdminGuard><AdminSegmentView /></AdminGuard>} />
           <Route path="/admin/campaigns" element={<AdminGuard><AdminCampaigns /></AdminGuard>} />
