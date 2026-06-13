@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { useAdmin } from './AdminContext'
 
 export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle = "Manage your leads." }) {
-  const { user, isAdmin, salespeople } = useAdmin()
+  const { user, isAdmin, profile, salespeople } = useAdmin()
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedLead, setSelectedLead] = useState(null)
@@ -326,6 +326,41 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         content: finalContent
       })
       if (selectedLead?.id === lead.id) fetchUnifiedHistory(lead.id)
+    }
+    setIsActionLoading(false)
+  }
+
+  async function submitToDeal(lead) {
+    if (isActionLoading) return
+    // Check if deal already exists for this lead
+    const { data: existing } = await supabase.from('deals').select('id').eq('lead_id', lead.id).maybeSingle()
+    if (existing) {
+      alert('This lead is already in the pipeline.')
+      return
+    }
+    setIsActionLoading(true)
+    const spName = profile?.name || profile?.email?.split('@')[0] || 'Unknown'
+    const { error } = await supabase.from('deals').insert({
+      lead_id: lead.id,
+      lead_type: 'outreach',
+      lead_name: lead.name || lead.email || 'Unknown',
+      lead_email: lead.email || null,
+      lead_company: lead.company || null,
+      salesperson_id: user?.id || null,
+      salesperson_name: spName,
+      status: 'pipeline'
+    })
+    if (!error) {
+      await supabase.from('lead_history').insert({
+        lead_id: lead.id,
+        lead_type: 'outreach',
+        event_type: 'status_change',
+        content: `Submitted to deals pipeline by ${spName}`
+      })
+      if (selectedLead?.id === lead.id) fetchUnifiedHistory(lead.id)
+      alert('✅ Lead submitted to the deals pipeline!')
+    } else {
+      alert('Error submitting deal: ' + error.message)
     }
     setIsActionLoading(false)
   }
@@ -1102,6 +1137,24 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                     Send Email
                   </>
                 )}
+              </button>
+
+              <button
+                onClick={() => submitToDeal(selectedLead)}
+                disabled={isActionLoading}
+                title="Submit this lead to the deals pipeline"
+                style={{
+                  flex: 1, padding: '14px',
+                  background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)',
+                  color: '#6ee7b7', borderRadius: '12px', fontWeight: 700, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.18)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.1)' }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                Pipeline
               </button>
 
               <button onClick={() => deleteLead(selectedLead)} style={{ padding: '14px', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}>Delete</button>

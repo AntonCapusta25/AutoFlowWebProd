@@ -32,6 +32,7 @@ import AdminSegmentView from './pages/Admin/SegmentView'
 import AdminCampaigns from './pages/Admin/Campaigns'
 import AdminEmailSettings from './pages/Admin/EmailSettings'
 import AdminTeam from './pages/Admin/Team'
+import AdminDeals from './pages/Admin/Deals'
 import AuthGuard from './components/Admin/AuthGuard'
 
 
@@ -94,6 +95,7 @@ function AppContent() {
           <Route path="/admin/segments/:id" element={<AuthGuard><AdminSegmentView /></AuthGuard>} />
           <Route path="/admin/campaigns" element={<AuthGuard><AdminCampaigns /></AuthGuard>} />
           <Route path="/admin/team" element={<AuthGuard><AdminTeam /></AuthGuard>} />
+          <Route path="/admin/deals" element={<AuthGuard><AdminDeals /></AuthGuard>} />
           <Route path="/admin/email-settings" element={<AuthGuard><AdminEmailSettings /></AuthGuard>} />
 
           <Route path="*"                  element={<NotFound />} />
