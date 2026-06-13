@@ -205,13 +205,26 @@ create trigger on_chat_message_inserted
 -- ============================================================
 -- 5. Enable Realtime Publications
 -- ============================================================
--- Ensure tables are published to supabase_realtime
-begin;
-  -- Remove tables from publication if they exist to prevent duplicates
-  alter publication supabase_realtime drop table if exists public.chat_messages;
-  alter publication supabase_realtime drop table if exists public.notifications;
-  
-  -- Add tables to publication
-  alter publication supabase_realtime add table public.chat_messages;
-  alter publication supabase_realtime add table public.notifications;
-commit;
+-- Ensure tables are published to supabase_realtime safely without duplicate or syntax errors
+do $$
+begin
+  -- Add chat_messages to publication if not already present
+  if not exists (
+    select 1 from pg_publication_rel pr
+    join pg_class c on pr.prrelid = c.oid
+    join pg_publication p on pr.prpubid = p.oid
+    where p.pubname = 'supabase_realtime' and c.relname = 'chat_messages'
+  ) then
+    alter publication supabase_realtime add table public.chat_messages;
+  end if;
+
+  -- Add notifications to publication if not already present
+  if not exists (
+    select 1 from pg_publication_rel pr
+    join pg_class c on pr.prrelid = c.oid
+    join pg_publication p on pr.prpubid = p.oid
+    where p.pubname = 'supabase_realtime' and c.relname = 'notifications'
+  ) then
+    alter publication supabase_realtime add table public.notifications;
+  end if;
+end $$;
