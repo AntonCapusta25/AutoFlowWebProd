@@ -25,187 +25,190 @@ export default function AdminDashboard() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true)
-      
-      // Build last 7 days in local time
-      const last7Days = [...Array(7)].map((_, i) => {
-        const d = new Date()
-        d.setDate(d.getDate() - i)
-        const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate())
-        const dayEnd = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)
-        const label = `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`
-        return { label, dayStart: dayStart.toISOString(), dayEnd: dayEnd.toISOString() }
-      }).reverse()
+      try {
+        // Build last 7 days in local time
+        const last7Days = [...Array(7)].map((_, i) => {
+          const d = new Date()
+          d.setDate(d.getDate() - i)
+          const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+          const dayEnd = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)
+          const label = `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`
+          return { label, dayStart: dayStart.toISOString(), dayEnd: dayEnd.toISOString() }
+        }).reverse()
 
-      // Define queries
-      let bQuery = supabase.from('booking_leads').select('*', { count: 'exact', head: true })
-      let cQuery = supabase.from('contact_leads').select('*', { count: 'exact', head: true })
-      let oQuery = supabase.from('outreach_leads').select('*', { count: 'exact', head: true })
-      let subsQuery = supabase.from('newsletter_subs').select('*', { count: 'exact', head: true })
-      let hQuery = supabase.from('lead_history').select('*').order('created_at', { ascending: false }).limit(20)
+        // Define queries
+        let bQuery = supabase.from('booking_leads').select('*', { count: 'exact', head: true })
+        let cQuery = supabase.from('contact_leads').select('*', { count: 'exact', head: true })
+        let oQuery = supabase.from('outreach_leads').select('*', { count: 'exact', head: true })
+        let subsQuery = supabase.from('newsletter_subs').select('*', { count: 'exact', head: true })
+        let hQuery = supabase.from('lead_history').select('*').order('created_at', { ascending: false }).limit(20)
 
-      // Apply assignee filters
-      if (isAdmin) {
-        if (assigneeFilter === 'unassigned') {
-          bQuery = bQuery.is('assignee_id', null)
-          cQuery = cQuery.is('assignee_id', null)
-          oQuery = oQuery.is('assignee_id', null)
-        } else if (assigneeFilter !== 'all') {
-          bQuery = bQuery.eq('assignee_id', assigneeFilter)
-          cQuery = cQuery.eq('assignee_id', assigneeFilter)
-          oQuery = oQuery.eq('assignee_id', assigneeFilter)
-        }
-      } else {
-        if (user?.id) {
-          bQuery = bQuery.eq('assignee_id', user.id)
-          cQuery = cQuery.eq('assignee_id', user.id)
-          oQuery = oQuery.eq('assignee_id', user.id)
-          hQuery = hQuery.eq('admin_id', user.id)
-        } else {
-          // Empty state placeholder
-          bQuery = bQuery.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
-          cQuery = cQuery.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
-          oQuery = oQuery.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
-          hQuery = hQuery.eq('admin_id', '00000000-0000-0000-0000-000000000000')
-        }
-      }
-
-      // 1. Overall Stats & Recent History
-      const [bookings, contacts, outreach, subs, history] = await Promise.all([
-        bQuery,
-        cQuery,
-        oQuery,
-        subsQuery,
-        hQuery
-      ])
-
-      // 2. Parallel Daily Counts
-      const dailyLeadResults = await Promise.all(last7Days.map(({ dayStart, dayEnd }) => {
-        let q = supabase.from('outreach_leads').select('*', { count: 'exact', head: true }).gte('created_at', dayStart).lt('created_at', dayEnd)
+        // Apply assignee filters
         if (isAdmin) {
-          if (assigneeFilter === 'unassigned') q = q.is('assignee_id', null)
-          else if (assigneeFilter !== 'all') q = q.eq('assignee_id', assigneeFilter)
-        } else if (user?.id) {
-          q = q.eq('assignee_id', user.id)
-        } else {
-          q = q.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
-        }
-        return q
-      }))
-
-      const dailyCallResults = await Promise.all(last7Days.map(({ dayStart, dayEnd }) => {
-        let q = supabase.from('lead_history').select('*', { count: 'exact', head: true }).eq('event_type', 'call').gte('created_at', dayStart).lt('created_at', dayEnd)
-        if (isAdmin) {
-          if (assigneeFilter !== 'all' && assigneeFilter !== 'unassigned') {
-            q = q.eq('admin_id', assigneeFilter)
+          if (assigneeFilter === 'unassigned') {
+            bQuery = bQuery.is('assignee_id', null)
+            cQuery = cQuery.is('assignee_id', null)
+            oQuery = oQuery.is('assignee_id', null)
+          } else if (assigneeFilter !== 'all') {
+            bQuery = bQuery.eq('assignee_id', assigneeFilter)
+            cQuery = cQuery.eq('assignee_id', assigneeFilter)
+            oQuery = oQuery.eq('assignee_id', assigneeFilter)
           }
-        } else if (user?.id) {
-          q = q.eq('admin_id', user.id)
         } else {
-          q = q.eq('admin_id', '00000000-0000-0000-0000-000000000000')
+          if (user?.id) {
+            bQuery = bQuery.eq('assignee_id', user.id)
+            cQuery = cQuery.eq('assignee_id', user.id)
+            oQuery = oQuery.eq('assignee_id', user.id)
+            hQuery = hQuery.eq('admin_id', user.id)
+          } else {
+            // Empty state placeholder
+            bQuery = bQuery.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
+            cQuery = cQuery.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
+            oQuery = oQuery.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
+            hQuery = hQuery.eq('admin_id', '00000000-0000-0000-0000-000000000000')
+          }
         }
-        return q
-      }))
 
-      const dailyLeads = last7Days.map((day, i) => ({ date: day.label, count: dailyLeadResults[i].count || 0 }))
-      const dailyCalls = last7Days.map((day, i) => ({ date: day.label, count: dailyCallResults[i].count || 0 }))
-
-      // 3. Fetch names for leads in recent activity
-      const leadIds = [...new Set(history.data?.map(h => h.lead_id).filter(Boolean) || [])]
-      let activityLeads = []
-      if (leadIds.length > 0) {
-        const [bLeads, oLeads] = await Promise.all([
-          supabase.from('booking_leads').select('id, name').in('id', leadIds),
-          supabase.from('outreach_leads').select('id, name, email').in('id', leadIds)
+        // 1. Overall Stats & Recent History
+        const [bookings, contacts, outreach, subs, history] = await Promise.all([
+          bQuery,
+          cQuery,
+          oQuery,
+          subsQuery,
+          hQuery
         ])
-        activityLeads = [...(bLeads.data || []), ...(oLeads.data || []).map(l => ({ ...l, name: l.name || l.email }))]
-      }
 
-      const totalLeadsCount = (bookings.count || 0) + (contacts.count || 0) + (outreach.count || 0)
-
-      setStats({
-        bookingLeads: bookings.count || 0,
-        contactLeads: contacts.count || 0,
-        newsletterSubs: subs.count || 0,
-        totalLeads: totalLeadsCount,
-        allLeads: [],
-        activityLeads: activityLeads
-      })
-      
-      setRecentActivity(history.data || [])
-      setDailyData({ dailyLeads, dailyCalls })
-      
-      // 4. Status distribution (Fetch ALL statuses in chunks of 1000 to bypass cap)
-      let allStatuses = []
-      let fromIdx = 0
-      const pageSize = 1000
-      let hasMore = true
-
-      while (hasMore) {
-        let statusQuery = supabase.from('outreach_leads').select('status')
-        if (isAdmin) {
-          if (assigneeFilter === 'unassigned') statusQuery = statusQuery.is('assignee_id', null)
-          else if (assigneeFilter !== 'all') statusQuery = statusQuery.eq('assignee_id', assigneeFilter)
-        } else if (user?.id) {
-          statusQuery = statusQuery.eq('assignee_id', user.id)
-        } else {
-          statusQuery = statusQuery.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
-        }
-
-        const { data: statusChunk } = await statusQuery.range(fromIdx, fromIdx + pageSize - 1)
-        
-        if (statusChunk && statusChunk.length > 0) {
-          allStatuses = [...allStatuses, ...statusChunk]
-          fromIdx += pageSize
-          if (statusChunk.length < pageSize) hasMore = false
-        } else {
-          hasMore = false
-        }
-        if (fromIdx > 50000) hasMore = false 
-      }
-
-      const dist = allStatuses.reduce((acc, lead) => {
-        acc[lead.status] = (acc[lead.status] || 0) + 1
-        return acc
-      }, {})
-      setStatusDistribution(Object.entries(dist).map(([name, value]) => ({ name, value })))
-
-      // 5. Fetch Leaderboard Data (for all salespeople)
-      let boardData = []
-      if (salespeople && salespeople.length > 0) {
-        const boardResults = await Promise.all(salespeople.map(async (sp) => {
-          const { count: totalLeads } = await supabase
-            .from('outreach_leads')
-            .select('*', { count: 'exact', head: true })
-            .eq('assignee_id', sp.id)
-
-          const { count: convertedLeads } = await supabase
-            .from('outreach_leads')
-            .select('*', { count: 'exact', head: true })
-            .eq('assignee_id', sp.id)
-            .eq('status', 'Converted')
-
-          const { count: callsLogged } = await supabase
-            .from('lead_history')
-            .select('*', { count: 'exact', head: true })
-            .eq('admin_id', sp.id)
-            .eq('event_type', 'call')
-
-          return {
-            id: sp.id,
-            name: sp.name || sp.email.split('@')[0],
-            email: sp.email,
-            role: sp.role,
-            totalLeads: totalLeads || 0,
-            convertedLeads: convertedLeads || 0,
-            callsLogged: callsLogged || 0,
-            conversionRate: totalLeads ? Math.round((convertedLeads / totalLeads) * 100) : 0
+        // 2. Parallel Daily Counts
+        const dailyLeadResults = await Promise.all(last7Days.map(({ dayStart, dayEnd }) => {
+          let q = supabase.from('outreach_leads').select('*', { count: 'exact', head: true }).gte('created_at', dayStart).lt('created_at', dayEnd)
+          if (isAdmin) {
+            if (assigneeFilter === 'unassigned') q = q.is('assignee_id', null)
+            else if (assigneeFilter !== 'all') q = q.eq('assignee_id', assigneeFilter)
+          } else if (user?.id) {
+            q = q.eq('assignee_id', user.id)
+          } else {
+            q = q.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
           }
+          return q
         }))
-        boardData = boardResults.sort((a, b) => b.convertedLeads - a.convertedLeads || b.callsLogged - a.callsLogged)
-      }
-      setLeaderboard(boardData)
 
-      setLoading(false)
+        const dailyCallResults = await Promise.all(last7Days.map(({ dayStart, dayEnd }) => {
+          let q = supabase.from('lead_history').select('*', { count: 'exact', head: true }).eq('event_type', 'call').gte('created_at', dayStart).lt('created_at', dayEnd)
+          if (isAdmin) {
+            if (assigneeFilter !== 'all' && assigneeFilter !== 'unassigned') {
+              q = q.eq('admin_id', assigneeFilter)
+            }
+          } else if (user?.id) {
+            q = q.eq('admin_id', user.id)
+          } else {
+            q = q.eq('admin_id', '00000000-0000-0000-0000-000000000000')
+          }
+          return q
+        }))
+
+        const dailyLeads = last7Days.map((day, i) => ({ date: day.label, count: dailyLeadResults[i].count || 0 }))
+        const dailyCalls = last7Days.map((day, i) => ({ date: day.label, count: dailyCallResults[i].count || 0 }))
+
+        // 3. Fetch names for leads in recent activity
+        const leadIds = [...new Set(history.data?.map(h => h.lead_id).filter(Boolean) || [])]
+        let activityLeads = []
+        if (leadIds.length > 0) {
+          const [bLeads, oLeads] = await Promise.all([
+            supabase.from('booking_leads').select('id, name').in('id', leadIds),
+            supabase.from('outreach_leads').select('id, name, email').in('id', leadIds)
+          ])
+          activityLeads = [...(bLeads.data || []), ...(oLeads.data || []).map(l => ({ ...l, name: l.name || l.email }))]
+        }
+
+        const totalLeadsCount = (bookings.count || 0) + (contacts.count || 0) + (outreach.count || 0)
+
+        setStats({
+          bookingLeads: bookings.count || 0,
+          contactLeads: contacts.count || 0,
+          newsletterSubs: subs.count || 0,
+          totalLeads: totalLeadsCount,
+          allLeads: [],
+          activityLeads: activityLeads
+        })
+        
+        setRecentActivity(history.data || [])
+        setDailyData({ dailyLeads, dailyCalls })
+        
+        // 4. Status distribution (Fetch ALL statuses in chunks of 1000 to bypass cap)
+        let allStatuses = []
+        let fromIdx = 0
+        const pageSize = 1000
+        let hasMore = true
+
+        while (hasMore) {
+          let statusQuery = supabase.from('outreach_leads').select('status')
+          if (isAdmin) {
+            if (assigneeFilter === 'unassigned') statusQuery = statusQuery.is('assignee_id', null)
+            else if (assigneeFilter !== 'all') statusQuery = statusQuery.eq('assignee_id', assigneeFilter)
+          } else if (user?.id) {
+            statusQuery = statusQuery.eq('assignee_id', user.id)
+          } else {
+            statusQuery = statusQuery.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
+          }
+
+          const { data: statusChunk } = await statusQuery.range(fromIdx, fromIdx + pageSize - 1)
+          
+          if (statusChunk && statusChunk.length > 0) {
+            allStatuses = [...allStatuses, ...statusChunk]
+            fromIdx += pageSize
+            if (statusChunk.length < pageSize) hasMore = false
+          } else {
+            hasMore = false
+          }
+          if (fromIdx > 50000) hasMore = false 
+        }
+
+        const dist = allStatuses.reduce((acc, lead) => {
+          acc[lead.status] = (acc[lead.status] || 0) + 1
+          return acc
+        }, {})
+        setStatusDistribution(Object.entries(dist).map(([name, value]) => ({ name, value })))
+
+        // 5. Fetch Leaderboard Data (for all salespeople)
+        let boardData = []
+        if (salespeople && salespeople.length > 0) {
+          const boardResults = await Promise.all(salespeople.map(async (sp) => {
+            const { count: totalLeads } = await supabase
+              .from('outreach_leads')
+              .select('*', { count: 'exact', head: true })
+              .eq('assignee_id', sp.id)
+
+            const { count: convertedLeads } = await supabase
+              .from('outreach_leads')
+              .select('*', { count: 'exact', head: true })
+              .eq('assignee_id', sp.id)
+              .eq('status', 'Converted')
+
+            const { count: callsLogged } = await supabase
+              .from('lead_history')
+              .select('*', { count: 'exact', head: true })
+              .eq('admin_id', sp.id)
+              .eq('event_type', 'call')
+
+            return {
+              id: sp.id,
+              name: sp.name || sp.email.split('@')[0],
+              email: sp.email,
+              role: sp.role,
+              totalLeads: totalLeads || 0,
+              convertedLeads: convertedLeads || 0,
+              callsLogged: callsLogged || 0,
+              conversionRate: totalLeads ? Math.round((convertedLeads / totalLeads) * 100) : 0
+            }
+          }))
+          boardData = boardResults.sort((a, b) => b.convertedLeads - a.convertedLeads || b.callsLogged - a.callsLogged)
+        }
+        setLeaderboard(boardData)
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err)
+      } finally {
+        setLoading(false)
+      }
     }
     fetchData()
   }, [assigneeFilter, isAdmin, user, salespeople])
