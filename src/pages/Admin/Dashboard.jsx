@@ -52,13 +52,11 @@ export default function AdminDashboard() {
             bQuery = bQuery.eq('assignee_id', user.id)
             cQuery = cQuery.eq('assignee_id', user.id)
             oQuery = oQuery.eq('assignee_id', user.id)
-            hQuery = hQuery.eq('admin_id', user.id)
           } else {
             // Empty state placeholder
             bQuery = bQuery.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
             cQuery = cQuery.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
             oQuery = oQuery.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
-            hQuery = hQuery.eq('admin_id', '00000000-0000-0000-0000-000000000000')
           }
         }
 

@@ -163,3 +163,25 @@ export default function AuthGuard({ children }) {
   )
 }
 
+function AdminRequiredGuardContent({ children }) {
+  const { isAdmin, loading } = useAdmin()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!loading && !isAdmin) {
+      navigate('/admin/dashboard')
+    }
+  }, [isAdmin, loading, navigate])
+
+  if (loading || !isAdmin) return null
+  return children
+}
+
+export function AdminGuard({ children }) {
+  return (
+    <AuthGuard>
+      <AdminRequiredGuardContent>{children}</AdminRequiredGuardContent>
+    </AuthGuard>
+  )
+}
+

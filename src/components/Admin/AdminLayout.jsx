@@ -25,19 +25,23 @@ export default function AdminLayout({ children }) {
 
   const menu = [
     { to: '/admin/dashboard', label: 'Dashboard', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg> },
-    { to: '/admin/leads', label: 'Inbound Leads', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> },
-    { to: '/admin/outreach', label: 'Outbound', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg> },
-    { 
-      to: '/admin/segments', label: 'Segments', 
-      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>,
-      children: segments.map(s => ({ to: `/admin/segments/${s.id}`, label: s.name }))
-    },
-    { to: '/admin/campaigns', label: 'Campaigns', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> },
     ...(isAdmin ? [
+      { to: '/admin/leads', label: 'Inbound Leads', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> }
+    ] : []),
+    { to: '/admin/outreach', label: 'Outbound', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg> },
+    ...(isAdmin ? [
+      { 
+        to: '/admin/segments', label: 'Segments', 
+        icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>,
+        children: segments.map(s => ({ to: `/admin/segments/${s.id}`, label: s.name }))
+      },
+      { to: '/admin/campaigns', label: 'Campaigns', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> },
       { to: '/admin/team', label: 'Team Members', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> }
     ] : []),
     { to: '/admin/deals', label: 'Deals & Revenue', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> },
-    { to: '/admin/email-settings', label: 'Email Settings', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"><circle cx="18" cy="18" r="3" fill="currentColor" stroke="none"></circle></polyline><line x1="21" y1="18" x2="23" y2="18" stroke="currentColor"></line><line x1="15" y1="18" x2="13" y2="18" stroke="currentColor"></line><line x1="18" y1="21" x2="18" y2="23" stroke="currentColor"></line><line x1="18" y1="15" x2="18" y2="13" stroke="currentColor"></line></svg> },
+    ...(isAdmin ? [
+      { to: '/admin/email-settings', label: 'Email Settings', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"><circle cx="18" cy="18" r="3" fill="currentColor" stroke="none"></circle></polyline><line x1="21" y1="18" x2="23" y2="18" stroke="currentColor"></line><line x1="15" y1="18" x2="13" y2="18" stroke="currentColor"></line><line x1="18" y1="21" x2="18" y2="23" stroke="currentColor"></line><line x1="18" y1="15" x2="18" y2="13" stroke="currentColor"></line></svg> }
+    ] : []),
   ]
 
 
@@ -126,7 +130,7 @@ export default function AdminLayout({ children }) {
               width: '36px',
               height: '36px',
               borderRadius: '50%',
-              background: profile?.role === 'admin' ? 'linear-gradient(135deg, #e91e63, #9c27b0)' : 'linear-gradient(135deg, #3b82f6, #10b981)',
+              background: profile?.role === 'admin' ? 'linear-gradient(135deg, #e91e63, #9c27b0)' : profile?.role === 'Napoleon' ? 'linear-gradient(135deg, #a855f7, #e91e63)' : 'linear-gradient(135deg, #3b82f6, #10b981)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -146,7 +150,7 @@ export default function AdminLayout({ children }) {
                 fontSize: '0.7rem', 
                 fontWeight: 800, 
                 textTransform: 'uppercase', 
-                color: profile?.role === 'admin' ? '#f06292' : '#4ade80',
+                color: profile?.role === 'admin' ? '#f06292' : profile?.role === 'Napoleon' ? '#c084fc' : '#4ade80',
                 letterSpacing: '0.05em'
               }}>
                 {profile?.role || 'salesperson'}

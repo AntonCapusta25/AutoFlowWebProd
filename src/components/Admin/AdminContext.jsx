@@ -101,7 +101,7 @@ export function AdminProvider({ children }) {
     }
   }, [refreshProfile, fetchSalespeople])
 
-  const isAdmin = profile?.role === 'admin'
+  const isAdmin = profile?.role === 'admin' || profile?.role === 'Napoleon'
 
   const value = {
     user,

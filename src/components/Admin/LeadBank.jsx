@@ -26,6 +26,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   const [showImportModal, setShowImportModal] = useState(false)
   const [importIndustry, setImportIndustry] = useState('')
   const [importTags, setImportTags] = useState('')
+  const [importAssignee, setImportAssignee] = useState('')
   const [newNote, setNewNote] = useState('')
   const [emailSentFor, setEmailSentFor] = useState(null)
   const [customEmailLead, setCustomEmailLead] = useState(null)
@@ -222,14 +223,16 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
           if (!existing) {
             const lead = leads.find(l => l.id === id) || selectedLead
-            const spName = profile?.name || profile?.email?.split('@')[0] || 'Unknown'
+            const assigneeId = lead?.assignee_id || user?.id || null
+            const assigneeProf = salespeople?.find(sp => sp.id === assigneeId) || (assigneeId === user?.id ? profile : null)
+            const spName = assigneeProf?.name || assigneeProf?.email?.split('@')[0] || 'Unknown'
             await supabase.from('deals').insert({
               lead_id: id,
               lead_type: 'outreach',
               lead_name: lead?.name || lead?.email || 'Unknown',
               lead_email: lead?.email || null,
               lead_company: lead?.company || null,
-              salesperson_id: user?.id || null,
+              salesperson_id: assigneeId,
               salesperson_name: spName,
               status: 'pipeline'
             })
@@ -494,9 +497,15 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         })
         
         if (lead.email) {
+          if (!lead.industry && importIndustry) {
+            lead.industry = importIndustry
+          }
           if (importTags) {
             const extraTags = importTags.split(',').map(t => t.trim()).filter(Boolean)
             lead.tags = extraTags
+          }
+          if (importAssignee) {
+            lead.assignee_id = importAssignee
           }
           lead.status = 'New'
           newLeads.push(lead)
@@ -1180,7 +1189,20 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
             <h2 style={{ margin: '0 0 24px', color: 'white', fontSize: '1.4rem' }}>Import CSV</h2>
             
             <input type="text" placeholder="Apply Industry to all..." value={importIndustry} onChange={e => setImportIndustry(e.target.value)} style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', marginBottom: '16px', boxSizing: 'border-box' }} />
-            <input type="text" placeholder="Apply Tags (comma separated)..." value={importTags} onChange={e => setImportTags(e.target.value)} style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', marginBottom: '24px', boxSizing: 'border-box' }} />
+            <input type="text" placeholder="Apply Tags (comma separated)..." value={importTags} onChange={e => setImportTags(e.target.value)} style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', marginBottom: '16px', boxSizing: 'border-box' }} />
+            
+            <select 
+              value={importAssignee} 
+              onChange={e => setImportAssignee(e.target.value)} 
+              style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', marginBottom: '24px', outline: 'none', cursor: 'pointer', boxSizing: 'border-box' }}
+            >
+              <option value="" style={{ background: '#0a0a0a', color: '#64748B' }}>-- Leave Unassigned --</option>
+              {salespeople.map(sp => (
+                <option key={sp.id} value={sp.id} style={{ background: '#0a0a0a', color: 'white' }}>
+                  {sp.name || sp.email.split('@')[0]} ({sp.role})
+                </option>
+              ))}
+            </select>
             
             <div 
               onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = '#e91e63' }}

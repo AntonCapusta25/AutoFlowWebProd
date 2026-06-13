@@ -45,7 +45,11 @@ export default function DealsPage() {
     if (!selectedDeal || !isAdmin) return
     setSaving(true)
     const val = parseFloat(editValue) || null
-    const commission = val ? val * COMMISSION_RATE : null
+    const spId = selectedDeal.salesperson_id
+    const spProf = salespeople.find(sp => sp.id === spId)
+    const isNapoleon = spProf?.role === 'Napoleon' || (spId === user?.id && profile?.role === 'Napoleon')
+    const rate = isNapoleon ? 0.30 : COMMISSION_RATE
+    const commission = val ? val * rate : null
     const { error } = await supabase
       .from('deals')
       .update({
@@ -154,7 +158,7 @@ export default function DealsPage() {
           <StatCard label="In Pipeline" value={deals.filter(d => d.status === 'pipeline').length} color="#e91e63" icon="📋" />
         </>) : (<>
           <StatCard label="My Revenue" value={fmt(myRevenue)} color="#10b981" icon="💰" />
-          <StatCard label="My Commission (5%)" value={fmt(myCommission)} color="#f59e0b" icon="💸" />
+          <StatCard label={`My Commission (${profile?.role === 'Napoleon' ? '30%' : '5%'})`} value={fmt(myCommission)} color="#f59e0b" icon="💸" />
           <StatCard label="My Won Deals" value={myWonDeals.length} color="#3b82f6" icon="🏆" />
         </>)}
       </div>
@@ -239,10 +243,32 @@ export default function DealsPage() {
                       <td style={{ padding: '16px 20px', color: '#64748B', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
                         {new Date(deal.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
                       </td>
-                      <td style={{ padding: '16px 20px' }}>
-                        <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700, background: sc.bg, color: sc.text, border: sc.border }}>
-                          {sc.label}
-                        </span>
+                      <td style={{ padding: '16px 20px' }} onClick={e => e.stopPropagation()}>
+                        {isAdmin ? (
+                          <select
+                            value={deal.status}
+                            onChange={(e) => updateDealStatus(deal.id, e.target.value)}
+                            style={{
+                              padding: '6px 12px',
+                              background: sc.bg,
+                              border: sc.border,
+                              borderRadius: '20px',
+                              color: sc.text,
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              outline: 'none',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            <option value="pipeline" style={{ background: '#0a0a0a', color: '#fcd34d' }}>Pipeline</option>
+                            <option value="won" style={{ background: '#0a0a0a', color: '#6ee7b7' }}>Won</option>
+                            <option value="lost" style={{ background: '#0a0a0a', color: '#fca5a5' }}>Lost</option>
+                          </select>
+                        ) : (
+                          <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700, background: sc.bg, color: sc.text, border: sc.border }}>
+                            {sc.label}
+                          </span>
+                        )}
                       </td>
                       <td style={{ padding: '16px 20px', color: deal.deal_value ? '#10b981' : '#475569', fontWeight: 700, fontSize: '0.9rem' }}>
                         {deal.deal_value ? fmt(deal.deal_value) : (isAdmin ? <span style={{ color: '#e91e63', fontSize: '0.75rem', fontWeight: 700 }}>SET PRICE ↗</span> : '—')}
@@ -328,11 +354,17 @@ export default function DealsPage() {
                   onChange={e => setEditValue(e.target.value)}
                   style={{ width: '100%', padding: '12px', background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: 'white', fontSize: '1rem', fontWeight: 700, outline: 'none', boxSizing: 'border-box' }}
                 />
-                {editValue && !isNaN(parseFloat(editValue)) && (
-                  <p style={{ margin: '8px 0 0', color: '#f59e0b', fontSize: '0.82rem', fontWeight: 600 }}>
-                    5% commission → {fmt(parseFloat(editValue) * COMMISSION_RATE)}
-                  </p>
-                )}
+                {editValue && !isNaN(parseFloat(editValue)) && (() => {
+                  const spId = selectedDeal.salesperson_id
+                  const spProf = salespeople.find(sp => sp.id === spId)
+                  const isNapoleon = spProf?.role === 'Napoleon' || (spId === user?.id && profile?.role === 'Napoleon')
+                  const rate = isNapoleon ? 0.30 : COMMISSION_RATE
+                  return (
+                    <p style={{ margin: '8px 0 0', color: '#f59e0b', fontSize: '0.82rem', fontWeight: 600 }}>
+                      {isNapoleon ? '30%' : '5%'} commission → {fmt(parseFloat(editValue) * rate)}
+                    </p>
+                  )
+                })()}
               </div>
             ) : (
               <div style={{ marginBottom: '20px' }}>
@@ -345,13 +377,25 @@ export default function DealsPage() {
 
             {/* Commission */}
             <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '14px', padding: '16px', marginBottom: '20px' }}>
-              <p style={{ margin: '0 0 4px', color: '#f59e0b', fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Your Commission (5%)</p>
-              <p style={{ margin: 0, color: 'white', fontWeight: 900, fontSize: '1.6rem' }}>
-                {selectedDeal.deal_value
-                  ? fmt(editValue && !isNaN(parseFloat(editValue)) ? parseFloat(editValue) * COMMISSION_RATE : selectedDeal.commission)
-                  : '—'
-                }
-              </p>
+              {(() => {
+                const spId = selectedDeal.salesperson_id
+                const spProf = salespeople.find(sp => sp.id === spId)
+                const isNapoleon = spProf?.role === 'Napoleon' || (spId === user?.id && profile?.role === 'Napoleon')
+                const rate = isNapoleon ? 0.30 : COMMISSION_RATE
+                return (
+                  <>
+                    <p style={{ margin: '0 0 4px', color: '#f59e0b', fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      {isAdmin ? 'Agent Commission' : 'Your Commission'} ({isNapoleon ? '30%' : '5%'})
+                    </p>
+                    <p style={{ margin: 0, color: 'white', fontWeight: 900, fontSize: '1.6rem' }}>
+                      {selectedDeal.deal_value
+                        ? fmt(editValue && !isNaN(parseFloat(editValue)) ? parseFloat(editValue) * rate : selectedDeal.commission)
+                        : '—'
+                      }
+                    </p>
+                  </>
+                )
+              })()}
             </div>
 
             {/* Admin notes */}

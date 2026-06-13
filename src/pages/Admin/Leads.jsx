@@ -4,7 +4,7 @@ import AdminLayout from '../../components/Admin/AdminLayout'
 import { useAdmin } from '../../components/Admin/AdminContext'
 
 export default function AdminLeads() {
-  const { user, isAdmin, salespeople } = useAdmin()
+  const { user, isAdmin, profile, salespeople } = useAdmin()
   const [assigneeFilter, setAssigneeFilter] = useState('all')
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
@@ -166,6 +166,36 @@ export default function AdminLeads() {
         }
       } catch (emailErr) {
         console.warn('Email send skipped:', emailErr.message)
+      }
+
+      // ── Auto-create deal when Meeting Booked ──
+      if (newStatus === 'Meeting Booked') {
+        try {
+          const { data: existing } = await supabase
+            .from('deals')
+            .select('id')
+            .eq('lead_id', id)
+            .maybeSingle()
+
+          if (!existing) {
+            const lead = leads.find(l => l.id === id) || selectedLead
+            const assigneeId = lead?.assignee_id || user?.id || null
+            const assigneeProf = salespeople?.find(sp => sp.id === assigneeId) || (assigneeId === user?.id ? profile : null)
+            const spName = assigneeProf?.name || assigneeProf?.email?.split('@')[0] || 'Unknown'
+            await supabase.from('deals').insert({
+              lead_id: id,
+              lead_type: type.toLowerCase() === 'booking' ? 'booking' : 'contact',
+              lead_name: lead?.name || lead?.email || 'Unknown',
+              lead_email: lead?.email || null,
+              lead_company: lead?.company || null,
+              salesperson_id: assigneeId,
+              salesperson_name: spName,
+              status: 'pipeline'
+            })
+          }
+        } catch (dealErr) {
+          console.warn('Deal auto-create failed:', dealErr.message)
+        }
       }
     }
     setIsActionLoading(false)

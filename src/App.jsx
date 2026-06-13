@@ -33,7 +33,7 @@ import AdminCampaigns from './pages/Admin/Campaigns'
 import AdminEmailSettings from './pages/Admin/EmailSettings'
 import AdminTeam from './pages/Admin/Team'
 import AdminDeals from './pages/Admin/Deals'
-import AuthGuard from './components/Admin/AuthGuard'
+import AuthGuard, { AdminGuard } from './components/Admin/AuthGuard'
 
 
 const Loading = () => <div style={{ minHeight: '100vh', background: '#0F1115' }} />
@@ -89,14 +89,14 @@ function AppContent() {
           {/* ── Admin routes ── */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AuthGuard><AdminDashboard /></AuthGuard>} />
-          <Route path="/admin/leads" element={<AuthGuard><AdminLeads /></AuthGuard>} />
+          <Route path="/admin/leads" element={<AdminGuard><AdminLeads /></AdminGuard>} />
           <Route path="/admin/outreach" element={<AuthGuard><AdminOutreach /></AuthGuard>} />
-          <Route path="/admin/segments" element={<AuthGuard><AdminSegments /></AuthGuard>} />
-          <Route path="/admin/segments/:id" element={<AuthGuard><AdminSegmentView /></AuthGuard>} />
-          <Route path="/admin/campaigns" element={<AuthGuard><AdminCampaigns /></AuthGuard>} />
-          <Route path="/admin/team" element={<AuthGuard><AdminTeam /></AuthGuard>} />
+          <Route path="/admin/segments" element={<AdminGuard><AdminSegments /></AdminGuard>} />
+          <Route path="/admin/segments/:id" element={<AdminGuard><AdminSegmentView /></AdminGuard>} />
+          <Route path="/admin/campaigns" element={<AdminGuard><AdminCampaigns /></AdminGuard>} />
+          <Route path="/admin/team" element={<AdminGuard><AdminTeam /></AdminGuard>} />
           <Route path="/admin/deals" element={<AuthGuard><AdminDeals /></AuthGuard>} />
-          <Route path="/admin/email-settings" element={<AuthGuard><AdminEmailSettings /></AuthGuard>} />
+          <Route path="/admin/email-settings" element={<AdminGuard><AdminEmailSettings /></AdminGuard>} />
 
           <Route path="*"                  element={<NotFound />} />
         </Routes>
