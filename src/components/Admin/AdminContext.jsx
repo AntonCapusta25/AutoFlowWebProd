@@ -65,16 +65,15 @@ export function AdminProvider({ children }) {
   useEffect(() => {
     let active = true
 
-    async function handleAuth(session) {
+    function applySession(session) {
       if (!active) return
       if (session?.user) {
         setUser(session.user)
-        setLoading(false) // Unblock UI immediately on valid session
-        // Fetch profile + salespeople in parallel in background
+        setLoading(false)
         Promise.all([
           refreshProfile(session.user.id, session.user.email),
           fetchSalespeople()
-        ]).catch(err => console.error('Background auth fetch error:', err))
+        ]).catch(err => console.error('Auth background fetch error:', err))
       } else {
         setUser(null)
         setProfile(null)
@@ -83,9 +82,17 @@ export function AdminProvider({ children }) {
       }
     }
 
-    // Single auth state change listener (invoked immediately on registration with current session)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      await handleAuth(session)
+    // getSession() waits for token refresh to complete before returning.
+    // This guarantees a fresh JWT so page queries don't hang.
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      applySession(session)
+    })
+
+    // Subscribe to subsequent auth changes (sign in, sign out, token refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        applySession(session)
+      }
     })
 
     return () => {
