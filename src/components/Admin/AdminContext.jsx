@@ -67,24 +67,19 @@ export function AdminProvider({ children }) {
 
     async function handleAuth(session) {
       if (!active) return
-      try {
-        if (session?.user) {
-          setUser(session.user)
-          // Wait for profile + salespeople before unlocking the UI.
-          // This prevents pages from firing queries before auth is fully settled.
-          const prof = await refreshProfile(session.user.id, session.user.email)
-          if (active) {
-            await fetchSalespeople()
-          }
-        } else {
-          setUser(null)
-          setProfile(null)
-          setSalespeople([])
-        }
-      } catch (err) {
-        console.error('Error checking user session:', err)
-      } finally {
-        if (active) setLoading(false)
+      if (session?.user) {
+        setUser(session.user)
+        setLoading(false) // Unblock UI immediately on valid session
+        // Fetch profile + salespeople in parallel in background
+        Promise.all([
+          refreshProfile(session.user.id, session.user.email),
+          fetchSalespeople()
+        ]).catch(err => console.error('Background auth fetch error:', err))
+      } else {
+        setUser(null)
+        setProfile(null)
+        setSalespeople([])
+        setLoading(false)
       }
     }
 
