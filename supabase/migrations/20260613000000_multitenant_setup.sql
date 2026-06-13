@@ -75,7 +75,7 @@ alter table public.segments add column if not exists creator_id uuid references 
 alter table public.profiles enable row level security;
 
 drop policy if exists "Allow select for self or admins" on public.profiles;
-create policy "Allow select for self or admins" on public.profiles for select to authenticated using (auth.uid() = id or public.is_admin());
+create policy "Allow select for all authenticated" on public.profiles for select to authenticated using (true);
 
 drop policy if exists "Allow update for self or admins" on public.profiles;
 create policy "Allow update for self or admins" on public.profiles for update to authenticated using (auth.uid() = id or public.is_admin());

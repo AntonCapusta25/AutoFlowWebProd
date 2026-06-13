@@ -4,7 +4,7 @@ import AdminLayout from '../../components/Admin/AdminLayout'
 import { useAdmin } from '../../components/Admin/AdminContext'
 
 export default function AdminDashboard() {
-  const { isAdmin, salespeople } = useAdmin()
+  const { user, isAdmin, salespeople } = useAdmin()
   const [assigneeFilter, setAssigneeFilter] = useState('all')
   const [stats, setStats] = useState({ 
     totalLeads: 0, 
@@ -20,6 +20,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('activity')
   const [dailyData, setDailyData] = useState({ dailyLeads: [], dailyCalls: [] })
   const [statusDistribution, setStatusDistribution] = useState([])
+  const [leaderboard, setLeaderboard] = useState([])
 
   useEffect(() => {
     async function fetchData() {
@@ -42,7 +43,7 @@ export default function AdminDashboard() {
       let subsQuery = supabase.from('newsletter_subs').select('*', { count: 'exact', head: true })
       let hQuery = supabase.from('lead_history').select('*').order('created_at', { ascending: false }).limit(20)
 
-      // Apply assignee filters if user is admin and not querying 'all'
+      // Apply assignee filters
       if (isAdmin) {
         if (assigneeFilter === 'unassigned') {
           bQuery = bQuery.is('assignee_id', null)
@@ -52,6 +53,19 @@ export default function AdminDashboard() {
           bQuery = bQuery.eq('assignee_id', assigneeFilter)
           cQuery = cQuery.eq('assignee_id', assigneeFilter)
           oQuery = oQuery.eq('assignee_id', assigneeFilter)
+        }
+      } else {
+        if (user?.id) {
+          bQuery = bQuery.eq('assignee_id', user.id)
+          cQuery = cQuery.eq('assignee_id', user.id)
+          oQuery = oQuery.eq('assignee_id', user.id)
+          hQuery = hQuery.eq('admin_id', user.id)
+        } else {
+          // Empty state placeholder
+          bQuery = bQuery.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
+          cQuery = cQuery.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
+          oQuery = oQuery.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
+          hQuery = hQuery.eq('admin_id', '00000000-0000-0000-0000-000000000000')
         }
       }
 
@@ -67,15 +81,27 @@ export default function AdminDashboard() {
       // 2. Parallel Daily Counts
       const dailyLeadResults = await Promise.all(last7Days.map(({ dayStart, dayEnd }) => {
         let q = supabase.from('outreach_leads').select('*', { count: 'exact', head: true }).gte('created_at', dayStart).lt('created_at', dayEnd)
-        if (isAdmin && assigneeFilter === 'unassigned') q = q.is('assignee_id', null)
-        else if (isAdmin && assigneeFilter !== 'all') q = q.eq('assignee_id', assigneeFilter)
+        if (isAdmin) {
+          if (assigneeFilter === 'unassigned') q = q.is('assignee_id', null)
+          else if (assigneeFilter !== 'all') q = q.eq('assignee_id', assigneeFilter)
+        } else if (user?.id) {
+          q = q.eq('assignee_id', user.id)
+        } else {
+          q = q.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
+        }
         return q
       }))
 
       const dailyCallResults = await Promise.all(last7Days.map(({ dayStart, dayEnd }) => {
         let q = supabase.from('lead_history').select('*', { count: 'exact', head: true }).eq('event_type', 'call').gte('created_at', dayStart).lt('created_at', dayEnd)
-        if (isAdmin && assigneeFilter !== 'all' && assigneeFilter !== 'unassigned') {
-          q = q.eq('admin_id', assigneeFilter)
+        if (isAdmin) {
+          if (assigneeFilter !== 'all' && assigneeFilter !== 'unassigned') {
+            q = q.eq('admin_id', assigneeFilter)
+          }
+        } else if (user?.id) {
+          q = q.eq('admin_id', user.id)
+        } else {
+          q = q.eq('admin_id', '00000000-0000-0000-0000-000000000000')
         }
         return q
       }))
@@ -116,8 +142,14 @@ export default function AdminDashboard() {
 
       while (hasMore) {
         let statusQuery = supabase.from('outreach_leads').select('status')
-        if (isAdmin && assigneeFilter === 'unassigned') statusQuery = statusQuery.is('assignee_id', null)
-        else if (isAdmin && assigneeFilter !== 'all') statusQuery = statusQuery.eq('assignee_id', assigneeFilter)
+        if (isAdmin) {
+          if (assigneeFilter === 'unassigned') statusQuery = statusQuery.is('assignee_id', null)
+          else if (assigneeFilter !== 'all') statusQuery = statusQuery.eq('assignee_id', assigneeFilter)
+        } else if (user?.id) {
+          statusQuery = statusQuery.eq('assignee_id', user.id)
+        } else {
+          statusQuery = statusQuery.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
+        }
 
         const { data: statusChunk } = await statusQuery.range(fromIdx, fromIdx + pageSize - 1)
         
@@ -137,10 +169,46 @@ export default function AdminDashboard() {
       }, {})
       setStatusDistribution(Object.entries(dist).map(([name, value]) => ({ name, value })))
 
+      // 5. Fetch Leaderboard Data (for all salespeople)
+      let boardData = []
+      if (salespeople && salespeople.length > 0) {
+        const boardResults = await Promise.all(salespeople.map(async (sp) => {
+          const { count: totalLeads } = await supabase
+            .from('outreach_leads')
+            .select('*', { count: 'exact', head: true })
+            .eq('assignee_id', sp.id)
+
+          const { count: convertedLeads } = await supabase
+            .from('outreach_leads')
+            .select('*', { count: 'exact', head: true })
+            .eq('assignee_id', sp.id)
+            .eq('status', 'Converted')
+
+          const { count: callsLogged } = await supabase
+            .from('lead_history')
+            .select('*', { count: 'exact', head: true })
+            .eq('admin_id', sp.id)
+            .eq('event_type', 'call')
+
+          return {
+            id: sp.id,
+            name: sp.name || sp.email.split('@')[0],
+            email: sp.email,
+            role: sp.role,
+            totalLeads: totalLeads || 0,
+            convertedLeads: convertedLeads || 0,
+            callsLogged: callsLogged || 0,
+            conversionRate: totalLeads ? Math.round((convertedLeads / totalLeads) * 100) : 0
+          }
+        }))
+        boardData = boardResults.sort((a, b) => b.convertedLeads - a.convertedLeads || b.callsLogged - a.callsLogged)
+      }
+      setLeaderboard(boardData)
+
       setLoading(false)
     }
     fetchData()
-  }, [assigneeFilter, isAdmin])
+  }, [assigneeFilter, isAdmin, user, salespeople])
 
   const StatCard = ({ title, value, icon, color }) => (
     <div style={{ 
@@ -267,8 +335,33 @@ export default function AdminDashboard() {
       {loading ? (
         <div style={{ height: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8' }}>
           <div style={{ textAlign: 'center' }}>
-            <div className="shimmer" style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#e91e63', margin: '0 auto 16px' }} />
-            <p style={{ fontWeight: 600, letterSpacing: '0.05em' }}>PREPARING DASHBOARD...</p>
+            <style>{`
+              @keyframes dash-bar-sweep {
+                0% { left: -40%; width: 30%; }
+                50% { width: 45%; }
+                100% { left: 110%; width: 30%; }
+              }
+            `}</style>
+            <div style={{
+              width: '160px',
+              height: '4px',
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '10px',
+              overflow: 'hidden',
+              position: 'relative',
+              margin: '0 auto 16px'
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                height: '100%',
+                background: 'linear-gradient(90deg, transparent, #e91e63, #9c27b0, transparent)',
+                borderRadius: '10px',
+                animation: 'dash-bar-sweep 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite'
+              }} />
+            </div>
+            <p style={{ fontWeight: 600, fontSize: '0.8rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#64748B' }}>PREPARING DASHBOARD...</p>
           </div>
         </div>
       ) : (
@@ -300,7 +393,7 @@ export default function AdminDashboard() {
               )}
 
               <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', padding: '6px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                {['activity', 'growth', 'analytics'].map(tab => (
+                {['activity', 'growth', 'analytics', 'leaderboard'].map(tab => (
                   <button 
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -354,7 +447,9 @@ export default function AdminDashboard() {
                           <p style={{ margin: 0, color: '#94A3B8', fontSize: '0.9rem' }}>{item.content}</p>
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                          <p style={{ margin: 0, color: '#475569', fontSize: '0.8rem', fontWeight: 600 }}>{new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                          <p style={{ margin: 0, color: '#475569', fontSize: '0.8rem', fontWeight: 600 }}>
+                            {new Date(item.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })} at {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </p>
                         </div>
                       </div>
                     )
@@ -381,6 +476,62 @@ export default function AdminDashboard() {
                   <div style={{ display: 'flex', justifyContent: 'center' }}>
                     <PieChart data={statusDistribution} />
                   </div>
+                </div>
+              )}
+
+              {activeTab === 'leaderboard' && (
+                <div style={{ background: 'rgba(255,255,255,0.01)', padding: '32px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                  <h4 style={{ color: 'white', marginBottom: '24px', fontSize: '1.2rem', fontWeight: 800 }}>Team Leaderboard</h4>
+                  {leaderboard.length === 0 ? (
+                    <p style={{ color: '#64748B', fontSize: '0.9rem', textAlign: 'center', padding: '20px' }}>No salespeople stats available.</p>
+                  ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', color: '#94A3B8', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            <th style={{ padding: '12px 10px', fontWeight: 600 }}>Rank</th>
+                            <th style={{ padding: '12px 10px', fontWeight: 600 }}>Agent Name</th>
+                            <th style={{ padding: '12px 10px', fontWeight: 600 }}>Total Leads</th>
+                            <th style={{ padding: '12px 10px', fontWeight: 600 }}>Converted Leads</th>
+                            <th style={{ padding: '12px 10px', fontWeight: 600 }}>Calls Logged</th>
+                            <th style={{ padding: '12px 10px', fontWeight: 600 }}>Conversion Rate</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {leaderboard.map((item, idx) => {
+                            const isCurrentUser = item.id === user?.id
+                            return (
+                              <tr key={item.id} style={{ 
+                                borderBottom: '1px solid rgba(255,255,255,0.04)', 
+                                fontSize: '0.9rem', 
+                                background: isCurrentUser ? 'rgba(233, 30, 99, 0.05)' : 'transparent',
+                                fontWeight: isCurrentUser ? 700 : 500,
+                                transition: 'all 0.2s'
+                              }}>
+                                <td style={{ padding: '16px 10px', fontSize: '1.1rem', color: idx === 0 ? '#fbbf24' : idx === 1 ? '#cbd5e1' : idx === 2 ? '#cd7f32' : '#64748B' }}>
+                                  {idx === 0 ? '🏆 1' : idx === 1 ? '🥈 2' : idx === 2 ? '🥉 3' : `${idx + 1}`}
+                                </td>
+                                <td style={{ padding: '16px 10px', color: isCurrentUser ? '#e91e63' : 'white' }}>
+                                  {item.name} {isCurrentUser && <span style={{ fontSize: '0.7rem', background: '#e91e63', color: 'white', padding: '2px 8px', borderRadius: '20px', marginLeft: '8px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>You</span>}
+                                </td>
+                                <td style={{ padding: '16px 10px', color: '#cbd5e1' }}>{item.totalLeads}</td>
+                                <td style={{ padding: '16px 10px', color: '#10b981', fontWeight: 700 }}>{item.convertedLeads}</td>
+                                <td style={{ padding: '16px 10px', color: '#3b82f6' }}>{item.callsLogged}</td>
+                                <td style={{ padding: '16px 10px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <span style={{ color: '#e91e63', fontWeight: 700, width: '40px' }}>{item.conversionRate}%</span>
+                                    <div style={{ width: '80px', height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden' }}>
+                                      <div style={{ width: `${item.conversionRate}%`, height: '100%', background: 'linear-gradient(90deg, #e91e63, #9c27b0)', borderRadius: '10px' }} />
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

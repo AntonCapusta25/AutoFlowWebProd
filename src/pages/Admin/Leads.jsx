@@ -4,7 +4,7 @@ import AdminLayout from '../../components/Admin/AdminLayout'
 import { useAdmin } from '../../components/Admin/AdminContext'
 
 export default function AdminLeads() {
-  const { isAdmin, salespeople } = useAdmin()
+  const { user, isAdmin, salespeople } = useAdmin()
   const [assigneeFilter, setAssigneeFilter] = useState('all')
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
@@ -17,7 +17,7 @@ export default function AdminLeads() {
 
   useEffect(() => {
     fetchLeads()
-  }, [assigneeFilter, isAdmin])
+  }, [assigneeFilter, isAdmin, user])
 
   useEffect(() => {
     if (selectedLead) {
@@ -38,6 +38,15 @@ export default function AdminLeads() {
       } else if (assigneeFilter !== 'all') {
         bookingsQuery = bookingsQuery.eq('assignee_id', assigneeFilter)
         contactsQuery = contactsQuery.eq('assignee_id', assigneeFilter)
+      }
+    } else {
+      if (user?.id) {
+        bookingsQuery = bookingsQuery.eq('assignee_id', user.id)
+        contactsQuery = contactsQuery.eq('assignee_id', user.id)
+      } else {
+        // Fallback: don't load any leads if user is not resolved yet
+        bookingsQuery = bookingsQuery.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
+        contactsQuery = contactsQuery.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
       }
     }
 

@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { useAdmin } from './AdminContext'
 
 export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle = "Manage your leads." }) {
-  const { isAdmin, salespeople } = useAdmin()
+  const { user, isAdmin, salespeople } = useAdmin()
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedLead, setSelectedLead] = useState(null)
@@ -75,12 +75,19 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         query = query.or(`name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,company.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%`)
       }
 
-      // Apply Assignee Filter (admin only)
+      // Apply Assignee Filter
       if (isAdmin) {
         if (assigneeFilter === 'unassigned') {
           query = query.is('assignee_id', null)
         } else if (assigneeFilter !== 'all') {
           query = query.eq('assignee_id', assigneeFilter)
+        }
+      } else {
+        if (user?.id) {
+          query = query.eq('assignee_id', user.id)
+        } else {
+          // Fallback: don't load any leads if user is not resolved yet
+          query = query.eq('assignee_id', '00000000-0000-0000-0000-000000000000')
         }
       }
 
@@ -102,7 +109,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
   useEffect(() => {
     fetchLeads(0)
-  }, [searchTerm, statusFilter, assigneeFilter, tableIndustryFilter, tableTagFilter, JSON.stringify(filters)])
+  }, [searchTerm, statusFilter, assigneeFilter, tableIndustryFilter, tableTagFilter, JSON.stringify(filters), user])
 
   useEffect(() => {
     async function fetchFilterOptions() {

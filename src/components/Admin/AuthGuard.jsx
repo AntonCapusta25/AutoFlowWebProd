@@ -73,18 +73,7 @@ function AuthGuardContent({ children }) {
           }
         `}</style>
 
-        {/* Ambient Glowing Background */}
-        <div style={{
-          position: 'absolute',
-          width: '500px',
-          height: '500px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(233, 30, 99, 0.12) 0%, rgba(156, 39, 176, 0.04) 50%, transparent 100%)',
-          filter: 'blur(50px)',
-          zIndex: 0,
-          pointerEvents: 'none',
-          animation: 'glow-pulse 4s ease-in-out infinite'
-        }} />
+
 
         {/* Loading Content */}
         <div style={{ textAlign: 'center', zIndex: 1, position: 'relative' }}>

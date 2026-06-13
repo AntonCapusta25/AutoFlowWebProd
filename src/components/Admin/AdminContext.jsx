@@ -48,11 +48,7 @@ export function AdminProvider({ children }) {
     return null
   }, [])
 
-  const fetchSalespeople = useCallback(async (isAdmin) => {
-    if (!isAdmin) {
-      setSalespeople([])
-      return
-    }
+  const fetchSalespeople = useCallback(async () => {
     try {
       const { data } = await supabase
         .from('profiles')
@@ -72,24 +68,22 @@ export function AdminProvider({ children }) {
     async function handleAuth(session) {
       if (!active) return
       try {
-        setLoading(true)
         if (session?.user) {
           setUser(session.user)
+          setLoading(false) // Immediately show dashboard to logged-in user
           const prof = await refreshProfile(session.user.id, session.user.email)
-          if (prof && active) {
-            await fetchSalespeople(prof.role === 'admin')
+          if (active) {
+            await fetchSalespeople()
           }
         } else {
           setUser(null)
           setProfile(null)
           setSalespeople([])
+          setLoading(false)
         }
       } catch (err) {
         console.error('Error checking user session:', err)
-      } finally {
-        if (active) {
-          setLoading(false)
-        }
+        setLoading(false)
       }
     }
 
@@ -112,8 +106,8 @@ export function AdminProvider({ children }) {
     isAdmin,
     salespeople,
     loading,
-    refreshProfile: () => refreshProfile(user?.id),
-    refreshSalespeople: () => fetchSalespeople(isAdmin)
+    refreshProfile: () => refreshProfile(user?.id, user?.email),
+    refreshSalespeople: () => fetchSalespeople()
   }
 
   return (
