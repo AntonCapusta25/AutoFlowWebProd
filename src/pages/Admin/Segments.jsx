@@ -17,9 +17,22 @@ export default function AdminSegments() {
 
   async function fetchSegments() {
     setLoading(true)
-    const { data, error } = await supabase.from('segments').select('*').order('created_at', { ascending: false })
-    if (!error) setSegments(data || [])
-    setLoading(false)
+    try {
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 8000)
+      const { data, error } = await supabase
+        .from('segments')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .abortSignal(controller.signal)
+      clearTimeout(timeout)
+      if (error) throw error
+      setSegments(data || [])
+    } catch (err) {
+      console.error('Error fetching segments:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function handleCreate(e) {
