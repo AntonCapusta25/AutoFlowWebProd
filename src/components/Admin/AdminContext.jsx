@@ -70,7 +70,8 @@ export function AdminProvider({ children }) {
       try {
         if (session?.user) {
           setUser(session.user)
-          setLoading(false) // Immediately show dashboard to logged-in user
+          // Wait for profile + salespeople before unlocking the UI.
+          // This prevents pages from firing queries before auth is fully settled.
           const prof = await refreshProfile(session.user.id, session.user.email)
           if (active) {
             await fetchSalespeople()
@@ -79,11 +80,11 @@ export function AdminProvider({ children }) {
           setUser(null)
           setProfile(null)
           setSalespeople([])
-          setLoading(false)
         }
       } catch (err) {
         console.error('Error checking user session:', err)
-        setLoading(false)
+      } finally {
+        if (active) setLoading(false)
       }
     }
 
