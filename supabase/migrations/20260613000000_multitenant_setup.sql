@@ -75,6 +75,7 @@ alter table public.segments add column if not exists creator_id uuid references 
 alter table public.profiles enable row level security;
 
 drop policy if exists "Allow select for self or admins" on public.profiles;
+drop policy if exists "Allow select for all authenticated" on public.profiles;
 create policy "Allow select for all authenticated" on public.profiles for select to authenticated using (true);
 
 drop policy if exists "Allow update for self or admins" on public.profiles;
@@ -103,6 +104,10 @@ create policy "admin delete booking_leads" on public.booking_leads for delete to
 
 -- ── outreach_leads Policies ──
 drop policy if exists "admin manage outreach_leads" on public.outreach_leads;
+drop policy if exists "authenticated select outreach_leads" on public.outreach_leads;
+drop policy if exists "authenticated update outreach_leads" on public.outreach_leads;
+drop policy if exists "authenticated delete outreach_leads" on public.outreach_leads;
+drop policy if exists "authenticated insert outreach_leads" on public.outreach_leads;
 
 create policy "authenticated select outreach_leads" on public.outreach_leads for select to authenticated using (public.is_admin() or assignee_id = auth.uid());
 create policy "authenticated update outreach_leads" on public.outreach_leads for update to authenticated using (public.is_admin() or assignee_id = auth.uid());
@@ -111,6 +116,9 @@ create policy "authenticated insert outreach_leads" on public.outreach_leads for
 
 -- ── lead_history Policies ──
 drop policy if exists "admin manage lead_history" on public.lead_history;
+drop policy if exists "authenticated select lead_history" on public.lead_history;
+drop policy if exists "authenticated insert lead_history" on public.lead_history;
+drop policy if exists "authenticated delete lead_history" on public.lead_history;
 
 create policy "authenticated select lead_history" on public.lead_history for select to authenticated using (
   public.is_admin() or
@@ -130,6 +138,9 @@ create policy "authenticated delete lead_history" on public.lead_history for del
 
 -- ── outreach_emails Policies ──
 drop policy if exists "admin manage outreach_emails" on public.outreach_emails;
+drop policy if exists "authenticated select outreach_emails" on public.outreach_emails;
+drop policy if exists "authenticated insert outreach_emails" on public.outreach_emails;
+drop policy if exists "authenticated delete outreach_emails" on public.outreach_emails;
 
 create policy "authenticated select outreach_emails" on public.outreach_emails for select to authenticated using (
   public.is_admin() or
@@ -145,6 +156,10 @@ create policy "authenticated delete outreach_emails" on public.outreach_emails f
 
 -- ── campaigns Policies ──
 drop policy if exists "admin manage campaigns" on public.campaigns;
+drop policy if exists "authenticated select campaigns" on public.campaigns;
+drop policy if exists "authenticated insert campaigns" on public.campaigns;
+drop policy if exists "authenticated update campaigns" on public.campaigns;
+drop policy if exists "authenticated delete campaigns" on public.campaigns;
 
 create policy "authenticated select campaigns" on public.campaigns for select to authenticated using (public.is_admin() or creator_id = auth.uid());
 create policy "authenticated insert campaigns" on public.campaigns for insert to authenticated with check (public.is_admin() or creator_id = auth.uid());
@@ -153,6 +168,10 @@ create policy "authenticated delete campaigns" on public.campaigns for delete to
 
 -- ── segments Policies ──
 drop policy if exists "admin manage segments" on public.segments;
+drop policy if exists "authenticated select segments" on public.segments;
+drop policy if exists "authenticated insert segments" on public.segments;
+drop policy if exists "authenticated update segments" on public.segments;
+drop policy if exists "authenticated delete segments" on public.segments;
 
 create policy "authenticated select segments" on public.segments for select to authenticated using (public.is_admin() or creator_id = auth.uid());
 create policy "authenticated insert segments" on public.segments for insert to authenticated with check (public.is_admin() or creator_id = auth.uid());
