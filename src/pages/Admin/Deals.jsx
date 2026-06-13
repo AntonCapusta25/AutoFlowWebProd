@@ -147,14 +147,14 @@ export default function DealsPage() {
       </div>
 
       {/* ── Stat Cards ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: isAdmin ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)', gap: '20px', marginBottom: '40px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isAdmin ? 'repeat(5, 1fr)' : 'repeat(2, 1fr)', gap: '20px', marginBottom: '40px' }}>
         {isAdmin ? (<>
           <StatCard label="Total Revenue" value={fmt(totalRevenue)} color="#10b981" icon="💰" />
           <StatCard label="Total Commissions" value={fmt(totalCommissions)} color="#f59e0b" icon="🤝" />
-          <StatCard label="Won Deals" value={wonDeals.length} color="#3b82f6" icon="🏆" />
+          <StatCard label="Net Profit (House Share)" value={fmt(totalRevenue - totalCommissions)} color="#3b82f6" icon="🏦" />
+          <StatCard label="Won Deals" value={wonDeals.length} color="#a855f7" icon="🏆" />
           <StatCard label="In Pipeline" value={deals.filter(d => d.status === 'pipeline').length} color="#e91e63" icon="📋" />
         </>) : (<>
-          <StatCard label="My Revenue" value={fmt(myRevenue)} color="#10b981" icon="💰" />
           <StatCard label={`My Commission (${profile?.role === 'Napoleon' ? '30%' : '5%'})`} value={fmt(myCommission)} color="#f59e0b" icon="💸" />
           <StatCard label="My Won Deals" value={myWonDeals.length} color="#3b82f6" icon="🏆" />
         </>)}
@@ -163,23 +163,43 @@ export default function DealsPage() {
       {/* ── Admin Employee Breakdown ── */}
       {isAdmin && employeeStats.length > 0 && (
         <div style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '32px', marginBottom: '32px' }}>
-          <h3 style={{ color: 'white', margin: '0 0 24px', fontWeight: 800, fontSize: '1.1rem' }}>Revenue by Agent</h3>
+          <h3 style={{ color: 'white', margin: '0 0 24px', fontWeight: 800, fontSize: '1.1rem' }}>Commission Distribution</h3>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr 120px 150px 150px', gap: '16px', marginBottom: '12px', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '8px' }}>
+            <span style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>Agent</span>
+            <span style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }} />
+            <span style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', textAlign: 'right' }}>Revenue</span>
+            <span style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', textAlign: 'right' }}>Commission</span>
+            <span style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', textAlign: 'right' }}>House Net</span>
+          </div>
+
           <div style={{ display: 'grid', gap: '12px' }}>
             {employeeStats.map((sp, i) => {
               const maxRev = employeeStats[0].revenue || 1
+              const isNap = sp.role === 'Napoleon'
               return (
-                <div key={sp.id} style={{ display: 'grid', gridTemplateColumns: '160px 1fr 120px 120px', alignItems: 'center', gap: '16px' }}>
+                <div key={sp.id} style={{ display: 'grid', gridTemplateColumns: '150px 1fr 120px 150px 150px', alignItems: 'center', gap: '16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #e91e63, #9c27b0)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, color: 'white', flexShrink: 0 }}>
+                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: isNap ? 'linear-gradient(135deg, #a855f7, #e91e63)' : 'linear-gradient(135deg, #e91e63, #9c27b0)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, color: 'white', flexShrink: 0 }}>
                       {(sp.name || sp.email || '?').charAt(0).toUpperCase()}
                     </div>
-                    <span style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sp.name || sp.email?.split('@')[0]}</span>
+                    <span style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {sp.name || sp.email?.split('@')[0]}
+                      <span style={{ fontSize: '0.65rem', color: isNap ? '#c084fc' : '#64748B', marginLeft: '6px', textTransform: 'uppercase', fontWeight: 800 }}>
+                        {sp.role}
+                      </span>
+                    </span>
                   </div>
                   <div style={{ height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden' }}>
-                    <div style={{ width: `${(sp.revenue / maxRev) * 100}%`, height: '100%', background: 'linear-gradient(90deg, #e91e63, #9c27b0)', borderRadius: '10px', transition: 'width 0.6s ease' }} />
+                    <div style={{ width: `${(sp.revenue / maxRev) * 100}%`, height: '100%', background: isNap ? 'linear-gradient(90deg, #a855f7, #e91e63)' : 'linear-gradient(90deg, #e91e63, #9c27b0)', borderRadius: '10px', transition: 'width 0.6s ease' }} />
                   </div>
                   <span style={{ color: '#10b981', fontWeight: 700, fontSize: '0.9rem', textAlign: 'right' }}>{fmt(sp.revenue)}</span>
-                  <span style={{ color: '#f59e0b', fontWeight: 600, fontSize: '0.85rem', textAlign: 'right' }}>+{fmt(sp.commission)}</span>
+                  <span style={{ color: '#f59e0b', fontWeight: 600, fontSize: '0.85rem', textAlign: 'right' }}>
+                    +{fmt(sp.commission)} <span style={{ fontSize: '0.7rem', color: '#64748B' }}>({isNap ? '30%' : '5%'})</span>
+                  </span>
+                  <span style={{ color: '#3b82f6', fontWeight: 600, fontSize: '0.85rem', textAlign: 'right' }}>
+                    +{fmt(sp.revenue - sp.commission)} <span style={{ fontSize: '0.7rem', color: '#64748B' }}>({isNap ? '70%' : '95%'})</span>
+                  </span>
                 </div>
               )
             })}
