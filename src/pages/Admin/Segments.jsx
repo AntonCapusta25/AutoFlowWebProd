@@ -116,9 +116,27 @@ export default function AdminSegments() {
         </div>
       )}
 
+      <style>{`
+        @keyframes shimmer {
+          0% { background-position: -400px 0; }
+          100% { background-position: 400px 0; }
+        }
+        .seg-skeleton {
+          background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 75%);
+          background-size: 400px 100%;
+          animation: shimmer 1.6s infinite;
+          border-radius: 8px;
+        }
+      `}</style>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '24px' }}>
         {loading ? (
-          <p style={{ color: '#94A3B8' }}>Loading segments...</p>
+          [1,2,3].map(i => (
+            <div key={i} style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className="seg-skeleton" style={{ height: '22px', width: '60%' }} />
+              <div className="seg-skeleton" style={{ height: '14px', width: '40%' }} />
+              <div className="seg-skeleton" style={{ height: '40px', borderRadius: '12px', marginTop: '16px' }} />
+            </div>
+          ))
         ) : segments.length === 0 ? (
           <p style={{ color: '#64748B' }}>No segments created yet. Build one to target specific leads.</p>
         ) : segments.map(seg => (

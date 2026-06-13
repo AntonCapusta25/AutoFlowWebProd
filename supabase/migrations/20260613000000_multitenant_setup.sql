@@ -173,7 +173,9 @@ drop policy if exists "authenticated insert segments" on public.segments;
 drop policy if exists "authenticated update segments" on public.segments;
 drop policy if exists "authenticated delete segments" on public.segments;
 
-create policy "authenticated select segments" on public.segments for select to authenticated using (public.is_admin() or creator_id = auth.uid());
+-- All authenticated users can view all segments (shared team resource)
+create policy "authenticated select segments" on public.segments for select to authenticated using (true);
 create policy "authenticated insert segments" on public.segments for insert to authenticated with check (public.is_admin() or creator_id = auth.uid());
 create policy "authenticated update segments" on public.segments for update to authenticated using (public.is_admin() or creator_id = auth.uid());
 create policy "authenticated delete segments" on public.segments for delete to authenticated using (public.is_admin());
+
