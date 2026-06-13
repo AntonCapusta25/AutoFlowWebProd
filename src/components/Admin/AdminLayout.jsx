@@ -8,7 +8,7 @@ export default function AdminLayout({ children }) {
   const navigate = useNavigate()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [segments, setSegments] = useState([])
-  const { profile, isAdmin } = useAdmin()
+  const { profile, isAdmin, isImpersonating, stopImpersonating } = useAdmin()
 
   useEffect(() => {
     async function fetchSegments() {
@@ -46,7 +46,83 @@ export default function AdminLayout({ children }) {
 
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#050505', color: '#F8FAFC' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#050505', color: '#F8FAFC' }}>
+      {isImpersonating && (
+        <div style={{
+          background: 'linear-gradient(90deg, #9c27b0, #e91e63)',
+          color: 'white',
+          padding: '12px 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
+          boxShadow: '0 4px 20px rgba(233, 30, 99, 0.15)',
+          zIndex: 1000,
+          fontFamily: "'Space Grotesk', 'Inter', sans-serif"
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{
+              background: 'rgba(255,255,255,0.2)',
+              borderRadius: '50%',
+              width: '28px',
+              height: '28px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <span style={{ fontSize: '0.9rem', fontWeight: 600, letterSpacing: '0.01em' }}>
+              Impersonating salesperson: <strong style={{ textDecoration: 'underline' }}>{profile?.name || 'No Name'}</strong> ({profile?.email}) &bull; <span style={{ opacity: 0.9 }}>Views and queries are restricted to their profile.</span>
+            </span>
+          </div>
+          <button 
+            onClick={stopImpersonating}
+            style={{
+              background: 'rgba(255, 255, 255, 0.12)',
+              border: '1px solid rgba(255, 255, 255, 0.4)',
+              color: 'white',
+              padding: '8px 18px',
+              borderRadius: '20px',
+              fontWeight: 700,
+              fontSize: '0.75rem',
+              cursor: 'pointer',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+            }}
+            onMouseOver={e => {
+              e.currentTarget.style.background = 'white'
+              e.currentTarget.style.color = '#e91e63'
+              e.currentTarget.style.transform = 'translateY(-1px)'
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+            }}
+            onMouseOut={e => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)'
+              e.currentTarget.style.color = 'white'
+              e.currentTarget.style.transform = 'none'
+              e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)'
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            Exit Impersonation
+          </button>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', flex: 1 }}>
       {/* Sidebar */}
       <aside style={{ 
         width: isCollapsed ? '80px' : '260px', background: '#0a0a0a', borderRight: '1px solid rgba(255, 255, 255, 0.1)', 
@@ -178,6 +254,7 @@ export default function AdminLayout({ children }) {
       <main style={{ flex: 1, padding: '40px', overflowY: 'auto' }}>
         {children}
       </main>
+      </div>
     </div>
   )
 }

@@ -8,6 +8,32 @@ export function AdminProvider({ children }) {
   const [profile, setProfile] = useState(null)
   const [salespeople, setSalespeople] = useState([])
   const [loading, setLoading] = useState(true)
+  const [impersonatedProfile, setImpersonatedProfile] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem('autoflow_impersonated_profile')
+      return stored ? JSON.parse(stored) : null
+    } catch {
+      return null
+    }
+  })
+
+  const impersonate = useCallback((prof) => {
+    setImpersonatedProfile(prof)
+    try {
+      sessionStorage.setItem('autoflow_impersonated_profile', JSON.stringify(prof))
+    } catch (e) {
+      console.error('Failed to save impersonated profile:', e)
+    }
+  }, [])
+
+  const stopImpersonating = useCallback(() => {
+    setImpersonatedProfile(null)
+    try {
+      sessionStorage.removeItem('autoflow_impersonated_profile')
+    } catch (e) {
+      console.error('Failed to remove impersonated profile:', e)
+    }
+  }, [])
 
   const refreshProfile = useCallback(async (userId, email) => {
     if (!userId) return null
@@ -65,20 +91,29 @@ export function AdminProvider({ children }) {
   useEffect(() => {
     let active = true
 
-    function applySession(session) {
+    async function applySession(session) {
       if (!active) return
       if (session?.user) {
         setUser(session.user)
-        setLoading(false)
-        Promise.all([
-          refreshProfile(session.user.id, session.user.email),
-          fetchSalespeople()
-        ]).catch(err => console.error('Auth background fetch error:', err))
+        try {
+          await Promise.all([
+            refreshProfile(session.user.id, session.user.email),
+            fetchSalespeople()
+          ])
+        } catch (err) {
+          console.error('Auth background fetch error:', err)
+        } finally {
+          setLoading(false)
+        }
       } else {
         setUser(null)
         setProfile(null)
         setSalespeople([])
         setLoading(false)
+        setImpersonatedProfile(null)
+        try {
+          sessionStorage.removeItem('autoflow_impersonated_profile')
+        } catch {}
       }
     }
 
@@ -90,6 +125,12 @@ export function AdminProvider({ children }) {
 
     // Subscribe to subsequent auth changes (sign in, sign out, token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setImpersonatedProfile(null)
+        try {
+          sessionStorage.removeItem('autoflow_impersonated_profile')
+        } catch {}
+      }
       if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
         applySession(session)
       }
@@ -101,15 +142,30 @@ export function AdminProvider({ children }) {
     }
   }, [refreshProfile, fetchSalespeople])
 
-  const isAdmin = profile?.role === 'admin' || profile?.role === 'Napoleon'
+  const realUser = user
+  const realProfile = profile
+  const realIsAdmin = profile?.role === 'admin' || profile?.role === 'Napoleon'
+
+  const activeUser = impersonatedProfile 
+    ? (realUser ? { ...realUser, id: impersonatedProfile.id, email: impersonatedProfile.email } : { id: impersonatedProfile.id, email: impersonatedProfile.email })
+    : realUser
+
+  const activeProfile = impersonatedProfile ? impersonatedProfile : realProfile
+  const activeIsAdmin = impersonatedProfile ? false : realIsAdmin
 
   const value = {
-    user,
-    profile,
-    isAdmin,
+    user: activeUser,
+    profile: activeProfile,
+    isAdmin: activeIsAdmin,
+    realUser,
+    realProfile,
+    realIsAdmin,
+    isImpersonating: !!impersonatedProfile,
+    impersonate,
+    stopImpersonating,
     salespeople,
     loading,
-    refreshProfile: () => refreshProfile(user?.id, user?.email),
+    refreshProfile: () => refreshProfile(realUser?.id, realUser?.email),
     refreshSalespeople: () => fetchSalespeople()
   }
 

@@ -5,7 +5,7 @@ import AdminLayout from '../../components/Admin/AdminLayout'
 import { useAdmin } from '../../components/Admin/AdminContext'
 
 export default function TeamManagement() {
-  const { isAdmin, salespeople, refreshSalespeople, loading: contextLoading } = useAdmin()
+  const { isAdmin, salespeople, refreshSalespeople, loading: contextLoading, impersonate, realUser } = useAdmin()
   const [members, setMembers] = useState([])
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
@@ -176,25 +176,52 @@ export default function TeamManagement() {
                   </select>
                 </td>
                 <td style={{ padding: '20px', textAlign: 'center' }}>
-                  <button
-                    onClick={() => handleDeleteMember(member)}
-                    disabled={actionLoading}
-                    style={{
-                      padding: '8px 16px',
-                      background: 'transparent',
-                      border: '1px solid rgba(239, 68, 68, 0.3)',
-                      color: '#ef4444',
-                      borderRadius: '8px',
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseOver={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
-                    onMouseOut={e => e.currentTarget.style.background = 'transparent'}
-                  >
-                    Remove profile
-                  </button>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                    {member.role === 'salesperson' && member.id !== realUser?.id && (
+                      <button
+                        onClick={() => {
+                          impersonate(member)
+                          navigate('/admin/dashboard')
+                        }}
+                        disabled={actionLoading}
+                        style={{
+                          padding: '8px 16px',
+                          background: 'linear-gradient(135deg, #e91e63, #9c27b0)',
+                          border: 'none',
+                          color: 'white',
+                          borderRadius: '8px',
+                          fontSize: '0.8rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          boxShadow: '0 4px 12px rgba(233, 30, 99, 0.2)'
+                        }}
+                        onMouseOver={e => e.currentTarget.style.transform = 'translateY(-1px)'}
+                        onMouseOut={e => e.currentTarget.style.transform = 'none'}
+                      >
+                        Impersonate
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDeleteMember(member)}
+                      disabled={actionLoading}
+                      style={{
+                        padding: '8px 16px',
+                        background: 'transparent',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        color: '#ef4444',
+                        borderRadius: '8px',
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseOver={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+                      onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      Remove profile
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
