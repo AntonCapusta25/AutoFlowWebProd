@@ -12,6 +12,11 @@ export const supabase = createClient(
   supabaseAnonKey || 'placeholder-key'
 )
 
+if (typeof window !== 'undefined') {
+  window.supabase = supabase
+}
+
+
 // Helper: trigger Gmail notification via Edge Function
 // Uses supabase.functions.invoke — no separate env var needed,
 // works in all environments as long as VITE_SUPABASE_URL is set.

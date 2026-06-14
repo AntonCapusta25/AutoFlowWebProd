@@ -448,95 +448,136 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
     setIsImporting(true)
     const reader = new FileReader()
     reader.onload = async (event) => {
-      const csvData = event.target.result
-      const parseCSV = (text) => {
-        const rows = []
-        let row = []
-        let col = ''
-        let inQuotes = false
-        for (let i = 0; i < text.length; i++) {
-          const char = text[i]
-          const next = text[i+1]
-          if (inQuotes) {
-            if (char === '"' && next === '"') { col += '"'; i++ }
-            else if (char === '"') { inQuotes = false }
-            else { col += char }
-          } else {
-            if (char === '"') { inQuotes = true }
-            else if (char === ',') { row.push(col); col = '' }
-            else if (char === '\r' || char === '\n') {
-              row.push(col); rows.push(row); row = []; col = ''
-              if (char === '\r' && next === '\n') i++
+      try {
+        const csvData = event.target.result
+        const parseCSV = (text) => {
+          const rows = []
+          let row = []
+          let col = ''
+          let inQuotes = false
+          for (let i = 0; i < text.length; i++) {
+            const char = text[i]
+            const next = text[i+1]
+            if (inQuotes) {
+              if (char === '"' && next === '"') { col += '"'; i++ }
+              else if (char === '"') { inQuotes = false }
+              else { col += char }
+            } else {
+              if (char === '"') { inQuotes = true }
+              else if (char === ',') { row.push(col); col = '' }
+              else if (char === '\r' || char === '\n') {
+                row.push(col); rows.push(row); row = []; col = ''
+                if (char === '\r' && next === '\n') i++
+              }
+              else { col += char }
             }
-            else { col += char }
           }
-        }
-        if (row.length || col) { row.push(col); rows.push(row) }
-        return rows
-      }
-
-      const rows = parseCSV(csvData)
-      if (rows.length < 2) { setIsImporting(false); return }
-      const headers = rows[0].map(h => h.trim().toLowerCase())
-      const newLeads = []
-      for (let i = 1; i < rows.length; i++) {
-        const values = rows[i]
-        if (!values.some(v => v.trim())) continue
-        const lead = {}
-        headers.forEach((header, index) => {
-          let val = values[index]?.replace(/^["']|["']$/g, '').trim()
-          if (!val) return
-          if (header.includes('email')) lead.email = val.toLowerCase()
-          if (header.includes('name')) lead.name = val
-          if (header.includes('company')) lead.company = val
-          if (header.includes('website') || (header.includes('url') && !header.includes('maps') && !header.includes('google'))) lead.website = val
-          if (header.includes('linkedin')) lead.linkedin = val
-          if (header.includes('industry')) lead.industry = val || importIndustry
-          if (header.includes('location')) lead.location = val
-          if (header.includes('phone') || header.includes('tel')) lead.phone = val
-        })
-        
-        if (lead.email) {
-          if (!lead.industry && importIndustry) {
-            lead.industry = importIndustry
-          }
-          if (importTags) {
-            const extraTags = importTags.split(',').map(t => t.trim()).filter(Boolean)
-            lead.tags = extraTags
-          }
-          if (importAssignee) {
-            lead.assignee_id = importAssignee
-          }
-          lead.status = 'New'
-          newLeads.push(lead)
-        }
-      }
-
-      if (newLeads.length > 0) {
-        const emailsToImport = [...new Set(newLeads.map(l => l.email))]
-        const existingEmails = new Set()
-        for (let i = 0; i < emailsToImport.length; i += 1000) {
-          const chunk = emailsToImport.slice(i, i + 1000)
-          const { data } = await supabase.from('outreach_leads').select('email').in('email', chunk)
-          if (data) data.forEach(d => existingEmails.add(d.email.toLowerCase()))
+          if (row.length || col) { row.push(col); rows.push(row) }
+          return rows
         }
 
-        const uniqueLeads = newLeads.filter(l => !existingEmails.has(l.email))
-        const duplicateCount = newLeads.length - uniqueLeads.length
+        const rows = parseCSV(csvData)
+        if (rows.length < 2) {
+          alert('CSV file is empty or has no data rows.')
+          setIsImporting(false)
+          return
+        }
+        const headers = rows[0].map(h => h.trim().toLowerCase())
+        const newLeads = []
+        for (let i = 1; i < rows.length; i++) {
+          const values = rows[i]
+          if (!values.some(v => v.trim())) continue
+          const lead = {}
+          headers.forEach((header, index) => {
+            let val = values[index]?.replace(/^["']|["']$/g, '').trim()
+            if (!val) return
+            if (header.includes('email')) {
+              const emails = val.split(',').map(e => e.trim()).filter(Boolean)
+              if (emails.length > 0) {
+                lead.email = emails[0].toLowerCase()
+                if (emails.length > 1) {
+                  lead.metadata = {
+                    ...(lead.metadata || {}),
+                    additional_emails: emails.slice(1).map(e => e.toLowerCase())
+                  }
+                }
+              }
+            }
+            if (header.includes('name')) lead.name = val
+            if (header.includes('company')) lead.company = val
+            if (header.includes('website') || (header.includes('url') && !header.includes('maps') && !header.includes('google'))) lead.website = val
+            if (header.includes('linkedin')) lead.linkedin = val
+            if (header.includes('industry')) lead.industry = val || importIndustry
+            if (header.includes('location')) lead.location = val
+            if (header.includes('phone') || header.includes('tel')) lead.phone = val
+          })
+          
+          if (lead.email) {
+            if (!lead.industry && importIndustry) {
+              lead.industry = importIndustry
+            }
+            if (importTags) {
+              const extraTags = importTags.split(',').map(t => t.trim()).filter(Boolean)
+              lead.tags = extraTags
+            }
+            if (importAssignee) {
+              lead.assignee_id = importAssignee
+            }
+            lead.status = 'New'
+            newLeads.push(lead)
+          }
+        }
 
-        if (uniqueLeads.length > 0) {
-          const { error } = await supabase.from('outreach_leads').insert(uniqueLeads)
-          if (!error) {
-            alert(`Import Successful!\nAdded: ${uniqueLeads.length} new leads.\nSkipped: ${duplicateCount} duplicates.`)
-            fetchLeads()
-            setShowImportModal(false)
+        if (newLeads.length > 0) {
+          const emailsToImport = [...new Set(newLeads.map(l => l.email))]
+          const existingEmails = new Set()
+          for (let i = 0; i < emailsToImport.length; i += 1000) {
+            const chunk = emailsToImport.slice(i, i + 1000)
+            const { data } = await supabase.from('outreach_leads').select('email').in('email', chunk)
+            if (data) data.forEach(d => existingEmails.add(d.email.toLowerCase()))
+          }
+
+          const uniqueLeads = newLeads.filter(l => !existingEmails.has(l.email))
+          const duplicateCount = newLeads.length - uniqueLeads.length
+
+          if (uniqueLeads.length > 0) {
+            let addedCount = 0
+            let lastError = null
+            const batchSize = 100
+            for (let i = 0; i < uniqueLeads.length; i += batchSize) {
+              const batch = uniqueLeads.slice(i, i + batchSize)
+              const { error } = await supabase.from('outreach_leads').insert(batch)
+              if (error) {
+                lastError = error
+                break
+              }
+              addedCount += batch.length
+            }
+
+            if (!lastError) {
+              alert(`Import Successful!\nAdded: ${addedCount} new leads.\nSkipped: ${duplicateCount} duplicates.`)
+              fetchLeads()
+              setShowImportModal(false)
+            } else {
+              alert(`Import partially succeeded.\nAdded: ${addedCount} leads.\nError at batch: ${lastError.message}`)
+              fetchLeads()
+            }
           } else {
-            alert('Import Error: ' + error.message)
+            alert(`No new leads found. All ${newLeads.length} leads are already in the database.`)
           }
         } else {
-          alert(`No new leads found. All ${newLeads.length} leads are already in the database.`)
+          alert('No valid leads with emails found in the CSV.')
         }
+      } catch (err) {
+        console.error('Import process error:', err)
+        alert('An error occurred during import: ' + err.message)
+      } finally {
+        setIsImporting(false)
       }
+    }
+    reader.onerror = (err) => {
+      console.error('File read error:', err)
+      alert('Failed to read the file.')
       setIsImporting(false)
     }
     reader.readAsText(file)
