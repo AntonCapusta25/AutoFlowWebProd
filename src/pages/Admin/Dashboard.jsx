@@ -35,7 +35,11 @@ export default function AdminDashboard() {
         let oQuery = supabase.from('outreach_leads').select('*', { count: 'exact', head: true })
         let subsQuery = supabase.from('newsletter_subs').select('*', { count: 'exact', head: true })
         const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+        // Exclude activity logged by Oleksandr (admin account, hidden from team view)
+        const HIDDEN_EMAIL = 'bangalexf@gmail.com'
+        const { data: hiddenProfile } = await supabase.from('profiles').select('id').eq('email', HIDDEN_EMAIL).maybeSingle()
         let hQuery = supabase.from('lead_history').select('*').gte('created_at', sevenDaysAgo.toISOString()).order('created_at', { ascending: false }).limit(20)
+        if (hiddenProfile?.id) hQuery = hQuery.neq('admin_id', hiddenProfile.id)
 
         // Apply assignee filters
         if (isAdmin) {
