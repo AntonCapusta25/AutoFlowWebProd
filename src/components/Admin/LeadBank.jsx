@@ -489,7 +489,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           if (header.includes('email')) lead.email = val.toLowerCase()
           if (header.includes('name')) lead.name = val
           if (header.includes('company')) lead.company = val
-          if (header.includes('website') || header.includes('url')) lead.website = val
+          if (header.includes('website') || (header.includes('url') && !header.includes('maps') && !header.includes('google'))) lead.website = val
           if (header.includes('linkedin')) lead.linkedin = val
           if (header.includes('industry')) lead.industry = val || importIndustry
           if (header.includes('location')) lead.location = val
