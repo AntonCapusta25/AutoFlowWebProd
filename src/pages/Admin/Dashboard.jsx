@@ -34,7 +34,8 @@ export default function AdminDashboard() {
         let cQuery = supabase.from('contact_leads').select('*', { count: 'exact', head: true })
         let oQuery = supabase.from('outreach_leads').select('*', { count: 'exact', head: true })
         let subsQuery = supabase.from('newsletter_subs').select('*', { count: 'exact', head: true })
-        let hQuery = supabase.from('lead_history').select('*').order('created_at', { ascending: false }).limit(20)
+        const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+        let hQuery = supabase.from('lead_history').select('*').gte('created_at', sevenDaysAgo.toISOString()).order('created_at', { ascending: false }).limit(20)
 
         // Apply assignee filters
         if (isAdmin) {
@@ -471,7 +472,7 @@ export default function AdminDashboard() {
               {activeTab === 'activity' && (
                 <div style={{ display: 'grid', gap: '16px' }}>
                   {recentActivity.length === 0 ? (
-                    <p style={{ textAlign: 'center', color: '#475569', padding: '40px' }}>No recent activity found.</p>
+                    <p style={{ textAlign: 'center', color: '#475569', padding: '40px' }}>No activity in the last 7 days.</p>
                   ) : recentActivity.map((item, i) => {
                     const lead = stats.activityLeads.find(l => l.id === item.lead_id)
                     return (
