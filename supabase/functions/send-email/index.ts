@@ -78,6 +78,44 @@ Deno.serve(async (req) => {
     const { type, name, email, company, message, service, size, platform, recipient, subject: customSubject } = body
     console.log(`[send-email] type=${type} recipient=${recipient || email}`)
 
+    // ── get_busy_times (Google Calendar API) ───────────────────────────────
+    if (type === 'get_busy_times') {
+      const { timeMin, timeMax } = body
+      if (!timeMin || !timeMax) {
+        throw new Error('Missing required get_busy_times fields: timeMin, timeMax')
+      }
+      const accessToken = await getAccessToken()
+      console.log(`[get_busy_times] Fetching events from ${timeMin} to ${timeMax}`)
+
+      // Fetch primary calendar details to get timezone
+      const calRes = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary', {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      })
+      const calData = await calRes.json()
+      const timeZone = calData.timeZone || 'UTC'
+      console.log(`[get_busy_times] Calendar timezone is: ${timeZone}`)
+
+      // Fetch events
+      const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&singleEvents=true&orderBy=startTime`
+      const res = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(`Google Calendar API error ${res.status}: ${JSON.stringify(data)}`)
+      }
+
+      const busySlots = (data.items || []).map((event: any) => ({
+        start: event.start?.dateTime || event.start?.date,
+        end: event.end?.dateTime || event.end?.date,
+        summary: event.summary || 'Busy'
+      }))
+
+      return new Response(JSON.stringify({ success: true, busy: busySlots, timeZone }), {
+        headers: { 'Content-Type': 'application/json', ...CORS }
+      })
+    }
+
     // ── 0. Schedule Call (Google Calendar API) ───────────────────────────────
     if (type === 'schedule_call') {
       const { leadEmail, leadName, startTime, endTime, title, description, colorId } = body
