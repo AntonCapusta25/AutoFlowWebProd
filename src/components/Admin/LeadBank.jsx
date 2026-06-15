@@ -487,7 +487,20 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         for (let i = 1; i < rows.length; i++) {
           const values = rows[i]
           if (!values.some(v => v.trim())) continue
-          const lead = {}
+          const lead = {
+            email: null,
+            name: null,
+            company: null,
+            website: null,
+            linkedin: null,
+            industry: null,
+            location: null,
+            phone: null,
+            status: 'New',
+            tags: [],
+            metadata: {},
+            assignee_id: null
+          }
           headers.forEach((header, index) => {
             let val = values[index]?.replace(/^["']|["']$/g, '').trim()
             if (!val) return
@@ -497,7 +510,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                 lead.email = emails[0].toLowerCase()
                 if (emails.length > 1) {
                   lead.metadata = {
-                    ...(lead.metadata || {}),
+                    ...lead.metadata,
                     additional_emails: emails.slice(1).map(e => e.toLowerCase())
                   }
                 }
@@ -507,7 +520,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
             if (header.includes('company')) lead.company = val
             if (header.includes('website') || (header.includes('url') && !header.includes('maps') && !header.includes('google'))) lead.website = val
             if (header.includes('linkedin')) lead.linkedin = val
-            if (header.includes('industry')) lead.industry = val || importIndustry
+            if (header.includes('industry')) lead.industry = val
             if (header.includes('location')) lead.location = val
             if (header.includes('phone') || header.includes('tel')) lead.phone = val
           })
@@ -523,7 +536,6 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
             if (importAssignee) {
               lead.assignee_id = importAssignee
             }
-            lead.status = 'New'
             newLeads.push(lead)
           }
         }
