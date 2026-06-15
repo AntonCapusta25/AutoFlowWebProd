@@ -103,7 +103,14 @@ export default function AdminCalendar() {
           }}>
             <iframe 
               src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ1QPv4EeVy2duOD95DWsndpXHj5szlOnQob7iBc2pSm0hX00QceACDO3PhdsNGin5Kupdyfa1N-?gv=true" 
-              style={{ border: 0, width: '100%', height: '700px', display: 'block' }}
+              style={{ 
+                border: 0, 
+                width: '100%', 
+                height: '700px', 
+                display: 'block',
+                background: '#ffffff',
+                filter: 'invert(0.9) hue-rotate(180deg)'
+              }}
               frameBorder="0"
             ></iframe>
           </div>
