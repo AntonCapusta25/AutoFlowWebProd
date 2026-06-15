@@ -40,6 +40,9 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   const [bookingStartTime, setBookingStartTime] = useState('')
   const [bookingDuration, setBookingDuration] = useState(30)
   const [bookingSending, setBookingSending] = useState(false)
+  const [bookingTab, setBookingTab] = useState('google')
+  const [copiedName, setCopiedName] = useState(false)
+  const [copiedEmail, setCopiedEmail] = useState(false)
   const pageSize = 50
 
   useEffect(() => {
@@ -1582,96 +1585,385 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         </div>
       )}
 
-      {bookingLead && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-          <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '24px', width: '100%', maxWidth: '500px', padding: '28px', boxShadow: '0 30px 60px rgba(0,0,0,0.8)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h3 style={{ margin: 0, color: 'white', fontSize: '1.25rem', fontWeight: 800 }}>Book Appointment</h3>
-              <button onClick={() => setBookingLead(null)} style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-              </button>
-            </div>
+      {bookingLead && (() => {
+        const activeAdminName = profile?.name || profile?.email?.split('@')[0] || 'Admin'
+        const isMzi = activeAdminName.toLowerCase().includes('mzi')
+        const badgeColor = isMzi ? '#f87171' : '#818cf8'
+        const badgeBg = isMzi ? 'rgba(248, 113, 113, 0.15)' : 'rgba(129, 140, 248, 0.15)'
 
-            {/* Client Info */}
-            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '16px', marginBottom: '20px' }}>
-              <p style={{ margin: '0 0 4px', color: '#64748B', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Client</p>
-              <p style={{ margin: '0 0 8px', color: 'white', fontWeight: 600, fontSize: '0.95rem' }}>{bookingLead.name || 'Unnamed'}</p>
-              <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem' }}>{bookingLead.email}</p>
-            </div>
+        return (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+            <style>{`
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}</style>
+            <div style={{ 
+              background: '#0a0a0a', 
+              border: '1px solid rgba(255,255,255,0.08)', 
+              borderRadius: '24px', 
+              width: '100%', 
+              maxWidth: bookingTab === 'google' ? '750px' : '500px', 
+              padding: '32px', 
+              boxShadow: '0 30px 60px rgba(0,0,0,0.8)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              display: 'flex',
+              flexDirection: 'column',
+              maxHeight: '90vh',
+              overflowY: 'auto'
+            }}>
+              
+              {/* Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                <div>
+                  <h3 style={{ margin: 0, color: 'white', fontSize: '1.4rem', fontWeight: 800, fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '-0.01em' }}>Schedule Call</h3>
+                  <p style={{ margin: '4px 0 0', color: '#64748B', fontSize: '0.8rem', fontWeight: 500 }}>Google Calendar Integration</p>
+                </div>
+                <button onClick={() => setBookingLead(null)} style={{ background: 'rgba(255,255,255,0.03)', border: 'none', color: '#64748B', cursor: 'pointer', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+              </div>
 
-            {/* Title */}
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', color: '#64748B', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
-                Meeting Title
-              </label>
-              <input
-                type="text"
-                value={bookingTitle}
-                onChange={e => setBookingTitle(e.target.value)}
-                placeholder="Strategy session..."
-                style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', outline: 'none', boxSizing: 'border-box' }}
-              />
-            </div>
+              {/* Tabs */}
+              <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '4px', gap: '4px', marginBottom: '20px' }}>
+                <button 
+                  onClick={() => setBookingTab('google')}
+                  style={{
+                    flex: 1,
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: bookingTab === 'google' ? 'rgba(255,255,255,0.08)' : 'transparent',
+                    color: bookingTab === 'google' ? 'white' : '#64748B',
+                    fontWeight: 700,
+                    fontSize: '0.8rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  Google Booking Page
+                </button>
+                <button 
+                  onClick={() => setBookingTab('api')}
+                  style={{
+                    flex: 1,
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: bookingTab === 'api' ? 'rgba(255,255,255,0.08)' : 'transparent',
+                    color: bookingTab === 'api' ? 'white' : '#64748B',
+                    fontWeight: 700,
+                    fontSize: '0.8rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  Direct Booking (API)
+                </button>
+              </div>
 
-            {/* Date & Time */}
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', color: '#64748B', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
-                Date & Start Time
-              </label>
-              <input
-                type="datetime-local"
-                value={bookingStartTime}
-                onChange={e => setBookingStartTime(e.target.value)}
-                style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', outline: 'none', boxSizing: 'border-box' }}
-              />
-            </div>
+              {bookingTab === 'google' ? (
+                /* Google Booking Page Flow */
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  
+                  {/* Copy Client Info Helper */}
+                  <div style={{ 
+                    background: 'rgba(255, 255, 255, 0.02)', 
+                    border: '1px solid rgba(255, 255, 255, 0.05)', 
+                    borderRadius: '16px', 
+                    padding: '16px 20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <p style={{ margin: 0, color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Client Booking Credentials</p>
+                      <span style={{ fontSize: '0.7rem', color: '#94a3b8', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '8px' }}>Paste into booking form below</span>
+                    </div>
+                    
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                      {/* Name Copy Option */}
+                      <div style={{ flex: '1 1 200px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '10px', padding: '8px 12px' }}>
+                        <div style={{ overflow: 'hidden', marginRight: '8px' }}>
+                          <p style={{ margin: 0, color: '#64748B', fontSize: '0.65rem', fontWeight: 600 }}>Name</p>
+                          <p style={{ margin: 0, color: 'white', fontSize: '0.85rem', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{bookingLead.name || 'Unnamed'}</p>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(bookingLead.name || 'Unnamed')
+                            setCopiedName(true)
+                            setTimeout(() => setCopiedName(false), 1500)
+                          }}
+                          style={{
+                            background: copiedName ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.03)',
+                            border: 'none',
+                            color: copiedName ? '#10b981' : '#94A3B8',
+                            padding: '6px 10px',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          {copiedName ? (
+                            <>
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                              Copied!
+                            </>
+                          ) : 'Copy'}
+                        </button>
+                      </div>
 
-            {/* Duration */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', color: '#64748B', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
-                Duration
-              </label>
-              <select
-                value={bookingDuration}
-                onChange={e => setBookingDuration(parseInt(e.target.value))}
-                style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', outline: 'none', cursor: 'pointer' }}
-              >
-                <option value="15" style={{ background: '#111' }}>15 Minutes</option>
-                <option value="30" style={{ background: '#111' }}>30 Minutes</option>
-                <option value="45" style={{ background: '#111' }}>45 Minutes</option>
-                <option value="60" style={{ background: '#111' }}>1 Hour</option>
-              </select>
-            </div>
+                      {/* Email Copy Option */}
+                      <div style={{ flex: '1 1 200px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '10px', padding: '8px 12px' }}>
+                        <div style={{ overflow: 'hidden', marginRight: '8px' }}>
+                          <p style={{ margin: 0, color: '#64748B', fontSize: '0.65rem', fontWeight: 600 }}>Email Address</p>
+                          <p style={{ margin: 0, color: 'white', fontSize: '0.85rem', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{bookingLead.email}</p>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(bookingLead.email)
+                            setCopiedEmail(true)
+                            setTimeout(() => setCopiedEmail(false), 1500)
+                          }}
+                          style={{
+                            background: copiedEmail ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.03)',
+                            border: 'none',
+                            color: copiedEmail ? '#10b981' : '#94A3B8',
+                            padding: '6px 10px',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          {copiedEmail ? (
+                            <>
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                              Copied!
+                            </>
+                          ) : 'Copy'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
 
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button 
-                onClick={() => setBookingLead(null)}
-                style={{ flex: 1, padding: '14px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#94A3B8', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleBookAppointment}
-                disabled={bookingSending || !bookingStartTime}
-                style={{ 
-                  flex: 1, padding: '14px', 
-                  background: 'linear-gradient(135deg, #3b82f6, #10b981)', 
-                  border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', 
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                  boxShadow: '0 8px 20px rgba(59, 130, 246, 0.3)'
-                }}
-              >
-                {bookingSending ? (
-                  <>
-                    <div style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
-                    Booking…
-                  </>
-                ) : 'Book Call'}
-              </button>
+                  {/* Embedded Iframe */}
+                  <div style={{ 
+                    borderRadius: '16px', 
+                    overflow: 'hidden', 
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    background: '#111',
+                    position: 'relative'
+                  }}>
+                    <iframe 
+                      src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ1QPv4EeVy2duOD95DWsndpXHj5szlOnQob7iBc2pSm0hX00QceACDO3PhdsNGin5Kupdyfa1N-?gv=true" 
+                      style={{ border: 0, width: '100%', height: '420px', display: 'block' }}
+                      frameBorder="0"
+                    ></iframe>
+                  </div>
+
+                  {/* Status update logic */}
+                  <div style={{ display: 'flex', gap: '14px', marginTop: '4px' }}>
+                    <button 
+                      onClick={() => setBookingLead(null)}
+                      style={{ padding: '14px 20px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#94A3B8', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.9rem' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)' }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)' }}
+                    >
+                      Close
+                    </button>
+                    <button 
+                      onClick={async () => {
+                        setBookingSending(true)
+                        try {
+                          // Update status to 'Meeting Booked'
+                          await updateStatus(bookingLead.id, 'Meeting Booked')
+                          
+                          // Log event
+                          await supabase.from('lead_history').insert({
+                            lead_id: bookingLead.id,
+                            lead_type: 'contact', // unified leads are logged under contact or booking
+                            event_type: 'call',
+                            content: `Appointment marked as booked via Google Scheduling Hub page.`
+                          })
+                          
+                          if (selectedLead?.id === bookingLead.id) {
+                            fetchUnifiedHistory(bookingLead.id)
+                          }
+                          
+                          setBookingLead(null)
+                          alert('Lead successfully updated to "Meeting Booked"!')
+                        } catch (err) {
+                          console.error('Failed to sync booking status:', err)
+                          alert('Error updating status: ' + err.message)
+                        } finally {
+                          setBookingSending(false)
+                        }
+                      }}
+                      disabled={bookingSending}
+                      style={{ 
+                        flex: 1, 
+                        padding: '14px', 
+                        background: 'linear-gradient(135deg, #3b82f6, #10b981)', 
+                        border: 'none', 
+                        color: 'white', 
+                        borderRadius: '12px', 
+                        fontWeight: 800, 
+                        cursor: 'pointer', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        gap: '8px',
+                        boxShadow: '0 8px 25px rgba(59, 130, 246, 0.25)',
+                        fontSize: '0.9rem',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(59, 130, 246, 0.35)' }}
+                      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.25)' }}
+                    >
+                      {bookingSending ? (
+                        <>
+                          <div style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
+                          Syncing…
+                        </>
+                      ) : (
+                        <>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                          Confirm & Mark "Meeting Booked"
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Direct API Booking Flow */
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  
+                  {/* Assignee Indicator */}
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <span style={{ background: badgeBg, color: badgeColor, padding: '6px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.01em' }}>
+                      Agent: {activeAdminName}
+                    </span>
+                    <span style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#93c5fd', padding: '6px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800 }}>
+                      Dest: Primary Calendar
+                    </span>
+                  </div>
+
+                  {/* Client Info Block */}
+                  <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '16px 20px' }}>
+                    <p style={{ margin: '0 0 4px', color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Invited Client</p>
+                    <p style={{ margin: '0 0 4px', color: 'white', fontWeight: 700, fontSize: '0.95rem' }}>{bookingLead.name || 'Unnamed'}</p>
+                    <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem', fontWeight: 500 }}>{bookingLead.email}</p>
+                  </div>
+
+                  {/* Form inputs */}
+                  <div style={{ display: 'grid', gap: '18px' }}>
+                    <div>
+                      <label style={{ display: 'block', color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                        Meeting Title
+                      </label>
+                      <input
+                        type="text"
+                        value={bookingTitle}
+                        onChange={e => setBookingTitle(e.target.value)}
+                        placeholder="Strategy session..."
+                        style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: 'white', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s', fontSize: '0.9rem' }}
+                        onFocus={e => e.currentTarget.style.borderColor = 'rgba(233,30,99,0.3)'}
+                        onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                        Date & Start Time (Local)
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={bookingStartTime}
+                        onChange={e => setBookingStartTime(e.target.value)}
+                        style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: 'white', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s', fontSize: '0.9rem' }}
+                        onFocus={e => e.currentTarget.style.borderColor = 'rgba(233,30,99,0.3)'}
+                        onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                        Call Duration
+                      </label>
+                      <select
+                        value={bookingDuration}
+                        onChange={e => setBookingDuration(parseInt(e.target.value))}
+                        style={{ width: '100%', padding: '12px 16px', background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: 'white', outline: 'none', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                        onFocus={e => e.currentTarget.style.borderColor = 'rgba(233,30,99,0.3)'}
+                        onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'}
+                      >
+                        <option value="15" style={{ background: '#0a0a0a' }}>15 Minutes</option>
+                        <option value="30" style={{ background: '#0a0a0a' }}>30 Minutes</option>
+                        <option value="45" style={{ background: '#0a0a0a' }}>45 Minutes</option>
+                        <option value="60" style={{ background: '#0a0a0a' }}>1 Hour</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div style={{ display: 'flex', gap: '14px', marginTop: '10px' }}>
+                    <button 
+                      onClick={() => setBookingLead(null)}
+                      style={{ flex: 1, padding: '14px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#94A3B8', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.9rem' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)' }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)' }}
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      onClick={handleBookAppointment}
+                      disabled={bookingSending || !bookingStartTime}
+                      style={{ 
+                        flex: 1, 
+                        padding: '14px', 
+                        background: 'linear-gradient(135deg, #3b82f6, #10b981)', 
+                        border: 'none', 
+                        color: 'white', 
+                        borderRadius: '12px', 
+                        fontWeight: 800, 
+                        cursor: 'pointer', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        gap: '8px',
+                        boxShadow: '0 8px 25px rgba(59, 130, 246, 0.25)',
+                        fontSize: '0.9rem',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(59, 130, 246, 0.35)' }}
+                      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.25)' }}
+                    >
+                      {bookingSending ? (
+                        <>
+                          <div style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
+                          Booking…
+                        </>
+                      ) : 'Book Call'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
             </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
     </>
   )
 }
