@@ -40,7 +40,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   const [bookingStartTime, setBookingStartTime] = useState('')
   const [bookingDuration, setBookingDuration] = useState(30)
   const [bookingSending, setBookingSending] = useState(false)
-  const [bookingTab, setBookingTab] = useState('google')
+  const [bookingTab, setBookingTab] = useState('api')
   const [copiedName, setCopiedName] = useState(false)
   const [copiedEmail, setCopiedEmail] = useState(false)
   const pageSize = 50
@@ -1628,23 +1628,6 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
               {/* Tabs */}
               <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '4px', gap: '4px', marginBottom: '20px' }}>
                 <button 
-                  onClick={() => setBookingTab('google')}
-                  style={{
-                    flex: 1,
-                    padding: '8px 12px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    background: bookingTab === 'google' ? 'rgba(255,255,255,0.08)' : 'transparent',
-                    color: bookingTab === 'google' ? 'white' : '#64748B',
-                    fontWeight: 700,
-                    fontSize: '0.8rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  Google Booking Page
-                </button>
-                <button 
                   onClick={() => setBookingTab('api')}
                   style={{
                     flex: 1,
@@ -1659,7 +1642,24 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                     transition: 'all 0.2s'
                   }}
                 >
-                  Direct Booking (API)
+                  Automated Booking (Prefilled)
+                </button>
+                <button 
+                  onClick={() => setBookingTab('google')}
+                  style={{
+                    flex: 1,
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: bookingTab === 'google' ? 'rgba(255,255,255,0.08)' : 'transparent',
+                    color: bookingTab === 'google' ? 'white' : '#64748B',
+                    fontWeight: 700,
+                    fontSize: '0.8rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  Manual Google Page
                 </button>
               </div>
 
