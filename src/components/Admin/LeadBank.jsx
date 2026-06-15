@@ -445,6 +445,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
   const handleFileUpload = async (file) => {
     if (!file) return
+    console.log('[CSV Import] Started for file:', file.name, 'size:', file.size, 'bytes')
     setIsImporting(true)
     const reader = new FileReader()
     reader.onload = async (event) => {
@@ -476,13 +477,21 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           return rows
         }
 
+        console.log('[CSV Import] Parsing CSV text...')
         const rows = parseCSV(csvData)
+        console.log('[CSV Import] Parsed rows count:', rows.length)
+        
         if (rows.length < 2) {
-          alert('CSV file is empty or has no data rows.')
+          console.warn('[CSV Import] File has less than 2 rows. Aborting.')
           setIsImporting(false)
+          setTimeout(() => {
+            alert('CSV file is empty or has no data rows.')
+          }, 50)
           return
         }
+
         const headers = rows[0].map(h => h.trim().toLowerCase())
+        console.log('[CSV Import] Headers found:', headers)
         const newLeads = []
         for (let i = 1; i < rows.length; i++) {
           const values = rows[i]
@@ -540,57 +549,95 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           }
         }
 
+        console.log('[CSV Import] Parsed valid leads with email:', newLeads.length)
+
         if (newLeads.length > 0) {
           const emailsToImport = [...new Set(newLeads.map(l => l.email))]
+          console.log('[CSV Import] Unique emails to check duplicates for:', emailsToImport.length)
+          
           const existingEmails = new Set()
           for (let i = 0; i < emailsToImport.length; i += 1000) {
             const chunk = emailsToImport.slice(i, i + 1000)
-            const { data } = await supabase.from('outreach_leads').select('email').in('email', chunk)
-            if (data) data.forEach(d => existingEmails.add(d.email.toLowerCase()))
+            console.log(`[CSV Import] Fetching existing emails chunk ${i} to ${i + chunk.length}...`)
+            const { data, error } = await supabase.from('outreach_leads').select('email').in('email', chunk)
+            if (error) {
+              console.error('[CSV Import] Error fetching duplicates chunk:', error)
+            }
+            if (data) {
+              data.forEach(d => existingEmails.add(d.email.toLowerCase()))
+            }
           }
+          console.log('[CSV Import] Existing duplicates found in DB:', existingEmails.size)
 
           const uniqueLeads = newLeads.filter(l => !existingEmails.has(l.email))
           const duplicateCount = newLeads.length - uniqueLeads.length
+          console.log('[CSV Import] Unique leads to insert after duplicate filtering:', uniqueLeads.length)
 
           if (uniqueLeads.length > 0) {
             let addedCount = 0
             let lastError = null
             const batchSize = 100
+            const totalBatches = Math.ceil(uniqueLeads.length / batchSize)
+            
             for (let i = 0; i < uniqueLeads.length; i += batchSize) {
               const batch = uniqueLeads.slice(i, i + batchSize)
+              const batchIndex = Math.floor(i / batchSize) + 1
+              console.log(`[CSV Import] Inserting batch ${batchIndex}/${totalBatches} of size ${batch.length}...`)
+              
               const { error } = await supabase.from('outreach_leads').insert(batch)
               if (error) {
+                console.error(`[CSV Import] Database error in batch ${batchIndex}:`, error)
                 lastError = error
                 break
               }
               addedCount += batch.length
+              console.log(`[CSV Import] Successfully inserted batch ${batchIndex}. Progress: ${addedCount}/${uniqueLeads.length}`)
             }
 
+            console.log('[CSV Import] Insertion completed. Total added:', addedCount, 'Error:', lastError?.message || 'none')
+
+            setIsImporting(false)
+            setShowImportModal(false)
+            fetchLeads()
+
             if (!lastError) {
-              alert(`Import Successful!\nAdded: ${addedCount} new leads.\nSkipped: ${duplicateCount} duplicates.`)
-              fetchLeads()
-              setShowImportModal(false)
+              setTimeout(() => {
+                alert(`Import Successful!\nAdded: ${addedCount} new leads.\nSkipped: ${duplicateCount} duplicates.`)
+              }, 50)
             } else {
-              alert(`Import partially succeeded.\nAdded: ${addedCount} leads.\nError at batch: ${lastError.message}`)
-              fetchLeads()
+              setTimeout(() => {
+                alert(`Import partially succeeded.\nAdded: ${addedCount} leads.\nError at batch: ${lastError.message}`)
+              }, 50)
             }
           } else {
-            alert(`No new leads found. All ${newLeads.length} leads are already in the database.`)
+            console.log('[CSV Import] No unique leads to insert.')
+            setIsImporting(false)
+            setShowImportModal(false)
+            setTimeout(() => {
+              alert(`No new leads found. All ${newLeads.length} leads are already in the database.`)
+            }, 50)
           }
         } else {
-          alert('No valid leads with emails found in the CSV.')
+          console.log('[CSV Import] No leads with valid email found in file.')
+          setIsImporting(false)
+          setTimeout(() => {
+            alert('No valid leads with emails found in the CSV.')
+          }, 50)
         }
       } catch (err) {
-        console.error('Import process error:', err)
-        alert('An error occurred during import: ' + err.message)
-      } finally {
+        console.error('[CSV Import] Uncaught exception in import process:', err)
         setIsImporting(false)
+        setTimeout(() => {
+          alert('An error occurred during import: ' + err.message)
+        }, 50)
       }
     }
     reader.onerror = (err) => {
-      console.error('File read error:', err)
-      alert('Failed to read the file.')
+      console.error('[CSV Import] FileReader error:', err)
       setIsImporting(false)
+      setTimeout(() => {
+        alert('Failed to read the file.')
+      }, 50)
     }
     reader.readAsText(file)
   }
