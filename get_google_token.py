@@ -8,7 +8,11 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 # 3. Rename it to 'client_secret.json' and place it in this folder
 # 4. Run this script: python get_google_token.py
 
-SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+SCOPES = [
+    'https://www.googleapis.com/auth/gmail.send',
+    'https://www.googleapis.com/auth/calendar.events',
+    'https://www.googleapis.com/auth/calendar'
+]
 
 def main():
     flow = InstalledAppFlow.from_client_secrets_file('client_secret.json', SCOPES)

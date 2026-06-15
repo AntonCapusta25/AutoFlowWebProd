@@ -36,7 +36,7 @@ params = {
     "client_id": CLIENT_ID,
     "redirect_uri": REDIRECT_URI,
     "response_type": "code",
-    "scope": "https://www.googleapis.com/auth/gmail.send",
+    "scope": "https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar",
     "access_type": "offline",
     "prompt": "consent"
 }
