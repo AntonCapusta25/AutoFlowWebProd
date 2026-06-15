@@ -78,6 +78,53 @@ Deno.serve(async (req) => {
     const { type, name, email, company, message, service, size, platform, recipient, subject: customSubject } = body
     console.log(`[send-email] type=${type} recipient=${recipient || email}`)
 
+    // ── 0. Schedule Call (Google Calendar API) ───────────────────────────────
+    if (type === 'schedule_call') {
+      const { leadEmail, leadName, startTime, endTime, title, description, colorId } = body
+      if (!leadEmail || !startTime || !endTime) {
+        throw new Error('Missing required schedule_call fields: leadEmail, startTime, endTime')
+      }
+
+      const accessToken = await getAccessToken()
+      console.log(`[schedule_call] Scheduling meeting "${title}" for ${leadEmail} at ${startTime}`)
+
+      const eventBody = {
+        summary: title || `Meeting with ${leadName || 'Client'}`,
+        description: description || 'Scheduled via CRM',
+        start: {
+          dateTime: startTime,
+          timeZone: 'UTC'
+        },
+        end: {
+          dateTime: endTime,
+          timeZone: 'UTC'
+        },
+        attendees: [
+          { email: leadEmail }
+        ],
+        colorId: colorId || '1'
+      }
+
+      const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?sendUpdates=all', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventBody)
+      })
+
+      const responseData = await res.text()
+      if (!res.ok) {
+        throw new Error(`Google Calendar API error ${res.status}: ${responseData}`)
+      }
+
+      console.log('[schedule_call] Event created OK')
+      return new Response(JSON.stringify({ success: true, event: JSON.parse(responseData) }), {
+        headers: { 'Content-Type': 'application/json', ...CORS }
+      })
+    }
+
     // ── 1. Campaigns ────────────────────────────────────────────────────────
     if (type === 'campaign') {
       const accessToken = await getAccessToken()

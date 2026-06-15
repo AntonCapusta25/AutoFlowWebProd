@@ -118,9 +118,24 @@ export default function AdminLeads() {
   const [selectedTemplate, setSelectedTemplate] = useState('')
   const [emailSending, setEmailSending] = useState(false)
 
+  const [bookingLead, setBookingLead] = useState(null)
+  const [bookingTitle, setBookingTitle] = useState('')
+  const [bookingStartTime, setBookingStartTime] = useState('')
+  const [bookingDuration, setBookingDuration] = useState(30)
+  const [bookingSending, setBookingSending] = useState(false)
+
   useEffect(() => {
     setCustomEmailLead(null)
+    setBookingLead(null)
   }, [selectedLead])
+
+  useEffect(() => {
+    if (bookingLead) {
+      setBookingTitle(`Strategy session with ${bookingLead.name || bookingLead.email || 'Client'}`)
+      setBookingStartTime('')
+      setBookingDuration(30)
+    }
+  }, [bookingLead])
 
   async function updateStatus(id, type, newStatus) {
     if (isActionLoading) return
@@ -252,6 +267,60 @@ export default function AdminLeads() {
     setCustomEmailSubject('')
     setCustomEmailBody('')
     setSelectedTemplate('')
+  }
+
+  async function handleBookAppointment() {
+    if (!bookingStartTime) {
+      alert('Please select a start date and time.')
+      return
+    }
+    
+    setBookingSending(true)
+    try {
+      const startLocal = new Date(bookingStartTime)
+      const endLocal = new Date(startLocal.getTime() + bookingDuration * 60000)
+      
+      const schedulingAdmin = profile?.name || profile?.email || ''
+      const colorId = schedulingAdmin.toLowerCase().includes('mzi') ? '11' : '1'
+      
+      const { error } = await supabase.functions.invoke('send-email', {
+        body: {
+          type: 'schedule_call',
+          leadEmail: bookingLead.email,
+          leadName: bookingLead.name || 'there',
+          startTime: startLocal.toISOString(),
+          endTime: endLocal.toISOString(),
+          title: bookingTitle || `Strategy session with ${bookingLead.name || 'Client'}`,
+          description: `Meeting scheduled by ${schedulingAdmin} via CRM.`,
+          colorId: colorId
+        }
+      })
+      
+      if (error) throw error
+      
+      // Update status to 'Meeting Booked'
+      await updateStatus(bookingLead.id, bookingLead.type, 'Meeting Booked')
+      
+      // Log event
+      await supabase.from('lead_history').insert({
+        lead_id: bookingLead.id,
+        lead_type: bookingLead.type.toLowerCase() === 'booking' ? 'booking' : 'contact',
+        event_type: 'call',
+        content: `Google Calendar appointment booked: "${bookingTitle}" on ${startLocal.toLocaleString()}`
+      })
+      
+      if (selectedLead?.id === bookingLead.id) {
+        fetchHistory(bookingLead.id)
+      }
+      
+      setBookingLead(null)
+      alert('Appointment booked successfully on Google Calendar!')
+    } catch (err) {
+      console.error('Failed to book appointment:', err)
+      alert('Error booking appointment: ' + err.message)
+    } finally {
+      setBookingSending(false)
+    }
   }
 
   async function handleTemplateChange(templateKey) {
@@ -727,51 +796,79 @@ export default function AdminLeads() {
                   </div>
                 ))}
               </div>
-            </div>
+                <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button onClick={() => setCallModalLead(selectedLead)} style={{ flex: 1, padding: '14px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 8px 20px rgba(233, 30, 99, 0.3)' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                  Log Call
+                </button>
 
-            <div style={{ marginTop: 'auto', display: 'flex', gap: '12px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px' }}>
-              <button onClick={() => setCallModalLead(selectedLead)} style={{ flex: 1, padding: '14px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 8px 20px rgba(233, 30, 99, 0.3)' }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                Log Call
-              </button>
+                <button 
+                  onClick={() => openCustomEmailModal(selectedLead)} 
+                  disabled={emailSending}
+                  style={{ 
+                    flex: 1, padding: '14px', 
+                    background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.3)', 
+                    color: '#c084fc', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'rgba(168, 85, 247, 0.15)'
+                    e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.5)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'rgba(168, 85, 247, 0.1)'
+                    e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)'
+                  }}
+                >
+                  {emailSending ? (
+                    <>
+                      <div style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#c084fc', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
+                      Sending…
+                    </>
+                  ) : (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                        <polyline points="22,6 12,13 2,6"/>
+                      </svg>
+                      Send Email
+                    </>
+                  )}
+                </button>
+              </div>
 
-              <button 
-                onClick={() => openCustomEmailModal(selectedLead)} 
-                disabled={emailSending}
-                style={{ 
-                  flex: 1, padding: '14px', 
-                  background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.3)', 
-                  color: '#c084fc', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', 
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(168, 85, 247, 0.15)'
-                  e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.5)'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'rgba(168, 85, 247, 0.1)'
-                  e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)'
-                }}
-              >
-                {emailSending ? (
-                  <>
-                    <div style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#c084fc', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
-                    Sending…
-                  </>
-                ) : (
-                  <>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                      <polyline points="22,6 12,13 2,6"/>
-                    </svg>
-                    Send Email
-                  </>
-                )}
-              </button>
-
-              <button onClick={() => deleteLead(selectedLead)} style={{ padding: '14px', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}>Delete</button>
-            </div>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button 
+                  onClick={() => setBookingLead(selectedLead)} 
+                  style={{ 
+                    flex: 2, padding: '14px', 
+                    background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)', 
+                    color: '#93c5fd', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)'
+                    e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.5)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)'
+                    e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)'
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  Book Appointment
+                </button>
+                <button onClick={() => deleteLead(selectedLead)} style={{ flex: 1, padding: '14px', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}>Delete</button>
+              </div>
+            </div>            </div>
           </div>
         )}
       </div>
@@ -964,6 +1061,97 @@ export default function AdminLeads() {
                     Sending…
                   </>
                 ) : 'Send Email'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {bookingLead && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+          <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '24px', width: '100%', maxWidth: '500px', padding: '28px', boxShadow: '0 30px 60px rgba(0,0,0,0.8)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h3 style={{ margin: 0, color: 'white', fontSize: '1.25rem', fontWeight: 800 }}>Book Appointment</h3>
+              <button onClick={() => setBookingLead(null)} style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
+
+            {/* Client Info */}
+            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '16px', marginBottom: '20px' }}>
+              <p style={{ margin: '0 0 4px', color: '#64748B', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Client</p>
+              <p style={{ margin: '0 0 8px', color: 'white', fontWeight: 600, fontSize: '0.95rem' }}>{bookingLead.name || 'Unnamed'}</p>
+              <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem' }}>{bookingLead.email}</p>
+            </div>
+
+            {/* Title */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', color: '#64748B', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                Meeting Title
+              </label>
+              <input
+                type="text"
+                value={bookingTitle}
+                onChange={e => setBookingTitle(e.target.value)}
+                placeholder="Strategy session..."
+                style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            {/* Date & Time */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', color: '#64748B', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                Date & Start Time
+              </label>
+              <input
+                type="datetime-local"
+                value={bookingStartTime}
+                onChange={e => setBookingStartTime(e.target.value)}
+                style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            {/* Duration */}
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', color: '#64748B', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                Duration
+              </label>
+              <select
+                value={bookingDuration}
+                onChange={e => setBookingDuration(parseInt(e.target.value))}
+                style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', outline: 'none', cursor: 'pointer' }}
+              >
+                <option value="15" style={{ background: '#111' }}>15 Minutes</option>
+                <option value="30" style={{ background: '#111' }}>30 Minutes</option>
+                <option value="45" style={{ background: '#111' }}>45 Minutes</option>
+                <option value="60" style={{ background: '#111' }}>1 Hour</option>
+              </select>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button 
+                onClick={() => setBookingLead(null)}
+                style={{ flex: 1, padding: '14px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#94A3B8', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleBookAppointment}
+                disabled={bookingSending || !bookingStartTime}
+                style={{ 
+                  flex: 1, padding: '14px', 
+                  background: 'linear-gradient(135deg, #3b82f6, #10b981)', 
+                  border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', 
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                  boxShadow: '0 8px 20px rgba(59, 130, 246, 0.3)'
+                }}
+              >
+                {bookingSending ? (
+                  <>
+                    <div style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
+                    Booking…
+                  </>
+                ) : 'Book Call'}
               </button>
             </div>
           </div>
