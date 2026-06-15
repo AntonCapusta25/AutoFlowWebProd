@@ -102,10 +102,18 @@ Deno.serve(async (req) => {
         attendees: [
           { email: leadEmail }
         ],
-        colorId: colorId || '1'
+        colorId: colorId || '1',
+        conferenceData: {
+          createRequest: {
+            requestId: `autoflow-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+            conferenceSolutionKey: {
+              type: 'hangoutsMeet'
+            }
+          }
+        }
       }
 
-      const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?sendUpdates=all', {
+      const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?sendUpdates=all&conferenceDataVersion=1', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
