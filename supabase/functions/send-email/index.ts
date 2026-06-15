@@ -118,7 +118,7 @@ Deno.serve(async (req) => {
 
     // ── 0. Schedule Call (Google Calendar API) ───────────────────────────────
     if (type === 'schedule_call') {
-      const { leadEmail, leadName, startTime, endTime, title, description, colorId } = body
+      const { leadEmail, leadName, startTime, endTime, title, description, colorId, agentName } = body
       if (!leadEmail || !startTime || !endTime) {
         throw new Error('Missing required schedule_call fields: leadEmail, startTime, endTime')
       }
@@ -166,7 +166,95 @@ Deno.serve(async (req) => {
       }
 
       console.log('[schedule_call] Event created OK')
-      return new Response(JSON.stringify({ success: true, event: JSON.parse(responseData) }), {
+      const event = JSON.parse(responseData)
+      const hangoutLink = event.hangoutLink || 'No Meet link generated'
+
+      // Send confirmation email to Admin (info@autoflowstudio.net)
+      try {
+        const formattedTime = new Date(startTime).toLocaleString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZoneName: 'short'
+        })
+
+        const adminSubject = `[Booking Confirmed] ${eventBody.summary}`
+        const adminHtml = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0b0f19; color: #f3f4f6; padding: 30px; margin: 0; }
+              .card { background-color: #111827; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 32px; max-width: 550px; margin: 0 auto; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+              h2 { margin-top: 0; color: #60a5fa; font-size: 1.4rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px; font-weight: 800; letter-spacing: -0.01em; }
+              .detail { margin: 18px 0; }
+              .label { color: #6b7280; font-weight: 800; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; display: block; margin-bottom: 4px; }
+              .value { color: #f3f4f6; font-weight: 600; font-size: 0.95rem; }
+              .btn { display: inline-block; width: 100%; box-sizing: border-box; padding: 14px; background: linear-gradient(135deg, #3b82f6, #10b981); color: white !important; text-decoration: none; border-radius: 10px; font-weight: 800; margin-top: 24px; font-size: 0.9rem; text-align: center; border: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); }
+            </style>
+          </head>
+          <body>
+            <div class="card">
+              <h2>Call Scheduled Successfully</h2>
+              
+              <div class="detail">
+                <span class="label">Booked By (Agent)</span>
+                <span class="value">${agentName || 'CRM Admin'}</span>
+              </div>
+              
+              <div class="detail">
+                <span class="label">Meeting Title</span>
+                <span class="value">${eventBody.summary}</span>
+              </div>
+              
+              <div class="detail">
+                <span class="label">With Client</span>
+                <span class="value">${leadName} (${leadEmail})</span>
+              </div>
+              
+              <div class="detail">
+                <span class="label">When</span>
+                <span class="value">${formattedTime}</span>
+              </div>
+              
+              <div class="detail">
+                <span class="label">Notes / Description</span>
+                <span class="value">${eventBody.description}</span>
+              </div>
+
+              <div style="text-align: center;">
+                <a href="${hangoutLink}" class="btn" target="_blank">Join Google Meet</a>
+              </div>
+            </div>
+          </body>
+          </html>
+        `
+
+        console.log('[schedule_call] Sending admin notification to:', ADMIN_EMAIL)
+        const adminRaw = createRawMessage(ADMIN_EMAIL, adminSubject, adminHtml)
+        const emailRes = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ raw: adminRaw })
+        })
+        if (!emailRes.ok) {
+          const errData = await emailRes.text()
+          console.error('[schedule_call] Failed to send admin booking email:', errData)
+        } else {
+          console.log('[schedule_call] Admin booking email sent OK')
+        }
+      } catch (err) {
+        console.error('[schedule_call] Error sending admin notification:', err.message)
+      }
+
+      return new Response(JSON.stringify({ success: true, event }), {
         headers: { 'Content-Type': 'application/json', ...CORS }
       })
     }

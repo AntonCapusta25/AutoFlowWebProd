@@ -44,6 +44,8 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   const [selectedDayOffset, setSelectedDayOffset] = useState(0)
   const [selectedSlot, setSelectedSlot] = useState(null)
   const [bookingDescription, setBookingDescription] = useState('Strategy session scheduled via CRM.')
+  const [bookingSuccess, setBookingSuccess] = useState(false)
+  const [bookingError, setBookingError] = useState('')
   const [copiedName, setCopiedName] = useState(false)
   const [copiedEmail, setCopiedEmail] = useState(false)
   const pageSize = 50
@@ -59,6 +61,8 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       setSelectedSlot(null)
       setSelectedDayOffset(0)
       setBookingDescription('Strategy session scheduled via CRM.')
+      setBookingSuccess(false)
+      setBookingError('')
       
       const fetchAvailability = async () => {
         setLoadingSlots(true)
@@ -353,11 +357,12 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
   async function handleBookAppointment() {
     if (!selectedSlot) {
-      alert('Please select a time slot on the calendar.')
+      setBookingError('Please select a time slot on the calendar.')
       return
     }
 
     setBookingSending(true)
+    setBookingError('')
     try {
       const startLocal = selectedSlot.start
       const endLocal = selectedSlot.end
@@ -374,7 +379,8 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           endTime: endLocal.toISOString(),
           title: bookingTitle || `Strategy session with ${bookingLead.name || 'Client'}`,
           description: bookingDescription || `Meeting scheduled by ${schedulingAdmin} via CRM.`,
-          colorId: colorId
+          colorId: colorId,
+          agentName: schedulingAdmin
         }
       })
 
@@ -395,11 +401,10 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         fetchUnifiedHistory(bookingLead.id)
       }
 
-      setBookingLead(null)
-      alert('Appointment booked successfully on Google Calendar!')
+      setBookingSuccess(true)
     } catch (err) {
       console.error('Failed to book appointment:', err)
-      alert('Error booking appointment: ' + err.message)
+      setBookingError('Error booking appointment: ' + err.message)
     } finally {
       setBookingSending(false)
     }
@@ -1677,12 +1682,6 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
         return (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-            <style>{`
-              @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-              }
-            `}</style>
             <div style={{
               background: '#0a0a0a',
               border: '1px solid rgba(255,255,255,0.08)',
@@ -1708,201 +1707,347 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                   <span style={{ background: badgeBg, color: badgeColor, padding: '6px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.01em' }}>
                     Agent: {activeAdminName}
                   </span>
-                  <button onClick={() => setBookingLead(null)} style={{ background: 'rgba(255,255,255,0.03)', border: 'none', color: '#64748B', cursor: 'pointer', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}>
+                  <button onClick={() => { setBookingLead(null); setBookingSuccess(false); setBookingError(''); }} style={{ background: 'rgba(255,255,255,0.03)', border: 'none', color: '#64748B', cursor: 'pointer', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                   </button>
                 </div>
               </div>
 
-              {/* Content Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '32px', alignItems: 'start' }}>
-                
-                {/* Left Column: Dates & Slots */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <p style={{ margin: 0, color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Select Booking Date</p>
-                  
-                  {/* Day Selector Slider */}
-                  <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                    {Array.from({ length: 8 }).map((_, idx) => {
-                      const label = getDayLabel(idx)
-                      const isActive = selectedDayOffset === idx
-                      return (
-                        <button
-                          key={idx}
-                          onClick={() => {
-                            setSelectedDayOffset(idx)
-                            setSelectedSlot(null)
-                          }}
-                          style={{
-                            flex: '0 0 auto',
-                            padding: '10px 16px',
-                            borderRadius: '12px',
-                            border: isActive ? '1.5px solid #3b82f6' : '1px solid rgba(255,255,255,0.06)',
-                            background: isActive ? 'rgba(59, 130, 246, 0.15)' : 'rgba(255,255,255,0.02)',
-                            color: isActive ? '#60a5fa' : '#cbd5e1',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                            textAlign: 'center'
-                          }}
-                        >
-                          <p style={{ margin: 0, fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', opacity: isActive ? 1 : 0.6 }}>{label.dayName}</p>
-                          <p style={{ margin: '4px 0 0', fontSize: '1rem', fontWeight: 800 }}>{label.dateStr}</p>
-                        </button>
-                      )
-                    })}
+              {bookingSuccess ? (
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '30px 0',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    background: 'rgba(16, 185, 129, 0.15)',
+                    border: '2px solid #10b981',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '20px',
+                    boxShadow: '0 0 20px rgba(16, 185, 129, 0.25)'
+                  }}>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <h4 style={{ margin: '0 0 8px', color: 'white', fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Space Grotesk', sans-serif" }}>Appointment Scheduled!</h4>
+                  <p style={{ margin: '0 0 24px', color: '#94a3b8', fontSize: '0.9rem', maxWidth: '450px', lineHeight: 1.5 }}>
+                    The call was successfully booked. An email confirmation with meeting details and a Google Meet link has been sent to <strong>{bookingLead.name || bookingLead.email}</strong>, and details have been synced to <strong>info@autoflowstudio.net</strong>.
+                  </p>
+
+                  <div style={{
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                    borderRadius: '16px',
+                    padding: '20px',
+                    width: '100%',
+                    maxWidth: '480px',
+                    textAlign: 'left',
+                    boxSizing: 'border-box',
+                    marginBottom: '24px'
+                  }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '95px 1fr', gap: '10px', fontSize: '0.85rem', lineHeight: 1.4 }}>
+                      <span style={{ color: '#64748b', fontWeight: 600 }}>Event Title:</span>
+                      <span style={{ color: 'white', fontWeight: 700 }}>{bookingTitle}</span>
+                      
+                      <span style={{ color: '#64748b', fontWeight: 600 }}>Attendee:</span>
+                      <span style={{ color: 'white', fontWeight: 700 }}>{bookingLead.name ? `${bookingLead.name} (${bookingLead.email})` : bookingLead.email}</span>
+                      
+                      <span style={{ color: '#64748b', fontWeight: 600 }}>Date & Time:</span>
+                      <span style={{ color: '#60a5fa', fontWeight: 800 }}>
+                        {selectedSlot ? `${selectedSlot.start.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' })} at ${selectedSlot.label}` : ''}
+                      </span>
+
+                      <span style={{ color: '#64748b', fontWeight: 600 }}>Organizer:</span>
+                      <span style={{ color: '#94a3b8', fontWeight: 600 }}>info@autoflowstudio.net</span>
+                    </div>
                   </div>
 
-                  {/* Availability Time Slots Grid */}
-                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: '260px' }}>
-                    <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Available Slots ({calendarTimeZone})</p>
+                  <button
+                    onClick={() => {
+                      setBookingLead(null)
+                      setBookingSuccess(false)
+                    }}
+                    style={{
+                      padding: '12px 32px',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: 'white',
+                      borderRadius: '10px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      fontSize: '0.85rem'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
+                  >
+                    Done
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {bookingError && (
+                    <div style={{
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.2)',
+                      borderRadius: '12px',
+                      padding: '12px 16px',
+                      marginBottom: '20px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '12px'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <line x1="12" y1="8" x2="12" y2="12"></line>
+                          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <p style={{ margin: 0, color: '#fca5a5', fontSize: '0.8rem', fontWeight: 600 }}>{bookingError}</p>
+                      </div>
+                      <button onClick={() => setBookingError('')} style={{ background: 'transparent', border: 'none', color: '#fca5a5', cursor: 'pointer', fontSize: '1.2rem', fontWeight: 700, lineHieght: 1 }}>×</button>
+                    </div>
+                  )}
+
+                  {/* Content Grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '32px', alignItems: 'start' }}>
                     
-                    {loadingSlots ? (
-                      <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: '200px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                          <div style={{ width: '28px', height: '28px', border: '3px solid rgba(255,255,255,0.05)', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                          <p style={{ margin: 0, color: '#64748B', fontSize: '0.8rem', fontWeight: 500 }}>Syncing live calendar schedule…</p>
-                        </div>
-                      </div>
-                    ) : availableSlots.length === 0 ? (
-                      <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', border: '1px dashed rgba(255,255,255,0.06)', borderRadius: '16px', minHeight: '200px', padding: '20px' }}>
-                        <p style={{ margin: 0, color: '#64748B', fontSize: '0.85rem', fontWeight: 500, textAlign: 'center' }}>No available time slots found for this day. Please check another date.</p>
-                      </div>
-                    ) : (
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', maxHeight: '250px', overflowY: 'auto', paddingRight: '4px' }}>
-                        {availableSlots.map((slot, sIdx) => {
-                          const isSelected = selectedSlot && selectedSlot.start.getTime() === slot.start.getTime()
+                    {/* Left Column: Dates & Slots */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      <p style={{ margin: 0, color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Select Booking Date</p>
+                      
+                      {/* Day Selector Grid (Optimized - No Horizontal Scroll) */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(8, 1fr)',
+                        gap: '6px',
+                        width: '100%'
+                      }}>
+                        {Array.from({ length: 8 }).map((_, idx) => {
+                          const label = getDayLabel(idx)
+                          const isActive = selectedDayOffset === idx
                           return (
                             <button
-                              key={sIdx}
-                              onClick={() => setSelectedSlot(slot)}
+                              key={idx}
+                              onClick={() => {
+                                setSelectedDayOffset(idx)
+                                setSelectedSlot(null)
+                              }}
                               style={{
-                                padding: '12px 6px',
-                                borderRadius: '10px',
-                                border: isSelected ? '1.5px solid #3b82f6' : '1px solid rgba(255,255,255,0.06)',
-                                background: isSelected ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255,255,255,0.02)',
-                                color: isSelected ? '#3b82f6' : '#e2e8f0',
-                                fontSize: '0.85rem',
-                                fontWeight: 700,
+                                padding: '8px 2px',
+                                borderRadius: '12px',
+                                border: isActive ? '1.5px solid #3b82f6' : '1px solid rgba(255,255,255,0.06)',
+                                background: isActive ? 'rgba(59, 130, 246, 0.15)' : 'rgba(255,255,255,0.02)',
+                                color: isActive ? '#60a5fa' : '#cbd5e1',
                                 cursor: 'pointer',
                                 transition: 'all 0.2s',
-                                textAlign: 'center'
+                                textAlign: 'center',
+                                width: '100%',
+                                boxSizing: 'border-box'
                               }}
                             >
-                              {slot.label}
+                              <p style={{ margin: 0, fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', opacity: isActive ? 1 : 0.6, letterSpacing: '0.02em' }}>{label.dayName}</p>
+                              <p style={{ margin: '2px 0 0', fontSize: '0.95rem', fontWeight: 800 }}>{label.dateStr}</p>
                             </button>
                           )
                         })}
                       </div>
-                    )}
-                  </div>
-                </div>
 
-                {/* Right Column: Confirmation Form */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', borderLeft: '1px solid rgba(255,255,255,0.05)', paddingLeft: '28px' }}>
-                  
-                  {/* Client Info Summary Card */}
-                  <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '16px', padding: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <p style={{ margin: 0, color: '#64748B', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Invited Guest</p>
-                      <span style={{ fontSize: '0.65rem', color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '2px 8px', borderRadius: '8px', fontWeight: 700 }}>Prefilled</span>
+                      {/* Availability Time Slots Grid */}
+                      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: '260px' }}>
+                        <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Available Slots ({calendarTimeZone})</p>
+                        
+                        {loadingSlots ? (
+                          <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: '200px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                              <svg width="32" height="32" viewBox="0 0 38 38" stroke="#3b82f6">
+                                <g fill="none" fillRule="evenodd">
+                                  <g transform="translate(1 1)" strokeWidth="3">
+                                    <circle strokeOpacity=".1" cx="18" cy="18" r="18" stroke="#fff"/>
+                                    <path d="M36 18c0-9.94-8.06-18-18-18">
+                                      <animateTransform
+                                        attributeName="transform"
+                                        type="rotate"
+                                        from="0 18 18"
+                                        to="360 18 18"
+                                        dur="0.8s"
+                                        repeatCount="indefinite"
+                                      />
+                                    </path>
+                                  </g>
+                                </g>
+                              </svg>
+                              <p style={{ margin: 0, color: '#64748B', fontSize: '0.8rem', fontWeight: 500 }}>Syncing live calendar schedule…</p>
+                            </div>
+                          </div>
+                        ) : availableSlots.length === 0 ? (
+                          <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', border: '1px dashed rgba(255,255,255,0.06)', borderRadius: '16px', minHeight: '200px', padding: '20px' }}>
+                            <p style={{ margin: 0, color: '#64748B', fontSize: '0.85rem', fontWeight: 500, textAlign: 'center' }}>No available time slots found for this day. Please check another date.</p>
+                          </div>
+                        ) : (
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', maxHeight: '250px', overflowY: 'auto', paddingRight: '4px' }}>
+                            {availableSlots.map((slot, sIdx) => {
+                              const isSelected = selectedSlot && selectedSlot.start.getTime() === slot.start.getTime()
+                              return (
+                                <button
+                                  key={sIdx}
+                                  onClick={() => setSelectedSlot(slot)}
+                                  style={{
+                                    padding: '12px 6px',
+                                    borderRadius: '10px',
+                                    border: isSelected ? '1.5px solid #3b82f6' : '1px solid rgba(255,255,255,0.06)',
+                                    background: isSelected ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255,255,255,0.02)',
+                                    color: isSelected ? '#3b82f6' : '#e2e8f0',
+                                    fontSize: '0.85rem',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                    textAlign: 'center'
+                                  }}
+                                >
+                                  {slot.label}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <p style={{ margin: '0 0 4px', color: 'white', fontWeight: 700, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{bookingLead.name || 'Unnamed'}</p>
-                    <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.8rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{bookingLead.email}</p>
-                  </div>
 
-                  {/* Form Inputs */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    <div>
-                      <label style={{ display: 'block', color: '#64748B', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
-                        Meeting Title
-                      </label>
-                      <input
-                        type="text"
-                        value={bookingTitle}
-                        onChange={e => setBookingTitle(e.target.value)}
-                        placeholder="Strategy session..."
-                        style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', color: 'white', outline: 'none', fontSize: '0.85rem', boxSizing: 'border-box' }}
-                      />
+                    {/* Right Column: Confirmation Form */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', borderLeft: '1px solid rgba(255,255,255,0.05)', paddingLeft: '28px' }}>
+                      
+                      {/* Client Info Summary Card */}
+                      <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '16px', padding: '16px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                          <p style={{ margin: 0, color: '#64748B', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Invited Guest</p>
+                          <span style={{ fontSize: '0.65rem', color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '2px 8px', borderRadius: '8px', fontWeight: 700 }}>Prefilled</span>
+                        </div>
+                        <p style={{ margin: '0 0 4px', color: 'white', fontWeight: 700, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{bookingLead.name || 'Unnamed'}</p>
+                        <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.8rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{bookingLead.email}</p>
+                      </div>
+
+                      {/* Form Inputs */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                        <div>
+                          <label style={{ display: 'block', color: '#64748B', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
+                            Meeting Title
+                          </label>
+                          <input
+                            type="text"
+                            value={bookingTitle}
+                            onChange={e => setBookingTitle(e.target.value)}
+                            placeholder="Strategy session..."
+                            style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', color: 'white', outline: 'none', fontSize: '0.85rem', boxSizing: 'border-box' }}
+                          />
+                        </div>
+
+                        <div>
+                          <label style={{ display: 'block', color: '#64748B', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
+                            Meeting Description & Notes
+                          </label>
+                          <textarea
+                            value={bookingDescription}
+                            onChange={e => setBookingDescription(e.target.value)}
+                            rows={3}
+                            style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', color: 'white', outline: 'none', fontSize: '0.85rem', boxSizing: 'border-box', resize: 'none' }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Selected Slot Confirmation Block */}
+                      <div style={{ background: selectedSlot ? 'rgba(59, 130, 246, 0.05)' : 'rgba(255,255,255,0.01)', border: selectedSlot ? '1px solid rgba(59, 130, 246, 0.15)' : '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <p style={{ margin: 0, color: '#64748B', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Selected Time Slot</p>
+                        {selectedSlot ? (
+                          <p style={{ margin: 0, color: '#60a5fa', fontSize: '0.85rem', fontWeight: 800 }}>
+                            {selectedSlot.start.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' })} at {selectedSlot.label}
+                          </p>
+                        ) : (
+                          <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.8rem', fontWeight: 500 }}>
+                            Select a date and time slot from the calendar availability grid.
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Google Meet confirmation banner */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(16, 185, 129, 0.04)', border: '1px solid rgba(16, 185, 129, 0.15)', borderRadius: '12px', padding: '10px 14px' }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M23 7l-7 5 7 5V7z" />
+                          <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                        </svg>
+                        <p style={{ margin: 0, color: '#34d399', fontSize: '0.75rem', fontWeight: 700 }}>Google Meet video link added as method</p>
+                      </div>
+
+                      {/* Modal Action Buttons */}
+                      <div style={{ display: 'flex', gap: '10px', marginTop: 'auto' }}>
+                        <button
+                          onClick={() => setBookingLead(null)}
+                          style={{ flex: 1, padding: '12px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#94A3B8', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem' }}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleBookAppointment}
+                          disabled={bookingSending || !selectedSlot}
+                          style={{
+                            flex: 1.5,
+                            padding: '12px',
+                            background: 'linear-gradient(135deg, #3b82f6, #10b981)',
+                            border: 'none',
+                            color: 'white',
+                            borderRadius: '10px',
+                            fontWeight: 800,
+                            cursor: selectedSlot ? 'pointer' : 'not-allowed',
+                            opacity: selectedSlot ? 1 : 0.5,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            boxShadow: selectedSlot ? '0 6px 20px rgba(59, 130, 246, 0.25)' : 'none',
+                            fontSize: '0.85rem',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          {bookingSending ? (
+                            <>
+                              <svg width="14" height="14" viewBox="0 0 38 38" stroke="#fff">
+                                <g fill="none" fillRule="evenodd">
+                                  <g transform="translate(1 1)" strokeWidth="3">
+                                    <circle strokeOpacity=".2" cx="18" cy="18" r="18" stroke="#fff"/>
+                                    <path d="M36 18c0-9.94-8.06-18-18-18">
+                                      <animateTransform
+                                        attributeName="transform"
+                                        type="rotate"
+                                        from="0 18 18"
+                                        to="360 18 18"
+                                        dur="0.8s"
+                                        repeatCount="indefinite"
+                                      />
+                                    </path>
+                                  </g>
+                                </g>
+                              </svg>
+                              Booking…
+                            </>
+                          ) : 'Book Call'}
+                        </button>
+                      </div>
+
                     </div>
 
-                    <div>
-                      <label style={{ display: 'block', color: '#64748B', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
-                        Meeting Description & Notes
-                      </label>
-                      <textarea
-                        value={bookingDescription}
-                        onChange={e => setBookingDescription(e.target.value)}
-                        rows={3}
-                        style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', color: 'white', outline: 'none', fontSize: '0.85rem', boxSizing: 'border-box', resize: 'none' }}
-                      />
-                    </div>
                   </div>
-
-                  {/* Selected Slot Confirmation Block */}
-                  <div style={{ background: selectedSlot ? 'rgba(59, 130, 246, 0.05)' : 'rgba(255,255,255,0.01)', border: selectedSlot ? '1px solid rgba(59, 130, 246, 0.15)' : '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <p style={{ margin: 0, color: '#64748B', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Selected Time Slot</p>
-                    {selectedSlot ? (
-                      <p style={{ margin: 0, color: '#60a5fa', fontSize: '0.85rem', fontWeight: 800 }}>
-                        {selectedSlot.start.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' })} at {selectedSlot.label}
-                      </p>
-                    ) : (
-                      <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.8rem', fontWeight: 500 }}>
-                        Select a date and time slot from the calendar availability grid.
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Google Meet confirmation banner */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(16, 185, 129, 0.04)', border: '1px solid rgba(16, 185, 129, 0.15)', borderRadius: '12px', padding: '10px 14px' }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M23 7l-7 5 7 5V7z" />
-                      <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                    </svg>
-                    <p style={{ margin: 0, color: '#34d399', fontSize: '0.75rem', fontWeight: 700 }}>Google Meet video link added as method</p>
-                  </div>
-
-                  {/* Modal Action Buttons */}
-                  <div style={{ display: 'flex', gap: '10px', marginTop: 'auto' }}>
-                    <button
-                      onClick={() => setBookingLead(null)}
-                      style={{ flex: 1, padding: '12px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#94A3B8', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem' }}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleBookAppointment}
-                      disabled={bookingSending || !selectedSlot}
-                      style={{
-                        flex: 1.5,
-                        padding: '12px',
-                        background: 'linear-gradient(135deg, #3b82f6, #10b981)',
-                        border: 'none',
-                        color: 'white',
-                        borderRadius: '10px',
-                        fontWeight: 800,
-                        cursor: selectedSlot ? 'pointer' : 'not-allowed',
-                        opacity: selectedSlot ? 1 : 0.5,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '6px',
-                        boxShadow: selectedSlot ? '0 6px 20px rgba(59, 130, 246, 0.25)' : 'none',
-                        fontSize: '0.85rem',
-                        transition: 'all 0.2s'
-                      }}
-                    >
-                      {bookingSending ? (
-                        <>
-                          <div style={{ width: '12px', height: '12px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
-                          Booking…
-                        </>
-                      ) : 'Book Call'}
-                    </button>
-                  </div>
-
-                </div>
-
-              </div>
+                </>
+              )}
 
             </div>
           </div>
