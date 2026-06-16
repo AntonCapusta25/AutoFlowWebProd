@@ -18,6 +18,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [assigneeFilter, setAssigneeFilter] = useState('all')
+  const [phoneFilter, setPhoneFilter] = useState('nl')
   const [activeIndustries, setActiveIndustries] = useState([])
   const [tableIndustryFilter, setTableIndustryFilter] = useState('')
   const [tableTagFilter, setTableTagFilter] = useState('')
@@ -125,6 +126,10 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       // Apply Status Toggle Filter
       if (statusFilter !== 'All') query = query.eq('status', statusFilter)
 
+      // Apply Phone / Country Filter
+      if (phoneFilter === 'nl') query = query.ilike('phone', '+31%')
+      else if (phoneFilter === 'uk') query = query.ilike('phone', '+44%')
+
       // Apply Excel-style Column Filters
       if (tableIndustryFilter) query = query.eq('industry', tableIndustryFilter)
       if (tableTagFilter) query = query.contains('tags', [tableTagFilter])
@@ -167,7 +172,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
   useEffect(() => {
     fetchLeads(0)
-  }, [searchTerm, statusFilter, assigneeFilter, tableIndustryFilter, tableTagFilter, JSON.stringify(filters), user])
+  }, [searchTerm, statusFilter, assigneeFilter, phoneFilter, tableIndustryFilter, tableTagFilter, JSON.stringify(filters), user])
 
   useEffect(() => {
     async function fetchFilterOptions() {
@@ -647,12 +652,12 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
             if (header.includes('company')) lead.company = val
             if (header.includes('website') || (header.includes('url') && !header.includes('maps') && !header.includes('google'))) lead.website = val
             if (header.includes('linkedin')) lead.linkedin = val
-            if (header.includes('industry')) lead.industry = val
-            if (header.includes('location')) lead.location = val
+            if (header.includes('industry') || header.includes('cuisine')) lead.industry = val
+            if (header.includes('location') || header.includes('address')) lead.location = val
             if (header.includes('phone') || header.includes('tel')) lead.phone = val
           })
 
-          if (lead.email) {
+          if (lead.email || lead.phone) {
             if (!lead.industry && importIndustry) {
               lead.industry = importIndustry
             }
@@ -667,27 +672,43 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           }
         }
 
-        console.log('[CSV Import] Parsed valid leads with email:', newLeads.length)
+        console.log('[CSV Import] Parsed valid leads (email or phone):', newLeads.length)
 
         if (newLeads.length > 0) {
-          const emailsToImport = [...new Set(newLeads.map(l => l.email))]
-          console.log('[CSV Import] Unique emails to check duplicates for:', emailsToImport.length)
+          // Dedup by email (for leads with email) or by phone (for phone-only leads)
+          const emailLeads  = newLeads.filter(l => l.email)
+          const phoneOnlyLeads = newLeads.filter(l => !l.email && l.phone)
 
           const existingEmails = new Set()
-          for (let i = 0; i < emailsToImport.length; i += 1000) {
-            const chunk = emailsToImport.slice(i, i + 1000)
-            console.log(`[CSV Import] Fetching existing emails chunk ${i} to ${i + chunk.length}...`)
-            const { data, error } = await supabase.from('outreach_leads').select('email').in('email', chunk)
-            if (error) {
-              console.error('[CSV Import] Error fetching duplicates chunk:', error)
-            }
-            if (data) {
-              data.forEach(d => existingEmails.add(d.email.toLowerCase()))
+          if (emailLeads.length > 0) {
+            const emailsToImport = [...new Set(emailLeads.map(l => l.email))]
+            console.log('[CSV Import] Unique emails to check duplicates for:', emailsToImport.length)
+            for (let i = 0; i < emailsToImport.length; i += 1000) {
+              const chunk = emailsToImport.slice(i, i + 1000)
+              const { data, error } = await supabase.from('outreach_leads').select('email').in('email', chunk)
+              if (error) console.error('[CSV Import] Error fetching email duplicates:', error)
+              if (data) data.forEach(d => existingEmails.add(d.email.toLowerCase()))
             }
           }
-          console.log('[CSV Import] Existing duplicates found in DB:', existingEmails.size)
 
-          const uniqueLeads = newLeads.filter(l => !existingEmails.has(l.email))
+          const existingPhones = new Set()
+          if (phoneOnlyLeads.length > 0) {
+            const phonesToImport = [...new Set(phoneOnlyLeads.map(l => l.phone.replace(/\s/g, '')))]
+            console.log('[CSV Import] Unique phones to check duplicates for:', phonesToImport.length)
+            for (let i = 0; i < phonesToImport.length; i += 1000) {
+              const chunk = phonesToImport.slice(i, i + 1000)
+              const { data, error } = await supabase.from('outreach_leads').select('phone').in('phone', chunk)
+              if (error) console.error('[CSV Import] Error fetching phone duplicates:', error)
+              if (data) data.forEach(d => existingPhones.add((d.phone || '').replace(/\s/g, '')))
+            }
+          }
+
+          console.log('[CSV Import] Existing email dupes:', existingEmails.size, '| phone dupes:', existingPhones.size)
+
+          const uniqueLeads = newLeads.filter(l => {
+            if (l.email) return !existingEmails.has(l.email)
+            return !existingPhones.has((l.phone || '').replace(/\s/g, ''))
+          })
           const duplicateCount = newLeads.length - uniqueLeads.length
           console.log('[CSV Import] Unique leads to insert after duplicate filtering:', uniqueLeads.length)
 
@@ -736,10 +757,10 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
             }, 50)
           }
         } else {
-          console.log('[CSV Import] No leads with valid email found in file.')
+          console.log('[CSV Import] No leads with valid email or phone found in file.')
           setIsImporting(false)
           setTimeout(() => {
-            alert('No valid leads with emails found in the CSV.')
+            alert('No valid leads found. Each row must have at least an email or a phone number.')
           }, 50)
         }
       } catch (err) {
@@ -899,6 +920,72 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
     }
   }
 
+  async function distributeDutchLeads() {
+    // Find MZI and Justin in the salespeople list
+    const mzi = salespeople.find(sp => (sp.name || sp.email || '').toLowerCase().includes('mzi'))
+    const justin = salespeople.find(sp => (sp.name || sp.email || '').toLowerCase().includes('justin'))
+
+    if (!mzi || !justin) {
+      alert(`Couldn't find both agents.\nFound: ${mzi ? (mzi.name || mzi.email) : '❌ MZI'}, ${justin ? (justin.name || justin.email) : '❌ Justin'}\nCheck that both have profiles in the system.`)
+      return
+    }
+
+    if (!confirm(`This will assign ALL 🇳🇱 NL (+31) leads equally between:\n• ${mzi.name || mzi.email}\n• ${justin.name || justin.email}\n\nProceed?`)) return
+
+    setIsActionLoading(true)
+    try {
+      // Fetch all NL leads (id only, all pages)
+      let allIds = []
+      let from = 0
+      const chunkSize = 1000
+      while (true) {
+        const { data, error } = await supabase
+          .from('outreach_leads')
+          .select('id')
+          .ilike('phone', '+31%')
+          .range(from, from + chunkSize - 1)
+        if (error) throw error
+        if (!data || data.length === 0) break
+        allIds = allIds.concat(data.map(r => r.id))
+        if (data.length < chunkSize) break
+        from += chunkSize
+      }
+
+      if (allIds.length === 0) {
+        alert('No NL leads found to distribute.')
+        return
+      }
+
+      // Round-robin: even index → MZI, odd index → Justin
+      const mziBatch = allIds.filter((_, i) => i % 2 === 0)
+      const justinBatch = allIds.filter((_, i) => i % 2 !== 0)
+
+      const updateInBatches = async (ids, assigneeId) => {
+        for (let i = 0; i < ids.length; i += 100) {
+          const chunk = ids.slice(i, i + 100)
+          const { error } = await supabase
+            .from('outreach_leads')
+            .update({ assignee_id: assigneeId })
+            .in('id', chunk)
+          if (error) throw error
+        }
+      }
+
+      await Promise.all([
+        updateInBatches(mziBatch, mzi.id),
+        updateInBatches(justinBatch, justin.id)
+      ])
+
+      alert(`✅ Distributed ${allIds.length} NL leads!\n• ${mzi.name || mzi.email}: ${mziBatch.length}\n• ${justin.name || justin.email}: ${justinBatch.length}`)
+      fetchLeads()
+    } catch (err) {
+      console.error('Distribution error:', err)
+      alert('Error during distribution: ' + err.message)
+    } finally {
+      setIsActionLoading(false)
+    }
+  }
+
   return (
     <>
       <style>{`
@@ -991,7 +1078,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '40px', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '40px', alignItems: 'center', flexWrap: 'wrap' }}>
         <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Quick Filter Status:</p>
         <select
           value={statusFilter}
@@ -1006,6 +1093,43 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
             <option key={opt.label} value={opt.label} style={{ background: '#0a0a0a', color: 'white' }}>{opt.label}</option>
           ))}
         </select>
+
+        <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.08)' }} />
+        <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Phone:</p>
+        {[{ id: 'all', label: 'All' }, { id: 'nl', label: '🇳🇱 NL' }, { id: 'uk', label: '🇬🇧 UK' }].map(opt => (
+          <button
+            key={opt.id}
+            onClick={() => { setPhoneFilter(opt.id); setPage(0); }}
+            style={{
+              padding: '8px 16px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer',
+              border: phoneFilter === opt.id ? 'none' : '1px solid rgba(255,255,255,0.1)',
+              background: phoneFilter === opt.id ? 'linear-gradient(135deg, #f97316, #ef4444)' : 'rgba(255,255,255,0.03)',
+              color: phoneFilter === opt.id ? 'white' : '#94A3B8',
+              boxShadow: phoneFilter === opt.id ? '0 4px 15px rgba(249,115,22,0.3)' : 'none',
+              transition: 'all 0.2s'
+            }}
+          >
+            {opt.label}
+          </button>
+        ))}
+
+        {isAdmin && phoneFilter === 'nl' && (
+          <button
+            onClick={distributeDutchLeads}
+            disabled={isActionLoading}
+            style={{
+              padding: '8px 20px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 700, cursor: isActionLoading ? 'wait' : 'pointer',
+              border: 'none',
+              background: isActionLoading ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+              color: isActionLoading ? '#64748B' : 'white',
+              boxShadow: isActionLoading ? 'none' : '0 4px 15px rgba(99,102,241,0.35)',
+              transition: 'all 0.2s',
+              display: 'flex', alignItems: 'center', gap: '6px'
+            }}
+          >
+            {isActionLoading ? 'Distributing...' : '⚡ Distribute to MZI & Justin'}
+          </button>
+        )}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: selectedLead ? '1fr 440px' : '1fr', gap: '24px', transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)' }}>
