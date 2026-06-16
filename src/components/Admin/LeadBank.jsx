@@ -1319,32 +1319,52 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
             </div>
 
             <div style={{ marginBottom: '32px' }}>
-              <h4 style={{ color: 'white', fontSize: '0.95rem', fontWeight: 700, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>Timeline</span>
-                <span style={{ fontSize: '0.75rem', color: '#64748b', background: 'rgba(255, 255, 255, 0.05)', padding: '2px 8px', borderRadius: '10px' }}>{history.length} events</span>
-              </h4>
-              <div style={{ display: 'grid', gap: 0, maxHeight: '400px', overflowY: 'auto', paddingRight: '10px' }}>
-                {history.map((item, idx) => (
-                  <div key={item.id} style={{ display: 'flex', gap: '20px', position: 'relative', paddingBottom: idx === history.length - 1 ? '0' : '24px' }}>
-                    {idx !== history.length - 1 && <div style={{ position: 'absolute', left: '7px', top: '24px', bottom: 0, width: '2px', background: 'rgba(255, 255, 255, 0.05)' }} />}
-                    <div style={{
-                      width: '16px', height: '16px', borderRadius: '50%',
-                      background: item.event_type === 'call' ? '#e91e63' : item.event_type === 'status_change' ? '#3b82f6' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '#a855f7' : '#10b981',
-                      zIndex: 1, marginTop: '4px', flexShrink: 0,
-                      boxShadow: item.event_type === 'call' ? '0 0 10px rgba(233, 30, 99, 0.3)' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '0 0 10px rgba(168, 85, 247, 0.3)' : 'none'
-                    }} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
-                        <p style={{ margin: 0, color: 'white', fontSize: '0.9rem', lineHeight: '1.5' }}>{item.content}</p>
-                        <button onClick={() => deleteHistoryItem(item.id)} style={{ background: 'transparent', border: 'none', color: '#ef4444', opacity: 0.4, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        </button>
-                      </div>
-                      <p style={{ margin: 0, color: '#64748b', fontSize: '0.75rem' }}>{new Date(item.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</p>
+              {(() => {
+                const upcomingEvents = history.filter(item => {
+                  if (item.event_type === 'call') {
+                    const onIndex = item.content.lastIndexOf(' on ')
+                    if (onIndex !== -1) {
+                      const dateStr = item.content.substring(onIndex + 4)
+                      const eventDate = new Date(dateStr)
+                      if (!isNaN(eventDate.getTime())) {
+                        return eventDate > new Date()
+                      }
+                    }
+                  }
+                  return false
+                })
+                return (
+                  <>
+                    <h4 style={{ color: 'white', fontSize: '0.95rem', fontWeight: 700, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span>Timeline</span>
+                      <span style={{ fontSize: '0.75rem', color: '#64748b', background: 'rgba(255, 255, 255, 0.05)', padding: '2px 8px', borderRadius: '10px' }}>{upcomingEvents.length} upcoming</span>
+                    </h4>
+                    <div style={{ display: 'grid', gap: 0, maxHeight: '400px', overflowY: 'auto', paddingRight: '10px' }}>
+                      {upcomingEvents.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '40px 20px', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '20px' }}>
+                          <p style={{ color: '#64748b', fontSize: '0.85rem' }}>No upcoming events scheduled.</p>
+                        </div>
+                      ) : upcomingEvents.map((item, idx) => (
+                        <div key={item.id} style={{ display: 'flex', gap: '20px', position: 'relative', paddingBottom: idx === upcomingEvents.length - 1 ? '0' : '24px' }}>
+                          {idx !== upcomingEvents.length - 1 && <div style={{ position: 'absolute', left: '7px', top: '24px', bottom: 0, width: '2px', background: 'rgba(255, 255, 255, 0.05)' }} />}
+                          <div style={{
+                            width: '16px', height: '16px', borderRadius: '50%',
+                            background: '#e91e63',
+                            zIndex: 1, marginTop: '4px', flexShrink: 0,
+                            boxShadow: '0 0 10px rgba(233, 30, 99, 0.3)'
+                          }} />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                              <p style={{ margin: 0, color: 'white', fontSize: '0.9rem', lineHeight: '1.5' }}>{item.content}</p>
+                            </div>
+                            <p style={{ margin: 0, color: '#64748b', fontSize: '0.75rem' }}>{new Date(item.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                ))}
-              </div>
+                  </>
+                )
+              })()}
             </div>
 
             <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
