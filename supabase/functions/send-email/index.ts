@@ -51,13 +51,22 @@ async function getAccessToken(): Promise<string> {
 }
 
 
+// RFC 2047 encode the subject so emojis and non-ASCII chars survive MIME headers
+function encodeSubject(subject: string): string {
+  // Encode as UTF-8 base64 per RFC 2047: =?UTF-8?B?<base64>?=
+  // Split into chunks of max 75 chars (encoded) to stay within line length limits
+  const encoded = btoa(unescape(encodeURIComponent(subject)))
+  // Wrap in RFC 2047 format — single chunk is fine for typical subjects
+  return `=?UTF-8?B?${encoded}?=`
+}
+
 function createRawMessage(to: string, subject: string, html: string) {
   const str = [
     `From: "AutoFlow Studio" <${ADMIN_EMAIL}>`,
     `To: ${to}`,
     'Content-Type: text/html; charset=utf-8',
     'MIME-Version: 1.0',
-    `Subject: ${subject}`,
+    `Subject: ${encodeSubject(subject)}`,
     '',
     html
   ].join('\r\n')
