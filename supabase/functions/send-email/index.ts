@@ -297,40 +297,16 @@ Deno.serve(async (req) => {
 <head>
   <meta charset="utf-8">
   <style>
-    /* Force text elements to inherit white/grey color and styles in dark theme */
-    p, span, td, div, h1, h2, h3, h4, li {
-      color: #f8fafc !important;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-    }
-    a {
-      color: #ec4899 !important;
-      text-decoration: underline;
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #1f2937;
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background:#0f172a;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background:#0f172a;padding:40px 20px;">
-    <tr><td align="center">
-      <table width="600" border="0" cellspacing="0" cellpadding="0" style="background:#1e293b;border-radius:24px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);">
-        <tr>
-          <td style="background:linear-gradient(135deg,#ec4899,#8b5cf6);padding:40px;text-align:center;">
-            <h1 style="color:#fff;margin:0;font-size:28px;font-weight:800;letter-spacing:-0.025em;">AutoFlow Studio</h1>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:40px;background:#1e293b;color:#f8fafc;font-size:16px;line-height:1.6;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-            ${finalBodyInner}
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:30px 40px;background:#0f172a;text-align:center;">
-            <p style="color:#64748b !important;font-size:14px;margin:0;">© 2026 AutoFlow Studio. All rights reserved.</p>
-            <p style="color:#475569 !important;font-size:12px;margin-top:10px;">You received this because you contacted us via autoflowstudio.net</p>
-          </td>
-        </tr>
-      </table>
-    </td></tr>
-  </table>
+<body style="margin:0;padding:20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#1f2937;">
+  <div style="white-space: pre-wrap;">${finalBodyInner}</div>
 </body>
 </html>`
 
