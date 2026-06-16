@@ -4,7 +4,7 @@ import AdminLayout from '../../components/Admin/AdminLayout'
 import { useAdmin } from '../../components/Admin/AdminContext'
 
 export default function AdminDashboard() {
-  const { user, isAdmin, salespeople } = useAdmin()
+  const { user, isAdmin, profile, salespeople } = useAdmin()
   const [assigneeFilter, setAssigneeFilter] = useState('all')
   const [stats, setStats] = useState({ 
     totalLeads: 0, 
@@ -479,6 +479,8 @@ export default function AdminDashboard() {
                     <p style={{ textAlign: 'center', color: '#475569', padding: '40px' }}>No activity in the last 7 days.</p>
                   ) : recentActivity.map((item, i) => {
                     const lead = stats.activityLeads.find(l => l.id === item.lead_id)
+                    const agent = salespeople?.find(sp => sp.id === item.admin_id) || (item.admin_id === user?.id ? profile : null)
+                    const agentName = agent?.name || agent?.email?.split('@')[0]
                     return (
                       <div key={item.id} style={{ 
                         display: 'flex', alignItems: 'center', gap: '20px', padding: '20px', 
@@ -503,6 +505,11 @@ export default function AdminDashboard() {
                           <p style={{ margin: 0, color: '#475569', fontSize: '0.8rem', fontWeight: 600 }}>
                             {new Date(item.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })} at {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </p>
+                          {agentName && (
+                            <p style={{ margin: '4px 0 0', color: '#f06292', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                              by {agentName}
+                            </p>
+                          )}
                         </div>
                       </div>
                     )
