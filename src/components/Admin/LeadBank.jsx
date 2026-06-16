@@ -1113,23 +1113,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           </button>
         ))}
 
-        {isAdmin && phoneFilter === 'nl' && (
-          <button
-            onClick={distributeDutchLeads}
-            disabled={isActionLoading}
-            style={{
-              padding: '8px 20px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 700, cursor: isActionLoading ? 'wait' : 'pointer',
-              border: 'none',
-              background: isActionLoading ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-              color: isActionLoading ? '#64748B' : 'white',
-              boxShadow: isActionLoading ? 'none' : '0 4px 15px rgba(99,102,241,0.35)',
-              transition: 'all 0.2s',
-              display: 'flex', alignItems: 'center', gap: '6px'
-            }}
-          >
-            {isActionLoading ? 'Distributing...' : '⚡ Distribute to MZI & Justin'}
-          </button>
-        )}
+
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: selectedLead ? '1fr 440px' : '1fr', gap: '24px', transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)' }}>
