@@ -76,7 +76,7 @@ export default function DealsPage() {
   }
 
   async function deleteDeal(dealId) {
-    if (!isAdmin || !confirm('Remove this deal from the pipeline?')) return
+    if (!confirm('Remove this deal from the pipeline?')) return
     const { error } = await supabase.from('deals').delete().eq('id', dealId)
     if (!error) {
       setDeals(prev => prev.filter(d => d.id !== dealId))
@@ -292,12 +292,10 @@ export default function DealsPage() {
                         {deal.commission ? fmt(deal.commission) : '—'}
                       </td>
                       <td style={{ padding: '16px 20px', textAlign: 'right' }}>
-                        {isAdmin && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); deleteDeal(deal.id) }}
-                            style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', opacity: 0.4, fontSize: '0.75rem', padding: '4px 8px' }}
-                          >✕</button>
-                        )}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); deleteDeal(deal.id) }}
+                          style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', opacity: 0.4, fontSize: '0.75rem', padding: '4px 8px' }}
+                        >✕</button>
                       </td>
                     </tr>
                   )
