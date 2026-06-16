@@ -1559,7 +1559,21 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                   </svg>
                   Book Appointment
                 </button>
-                <button onClick={() => deleteLead(selectedLead)} style={{ flex: 1, padding: '14px', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}>Delete</button>
+                {isAdmin && (
+                  <button
+                    onClick={() => deleteLead(selectedLead)}
+                    style={{
+                      flex: 1, padding: '14px', background: 'transparent',
+                      border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444',
+                      borderRadius: '12px', fontWeight: 700, cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.6)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)' }}
+                  >
+                    🗑 Delete
+                  </button>
+                )}
               </div>
             </div>
 
