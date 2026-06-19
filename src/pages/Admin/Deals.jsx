@@ -10,7 +10,7 @@ function fmt(n) {
   return new Intl.NumberFormat('en-EU', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(n)
 }
 
-export default function DealsPage() {
+export default function AdminDeals() {
   const { user, isAdmin, profile, salespeople } = useAdmin()
   const [deals, setDeals] = useState([])
   const [loading, setLoading] = useState(true)
@@ -121,17 +121,69 @@ export default function DealsPage() {
           animation: shimmer 1.6s infinite;
           border-radius: 8px;
         }
+        .deals-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          margin-bottom: 32px;
+          gap: 16px;
+        }
+        .deals-summary {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+          margin-bottom: 40px;
+        }
+        .deals-grid {
+          display: grid;
+          gap: 24px;
+          transition: all 0.4s;
+          grid-template-columns: 1fr;
+        }
+        .deals-grid.has-selection {
+          grid-template-columns: 1fr 360px;
+        }
+        .deal-detail-panel {
+          background: #0a0a0a;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 24px;
+          padding: 28px;
+          align-self: start;
+          position: sticky;
+          top: 40px;
+          animation: fadeIn 0.25s ease;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 1024px) {
+          .deals-summary { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+          .deals-header { flex-direction: column; align-items: stretch; }
+          .deals-summary { grid-template-columns: 1fr; gap: 16px; }
+          .deals-grid.has-selection { grid-template-columns: 1fr; }
+          .deal-table-container { display: block; }
+          .deals-grid.has-selection .deal-table-container { display: none; }
+          .deal-detail-panel {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 100vw;
+            height: calc(100vh - 70px);
+            z-index: 10000;
+            border-radius: 0;
+            overflow-y: auto;
+          }
+        }
       `}</style>
 
       {/* Header */}
-      <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+      <div className="deals-header">
         <div>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 900, margin: '0 0 8px', letterSpacing: '-0.02em' }}>
-            {isAdmin ? 'Revenue Pipeline' : 'My Deals'}
-          </h1>
-          <p style={{ color: '#94A3B8', fontSize: '1.05rem', fontWeight: 500 }}>
-            {isAdmin ? 'Track deals, set valuations, and manage team commissions.' : 'Track your deals and earned commissions.'}
-          </p>
+          <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '2.5rem', fontWeight: 900, margin: '0 0 8px', letterSpacing: '-0.02em' }}>Deals & Revenue</h1>
+          <p style={{ color: '#94A3B8', fontSize: '1.1rem', fontWeight: 500 }}>Track closed revenue and commission splits.</p>
         </div>
         {/* Status filter */}
         <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', padding: '6px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -147,7 +199,7 @@ export default function DealsPage() {
       </div>
 
       {/* ── Stat Cards ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: isAdmin ? 'repeat(5, 1fr)' : 'repeat(2, 1fr)', gap: '20px', marginBottom: '40px' }}>
+      <div className="deals-summary">
         {isAdmin ? (<>
           <StatCard label="Total Revenue" value={fmt(totalRevenue)} color="#10b981" icon="💰" />
           <StatCard label="Admin Share (60%)" value={fmt(totalRevenue * 0.60)} color="#3b82f6" icon="🏦" />
@@ -206,9 +258,8 @@ export default function DealsPage() {
       )}
 
       {/* ── Deals Table + Detail Panel ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: selectedDeal ? '1fr 380px' : '1fr', gap: '24px', animation: 'fadeIn 0.3s ease' }}>
-        {/* Table */}
-        <div style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', overflow: 'hidden' }}>
+      <div className={`deals-grid ${selectedDeal ? 'has-selection' : ''}`}>
+        <div className="deal-table-container" style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', overflowX: 'auto', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
           {loading ? (
             <div style={{ padding: '32px', display: 'grid', gap: '12px' }}>
               {[1,2,3,4].map(i => <div key={i} className="deal-skeleton" style={{ height: '56px' }} />)}
@@ -305,13 +356,8 @@ export default function DealsPage() {
           )}
         </div>
 
-        {/* Detail Panel */}
         {selectedDeal && (
-          <div style={{
-            background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px',
-            padding: '28px', alignSelf: 'start', position: 'sticky', top: '40px',
-            animation: 'fadeIn 0.25s ease'
-          }}>
+          <div className="deal-detail-panel">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <h3 style={{ margin: 0, color: 'white', fontWeight: 800, fontSize: '1.1rem' }}>Deal Details</h3>
               <button onClick={() => setSelectedDeal(null)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94A3B8', cursor: 'pointer', borderRadius: '8px', padding: '6px 10px', fontSize: '0.75rem' }}>✕ Close</button>
@@ -448,7 +494,7 @@ export default function DealsPage() {
 
 function StatCard({ label, value, color, icon }) {
   return (
-    <div style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+    <div style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
       <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem', flexShrink: 0 }}>
         {icon}
       </div>

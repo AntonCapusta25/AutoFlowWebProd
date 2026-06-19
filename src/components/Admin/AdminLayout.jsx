@@ -7,6 +7,7 @@ export default function AdminLayout({ children }) {
   const location = useLocation()
   const navigate = useNavigate()
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [segments, setSegments] = useState([])
   const [isNotifOpen, setIsNotifOpen] = useState(false)
   const [toasts, setToasts] = useState([])
@@ -97,6 +98,54 @@ export default function AdminLayout({ children }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#050505', color: '#F8FAFC' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .admin-sidebar {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 10001;
+            transform: translateX(-100%);
+            width: 280px !important;
+          }
+          .admin-sidebar.mobile-open {
+            transform: translateX(0);
+          }
+          .admin-mobile-overlay {
+            display: block !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+          }
+          .admin-header {
+            padding: 0 20px !important;
+          }
+          .admin-header-title {
+            font-size: 1.1rem !important;
+          }
+          .admin-main-content {
+            padding: 20px !important;
+          }
+          .mobile-menu-btn {
+            display: flex !important;
+          }
+        }
+      `}</style>
+
+      {/* Mobile Sidebar Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="admin-mobile-overlay" 
+          style={{ display: 'none' }}
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
       
       {/* Toast Alert Popups Container */}
       <div style={{
@@ -230,7 +279,7 @@ export default function AdminLayout({ children }) {
 
       <div style={{ display: 'flex', flex: 1 }}>
         {/* Sidebar */}
-        <aside style={{ 
+        <aside className={`admin-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`} style={{ 
           width: isCollapsed ? '80px' : '260px', background: '#0a0a0a', borderRight: '1px solid rgba(255, 255, 255, 0.1)', 
           display: 'flex', flexDirection: 'column', padding: isCollapsed ? '24px 12px' : '24px',
           transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -262,6 +311,7 @@ export default function AdminLayout({ children }) {
               <div key={item.to}>
                 <Link 
                   to={item.to}
+                  onClick={() => setIsMobileMenuOpen(false)}
                   style={{ 
                     display: 'flex', alignItems: 'center', gap: isCollapsed ? '0' : '12px', padding: '12px', 
                     justifyContent: isCollapsed ? 'center' : 'flex-start',
@@ -280,6 +330,7 @@ export default function AdminLayout({ children }) {
                     {item.children.map(child => (
                       <Link 
                         key={child.to} to={child.to}
+                        onClick={() => setIsMobileMenuOpen(false)}
                         style={{ 
                           padding: '8px 12px', color: location.pathname === child.to ? 'white' : '#64748B',
                           fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none', borderRadius: '8px',
@@ -359,7 +410,7 @@ export default function AdminLayout({ children }) {
         {/* Main Content Pane with Top Bar */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
           {/* Header Bar */}
-          <header style={{
+          <header className="admin-header" style={{
             height: '70px',
             background: '#0a0a0a',
             borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
@@ -369,9 +420,32 @@ export default function AdminLayout({ children }) {
             justifyContent: 'space-between',
             flexShrink: 0
           }}>
-            <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'white' }}>
-              {getPageTitle()}
-            </h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <button
+                className="mobile-menu-btn"
+                onClick={() => setIsMobileMenuOpen(true)}
+                style={{
+                  display: 'none',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: 'none',
+                  color: 'white',
+                  padding: '8px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              </button>
+              <h2 className="admin-header-title" style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'white' }}>
+                {getPageTitle()}
+              </h2>
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px', position: 'relative' }}>
               <button
                 onClick={(e) => { e.stopPropagation(); setIsNotifOpen(!isNotifOpen); }}
@@ -496,7 +570,7 @@ export default function AdminLayout({ children }) {
             </div>
           </header>
 
-          <main style={{ flex: 1, padding: '40px', overflowY: 'auto', background: '#050505' }}>
+          <main className="admin-main-content" style={{ flex: 1, padding: '40px', overflowY: 'auto', background: '#050505' }}>
             {children}
           </main>
         </div>

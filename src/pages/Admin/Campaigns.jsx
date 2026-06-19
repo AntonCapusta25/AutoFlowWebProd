@@ -100,7 +100,45 @@ export default function AdminCampaigns() {
 
   return (
     <AdminLayout>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+      <style>{`
+        .campaigns-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 40px;
+          gap: 16px;
+        }
+        .campaigns-grid {
+          display: grid;
+          grid-template-columns: 1fr 350px;
+          gap: 40px;
+        }
+        .history-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+          gap: 24px;
+        }
+        @media (max-width: 1024px) {
+          .campaigns-grid {
+            grid-template-columns: 1fr 280px;
+            gap: 24px;
+          }
+        }
+        @media (max-width: 768px) {
+          .campaigns-header {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          .campaigns-grid {
+            grid-template-columns: 1fr;
+          }
+          .history-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
+
+      <div className="campaigns-header">
         <div>
           <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '2rem', fontWeight: 800, marginBottom: '8px' }}>Campaign Manager</h1>
           <p style={{ color: '#94A3B8' }}>Proactive outreach and batch email engine.</p>
@@ -112,7 +150,7 @@ export default function AdminCampaigns() {
       </div>
 
       {activeTab === 'new' ? (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '40px' }}>
+        <div className="campaigns-grid">
           <div style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '24px', padding: '32px' }}>
             <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div>
@@ -170,7 +208,7 @@ export default function AdminCampaigns() {
           </div>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '24px' }}>
+        <div className="history-grid">
           {campaigns.map(camp => (
             <div key={camp.id} style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '24px', padding: '32px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>

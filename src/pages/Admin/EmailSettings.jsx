@@ -151,6 +151,35 @@ export default function AdminEmailSettings() {
         .save-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(233,30,99,0.35); }
         .save-btn { transition: all 0.2s; }
         .tab-btn:hover { color: white !important; }
+        .email-settings-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 40px;
+          gap: 16px;
+        }
+        .email-settings-actions {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-top: 16px;
+          border-top: 1px solid rgba(255,255,255,0.05);
+          gap: 16px;
+        }
+        @media (max-width: 768px) {
+          .email-settings-header {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          .email-settings-actions {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          .save-btn {
+            width: 100%;
+            justify-content: center;
+          }
+        }
       `}</style>
 
       {/* Toast */}
@@ -169,7 +198,7 @@ export default function AdminEmailSettings() {
       )}
 
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px' }}>
+      <div className="email-settings-header">
         <div>
           <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '2rem', fontWeight: 800, marginBottom: '8px' }}>Email Settings</h1>
           <p style={{ color: '#94A3B8' }}>Configure automated emails sent to leads on status changes.</p>
@@ -385,7 +414,7 @@ export default function AdminEmailSettings() {
                     </div>
 
                     {/* Footer actions */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div className="email-settings-actions">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}>
                           <div

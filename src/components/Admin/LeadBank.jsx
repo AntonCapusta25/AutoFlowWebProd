@@ -1055,7 +1055,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       </div>
 
       {isAdmin && salespeople.length > 0 && (
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '28px' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap' }}>
           <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Filter by Agent:</p>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             {[{ id: 'all', label: 'All Leads' }, { id: 'unassigned', label: 'Unassigned' }, ...salespeople.map(sp => ({ id: sp.id, label: sp.name || sp.email }))].map(opt => (
@@ -1078,7 +1078,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '40px', alignItems: 'center', flexWrap: 'wrap' }}>
+      <div className="leadbank-filters">
         <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Quick Filter Status:</p>
         <select
           value={statusFilter}
@@ -1116,8 +1116,8 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: selectedLead ? '1fr 440px' : '1fr', gap: '24px', transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)' }}>
-        <div style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', overflowX: 'auto', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
+      <div className={`leadbank-grid ${selectedLead ? 'has-selection' : ''}`}>
+        <div className="lead-table-container" style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', overflowX: 'auto', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '1100px' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', background: 'rgba(255,255,255,0.02)' }}>
@@ -1390,10 +1390,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         </div>
 
         {selectedLead && (
-          <div style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', padding: '32px', alignSelf: 'start', position: 'sticky', top: '40px', animation: '0.4s ease-out 0s 1 normal none running slideIn' }}>
-            <style>
-              {`@keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }`}
-            </style>
+          <div className="lead-detail-panel">
 
             <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
               <div>

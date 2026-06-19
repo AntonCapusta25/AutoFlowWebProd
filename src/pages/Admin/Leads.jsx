@@ -469,15 +469,15 @@ export default function AdminLeads() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'New': return { bg: 'rgba(233, 30, 99, 0.1)', text: '#f472b6', border: 'rgba(233, 30, 99, 0.2)' }
-      case 'Contacted': return { bg: 'rgba(59, 130, 246, 0.1)', text: '#93c5fd', border: 'rgba(59, 130, 246, 0.2)' }
-      case 'In Progress': return { bg: 'rgba(245, 158, 11, 0.1)', text: '#fbbf24', border: 'rgba(245, 158, 11, 0.2)' }
-      case 'Meeting Booked': return { bg: 'rgba(168, 85, 247, 0.1)', text: '#c084fc', border: 'rgba(168, 85, 247, 0.2)' }
-      case 'Waiting for Invoice': return { bg: 'rgba(6, 182, 212, 0.1)', text: '#67e8f9', border: 'rgba(6, 182, 212, 0.2)' }
-      case 'Converted': return { bg: 'rgba(16, 185, 129, 0.1)', text: '#6ee7b7', border: 'rgba(16, 185, 129, 0.2)' }
-      case 'Lost': return { bg: 'rgba(239, 68, 68, 0.1)', text: '#f87171', border: 'rgba(239, 68, 68, 0.2)' }
-      case 'No Response': return { bg: 'rgba(100, 116, 139, 0.1)', text: '#94a3b8', border: 'rgba(100, 116, 139, 0.2)' }
-      default: return { bg: 'rgba(255,255,255,0.05)', text: '#94A3B8', border: 'rgba(255,255,255,0.1)' }
+      case 'New': return { bg: 'rgba(233, 30, 99, 0.1)', text: '#f472b6', border: 'rgba(233, 30, 99, 0.2)', color: '#f472b6' }
+      case 'Contacted': return { bg: 'rgba(59, 130, 246, 0.1)', text: '#93c5fd', border: 'rgba(59, 130, 246, 0.2)', color: '#93c5fd' }
+      case 'In Progress': return { bg: 'rgba(245, 158, 11, 0.1)', text: '#fbbf24', border: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24' }
+      case 'Meeting Booked': return { bg: 'rgba(168, 85, 247, 0.1)', text: '#c084fc', border: 'rgba(168, 85, 247, 0.2)', color: '#c084fc' }
+      case 'Waiting for Invoice': return { bg: 'rgba(6, 182, 212, 0.1)', text: '#67e8f9', border: 'rgba(6, 182, 212, 0.2)', color: '#67e8f9' }
+      case 'Converted': return { bg: 'rgba(16, 185, 129, 0.1)', text: '#6ee7b7', border: 'rgba(16, 185, 129, 0.2)', color: '#6ee7b7' }
+      case 'Lost': return { bg: 'rgba(239, 68, 68, 0.1)', text: '#f87171', border: 'rgba(239, 68, 68, 0.2)', color: '#f87171' }
+      case 'No Response': return { bg: 'rgba(100, 116, 139, 0.1)', text: '#94a3b8', border: 'rgba(100, 116, 139, 0.2)', color: '#94a3b8' }
+      default: return { bg: 'rgba(255,255,255,0.05)', text: '#94A3B8', border: 'rgba(255,255,255,0.1)', color: '#94A3B8' }
     }
   }
 
@@ -529,6 +529,21 @@ export default function AdminLeads() {
       <style>{`
         @keyframes toastSlide { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
         @keyframes spin { to { transform: rotate(360deg); } }
+        .leads-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; gap: 16px; }
+        .leads-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .leads-grid { display: grid; gap: 24px; transition: all 0.4s; grid-template-columns: 1fr; }
+        .leads-grid.has-selection { grid-template-columns: 1fr 480px; }
+        .lead-detail-panel { background: #0a0a0a; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 32px; align-self: start; position: sticky; top: 40px; animation: 0.4s ease-out 0s 1 normal none running slideIn; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        @media (max-width: 1024px) { .leads-grid.has-selection { grid-template-columns: 1fr 340px; } }
+        @media (max-width: 768px) {
+          .leads-header { flex-direction: column; align-items: stretch; }
+          .leads-actions { margin-top: 16px; justify-content: space-between; }
+          .leads-grid.has-selection { grid-template-columns: 1fr; }
+          .lead-table-container { display: block; }
+          .leads-grid.has-selection .lead-table-container { display: none; }
+          .lead-detail-panel { position: fixed; top: 70px; left: 0; width: 100vw; height: calc(100vh - 70px); z-index: 10000; border-radius: 0; overflow-y: auto; }
+        }
       `}</style>
       {emailSentFor && (
         <div style={{
@@ -545,12 +560,12 @@ export default function AdminLeads() {
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <div className="leads-header">
         <div>
           <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '2rem', fontWeight: 800, marginBottom: '8px' }}>CRM / Leads</h1>
           <p style={{ color: '#94A3B8' }}>Manage your relationship with potential clients.</p>
         </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div className="leads-actions">
           {selectedIds.length > 0 && (
             <button onClick={batchDelete} style={{ padding: '10px 20px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', borderRadius: '12px', cursor: 'pointer', fontWeight: 600 }}>
               Delete Selected ({selectedIds.length})
@@ -561,7 +576,7 @@ export default function AdminLeads() {
       </div>
 
       {isAdmin && salespeople.length > 0 && (
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '28px' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap' }}>
           <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Filter by Agent:</p>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             {[{ id: 'all', label: 'All Leads' }, { id: 'unassigned', label: 'Unassigned' }, ...salespeople.map(sp => ({ id: sp.id, label: sp.name || sp.email }))].map(opt => (
@@ -584,8 +599,8 @@ export default function AdminLeads() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: selectedLead ? '1fr 480px' : '1fr', gap: '24px', transition: 'all 0.4s' }}>
-        <div style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
+      <div className={`leads-grid ${selectedLead ? 'has-selection' : ''}`}>
+        <div className="lead-table-container" style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', overflowX: 'auto', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', background: 'rgba(255,255,255,0.02)' }}>
@@ -771,17 +786,7 @@ export default function AdminLeads() {
         </div>
 
         {selectedLead && (
-          <div style={{
-            background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px',
-            padding: '32px', alignSelf: 'start', position: 'sticky', top: '40px',
-            animation: 'slideIn 0.4s ease-out'
-          }}>
-            <style>{`
-              @keyframes slideIn {
-                from { opacity: 0; transform: translateX(20px); }
-                to { opacity: 1; transform: translateX(0); }
-              }
-            `}</style>
+          <div className="lead-detail-panel">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
               <div>
                 <h3 style={{ margin: 0, color: 'white', fontSize: '1.4rem', fontWeight: 800, marginBottom: '4px' }}>{selectedLead.name}</h3>
@@ -832,9 +837,9 @@ export default function AdminLeads() {
                       {idx !== history.length - 1 && <div style={{ position: 'absolute', left: '7px', top: '24px', bottom: 0, width: '2px', background: 'rgba(255,255,255,0.05)' }} />}
                       <div style={{
                         width: '16px', height: '16px', borderRadius: '50%',
-                        background: item.event_type === 'call' ? '#e91e63' : item.event_type === 'note' ? '#3b82f6' : item.event_type === 'email_sent' ? '#a855f7' : '#10b981',
+                        background: item.event_type === 'call' ? '#e91e63' : item.event_type === 'status_change' ? '#3b82f6' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '#a855f7' : '#10b981',
                         zIndex: 1, marginTop: '4px', flexShrink: 0,
-                        boxShadow: `0 0 10px ${item.event_type === 'call' ? 'rgba(233, 30, 99, 0.3)' : item.event_type === 'email_sent' ? 'rgba(168, 85, 247, 0.3)' : 'transparent'}`
+                        boxShadow: item.event_type === 'call' ? '0 0 10px rgba(233, 30, 99, 0.3)' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '0 0 10px rgba(168, 85, 247, 0.3)' : 'none'
                       }} />
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
