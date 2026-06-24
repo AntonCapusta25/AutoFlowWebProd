@@ -5,7 +5,7 @@ import { useAdmin } from '../../components/Admin/AdminContext'
 import useSessionState from '../../hooks/useSessionState'
 
 export default function AdminLeads() {
-  const { user, isAdmin, profile, salespeople } = useAdmin()
+  const { user, isAdmin, profile, salespeople, loading: authLoading } = useAdmin()
   const stateKey = useMemo(() => window.location.pathname, [])
   const [assigneeFilter, setAssigneeFilter] = useSessionState(`${stateKey}_assigneeFilter`, 'all')
   const [leads, setLeads] = useState([])
@@ -17,9 +17,73 @@ export default function AdminLeads() {
   const [callModalLead, setCallModalLead] = useState(null)
   const [isActionLoading, setIsActionLoading] = useState(false)
 
+  const scrollRestoredRef = useRef(false)
+  const loadingRef = useRef(true)
+  const filterChangedByUserRef = useRef(false)
+
   useEffect(() => {
+    loadingRef.current = loading
+  }, [loading])
+
+  // ── Scroll position persistence ──
+  useEffect(() => {
+    const container = document.querySelector('.admin-main-content')
+    if (!container) return
+    let timeout
+    const handleScroll = () => {
+      if (document.visibilityState === 'hidden') return
+      if (loadingRef.current) return
+
+      const currentScroll = container.scrollTop
+      // If layout collapses and container becomes unscrollable, don't save 0
+      if (currentScroll === 0 && container.scrollHeight <= container.clientHeight) {
+        return
+      }
+
+      clearTimeout(timeout)
+      timeout = setTimeout(() => {
+        if (document.visibilityState === 'hidden') return
+        if (loadingRef.current) return
+
+        const finalScroll = container.scrollTop
+        if (finalScroll === 0 && container.scrollHeight <= container.clientHeight) {
+          return
+        }
+
+        try { sessionStorage.setItem(`${stateKey}_scrollY`, String(finalScroll)) } catch(e) {}
+      }, 150)
+    }
+    container.addEventListener('scroll', handleScroll, { passive: true })
+    return () => {
+      clearTimeout(timeout)
+      container.removeEventListener('scroll', handleScroll)
+    }
+  }, [stateKey])
+
+  // Restore scroll position after data loads
+  useEffect(() => {
+    if (!loading) {
+      if (filterChangedByUserRef.current) {
+        filterChangedByUserRef.current = false
+        const container = document.querySelector('.admin-main-content')
+        if (container) container.scrollTop = 0
+      } else if (!scrollRestoredRef.current) {
+        scrollRestoredRef.current = true
+        const saved = sessionStorage.getItem(`${stateKey}_scrollY`)
+        if (saved) {
+          requestAnimationFrame(() => {
+            const container = document.querySelector('.admin-main-content')
+            if (container) container.scrollTop = parseInt(saved, 10)
+          })
+        }
+      }
+    }
+  }, [loading, stateKey])
+
+  useEffect(() => {
+    if (authLoading) return
     fetchLeads()
-  }, [assigneeFilter, isAdmin, user])
+  }, [assigneeFilter, isAdmin, user, authLoading])
 
   useEffect(() => {
     if (selectedLead) {
@@ -584,7 +648,10 @@ export default function AdminLeads() {
             {[{ id: 'all', label: 'All Leads' }, { id: 'unassigned', label: 'Unassigned' }, ...salespeople.map(sp => ({ id: sp.id, label: sp.name || sp.email }))].map(opt => (
               <button
                 key={opt.id}
-                onClick={() => setAssigneeFilter(opt.id)}
+                onClick={() => {
+                  filterChangedByUserRef.current = true
+                  setAssigneeFilter(opt.id)
+                }}
                 style={{
                   padding: '8px 16px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer',
                   border: assigneeFilter === opt.id ? 'none' : '1px solid rgba(255,255,255,0.1)',

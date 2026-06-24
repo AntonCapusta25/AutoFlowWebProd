@@ -1,10 +1,11 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAdmin } from './AdminContext'
 import useSessionState from '../../hooks/useSessionState'
 
 export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle = "Manage your leads." }) {
-  const { user, isAdmin, profile, salespeople } = useAdmin()
+  const { user, isAdmin, profile, salespeople, loading: authLoading } = useAdmin()
+  const stateKey = useMemo(() => window.location.pathname, [])
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedLead, setSelectedLead] = useSessionState(`${stateKey}_selectedLead`, null)
@@ -14,13 +15,14 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   const [noteModalLead, setNoteModalLead] = useState(null)
   const [callModalLead, setCallModalLead] = useState(null)
   const [isActionLoading, setIsActionLoading] = useState(false)
-  const stateKey = useMemo(() => window.location.pathname, [])
   const [page, setPage] = useSessionState(`${stateKey}_page`, 0)
   const [totalCount, setTotalCount] = useState(0)
   const [searchTerm, setSearchTerm] = useSessionState(`${stateKey}_searchTerm`, '')
   const [statusFilter, setStatusFilter] = useSessionState(`${stateKey}_statusFilter`, 'All')
   const [assigneeFilter, setAssigneeFilter] = useSessionState(`${stateKey}_assigneeFilter`, 'all')
   const [phoneFilter, setPhoneFilter] = useSessionState(`${stateKey}_phoneFilter`, 'nl')
+  const [commentFilter, setCommentFilter] = useSessionState(`${stateKey}_commentFilter`, 'all')
+  const [callFilter, setCallFilter] = useSessionState(`${stateKey}_callFilter`, 'all')
   const [activeIndustries, setActiveIndustries] = useState([])
   const [tableIndustryFilter, setTableIndustryFilter] = useSessionState(`${stateKey}_tableIndustry`, '')
   const [tableTagFilter, setTableTagFilter] = useSessionState(`${stateKey}_tableTag`, '')
@@ -52,6 +54,81 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   const [copiedName, setCopiedName] = useState(false)
   const [copiedEmail, setCopiedEmail] = useState(false)
   const pageSize = 50
+  const scrollRestoredRef = useRef(false)
+  const pageChangedByUserRef = useRef(false)
+  const loadingRef = useRef(true)
+
+  useEffect(() => {
+    loadingRef.current = loading
+  }, [loading])
+
+  // Helper: scroll the main content to top (for page changes / filter changes)
+  function scrollContentToTop() {
+    const container = document.querySelector('.admin-main-content')
+    if (container) container.scrollTop = 0
+  }
+
+  // Helper: change page from user action (pagination click) — scrolls to top
+  function goToPage(p) {
+    pageChangedByUserRef.current = true
+    setPage(p)
+  }
+
+  // ── Scroll position persistence ──
+  useEffect(() => {
+    const container = document.querySelector('.admin-main-content')
+    if (!container) return
+    let timeout
+    const handleScroll = () => {
+      if (document.visibilityState === 'hidden') return
+      if (loadingRef.current) return
+
+      const currentScroll = container.scrollTop
+      // If layout collapses and container becomes unscrollable, don't save 0
+      if (currentScroll === 0 && container.scrollHeight <= container.clientHeight) {
+        return
+      }
+
+      clearTimeout(timeout)
+      timeout = setTimeout(() => {
+        if (document.visibilityState === 'hidden') return
+        if (loadingRef.current) return
+
+        const finalScroll = container.scrollTop
+        if (finalScroll === 0 && container.scrollHeight <= container.clientHeight) {
+          return
+        }
+
+        try { sessionStorage.setItem(`${stateKey}_scrollY`, String(finalScroll)) } catch(e) {}
+      }, 150)
+    }
+    container.addEventListener('scroll', handleScroll, { passive: true })
+    return () => {
+      clearTimeout(timeout)
+      container.removeEventListener('scroll', handleScroll)
+    }
+  }, [stateKey])
+
+  // After data loads: restore scroll on remount, scroll to top on user page change
+  useEffect(() => {
+    if (!loading) {
+      if (pageChangedByUserRef.current) {
+        // User clicked a page/filter — scroll to top
+        pageChangedByUserRef.current = false
+        scrollContentToTop()
+      } else if (!scrollRestoredRef.current) {
+        // First mount — restore saved position
+        scrollRestoredRef.current = true
+        const saved = sessionStorage.getItem(`${stateKey}_scrollY`)
+        if (saved) {
+          requestAnimationFrame(() => {
+            const container = document.querySelector('.admin-main-content')
+            if (container) container.scrollTop = parseInt(saved, 10)
+          })
+        }
+      }
+    }
+  }, [loading, stateKey])
 
   useEffect(() => {
     setCustomEmailLead(null)
@@ -112,8 +189,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
     { label: 'Lost' }
   ]
 
-  async function fetchLeads(targetPage = null) {
-    const p = targetPage !== null ? targetPage : page
+  async function fetchLeads() {
     setLoading(true)
 
     try {
@@ -135,6 +211,14 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       // Apply Excel-style Column Filters
       if (tableIndustryFilter) query = query.eq('industry', tableIndustryFilter)
       if (tableTagFilter) query = query.contains('tags', [tableTagFilter])
+
+      // Apply Comment Filter
+      if (commentFilter === 'has') query = query.not('notes', 'is', null).neq('notes', '')
+      else if (commentFilter === 'none') query = query.or('notes.is.null,notes.eq.')
+
+      // Apply Call Filter
+      if (callFilter === 'has') query = query.gt('call_attempts', 0)
+      else if (callFilter === 'none') query = query.or('call_attempts.is.null,call_attempts.eq.0')
 
       if (searchTerm) {
         query = query.or(`name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,company.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%`)
@@ -158,12 +242,11 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
       const { data, count, error } = await query
         .order('created_at', { ascending: false })
-        .range(p * pageSize, (p + 1) * pageSize - 1)
+        .range(page * pageSize, (page + 1) * pageSize - 1)
 
       if (!error) {
         setLeads(data || [])
         setTotalCount(count || 0)
-        if (targetPage !== null) setPage(targetPage)
       }
     } catch (err) {
       console.error('Fetch error:', err)
@@ -173,8 +256,9 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   }
 
   useEffect(() => {
-    fetchLeads(0)
-  }, [searchTerm, statusFilter, assigneeFilter, phoneFilter, tableIndustryFilter, tableTagFilter, JSON.stringify(filters), user])
+    if (authLoading) return
+    fetchLeads()
+  }, [page, searchTerm, statusFilter, assigneeFilter, phoneFilter, tableIndustryFilter, tableTagFilter, commentFilter, callFilter, JSON.stringify(filters), user, authLoading])
 
   useEffect(() => {
     async function fetchFilterOptions() {
@@ -211,6 +295,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   async function addComment(lead, content) {
     if (!content.trim() || isActionLoading) return
     setIsActionLoading(true)
+    const newCallCount = (lead.call_attempts || 0) + 1
     const [historyRes, leadRes] = await Promise.all([
       supabase.from('lead_history').insert({
         lead_id: lead.id,
@@ -219,15 +304,23 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         content: content,
         admin_id: user?.id
       }),
-      supabase.from('outreach_leads').update({ notes: content }).eq('id', lead.id)
+      supabase.from('outreach_leads').update({ notes: content, call_attempts: newCallCount }).eq('id', lead.id)
     ])
     if (!historyRes.error && !leadRes.error) {
+      // Also log a call event in history
+      await supabase.from('lead_history').insert({
+        lead_id: lead.id,
+        lead_type: 'outreach',
+        event_type: 'call',
+        content: `Call attempt #${newCallCount}: ${content}`,
+        admin_id: user?.id
+      })
       if (selectedLead?.id === lead.id) {
         fetchUnifiedHistory(lead.id)
-        setSelectedLead(prev => ({ ...prev, notes: content }))
+        setSelectedLead(prev => ({ ...prev, notes: content, call_attempts: newCallCount }))
         setNewNote('')
       }
-      setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, notes: content } : l))
+      setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, notes: content, call_attempts: newCallCount } : l))
     }
     setIsActionLoading(false)
   }
@@ -993,6 +1086,29 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       <style>{`
         @keyframes toastSlide { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
         @keyframes spin { to { transform: rotate(360deg); } }
+        .leadbank-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 24px;
+          align-items: start;
+          transition: all 0.4s;
+        }
+        .leadbank-grid.has-selection {
+          grid-template-columns: 1fr 400px;
+        }
+        .lead-detail-panel {
+          background: #0a0a0a;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 24px;
+          padding: 32px;
+          align-self: start;
+          position: sticky;
+          top: 40px;
+        }
+        @media (max-width: 768px) {
+          .leadbank-grid.has-selection { grid-template-columns: 1fr !important; }
+          .lead-detail-panel { position: fixed; top: 70px; left: 0; width: 100vw; height: calc(100vh - 70px); z-index: 10000; border-radius: 0; overflow-y: auto; }
+        }
       `}</style>
       {emailSentFor && (
         <div style={{
@@ -1022,7 +1138,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)
-                setPage(0)
+                goToPage(0)
               }}
               style={{
                 padding: '10px 16px 10px 38px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
@@ -1101,7 +1217,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         {[{ id: 'all', label: 'All' }, { id: 'nl', label: '🇳🇱 NL' }, { id: 'uk', label: '🇬🇧 UK' }].map(opt => (
           <button
             key={opt.id}
-            onClick={() => { setPhoneFilter(opt.id); setPage(0); }}
+            onClick={() => { setPhoneFilter(opt.id); goToPage(0); }}
             style={{
               padding: '8px 16px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer',
               border: phoneFilter === opt.id ? 'none' : '1px solid rgba(255,255,255,0.1)',
@@ -1173,9 +1289,35 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                     </select>
                   </div>
                 </th>
-                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Latest Comment</th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    Comment
+                    <select
+                      value={commentFilter}
+                      onChange={e => { setCommentFilter(e.target.value); goToPage(0); }}
+                      style={{ background: 'transparent', border: 'none', color: '#3b82f6', outline: 'none', cursor: 'pointer', fontWeight: 800 }}
+                    >
+                      <option value="all" style={{ background: '#0a0a0a', color: 'white' }}>All</option>
+                      <option value="has" style={{ background: '#0a0a0a', color: 'white' }}>Has Comment</option>
+                      <option value="none" style={{ background: '#0a0a0a', color: 'white' }}>No Comment</option>
+                    </select>
+                  </div>
+                </th>
                 {isAdmin && <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Assignee</th>}
-                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center', position: 'sticky', right: 0, background: '#0a0a0a', zIndex: 10, borderLeft: '1px solid rgba(255,255,255,0.05)' }}>Activity</th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center', position: 'sticky', right: 0, background: '#0a0a0a', zIndex: 10, borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    Activity
+                    <select
+                      value={callFilter}
+                      onChange={e => { setCallFilter(e.target.value); goToPage(0); }}
+                      style={{ background: 'transparent', border: 'none', color: '#3b82f6', outline: 'none', cursor: 'pointer', fontWeight: 800 }}
+                    >
+                      <option value="all" style={{ background: '#0a0a0a', color: 'white' }}>All</option>
+                      <option value="has" style={{ background: '#0a0a0a', color: 'white' }}>Has Calls</option>
+                      <option value="none" style={{ background: '#0a0a0a', color: 'white' }}>No Calls</option>
+                    </select>
+                  </div>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -1338,7 +1480,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <button
                   disabled={page === 0 || loading}
-                  onClick={() => fetchLeads(page - 1)}
+                  onClick={() => goToPage(page - 1)}
                   style={{
                     padding: '8px 16px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
                     color: page === 0 ? '#475569' : 'white', borderRadius: '10px', cursor: page === 0 ? 'default' : 'pointer',
@@ -1358,7 +1500,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                     return (
                       <button
                         key={pageNum}
-                        onClick={() => fetchLeads(pageNum)}
+                        onClick={() => goToPage(pageNum)}
                         style={{
                           width: '40px', height: '40px', borderRadius: '10px',
                           background: page === pageNum ? '#e91e63' : 'rgba(255,255,255,0.03)',
@@ -1376,7 +1518,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
                 <button
                   disabled={page >= Math.ceil(totalCount / pageSize) - 1 || loading}
-                  onClick={() => fetchLeads(page + 1)}
+                  onClick={() => goToPage(page + 1)}
                   style={{
                     padding: '8px 16px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
                     color: page >= Math.ceil(totalCount / pageSize) - 1 ? '#475569' : 'white', borderRadius: '10px',
