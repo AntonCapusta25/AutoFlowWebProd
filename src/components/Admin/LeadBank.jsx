@@ -1,27 +1,29 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAdmin } from './AdminContext'
+import useSessionState from '../../hooks/useSessionState'
 
 export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle = "Manage your leads." }) {
   const { user, isAdmin, profile, salespeople } = useAdmin()
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
-  const [selectedLead, setSelectedLead] = useState(null)
+  const [selectedLead, setSelectedLead] = useSessionState(`${stateKey}_selectedLead`, null)
   const [history, setHistory] = useState([])
   const [isImporting, setIsImporting] = useState(false)
   const [selectedIds, setSelectedIds] = useState([])
   const [noteModalLead, setNoteModalLead] = useState(null)
   const [callModalLead, setCallModalLead] = useState(null)
   const [isActionLoading, setIsActionLoading] = useState(false)
-  const [page, setPage] = useState(0)
+  const stateKey = useMemo(() => window.location.pathname, [])
+  const [page, setPage] = useSessionState(`${stateKey}_page`, 0)
   const [totalCount, setTotalCount] = useState(0)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState('All')
-  const [assigneeFilter, setAssigneeFilter] = useState('all')
-  const [phoneFilter, setPhoneFilter] = useState('nl')
+  const [searchTerm, setSearchTerm] = useSessionState(`${stateKey}_searchTerm`, '')
+  const [statusFilter, setStatusFilter] = useSessionState(`${stateKey}_statusFilter`, 'All')
+  const [assigneeFilter, setAssigneeFilter] = useSessionState(`${stateKey}_assigneeFilter`, 'all')
+  const [phoneFilter, setPhoneFilter] = useSessionState(`${stateKey}_phoneFilter`, 'nl')
   const [activeIndustries, setActiveIndustries] = useState([])
-  const [tableIndustryFilter, setTableIndustryFilter] = useState('')
-  const [tableTagFilter, setTableTagFilter] = useState('')
+  const [tableIndustryFilter, setTableIndustryFilter] = useSessionState(`${stateKey}_tableIndustry`, '')
+  const [tableTagFilter, setTableTagFilter] = useSessionState(`${stateKey}_tableTag`, '')
   const [dbIndustries, setDbIndustries] = useState([])
   const [dbTags, setDbTags] = useState([])
   const [showImportModal, setShowImportModal] = useState(false)

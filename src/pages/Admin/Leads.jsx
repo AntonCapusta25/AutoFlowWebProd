@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { supabase } from '../../lib/supabase'
 import AdminLayout from '../../components/Admin/AdminLayout'
 import { useAdmin } from '../../components/Admin/AdminContext'
+import useSessionState from '../../hooks/useSessionState'
 
 export default function AdminLeads() {
   const { user, isAdmin, profile, salespeople } = useAdmin()
-  const [assigneeFilter, setAssigneeFilter] = useState('all')
+  const stateKey = useMemo(() => window.location.pathname, [])
+  const [assigneeFilter, setAssigneeFilter] = useSessionState(`${stateKey}_assigneeFilter`, 'all')
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
-  const [selectedLead, setSelectedLead] = useState(null)
+  const [selectedLead, setSelectedLead] = useSessionState(`${stateKey}_selectedLead`, null)
   const [history, setHistory] = useState([])
   const [selectedIds, setSelectedIds] = useState([])
   const [noteModalLead, setNoteModalLead] = useState(null)
