@@ -35,6 +35,7 @@ import AdminTeam from './pages/Admin/Team'
 import AdminDeals from './pages/Admin/Deals'
 import AdminChat from './pages/Admin/Chat'
 import AdminCalendar from './pages/Admin/Calendar'
+import AdminMarketing from './pages/Admin/Marketing'
 import AuthGuard, { AdminGuard } from './components/Admin/AuthGuard'
 
 
@@ -101,6 +102,7 @@ function AppContent() {
           <Route path="/admin/team" element={<AdminGuard><AdminTeam /></AdminGuard>} />
           <Route path="/admin/deals" element={<AuthGuard><AdminDeals /></AuthGuard>} />
           <Route path="/admin/email-settings" element={<AdminGuard><AdminEmailSettings /></AdminGuard>} />
+          <Route path="/admin/marketing" element={<AdminGuard><AdminMarketing /></AdminGuard>} />
 
           <Route path="*"                  element={<NotFound />} />
         </Routes>
