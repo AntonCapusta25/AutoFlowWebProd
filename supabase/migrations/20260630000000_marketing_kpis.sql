@@ -1,12 +1,14 @@
--- Marketing KPI tracker: stores weekly actuals per KPI
-create table if not exists public.marketing_kpis (
-  id          uuid primary key default gen_random_uuid(),
-  week_start  date not null,            -- always a Monday (YYYY-MM-DD)
-  kpi_id      text not null,            -- e.g. 'linkedin_posts', 'cold_emails'
-  actual      integer not null default 0,
-  updated_by  uuid references auth.users(id) on delete set null,
-  updated_at  timestamptz not null default now(),
-  constraint marketing_kpis_week_kpi_unique unique (week_start, kpi_id)
+-- Marketing KPI tracker: stores daily actuals per KPI
+drop table if exists public.marketing_kpis cascade;
+
+create table public.marketing_kpis (
+  id           uuid primary key default gen_random_uuid(),
+  record_date  date not null,            -- the specific day (YYYY-MM-DD)
+  kpi_id       text not null,            -- e.g. 'linkedin_posts', 'cold_emails'
+  actual       integer not null default 0,
+  updated_by   uuid references auth.users(id) on delete set null,
+  updated_at   timestamptz not null default now(),
+  constraint marketing_kpis_date_kpi_unique unique (record_date, kpi_id)
 );
 
 -- Auto-update updated_at
