@@ -641,7 +641,7 @@ export default function AdminLeads() {
         </div>
       </div>
 
-      {isAdmin && salespeople.length > 0 && (
+      {/* {isAdmin && salespeople.length > 0 && (
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap' }}>
           <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Filter by Agent:</p>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -666,7 +666,7 @@ export default function AdminLeads() {
             ))}
           </div>
         </div>
-      )}
+      )} */}
 
       <div className={`leads-grid ${selectedLead ? 'has-selection' : ''}`}>
         <div className="lead-table-container" style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', overflowX: 'auto', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>

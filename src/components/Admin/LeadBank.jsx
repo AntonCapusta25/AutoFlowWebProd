@@ -1172,7 +1172,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         </div>
       </div>
 
-      {isAdmin && salespeople.length > 0 && (
+      {/* {isAdmin && salespeople.length > 0 && (
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap' }}>
           <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Filter by Agent:</p>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -1194,7 +1194,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
             ))}
           </div>
         </div>
-      )}
+      )} */}
 
       <div className="leadbank-filters">
         <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Quick Filter Status:</p>
