@@ -147,9 +147,103 @@ function getWeekRange(dateStr) {
   }
 }
 
-function formatDayLabel(dateStr) {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })
+// Day timeframe calculation
+function getDailyChartData(endDateStr, raw) {
+  const points = []
+  for (let i = 9; i >= 0; i--) {
+    const d = new Date(endDateStr)
+    d.setDate(d.getDate() - i)
+    const dateStr = getLocalDateString(d)
+    
+    const dayRows = raw.filter(r => r.record_date === dateStr)
+    const hits = KPI_DEFINITIONS.filter(kpi => kpi.period === 'daily').filter(kpi => {
+      const row = dayRows.find(r => r.kpi_id === kpi.id)
+      const actual = row ? row.actual : 0
+      return actual >= kpi.target
+    }).length
+    
+    const label = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })
+    const pct = Math.round((hits / 6) * 100)
+    
+    points.push({ label, value: pct, tooltip: `${label}: ${pct}% completion (${hits}/6 targets hit)` })
+  }
+  return points
+}
+
+// Week timeframe calculation
+function getWeeklyChartData(endDateStr, raw) {
+  const points = []
+  const currentMonday = new Date(getWeekRange(endDateStr).monday)
+  
+  for (let i = 7; i >= 0; i--) {
+    const monday = new Date(currentMonday)
+    monday.setDate(monday.getDate() - i * 7)
+    
+    const sunday = new Date(monday)
+    sunday.setDate(monday.getDate() + 6)
+    
+    const mondayStr = getLocalDateString(monday)
+    const sundayStr = getLocalDateString(sunday)
+    
+    const weekRows = raw.filter(r => r.record_date >= mondayStr && r.record_date <= sundayStr)
+    
+    const scores = KPI_DEFINITIONS.map(kpi => {
+      const sum = weekRows.filter(r => r.kpi_id === kpi.id).reduce((acc, r) => acc + r.actual, 0)
+      const target = kpi.period === 'weekly' ? kpi.target : kpi.target * 7
+      return Math.min(sum / target, 1)
+    })
+    
+    const sumScore = scores.reduce((acc, s) => acc + s, 0)
+    const pct = Math.round((sumScore / KPI_DEFINITIONS.length) * 100)
+    const label = monday.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })
+    
+    points.push({ label, value: pct, tooltip: `Week of ${label}: ${pct}% completion` })
+  }
+  return points
+}
+
+// Quarter timeframe calculation
+function getQuarterlyChartData(endDateStr, raw) {
+  const points = []
+  const endD = new Date(endDateStr)
+  
+  for (let i = 3; i >= 0; i--) {
+    const d = new Date(endD)
+    d.setMonth(d.getMonth() - i * 3)
+    
+    const quarter = Math.floor(d.getMonth() / 3) + 1
+    const year = d.getFullYear()
+    
+    let startM, endM, endDNum
+    if (quarter === 1) { startM = 0; endM = 2; endDNum = 31 }
+    else if (quarter === 2) { startM = 3; endM = 5; endDNum = 30 }
+    else if (quarter === 3) { startM = 6; endM = 8; endDNum = 30 }
+    else { startM = 9; endM = 11; endDNum = 31 }
+    
+    const qStart = new Date(year, startM, 1)
+    const qEnd = new Date(year, endM, endDNum)
+    
+    const qStartStr = getLocalDateString(qStart)
+    const qEndStr = getLocalDateString(qEnd)
+    
+    const qRows = raw.filter(r => r.record_date >= qStartStr && r.record_date <= qEndStr)
+    
+    const daysInQ = Math.round((qEnd - qStart) / (1000 * 60 * 60 * 24)) + 1
+    const weeksInQ = daysInQ / 7
+    
+    const scores = KPI_DEFINITIONS.map(kpi => {
+      const sum = qRows.filter(r => r.kpi_id === kpi.id).reduce((acc, r) => acc + r.actual, 0)
+      const target = kpi.period === 'weekly' ? kpi.target * weeksInQ : kpi.target * daysInQ
+      return Math.min(sum / target, 1)
+    })
+    
+    const sumScore = scores.reduce((acc, s) => acc + s, 0)
+    const pct = Math.round((sumScore / KPI_DEFINITIONS.length) * 100)
+    const label = `Q${quarter} ${year}`
+    
+    points.push({ label, value: pct, tooltip: `${label}: ${pct}% completion` })
+  }
+  return points
 }
 
 export default function Marketing() {
@@ -157,18 +251,27 @@ export default function Marketing() {
   const [recordDate, setRecordDate] = useState(getLocalDateString())
   const [actuals, setActuals] = useState({})
   const [weeklySums, setWeeklySums] = useState({})
+  const [rawData, setRawData] = useState([])
   const [saving, setSaving] = useState({})
   const [loading, setLoading] = useState(true)
+  
+  // timeframes: 'daily' | 'weekly' | 'quarterly'
+  const [timeframe, setTimeframe] = useState('daily')
+  const [hoveredPoint, setHoveredPoint] = useState(null)
 
   const fetchKPIs = useCallback(async (selectedDate) => {
     setLoading(true)
-    const { monday, sunday } = getWeekRange(selectedDate)
+    
+    // Fetch last 365 days of data to feed the weekly and quarterly aggregated metrics
+    const start = new Date(selectedDate)
+    start.setDate(start.getDate() - 365)
+    const startDateStr = getLocalDateString(start)
 
     const { data } = await supabase
       .from('marketing_kpis')
       .select('*')
-      .gte('record_date', monday)
-      .lte('record_date', sunday)
+      .gte('record_date', startDateStr)
+      .lte('record_date', selectedDate)
 
     if (data) {
       // 1. Build map for selected day
@@ -178,15 +281,20 @@ export default function Marketing() {
       })
       setActuals(dayMap)
 
-      // 2. Build map for weekly sums
+      // 2. Build map for weekly sums of the selected date's week
+      const { monday, sunday } = getWeekRange(selectedDate)
       const sumMap = {}
-      data.forEach(row => {
+      data.filter(r => r.record_date >= monday && r.record_date <= sunday).forEach(row => {
         sumMap[row.kpi_id] = (sumMap[row.kpi_id] || 0) + row.actual
       })
       setWeeklySums(sumMap)
+
+      // 3. Store raw entries for chart computation
+      setRawData(data)
     } else {
       setActuals({})
       setWeeklySums({})
+      setRawData([])
     }
     setLoading(false)
   }, [])
@@ -201,12 +309,24 @@ export default function Marketing() {
 
     setSaving(prev => ({ ...prev, [kpiId]: true }))
 
-    // Update local state immediately for snappy feel
+    // Update local state immediately for responsive feel
     const prevDayVal = actuals[kpiId] || 0
     const diff = num - prevDayVal
 
     setActuals(prev => ({ ...prev, [kpiId]: num }))
     setWeeklySums(prev => ({ ...prev, [kpiId]: (prev[kpiId] || 0) + diff }))
+
+    // Update rawData state so the graph updates instantly
+    setRawData(prev => {
+      const idx = prev.findIndex(r => r.record_date === recordDate && r.kpi_id === kpiId)
+      if (idx > -1) {
+        const updated = [...prev]
+        updated[idx] = { ...updated[idx], actual: num }
+        return updated
+      } else {
+        return [...prev, { record_date: recordDate, kpi_id: kpiId, actual: num }]
+      }
+    })
 
     await supabase
       .from('marketing_kpis')
@@ -238,7 +358,6 @@ export default function Marketing() {
 
   // Overall calculations
   const dailyKpis = KPI_DEFINITIONS.filter(k => k.period === 'daily')
-  const weeklyKpis = KPI_DEFINITIONS.filter(k => k.period === 'weekly')
 
   // Calculate daily targets hit today
   const dailyTargetsHit = dailyKpis.filter(kpi => {
@@ -252,7 +371,6 @@ export default function Marketing() {
       const sum = weeklySums[kpi.id] || 0
       return acc + Math.min(sum / kpi.target, 1)
     } else {
-      // Daily KPI: target for the week is daily_target * 7
       const sum = weeklySums[kpi.id] || 0
       const weeklyTarget = kpi.target * 7
       return acc + Math.min(sum / weeklyTarget, 1)
@@ -260,16 +378,66 @@ export default function Marketing() {
   }, 0)
   const overallWeeklyPct = Math.round((totalWeeklyScore / KPI_DEFINITIONS.length) * 100)
 
+  // Chart computation
+  const chartPoints = timeframe === 'daily'
+    ? getDailyChartData(recordDate, rawData)
+    : timeframe === 'weekly'
+      ? getWeeklyChartData(recordDate, rawData)
+      : getQuarterlyChartData(recordDate, rawData)
+
+  const width = 600
+  const height = 220
+  const paddingLeft = 45
+  const paddingRight = 20
+  const paddingTop = 25
+  const paddingBottom = 30
+
+  const svgPoints = chartPoints.map((p, idx) => {
+    const x = paddingLeft + (idx / (chartPoints.length - 1 || 1)) * (width - paddingLeft - paddingRight)
+    const y = height - paddingBottom - (p.value / 100) * (height - paddingTop - paddingBottom)
+    return { x, y, ...p }
+  })
+
+  let pathD = ''
+  let areaD = ''
+  if (svgPoints.length > 0) {
+    pathD = `M ${svgPoints[0].x} ${svgPoints[0].y} ` + svgPoints.slice(1).map(p => `L ${p.x} ${p.y}`).join(' ')
+    areaD = `${pathD} L ${svgPoints[svgPoints.length - 1].x} ${height - paddingBottom} L ${svgPoints[0].x} ${height - paddingBottom} Z`
+  }
+
   const { monday, sunday } = getWeekRange(recordDate)
 
   return (
     <AdminLayout>
       <style>{`
-        @keyframes kpiPulse { 0%,100% { opacity:1 } 50% { opacity:0.6 } }
         @keyframes barFill { from { width: 0 } }
         .kpi-card { transition: transform 0.2s, box-shadow 0.2s; }
         .kpi-card:hover { transform: translateY(-2px); }
         .kpi-input::-webkit-inner-spin-button, .kpi-input::-webkit-outer-spin-button { opacity: 0.5; }
+        .tf-btn {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.06);
+          color: #94A3B8;
+          padding: 8px 16px;
+          border-radius: 10px;
+          font-weight: 700;
+          font-size: 0.8rem;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .tf-btn.active {
+          background: linear-gradient(135deg, #e91e63, #9c27b0);
+          border: none;
+          color: white;
+          box-shadow: 0 4px 12px rgba(233, 30, 99, 0.25);
+        }
+        .chart-circle {
+          transition: r 0.2s, fill 0.2s;
+        }
+        .chart-circle:hover {
+          r: 7;
+          fill: #white;
+        }
       `}</style>
 
       {/* Header */}
@@ -282,27 +450,39 @@ export default function Marketing() {
             <p style={{ color: '#64748B', margin: 0 }}>Daily KPI tracking with weekly aggregated targets</p>
           </div>
 
-          {/* Date & Week Selector */}
+          {/* Date Selector & Calendar Picker */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <button
                 onClick={prevDay}
                 style={{
                   background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: '10px', color: '#94A3B8', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center'
+                  borderRadius: '10px', color: '#94A3B8', cursor: 'pointer', padding: '10px', display: 'flex', alignItems: 'center'
                 }}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
               </button>
               
-              <div style={{
-                background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px',
-                padding: '8px 16px', textAlign: 'center', minWidth: '220px'
-              }}>
-                <div style={{ fontSize: '0.7rem', color: isToday ? '#10b981' : '#64748B', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '2px' }}>
-                  {isToday ? '🟢 Today' : 'Selected Day'}
-                </div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'white' }}>{formatDayLabel(recordDate)}</div>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input
+                  type="date"
+                  value={recordDate}
+                  max={getLocalDateString()}
+                  onChange={e => e.target.value && setRecordDate(e.target.value)}
+                  style={{
+                    background: '#0a0a0a',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: '14px',
+                    color: 'white',
+                    padding: '10px 16px',
+                    fontSize: '0.9rem',
+                    fontWeight: 700,
+                    outline: 'none',
+                    cursor: 'pointer',
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    textAlign: 'center'
+                  }}
+                />
               </div>
 
               <button
@@ -311,7 +491,7 @@ export default function Marketing() {
                 style={{
                   background: isToday ? 'rgba(255,255,255,0.01)' : 'rgba(255,255,255,0.03)',
                   border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: '10px', color: isToday ? '#334155' : '#94A3B8', cursor: isToday ? 'default' : 'pointer', padding: '8px', display: 'flex', alignItems: 'center'
+                  borderRadius: '10px', color: isToday ? '#334155' : '#94A3B8', cursor: isToday ? 'default' : 'pointer', padding: '10px', display: 'flex', alignItems: 'center'
                 }}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -336,9 +516,9 @@ export default function Marketing() {
         </div>
 
         {/* Progress Overview Section */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginTop: '24px' }}>
           
-          {/* Daily checklist completion */}
+          {/* Daily completion */}
           <div style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '20px 24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <span style={{ fontWeight: 700, color: 'white', fontSize: '0.9rem' }}>Daily Target Checklist</span>
@@ -357,10 +537,10 @@ export default function Marketing() {
                 transition: 'width 0.4s ease-out',
               }} />
             </div>
-            <p style={{ margin: '8px 0 0 0', fontSize: '0.7rem', color: '#475569' }}>Tracks number of daily targets hit on this day</p>
+            <p style={{ margin: '8px 0 0 0', fontSize: '0.7rem', color: '#475569' }}>Number of daily targets hit on the selected date</p>
           </div>
 
-          {/* Weekly cumulative completion */}
+          {/* Weekly cumulative */}
           <div style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '20px 24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <span style={{ fontWeight: 700, color: 'white', fontSize: '0.9rem' }}>Weekly Aggregate Score</span>
@@ -381,8 +561,153 @@ export default function Marketing() {
                 transition: 'width 0.4s ease-out',
               }} />
             </div>
-            <p style={{ margin: '8px 0 0 0', fontSize: '0.7rem', color: '#475569' }}>Progress against targets across the entire week</p>
+            <p style={{ margin: '8px 0 0 0', fontSize: '0.7rem', color: '#475569' }}>Completion percentage over the entire week (Mon-Sun)</p>
           </div>
+        </div>
+      </div>
+
+      {/* KPI Completion Trend Graph */}
+      <div style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '24px', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <h3 style={{ margin: 0, color: 'white', fontSize: '1.1rem', fontWeight: 800 }}>KPI Performance Trend</h3>
+            <p style={{ margin: '4px 0 0 0', color: '#64748B', fontSize: '0.75rem' }}>Average target achievement percentage over time</p>
+          </div>
+          
+          {/* Timeframe selector */}
+          <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.02)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <button className={`tf-btn ${timeframe === 'daily' ? 'active' : ''}`} onClick={() => setTimeframe('daily')}>Daily</button>
+            <button className={`tf-btn ${timeframe === 'weekly' ? 'active' : ''}`} onClick={() => setTimeframe('weekly')}>Weekly</button>
+            <button className={`tf-btn ${timeframe === 'quarterly' ? 'active' : ''}`} onClick={() => setTimeframe('quarterly')}>Quarterly</button>
+          </div>
+        </div>
+
+        {/* Custom SVG Trend Graph */}
+        <div style={{ position: 'relative', width: '100%', overflowX: 'auto' }}>
+          {loading ? (
+            <div style={{ height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569' }}>Loading trend...</div>
+          ) : (
+            <div style={{ minWidth: '600px', position: 'relative' }}>
+              
+              {/* Dynamic Interactive Tooltip */}
+              {hoveredPoint && (
+                <div style={{
+                  position: 'absolute',
+                  left: `${(hoveredPoint.x / width) * 100}%`,
+                  top: `${hoveredPoint.y - 45}px`,
+                  transform: 'translateX(-50%)',
+                  background: 'rgba(10, 10, 10, 0.95)',
+                  border: '1px solid rgba(233, 30, 99, 0.4)',
+                  padding: '8px 12px',
+                  borderRadius: '10px',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                  color: 'white',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  pointerEvents: 'none',
+                  zIndex: 10,
+                  whiteSpace: 'nowrap'
+                }}>
+                  {hoveredPoint.tooltip}
+                </div>
+              )}
+
+              <svg viewBox={`0 0 ${width} ${height}`} width="100%" height="220px" style={{ overflow: 'visible' }}>
+                <defs>
+                  <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#e91e63" stopOpacity="0.25"/>
+                    <stop offset="100%" stopColor="#9c27b0" stopOpacity="0.0"/>
+                  </linearGradient>
+                  <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#e91e63"/>
+                    <stop offset="100%" stopColor="#9c27b0"/>
+                  </linearGradient>
+                </defs>
+
+                {/* Y-Axis Grid Lines & Labels */}
+                {[0, 25, 50, 75, 100].map(val => {
+                  const yVal = height - paddingBottom - (val / 100) * (height - paddingTop - paddingBottom)
+                  return (
+                    <g key={val}>
+                      <line
+                        x1={paddingLeft}
+                        y1={yVal}
+                        x2={width - paddingRight}
+                        y2={yVal}
+                        stroke="rgba(255,255,255,0.06)"
+                        strokeDasharray="4 4"
+                      />
+                      <text
+                        x={paddingLeft - 10}
+                        y={yVal + 4}
+                        fill="#475569"
+                        fontSize="10"
+                        fontWeight="700"
+                        textAnchor="end"
+                      >
+                        {val}%
+                      </text>
+                    </g>
+                  )
+                })}
+
+                {/* X-Axis labels & vertical tick lines */}
+                {svgPoints.map((p, idx) => (
+                  <g key={idx}>
+                    <line
+                      x1={p.x}
+                      y1={height - paddingBottom}
+                      x2={p.x}
+                      y2={height - paddingBottom + 5}
+                      stroke="rgba(255,255,255,0.15)"
+                    />
+                    <text
+                      x={p.x}
+                      y={height - paddingBottom + 18}
+                      fill="#64748B"
+                      fontSize="9.5"
+                      fontWeight="700"
+                      textAnchor="middle"
+                    >
+                      {p.label}
+                    </text>
+                  </g>
+                ))}
+
+                {/* Area under the line */}
+                {areaD && <path d={areaD} fill="url(#chartGradient)" />}
+
+                {/* Main trend line */}
+                {pathD && (
+                  <path
+                    d={pathD}
+                    fill="none"
+                    stroke="url(#lineGradient)"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                )}
+
+                {/* Glowing points */}
+                {svgPoints.map((p, idx) => (
+                  <circle
+                    key={idx}
+                    className="chart-circle"
+                    cx={p.x}
+                    cy={p.y}
+                    r="4.5"
+                    fill={hoveredPoint && hoveredPoint.label === p.label ? '#white' : '#e91e63'}
+                    stroke="#0a0a0a"
+                    strokeWidth="2"
+                    style={{ cursor: 'pointer' }}
+                    onMouseEnter={() => setHoveredPoint(p)}
+                    onMouseLeave={() => setHoveredPoint(null)}
+                  />
+                ))}
+              </svg>
+            </div>
+          )}
         </div>
       </div>
 
