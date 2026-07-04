@@ -34,7 +34,21 @@ const DEFAULT_TEMPLATES = {
 }
 
 function interpolatePreview(text, vars) {
+  if (!text) return '';
   return text.replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? `<span style="color:#f59e0b">{{${k}}}</span>`)
+}
+
+function formatPreviewBody(text, vars) {
+  if (!text) return '';
+  const interpolated = interpolatePreview(text, vars);
+  const hasHtml = /<[a-z][\s\S]*>/i.test(interpolated);
+  if (hasHtml) {
+    return `<div class="html-preview-content">${interpolated}</div>`;
+  }
+  return interpolated
+    .split(/\n\s*\n/)
+    .map(para => `<p style="margin: 0 0 16px 0;">${para.replace(/\n/g, '<br />')}</p>`)
+    .join('');
 }
 
 export default function AdminEmailSettings() {
@@ -269,6 +283,9 @@ export default function AdminEmailSettings() {
           box-shadow: 0 12px 30px rgba(0,0,0,0.5);
         }
         .toggle-track { transition: background 0.2s; cursor: pointer; }
+        .html-preview-content p {
+          margin: 0 0 16px 0 !important;
+        }
         .wizard-step-indicator {
           display: flex;
           align-items: center;
@@ -713,7 +730,7 @@ export default function AdminEmailSettings() {
                         </p>
                         <div
                           style={{ color: '#CBD5E1', fontSize: '0.85rem', lineHeight: 1.6 }}
-                          dangerouslySetInnerHTML={{ __html: interpolatePreview(wizardBody || '<em style="color:#475569">No email body code...</em>', previewVars) }}
+                          dangerouslySetInnerHTML={{ __html: formatPreviewBody(wizardBody || '<em style="color:#475569">No email body code...</em>', previewVars) }}
                         />
                       </div>
                       <div style={{ padding: '10px 20px', background: '#0a0a0a', textAlign: 'center' }}>

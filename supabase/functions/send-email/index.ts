@@ -17,6 +17,18 @@ function interpolate(template: string, vars: Record<string, string>): string {
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? `{{${key}}}`)
 }
 
+// Convert newlines to HTML blocks/breaks if plain text is input
+function formatBodyToHtml(bodyText: string): string {
+  const hasHtml = /<[a-z][\s\S]*>/i.test(bodyText)
+  if (hasHtml) {
+    return bodyText
+  }
+  return bodyText
+    .split(/\n\s*\n/)
+    .map(para => `<p style="margin: 0 0 16px 0;">${para.replace(/\n/g, '<br />')}</p>`)
+    .join('')
+}
+
 // ── CRITICAL: Google OAuth token endpoint requires form-encoded body, NOT JSON ──
 async function getAccessToken(): Promise<string> {
   if (!CLIENT_ID || !CLIENT_SECRET || !REFRESH_TOKEN) {
@@ -312,10 +324,13 @@ Deno.serve(async (req) => {
       line-height: 1.6;
       color: #1f2937;
     }
+    p {
+      margin: 0 0 16px 0 !important;
+    }
   </style>
 </head>
 <body style="margin:0;padding:20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#1f2937;">
-  <div style="white-space: pre-wrap;">${finalBodyInner}</div>
+  <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#1f2937;">${formatBodyToHtml(finalBodyInner)}</div>
 </body>
 </html>`
 
