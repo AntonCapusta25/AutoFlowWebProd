@@ -39,6 +39,20 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   const [customEmailBody, setCustomEmailBody] = useState('')
   const [selectedTemplate, setSelectedTemplate] = useState('')
   const [emailSending, setEmailSending] = useState(false)
+  const [emailTemplates, setEmailTemplates] = useState([])
+
+  useEffect(() => {
+    if (!customEmailLead) return
+    async function fetchTemplates() {
+      const { data } = await supabase
+        .from('email_templates')
+        .select('status, subject, body')
+      if (data) {
+        setEmailTemplates(data)
+      }
+    }
+    fetchTemplates()
+  }, [customEmailLead])
 
   const [bookingLead, setBookingLead] = useState(null)
   const [bookingTitle, setBookingTitle] = useState('')
@@ -522,30 +536,21 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       return
     }
 
-    try {
-      const { data: tmpl } = await supabase
-        .from('email_templates')
-        .select('subject, body')
-        .eq('status', templateKey)
-        .single()
-
-      if (tmpl) {
-        const vars = {
-          name: customEmailLead.name || 'there',
-          status: templateKey,
-          company: customEmailLead.company || '',
-          service: customEmailLead.industry || customEmailLead.service || ''
-        }
-
-        const interpolateVars = (str) => {
-          return str.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? `{{${key}}}`)
-        }
-
-        setCustomEmailSubject(interpolateVars(tmpl.subject || ''))
-        setCustomEmailBody(interpolateVars(tmpl.body || ''))
+    const tmpl = emailTemplates.find(t => t.status === templateKey)
+    if (tmpl) {
+      const vars = {
+        name: customEmailLead.name || 'there',
+        status: templateKey,
+        company: customEmailLead.company || '',
+        service: customEmailLead.industry || customEmailLead.service || ''
       }
-    } catch (err) {
-      console.error('Failed to load template:', err)
+
+      const interpolateVars = (str) => {
+        return str.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? `{{${key}}}`)
+      }
+
+      setCustomEmailSubject(interpolateVars(tmpl.subject || ''))
+      setCustomEmailBody(interpolateVars(tmpl.body || ''))
     }
   }
 
@@ -1797,18 +1802,40 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                 style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', outline: 'none', cursor: 'pointer' }}
               >
                 <option value="" style={{ background: '#111' }}>-- Custom / Blank --</option>
-                {[
-                  { key: 'New', label: 'New Lead' },
-                  { key: 'Contacted', label: 'Contacted' },
-                  { key: 'In Progress', label: 'In Progress' },
-                  { key: 'Meeting Booked', label: 'Meeting Booked' },
-                  { key: 'Waiting for Invoice', label: 'Waiting for Invoice' },
-                  { key: 'No Response', label: 'No Response' },
-                  { key: 'Converted', label: 'Converted' },
-                  { key: 'Lost', label: 'Lost' },
-                ].map(opt => (
-                  <option key={opt.key} value={opt.key} style={{ background: '#111' }}>{opt.label}</option>
-                ))}
+                {emailTemplates.filter(t => ['New', 'Contacted', 'In Progress', 'Meeting Booked', 'Waiting for Invoice', 'No Response', 'Converted', 'Lost'].includes(t.status)).length > 0 && (
+                  <optgroup label="System / Status Templates" style={{ background: '#111', color: '#94a3b8' }}>
+                    {emailTemplates
+                      .filter(t => ['New', 'Contacted', 'In Progress', 'Meeting Booked', 'Waiting for Invoice', 'No Response', 'Converted', 'Lost'].includes(t.status))
+                      .map(t => {
+                        const labels = {
+                          'New': 'New Lead',
+                          'Contacted': 'Contacted',
+                          'In Progress': 'In Progress',
+                          'Meeting Booked': 'Meeting Booked',
+                          'Waiting for Invoice': 'Waiting for Invoice',
+                          'No Response': 'No Response',
+                          'Converted': 'Converted',
+                          'Lost': 'Lost'
+                        }
+                        return (
+                          <option key={t.status} value={t.status} style={{ background: '#111', color: 'white' }}>
+                            {labels[t.status] || t.status}
+                          </option>
+                        )
+                      })}
+                  </optgroup>
+                )}
+                {emailTemplates.filter(t => !['New', 'Contacted', 'In Progress', 'Meeting Booked', 'Waiting for Invoice', 'No Response', 'Converted', 'Lost'].includes(t.status)).length > 0 && (
+                  <optgroup label="Custom Templates" style={{ background: '#111', color: '#94a3b8' }}>
+                    {emailTemplates
+                      .filter(t => !['New', 'Contacted', 'In Progress', 'Meeting Booked', 'Waiting for Invoice', 'No Response', 'Converted', 'Lost'].includes(t.status))
+                      .map(t => (
+                        <option key={t.status} value={t.status} style={{ background: '#111', color: 'white' }}>
+                          {t.status}
+                        </option>
+                      ))}
+                  </optgroup>
+                )}
               </select>
             </div>
 
