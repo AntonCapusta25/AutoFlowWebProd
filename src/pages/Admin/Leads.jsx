@@ -722,13 +722,14 @@ export default function AdminLeads() {
                     </td>
                     <td style={{ padding: '20px' }}>
                       {lead.website ? (() => {
-                        let url = lead.website.trim().replace(/^https?:\/*/, '')
-                        const fullUrl = `https://${url}`
+                        let url = lead.website.trim()
+                        const fullUrl = /^https?:\/\//i.test(url) ? url : `https://${url.replace(/^https?:\/*/i, '')}`
                         return (
                           <a
                             href={fullUrl}
                             target="_blank"
                             rel="noopener noreferrer"
+                            onClick={e => e.stopPropagation()}
                             style={{
                               display: 'flex', alignItems: 'center', gap: '8px', color: '#3b82f6',
                               fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none',

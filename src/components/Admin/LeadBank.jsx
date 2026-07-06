@@ -1347,10 +1347,10 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                     </td>
                     <td style={{ padding: '20px' }}>
                       {lead.website ? (() => {
-                        let url = lead.website.trim().replace(/^https?:\/*/, '')
-                        const fullUrl = `https://${url}`
+                        let url = lead.website.trim()
+                        const fullUrl = /^https?:\/\//i.test(url) ? url : `https://${url.replace(/^https?:\/*/i, '')}`
                         return (
-                          <a href={fullUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#3b82f6', fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none', background: 'rgba(59, 130, 246, 0.05)', padding: '6px 12px', borderRadius: '8px', width: 'fit-content' }}>
+                          <a href={fullUrl} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#3b82f6', fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none', background: 'rgba(59, 130, 246, 0.05)', padding: '6px 12px', borderRadius: '8px', width: 'fit-content' }}>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                             Visit
                           </a>
