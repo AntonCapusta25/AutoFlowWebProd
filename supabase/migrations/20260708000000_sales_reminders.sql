@@ -166,7 +166,9 @@ $$ language plpgsql security definer;
 -- ============================================================
 -- 5. Schedule pg_cron Job (Runs check_and_send_reminders every minute)
 -- ============================================================
-select cron.unschedule('send-sales-reminders');
+-- Safely unschedule if exists to prevent crashes on first run
+select cron.unschedule(jobid) from cron.job where jobname = 'send-sales-reminders';
+
 select cron.schedule(
   'send-sales-reminders',
   '* * * * *',
