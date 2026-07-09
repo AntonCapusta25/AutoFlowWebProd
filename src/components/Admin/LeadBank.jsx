@@ -221,6 +221,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       // Apply Phone / Country Filter
       if (phoneFilter === 'nl') query = query.ilike('phone', '+31%')
       else if (phoneFilter === 'uk') query = query.ilike('phone', '+44%')
+      else if (phoneFilter === 'us') query = query.ilike('phone', '+1%')
 
       // Apply Excel-style Column Filters
       if (tableIndustryFilter) query = query.eq('industry', tableIndustryFilter)
@@ -629,7 +630,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'New': return { bg: 'rgba(233, 30, 99, 0.1)', text: 'rgb(244, 114, 182)', border: '1px solid rgba(233, 30, 99, 0.2)' }
+      case 'New': return { bg: 'rgba(104, 14, 46, 0.1)', text: 'rgb(244, 114, 182)', border: '1px solid rgba(104, 14, 46, 0.2)' }
       case 'Contacted': return { bg: 'rgba(59, 130, 246, 0.1)', text: '#93c5fd', border: '1px solid rgba(59, 130, 246, 0.2)' }
       case 'In Progress': return { bg: 'rgba(245, 158, 11, 0.1)', text: '#fcd34d', border: '1px solid rgba(245, 158, 11, 0.2)' }
       case 'Meeting Booked': return { bg: 'rgba(168, 85, 247, 0.1)', text: '#c084fc', border: '1px solid rgba(168, 85, 247, 0.2)' }
@@ -640,8 +641,8 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       case 'Scraped': return { bg: 'rgba(148, 163, 184, 0.1)', text: '#94A3B8', border: '1px solid rgba(148, 163, 184, 0.2)' }
       case 'Interested': return { bg: 'rgba(16, 185, 129, 0.1)', text: '#6ee7b7', border: '1px solid rgba(16, 185, 129, 0.2)' }
       case 'Not Interested': return { bg: 'rgba(239, 68, 68, 0.1)', text: '#f87171', border: '1px solid rgba(239, 68, 68, 0.2)' }
-      case 'Promoted': return { bg: 'rgba(233, 30, 99, 0.1)', text: '#f472b6', border: '1px solid rgba(233, 30, 99, 0.2)' }
-      default: return { bg: 'rgba(233, 30, 99, 0.1)', text: 'rgb(244, 114, 182)', border: '1px solid rgba(233, 30, 99, 0.2)' }
+      case 'Promoted': return { bg: 'rgba(104, 14, 46, 0.1)', text: '#f472b6', border: '1px solid rgba(104, 14, 46, 0.2)' }
+      default: return { bg: 'rgba(104, 14, 46, 0.1)', text: 'rgb(244, 114, 182)', border: '1px solid rgba(104, 14, 46, 0.2)' }
     }
   }
 
@@ -1150,7 +1151,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                 borderRadius: '12px', color: 'white', fontSize: '0.9rem', outline: 'none', width: '260px',
                 transition: 'all 0.2s'
               }}
-              onFocus={e => e.currentTarget.style.borderColor = 'rgba(233, 30, 99, 0.4)'}
+              onFocus={e => e.currentTarget.style.borderColor = 'rgba(104, 14, 46, 0.4)'}
               onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'}
             />
           </div>
@@ -1170,7 +1171,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           <button onClick={deduplicateDatabase} disabled={isActionLoading} style={{ padding: '10px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#94A3B8', borderRadius: '12px', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }}>
             {isActionLoading ? 'Cleaning...' : 'Cleanup Duplicates'}
           </button>
-          <button onClick={() => setShowImportModal(true)} style={{ padding: '10px 20px', background: 'linear-gradient(135deg, #e91e63, #9c27b0)', color: 'white', borderRadius: '12px', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem', border: 'none' }}>
+          <button onClick={() => setShowImportModal(true)} style={{ padding: '10px 20px', background: 'linear-gradient(135deg, #680E2E, #4a0a20)', color: 'white', borderRadius: '12px', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem', border: 'none' }}>
             {isImporting ? 'Importing...' : 'Upload CSV'}
           </button>
           <button onClick={() => fetchLeads()} style={{ padding: '10px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', borderRadius: '12px', cursor: 'pointer' }}>Refresh</button>
@@ -1219,7 +1220,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
         <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.08)' }} />
         <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Phone:</p>
-        {[{ id: 'all', label: 'All' }, { id: 'nl', label: '🇳🇱 NL' }, { id: 'uk', label: '🇬🇧 UK' }].map(opt => (
+        {[{ id: 'all', label: 'All' }, { id: 'nl', label: '🇳🇱 NL' }, { id: 'uk', label: '🇬🇧 UK' }, { id: 'us', label: '🇺🇸 US' }].map(opt => (
           <button
             key={opt.id}
             onClick={() => { setPhoneFilter(opt.id); goToPage(0); }}
@@ -1332,7 +1333,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                 <tr><td colSpan={isAdmin ? '10' : '9'} style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>No outbound leads match table filters.</td></tr>
               ) : leads.map(lead => {
                 return (
-                  <tr key={lead.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)', background: selectedLead?.id === lead.id ? 'rgba(233, 30, 99, 0.04)' : 'transparent', transition: 'all 0.2s' }}>
+                  <tr key={lead.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)', background: selectedLead?.id === lead.id ? 'rgba(104, 14, 46, 0.04)' : 'transparent', transition: 'all 0.2s' }}>
                     <td style={{ padding: '20px' }}>
                       <input type="checkbox" checked={selectedIds.includes(lead.id)} onChange={() => toggleSelect(lead.id)} />
                     </td>
@@ -1452,7 +1453,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                     )}
                     <td style={{ padding: '20px', textAlign: 'center', position: 'sticky', right: 0, background: selectedLead?.id === lead.id ? '#1a0b12' : '#0a0a0a', zIndex: 10, borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <button onClick={() => setCallModalLead(lead)} style={{ padding: '8px 12px', background: 'rgba(233, 30, 99, 0.08)', border: '1px solid rgba(233, 30, 99, 0.1)', color: '#e91e63', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <button onClick={() => setCallModalLead(lead)} style={{ padding: '8px 12px', background: 'rgba(104, 14, 46, 0.08)', border: '1px solid rgba(104, 14, 46, 0.1)', color: '#680E2E', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                           <span style={{ fontWeight: 800, fontSize: '0.8rem' }}>{lead.call_attempts || 0}</span>
                         </button>
@@ -1508,11 +1509,11 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                         onClick={() => goToPage(pageNum)}
                         style={{
                           width: '40px', height: '40px', borderRadius: '10px',
-                          background: page === pageNum ? '#e91e63' : 'rgba(255,255,255,0.03)',
+                          background: page === pageNum ? '#680E2E' : 'rgba(255,255,255,0.03)',
                           border: page === pageNum ? 'none' : '1px solid rgba(255,255,255,0.08)',
                           color: 'white', cursor: 'pointer', fontWeight: 800, fontSize: '0.85rem',
                           transition: 'all 0.2s',
-                          boxShadow: page === pageNum ? '0 4px 15px rgba(233, 30, 99, 0.3)' : 'none'
+                          boxShadow: page === pageNum ? '0 4px 15px rgba(104, 14, 46, 0.3)' : 'none'
                         }}
                       >
                         {pageNum + 1}
@@ -1555,7 +1556,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
               </button>
             </div>
 
-            <div style={{ background: 'linear-gradient(145deg, #160a0f, #0a0a0a)', border: '1px solid rgba(233, 30, 99, 0.2)', borderRadius: '16px', padding: '20px', marginBottom: '32px' }}>
+            <div style={{ background: 'linear-gradient(145deg, #160a0f, #0a0a0a)', border: '1px solid rgba(104, 14, 46, 0.2)', borderRadius: '16px', padding: '20px', marginBottom: '32px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h4 style={{ margin: 0, color: 'white', fontSize: '0.95rem', fontWeight: 700 }}>Quick Notes</h4>
               </div>
@@ -1572,7 +1573,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                 <button
                   onClick={() => addComment(selectedLead, newNote)}
                   disabled={!newNote.trim() || isActionLoading}
-                  style={{ padding: '10px 16px', background: newNote.trim() ? '#e91e63' : 'rgba(233, 30, 99, 0.2)', border: 'none', color: 'white', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, cursor: newNote.trim() ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}
+                  style={{ padding: '10px 16px', background: newNote.trim() ? '#680E2E' : 'rgba(104, 14, 46, 0.2)', border: 'none', color: 'white', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, cursor: newNote.trim() ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}
                 >
                   Save
                 </button>
@@ -1597,9 +1598,9 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                       {idx !== history.length - 1 && <div style={{ position: 'absolute', left: '7px', top: '24px', bottom: 0, width: '2px', background: 'rgba(255, 255, 255, 0.05)' }} />}
                       <div style={{
                         width: '16px', height: '16px', borderRadius: '50%',
-                        background: item.event_type === 'call' ? '#e91e63' : item.event_type === 'status_change' ? '#3b82f6' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '#a855f7' : '#10b981',
+                        background: item.event_type === 'call' ? '#680E2E' : item.event_type === 'status_change' ? '#3b82f6' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '#a855f7' : '#10b981',
                         zIndex: 1, marginTop: '4px', flexShrink: 0,
-                        boxShadow: item.event_type === 'call' ? '0 0 10px rgba(233, 30, 99, 0.3)' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '0 0 10px rgba(168, 85, 247, 0.3)' : 'none'
+                        boxShadow: item.event_type === 'call' ? '0 0 10px rgba(104, 14, 46, 0.3)' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '0 0 10px rgba(168, 85, 247, 0.3)' : 'none'
                       }} />
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
@@ -1621,7 +1622,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
             <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button onClick={() => setCallModalLead(selectedLead)} style={{ flex: 1, padding: '14px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 8px 20px rgba(233, 30, 99, 0.3)' }}>
+                <button onClick={() => setCallModalLead(selectedLead)} style={{ flex: 1, padding: '14px', background: '#680E2E', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 8px 20px rgba(104, 14, 46, 0.3)' }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                   Log Call
                 </button>
@@ -1733,7 +1734,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
             </select>
 
             <div
-              onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = '#e91e63' }}
+              onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = '#680E2E' }}
               onDragLeave={e => { e.preventDefault(); e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)' }}
               onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; handleFileUpload(e.dataTransfer.files[0]) }}
               style={{ border: '2px dashed rgba(255,255,255,0.2)', padding: '40px', borderRadius: '16px', textAlign: 'center', color: '#94A3B8', cursor: 'pointer', marginBottom: '24px', transition: 'all 0.2s' }}
@@ -1773,7 +1774,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                   logCall(callModalLead, content)
                   setCallModalLead(null)
                 }}
-                style={{ flex: 1, padding: '12px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}
+                style={{ flex: 1, padding: '12px', background: '#680E2E', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}
               >
                 Log Call
               </button>
@@ -1920,7 +1921,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                   }
                 }}
                 disabled={emailSending}
-                style={{ flex: 1, padding: '14px', background: 'linear-gradient(135deg, #e91e63, #9c27b0)', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                style={{ flex: 1, padding: '14px', background: 'linear-gradient(135deg, #680E2E, #4a0a20)', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
                 {emailSending ? (
                   <>
