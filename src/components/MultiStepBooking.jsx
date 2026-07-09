@@ -4,6 +4,12 @@ import { supabase, sendEmailNotification } from '../lib/supabase'
 
 const STEPS = [
   {
+    id: 'phone',
+    question: { en: 'What is your phone number?', nl: 'Wat is uw telefoonnummer?' },
+    type: 'text',
+    field: 'phone'
+  },
+  {
     id: 'intro',
     question: { en: 'What problem do you have?', nl: 'Welk probleem heeft u?' },
     type: 'text',
@@ -38,7 +44,7 @@ const STEPS = [
     id: 'contact',
     question: { en: 'Lastly, how can we reach you?', nl: 'Ten slotte, hoe kunnen we u bereiken?' },
     type: 'contact',
-    fields: ['name', 'email', 'phone']
+    fields: ['name', 'email']
   }
 ]
 
@@ -54,12 +60,32 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
     if (initialQuery) setForm(f => ({ ...f, message: initialQuery }))
   }, [initialQuery])
 
   const next = () => {
+    setErrorMsg('')
+    const step = STEPS[currentStep]
+
+    // Mandatory Phone check on step 1
+    if (step.id === 'phone') {
+      if (!form.phone || !form.phone.trim()) {
+        setErrorMsg(lang === 'nl' ? 'Telefoonnummer is verplicht.' : 'Phone number is required.')
+        return
+      }
+    }
+
+    // Mandatory Email check on the final contact step
+    if (step.id === 'contact') {
+      if (!form.email || !form.email.trim()) {
+        setErrorMsg(lang === 'nl' ? 'E-mailadres is verplicht.' : 'Email address is required.')
+        return
+      }
+    }
+
     if (currentStep < STEPS.length - 1) {
       setCurrentStep(c => c + 1)
     } else {
@@ -68,6 +94,7 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
   }
 
   const prev = () => {
+    setErrorMsg('')
     if (currentStep > 0) setCurrentStep(c => c - 1)
   }
 
@@ -112,7 +139,7 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
       }}>
         <div style={{
           height: '100%', width: `${progress}%`,
-          background: 'linear-gradient(90deg, #e91e63, #9c27b0)',
+          background: 'linear-gradient(90deg, #680E2E, #4a0a20)',
           transition: 'width 0.3s ease'
         }} />
       </div>
@@ -152,16 +179,21 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
                     autoFocus
                     className="typeform-input"
                     value={form[step.field]}
-                    onChange={e => setForm(f => ({ ...f, [step.field]: e.target.value }))}
+                    onChange={e => { setErrorMsg(''); setForm(f => ({ ...f, [step.field]: e.target.value })); }}
                     onKeyDown={e => e.key === 'Enter' && next()}
-                    placeholder="Type your answer here..."
+                    placeholder={step.id === 'phone' ? (lang === 'nl' ? 'Typ uw telefoonnummer hier...' : 'Type your phone number here...') : 'Type your answer here...'}
                     style={{
                       width: '100%', background: 'transparent', border: 'none',
-                      borderBottom: '2px solid rgba(233, 30, 99, 0.3)',
+                      borderBottom: '2px solid rgba(104, 14, 46, 0.3)',
                       color: 'white', fontSize: '1.5rem', padding: '10px 0',
                       outline: 'none', transition: 'border-color 0.3s'
                     }}
                   />
+                  {errorMsg && (
+                    <p style={{ color: '#f43f5e', fontSize: '0.95rem', marginTop: '12px', fontWeight: 600 }}>
+                      ⚠️ {errorMsg}
+                    </p>
+                  )}
                   <p style={{ marginTop: '10px', color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>
                     Press <strong>Enter ↵</strong>
                   </p>
@@ -174,12 +206,13 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
                     <button
                       key={opt.id}
                       onClick={() => {
+                        setErrorMsg('')
                         setForm(f => ({ ...f, [step.field]: opt.id }))
                         setTimeout(next, 300)
                       }}
                       style={{
                         padding: '16px 32px', borderRadius: '50px',
-                        background: form[step.field] === opt.id ? '#e91e63' : 'rgba(255,255,255,0.05)',
+                        background: form[step.field] === opt.id ? '#680E2E' : 'rgba(255,255,255,0.05)',
                         border: '1px solid rgba(255,255,255,0.1)',
                         color: 'white', cursor: 'pointer', fontSize: '1.1rem',
                         transition: 'all 0.2s ease', fontFamily: "'Space Grotesk', sans-serif"
@@ -200,21 +233,21 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
                     onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                     style={contactInputStyle}
                   />
-                  <input 
-                    placeholder="Email Address"
-                    type="email"
-                    className="typeform-input"
-                    value={form.email}
-                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                    style={contactInputStyle}
-                  />
-                  <input 
-                    placeholder="Phone Number"
-                    className="typeform-input"
-                    value={form.phone}
-                    onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                    style={contactInputStyle}
-                  />
+                  <div>
+                    <input 
+                      placeholder="Email Address"
+                      type="email"
+                      className="typeform-input"
+                      value={form.email}
+                      onChange={e => { setErrorMsg(''); setForm(f => ({ ...f, email: e.target.value })); }}
+                      style={contactInputStyle}
+                    />
+                    {errorMsg && (
+                      <p style={{ color: '#f43f5e', fontSize: '0.95rem', marginTop: '12px', fontWeight: 600 }}>
+                        ⚠️ {errorMsg}
+                      </p>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -223,10 +256,10 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
                   onClick={next}
                   className="typeform-btn"
                   style={{
-                    background: 'linear-gradient(135deg, #e91e63, #9c27b0)',
+                    background: 'linear-gradient(135deg, #680E2E, #4a0a20)',
                     color: 'white', border: 'none', padding: '16px 40px',
                     borderRadius: '12px', cursor: 'pointer', fontWeight: 700,
-                    fontSize: '1.1rem', boxShadow: '0 10px 20px rgba(233, 30, 99, 0.3)'
+                    fontSize: '1.1rem', boxShadow: '0 10px 20px rgba(104, 14, 46, 0.3)'
                   }}
                 >
                   {currentStep === STEPS.length - 1 ? (isSubmitting ? 'Sending...' : 'Complete') : 'Next'}
@@ -261,7 +294,7 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
 
       <style>{`
         .typeform-input:focus {
-          border-bottom-color: #e91e63 !important;
+          border-bottom-color: #680E2E !important;
         }
         .typeform-btn:hover {
           transform: translateY(-2px);
