@@ -688,7 +688,7 @@ export default function AdminLeads() {
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Lead Profile</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Website</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Source</th>
-                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Phone</th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '160px', width: '160px' }}>Phone</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
                 {isAdmin && <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Assignee</th>}
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Initial Problem</th>
@@ -758,9 +758,9 @@ export default function AdminLeads() {
                         {lead.type.toLowerCase() === 'booking' ? 'Booking' : 'Message'}
                       </span>
                     </td>
-                    <td style={{ padding: '20px' }}>
-                      <div style={{ color: '#CBD5E1', fontSize: '0.85rem', fontWeight: 600 }}>{lead.phone || 'N/A'}</div>
-                    </td>
+                     <td style={{ padding: '20px', minWidth: '160px', width: '160px', whiteSpace: 'nowrap' }}>
+                       <div style={{ color: '#CBD5E1', fontSize: '0.85rem', fontWeight: 600 }}>{lead.phone || 'N/A'}</div>
+                     </td>
                     <td style={{ padding: '20px' }}>
                       <select
                         value={lead.status}

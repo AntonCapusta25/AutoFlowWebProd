@@ -1254,7 +1254,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                 </th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Outbound Profile</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Website</th>
-                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Phone</th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '160px', width: '160px' }}>Phone</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     Industry
@@ -1362,7 +1362,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                         )
                       })() : <span style={{ color: '#475569', fontSize: '0.85rem' }}>N/A</span>}
                     </td>
-                    <td style={{ padding: '20px' }}>
+                    <td style={{ padding: '20px', minWidth: '160px', width: '160px', whiteSpace: 'nowrap' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#CBD5E1', fontSize: '0.85rem', fontWeight: 600 }}>
                         <span>{lead.phone || 'N/A'}</span>
                       </div>
