@@ -544,7 +544,7 @@ export default function AdminLeads() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'New': return { bg: 'rgba(104, 14, 46, 0.1)', text: '#f472b6', border: 'rgba(104, 14, 46, 0.2)', color: '#f472b6' }
+      case 'New': return { bg: 'rgba(233, 30, 99, 0.1)', text: '#f472b6', border: 'rgba(233, 30, 99, 0.2)', color: '#f472b6' }
       case 'Contacted': return { bg: 'rgba(59, 130, 246, 0.1)', text: '#93c5fd', border: 'rgba(59, 130, 246, 0.2)', color: '#93c5fd' }
       case 'In Progress': return { bg: 'rgba(245, 158, 11, 0.1)', text: '#fbbf24', border: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24' }
       case 'Meeting Booked': return { bg: 'rgba(168, 85, 247, 0.1)', text: '#c084fc', border: 'rgba(168, 85, 247, 0.2)', color: '#c084fc' }
@@ -664,9 +664,9 @@ export default function AdminLeads() {
                 style={{
                   padding: '8px 16px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer',
                   border: assigneeFilter === opt.id ? 'none' : '1px solid rgba(255,255,255,0.1)',
-                  background: assigneeFilter === opt.id ? 'linear-gradient(135deg, #680E2E, #4a0a20)' : 'rgba(255,255,255,0.03)',
+                  background: assigneeFilter === opt.id ? 'linear-gradient(135deg, #e91e63, #9c27b0)' : 'rgba(255,255,255,0.03)',
                   color: assigneeFilter === opt.id ? 'white' : '#94A3B8',
-                  boxShadow: assigneeFilter === opt.id ? '0 4px 15px rgba(104,14,46,0.3)' : 'none',
+                  boxShadow: assigneeFilter === opt.id ? '0 4px 15px rgba(233,30,99,0.3)' : 'none',
                   transition: 'all 0.2s'
                 }}
               >
@@ -708,7 +708,7 @@ export default function AdminLeads() {
                     key={lead.id}
                     style={{
                       borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
-                      background: selectedLead?.id === lead.id ? 'rgba(104, 14, 46, 0.04)' : 'transparent',
+                      background: selectedLead?.id === lead.id ? 'rgba(233, 30, 99, 0.04)' : 'transparent',
                       transition: 'all 0.2s'
                     }}
                   >
@@ -717,7 +717,7 @@ export default function AdminLeads() {
                     </td>
                     <td style={{ padding: '20px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #680E2E, #4a0a20)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 800, color: 'white', boxShadow: '0 4px 12px rgba(104, 14, 46, 0.2)' }}>{lead.name.charAt(0)}</div>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #e91e63, #9c27b0)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 800, color: 'white', boxShadow: '0 4px 12px rgba(233, 30, 99, 0.2)' }}>{lead.name.charAt(0)}</div>
                         <div>
                           <p style={{ margin: 0, fontWeight: 700, color: 'white', fontSize: '0.95rem' }}>{lead.name}</p>
                           <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748B' }}>{lead.email}</p>
@@ -751,9 +751,9 @@ export default function AdminLeads() {
                     <td style={{ padding: '20px' }}>
                       <span style={{
                         padding: '6px 12px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase',
-                        background: lead.type.toLowerCase() === 'booking' ? 'rgba(104, 14, 46, 0.1)' : 'rgba(59, 130, 246, 0.1)',
-                        color: lead.type.toLowerCase() === 'booking' ? '#680E2E' : '#3b82f6',
-                        border: `1px solid ${lead.type.toLowerCase() === 'booking' ? 'rgba(104, 14, 46, 0.2)' : 'rgba(59, 130, 246, 0.2)'}`
+                        background: lead.type.toLowerCase() === 'booking' ? 'rgba(233, 30, 99, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+                        color: lead.type.toLowerCase() === 'booking' ? '#e91e63' : '#3b82f6',
+                        border: `1px solid ${lead.type.toLowerCase() === 'booking' ? 'rgba(233, 30, 99, 0.2)' : 'rgba(59, 130, 246, 0.2)'}`
                       }}>
                         {lead.type.toLowerCase() === 'booking' ? 'Booking' : 'Message'}
                       </span>
@@ -816,7 +816,7 @@ export default function AdminLeads() {
                           borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s',
                           padding: '8px 32px 8px 12px', minHeight: '36px', width: 'fit-content'
                         }}
-                        onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(104, 14, 46, 0.3)'}
+                        onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(233, 30, 99, 0.3)'}
                         onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'}
                       >
                         <div style={{
@@ -826,7 +826,7 @@ export default function AdminLeads() {
                         }}>
                           {lead.notes || 'Add note...'}
                         </div>
-                        <div style={{ position: 'absolute', right: '10px', color: '#680E2E', fontWeight: 800 }}>+</div>
+                        <div style={{ position: 'absolute', right: '10px', color: '#e91e63', fontWeight: 800 }}>+</div>
                       </div>
                     </td>
                     <td style={{ padding: '20px', textAlign: 'center', position: 'sticky', right: 0, background: selectedLead?.id === lead.id ? '#1a0b12' : '#0a0a0a', zIndex: 10, borderLeft: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.2s' }}>
@@ -835,8 +835,8 @@ export default function AdminLeads() {
                           onClick={() => setCallModalLead(lead)}
                           title="Log Call"
                           style={{
-                            padding: '8px 12px', background: 'rgba(104, 14, 46, 0.08)', border: '1px solid rgba(104, 14, 46, 0.1)',
-                            color: '#680E2E', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
+                            padding: '8px 12px', background: 'rgba(233, 30, 99, 0.08)', border: '1px solid rgba(233, 30, 99, 0.1)',
+                            color: '#e91e63', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
                             transition: 'all 0.2s'
                           }}
                         >
@@ -880,8 +880,8 @@ export default function AdminLeads() {
               </button>
             </div>
 
-            <div style={{ background: 'linear-gradient(145deg, #160a0f, #0a0a0a)', border: '1px solid rgba(104, 14, 46, 0.2)', borderRadius: '16px', padding: '20px', marginBottom: '32px' }}>
-              <h4 style={{ margin: 0, color: '#680E2E', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '10px', letterSpacing: '0.1em' }}>User Problem Response</h4>
+            <div style={{ background: 'linear-gradient(145deg, #160a0f, #0a0a0a)', border: '1px solid rgba(233, 30, 99, 0.2)', borderRadius: '16px', padding: '20px', marginBottom: '32px' }}>
+              <h4 style={{ margin: 0, color: '#e91e63', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '10px', letterSpacing: '0.1em' }}>User Problem Response</h4>
               <p style={{ margin: 0, color: 'white', fontSize: '1rem', lineHeight: '1.6', fontWeight: 500 }}>{selectedLead.message || 'No initial problem described.'}</p>
             </div>
 
@@ -890,7 +890,7 @@ export default function AdminLeads() {
                 <h4 style={{ margin: 0, color: 'white', fontSize: '0.95rem', fontWeight: 700 }}>Internal Admin Notes</h4>
                 <button
                   onClick={() => setNoteModalLead(selectedLead)}
-                  style={{ padding: '6px 12px', background: 'rgba(104, 14, 46, 0.1)', border: '1px solid rgba(104, 14, 46, 0.2)', color: '#680E2E', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ padding: '6px 12px', background: 'rgba(233, 30, 99, 0.1)', border: '1px solid rgba(233, 30, 99, 0.2)', color: '#e91e63', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
                 >
                   + Add Note
                 </button>
@@ -916,9 +916,9 @@ export default function AdminLeads() {
                       {idx !== history.length - 1 && <div style={{ position: 'absolute', left: '7px', top: '24px', bottom: 0, width: '2px', background: 'rgba(255,255,255,0.05)' }} />}
                       <div style={{
                         width: '16px', height: '16px', borderRadius: '50%',
-                        background: item.event_type === 'call' ? '#680E2E' : item.event_type === 'status_change' ? '#3b82f6' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '#a855f7' : '#10b981',
+                        background: item.event_type === 'call' ? '#e91e63' : item.event_type === 'status_change' ? '#3b82f6' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '#a855f7' : '#10b981',
                         zIndex: 1, marginTop: '4px', flexShrink: 0,
-                        boxShadow: item.event_type === 'call' ? '0 0 10px rgba(104, 14, 46, 0.3)' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '0 0 10px rgba(168, 85, 247, 0.3)' : 'none'
+                        boxShadow: item.event_type === 'call' ? '0 0 10px rgba(233, 30, 99, 0.3)' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '0 0 10px rgba(168, 85, 247, 0.3)' : 'none'
                       }} />
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
@@ -938,7 +938,7 @@ export default function AdminLeads() {
               </div>
               <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'flex', gap: '12px' }}>
-                  <button onClick={() => setCallModalLead(selectedLead)} style={{ flex: 1, padding: '14px', background: '#680E2E', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 8px 20px rgba(104, 14, 46, 0.3)' }}>
+                  <button onClick={() => setCallModalLead(selectedLead)} style={{ flex: 1, padding: '14px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 8px 20px rgba(233, 30, 99, 0.3)' }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                     Log Call
                   </button>
@@ -1051,7 +1051,7 @@ export default function AdminLeads() {
                   addComment(noteModalLead, content)
                   setNoteModalLead(null)
                 }}
-                style={{ flex: 1, padding: '12px', background: '#680E2E', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}
+                style={{ flex: 1, padding: '12px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}
               >
                 Save Note
               </button>
@@ -1083,7 +1083,7 @@ export default function AdminLeads() {
                   logCall(callModalLead, content)
                   setCallModalLead(null)
                 }}
-                style={{ flex: 1, padding: '12px', background: '#680E2E', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}
+                style={{ flex: 1, padding: '12px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}
               >
                 Log Call
               </button>
@@ -1230,7 +1230,7 @@ export default function AdminLeads() {
                   }
                 }}
                 disabled={emailSending}
-                style={{ flex: 1, padding: '14px', background: 'linear-gradient(135deg, #680E2E, #4a0a20)', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                style={{ flex: 1, padding: '14px', background: 'linear-gradient(135deg, #e91e63, #9c27b0)', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
                 {emailSending ? (
                   <>
