@@ -416,76 +416,104 @@ Deno.serve(async (req) => {
     `
 
     const customerSubject = "AutoFlow Studio - We've received your request!"
-    const customerHtml = `
-      <!DOCTYPE html>
-      <html>
-      <body style="margin: 0; padding: 0; background-color: #0f172a; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #0f172a; padding: 40px 20px;">
+    const customerHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #334155;
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background-color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f8fafc;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:600px;background-color:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+          
+          <!-- Header with brand gradient & logo symbol -->
           <tr>
-            <td align="center">
-              <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #1e293b; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">
-                <!-- Header with Gradient -->
+            <td style="background: linear-gradient(135deg, #7949da, #5646e4); padding: 24px 32px; text-align: left;">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
-                  <td style="background: linear-gradient(135deg, #ec4899, #8b5cf6); padding: 40px; text-align: center;">
-                    <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.025em;">AutoFlow Studio</h1>
-                  </td>
-                </tr>
-                <!-- Content -->
-                <tr>
-                  <td style="padding: 40px; background-color: #1e293b;">
-                    <h2 style="color: #f8fafc; margin-top: 0; font-size: 22px; font-weight: 700;">Hello ${name},</h2>
-                    <p style="color: #94a3b8; font-size: 16px; line-height: 1.6;">
-                      Thank you for reaching out to us. We've successfully received your <strong>${type === 'booking' ? 'audit request' : 'message'}</strong>.
-                    </p>
-                    <p style="color: #94a3b8; font-size: 16px; line-height: 1.6;">
-                      Our team of automation specialists is currently analyzing your requirements. We aim to provide a detailed response within <strong>24 hours</strong>.
-                    </p>
-                    <div style="margin: 30px 0; padding: 20px; background: rgba(236, 72, 153, 0.1); border-left: 4px solid #ec4899; border-radius: 8px;">
-                      <p style="color: #f8fafc; margin: 0; font-style: italic;">
-                        "Automating the present to secure your future."
-                      </p>
-                    </div>
-                    <table border="0" cellspacing="0" cellpadding="0" style="margin-top: 30px; width: 100%;">
-                      <tr>
-                        <td align="center" style="border-radius: 12px; background: linear-gradient(to right, #ec4899, #8b5cf6);">
-                          <a href="https://autoflowstudio.net/portfolio" target="_blank" style="padding: 14px 28px; font-size: 16px; font-weight: 600; color: #ffffff; text-decoration: none; display: inline-block;">View Our Recent Projects</a>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="padding-top: 30px; text-align: center;">
-                          <p style="color: #94a3b8; font-size: 15px; margin-bottom: 15px;">
-                            Have other questions or want to jump straight into a face-to-face strategy session?
-                          </p>
-                          <table border="0" cellspacing="0" cellpadding="0" style="margin: 0 auto;">
-                            <tr>
-                              <td align="center" style="border-radius: 12px; border: 1px solid #ec4899;">
-                                <a href="https://neeto.com/call/autoflow" target="_blank" style="padding: 12px 24px; font-size: 15px; font-weight: 600; color: #ec4899; text-decoration: none; display: inline-block;">Book a Strategy Call</a>
-                              </td>
-                            </tr>
-                          </table>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-                <!-- Footer -->
-                <tr>
-                  <td style="padding: 30px 40px; background-color: #0f172a; text-align: center;">
-                    <p style="color: #64748b; font-size: 14px; margin: 0;">
-                      &copy; 2026 AutoFlow Studio. All rights reserved.
-                    </p>
-                    <p style="color: #475569; font-size: 12px; margin-top: 10px;">
-                      You received this email because you contacted us through autoflowstudio.net
-                    </p>
+                  <td style="color: #ffffff; font-size: 20px; font-weight: 800; font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif; letter-spacing: -0.02em;">
+                    ⚡ AutoFlow Studio
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
+          
+          <!-- Main Content Body -->
+          <tr>
+            <td style="padding: 40px 32px; background-color: #ffffff;">
+              <h2 style="color: #1e293b; margin-top: 0; font-size: 20px; font-weight: 700; font-family: 'Space Grotesk', sans-serif;">Hello ${name},</h2>
+              
+              <p style="color: #334155; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">
+                Thank you for reaching out to us. We've successfully received your <strong>${type === 'booking' ? 'audit request' : 'message'}</strong>.
+              </p>
+              
+              <p style="color: #334155; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">
+                Our team of automation specialists is currently analyzing your requirements. We aim to provide a detailed response within <strong>24 hours</strong>.
+              </p>
+              
+              <!-- Blockquote Callout -->
+              <div style="margin: 24px 0; padding: 16px 20px; background: rgba(121, 73, 218, 0.05); border-left: 4px solid #7949da; border-radius: 8px;">
+                <p style="color: #5646e4; margin: 0; font-style: italic; font-weight: 600; font-size: 14.5px;">
+                  "Automating the present to secure your future."
+                </p>
+              </div>
+              
+              <!-- Call to Action Buttons -->
+              <table border="0" cellspacing="0" cellpadding="0" style="margin-top: 30px; width: 100%;">
+                <tr>
+                  <td align="center" style="border-radius: 12px; background: linear-gradient(135deg, #7949da, #5646e4); overflow: hidden;">
+                    <a href="https://autoflowstudio.net/portfolio" target="_blank" style="padding: 14px 28px; font-size: 15px; font-weight: 700; color: #ffffff; text-decoration: none; display: inline-block; width: 100%; box-sizing: border-box; text-align: center;">View Our Recent Projects</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-top: 30px; text-align: center;">
+                    <p style="color: #64748b; font-size: 14px; margin: 0 0 16px 0; font-weight: 500;">
+                      Have other questions or want to jump straight into a face-to-face strategy session?
+                    </p>
+                    <table border="0" cellspacing="0" cellpadding="0" style="margin: 0 auto;">
+                      <tr>
+                        <td align="center" style="border-radius: 12px; border: 1px solid #7949da;">
+                          <a href="https://neeto.com/call/autoflow" target="_blank" style="padding: 10px 20px; font-size: 14px; font-weight: 700; color: #7949da; text-decoration: none; display: inline-block;">Book a Strategy Call</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f1f5f9; padding: 24px 32px; text-align: center; border-top: 1px solid #e2e8f0;">
+              <p style="color: #64748b; font-size: 12px; margin: 0; font-weight: 500;">
+                &copy; 2026 AutoFlow Studio. All rights reserved.
+              </p>
+              <p style="color: #94a3b8; font-size: 11px; margin: 8px 0 0 0;">
+                You received this email because you contacted us through autoflowstudio.net
+              </p>
+            </td>
+          </tr>
+          
         </table>
-      </body>
-      </html>
-    `
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
 
     // Send to Admin
     console.log('[lead] Sending admin notification to:', ADMIN_EMAIL)
