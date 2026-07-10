@@ -425,6 +425,17 @@ export default function Marketing() {
   // --- Kanban Board Notifications Helper ---
   const notifyAssignees = async (task, newAssigneeIdsList) => {
     for (const assigneeId of newAssigneeIdsList) {
+      // 1. In-App Notification (Bell Icon)
+      await supabase.from('notifications').insert([{
+        user_id: assigneeId,
+        title: 'Task Assigned',
+        content: `You have been assigned to marketing task: "${task.title}"`,
+        type: 'task_assigned',
+        link: '/admin/marketing',
+        is_read: false
+      }])
+
+      // 2. Email Notification (Gmail API)
       const sp = salespeople.find(s => s.id === assigneeId)
       if (sp && sp.email) {
         await supabase.functions.invoke('send-email', {
@@ -447,6 +458,17 @@ export default function Marketing() {
     const statusText = newStatus === 'todo' ? 'To Do' : newStatus === 'in_progress' ? 'In Progress' : 'Done'
     const currentAssigneeIds = task.assignee_ids || []
     for (const assigneeId of currentAssigneeIds) {
+      // 1. In-App Notification (Bell Icon)
+      await supabase.from('notifications').insert([{
+        user_id: assigneeId,
+        title: 'Task Status Updated',
+        content: `Marketing task "${task.title}" status updated to: ${statusText}`,
+        type: 'task_status_updated',
+        link: '/admin/marketing',
+        is_read: false
+      }])
+
+      // 2. Email Notification (Gmail API)
       const sp = salespeople.find(s => s.id === assigneeId)
       if (sp && sp.email) {
         await supabase.functions.invoke('send-email', {
