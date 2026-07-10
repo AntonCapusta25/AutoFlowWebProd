@@ -320,17 +320,59 @@ Deno.serve(async (req) => {
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      font-size: 16px;
+      font-size: 15px;
       line-height: 1.6;
-      color: #1f2937;
-    }
-    p {
-      margin: 0 0 16px 0 !important;
+      color: #334155;
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 0;
     }
   </style>
 </head>
-<body style="margin:0;padding:20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#1f2937;">
-  <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#1f2937;">${formatBodyToHtml(finalBodyInner)}</div>
+<body style="margin:0;padding:0;background-color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f8fafc;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:600px;background-color:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+          
+          <!-- Header with brand gradient & logo symbol -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #7949da, #5646e4); padding: 24px 32px; text-align: left;">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="color: #ffffff; font-size: 20px; font-weight: 800; font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif; letter-spacing: -0.02em;">
+                    ⚡ AutoFlow Studio
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Main Content Body -->
+          <tr>
+            <td style="padding: 40px 32px; background-color: #ffffff;">
+              <div style="font-size: 15px; line-height: 1.6; color: #334155;">
+                ${formatBodyToHtml(finalBodyInner)}
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f1f5f9; padding: 24px 32px; text-align: center; border-top: 1px solid #e2e8f0;">
+              <p style="color: #64748b; font-size: 12px; margin: 0; font-weight: 500;">
+                &copy; 2026 AutoFlow Studio. All rights reserved.
+              </p>
+              <p style="color: #94a3b8; font-size: 11px; margin: 8px 0 0 0;">
+                This is an automated operational message from AutoFlow Studio CRM.
+              </p>
+            </td>
+          </tr>
+          
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`
 
