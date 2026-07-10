@@ -191,6 +191,20 @@ export function AdminProvider({ children }) {
     }
   }, [user?.id])
 
+  const deleteNotification = useCallback(async (id) => {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('id', id)
+      if (!error) {
+        setNotifications(prev => prev.filter(n => n.id !== id))
+      }
+    } catch (err) {
+      console.error('Error deleting notification:', err)
+    }
+  }, [])
+
   useEffect(() => {
     if (!user?.id) {
       setNotifications([])
@@ -253,7 +267,8 @@ export function AdminProvider({ children }) {
     notifications,
     unreadCount,
     markAsRead,
-    markAllAsRead
+    markAllAsRead,
+    deleteNotification
   }
 
   return (

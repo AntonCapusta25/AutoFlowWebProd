@@ -11,7 +11,7 @@ export default function AdminLayout({ children }) {
   const [segments, setSegments] = useState([])
   const [isNotifOpen, setIsNotifOpen] = useState(false)
   const [toasts, setToasts] = useState([])
-  const { profile, isAdmin, isImpersonating, stopImpersonating, notifications, unreadCount, markAsRead, markAllAsRead } = useAdmin()
+  const { profile, isAdmin, isImpersonating, stopImpersonating, notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification } = useAdmin()
 
   useEffect(() => {
     async function fetchSegments() {
@@ -171,11 +171,11 @@ export default function AdminLayout({ children }) {
             style={{
               pointerEvents: 'auto',
               background: 'rgba(10, 10, 10, 0.95)',
-              border: '1px solid rgba(233, 30, 99, 0.3)',
+              border: '1px solid rgba(121, 73, 218, 0.3)',
               borderRadius: '16px',
               padding: '16px 20px',
               width: '320px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(233, 30, 99, 0.1)',
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(121, 73, 218, 0.1)',
               display: 'flex',
               flexDirection: 'column',
               gap: '4px',
@@ -191,7 +191,7 @@ export default function AdminLayout({ children }) {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontWeight: 800, fontSize: '0.85rem', color: '#f06292', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <span style={{ fontWeight: 800, fontSize: '0.85rem', color: '#7949da', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {toast.title}
               </span>
               <span style={{ fontSize: '0.7rem', color: '#64748B' }}>Just now</span>
@@ -205,14 +205,14 @@ export default function AdminLayout({ children }) {
 
       {isImpersonating && (
         <div style={{
-          background: 'linear-gradient(90deg, #9c27b0, #e91e63)',
+          background: 'linear-gradient(90deg, #5646e4, #7949da)',
           color: 'white',
           padding: '12px 24px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
-          boxShadow: '0 4px 20px rgba(233, 30, 99, 0.15)',
+          boxShadow: '0 4px 20px rgba(121, 73, 218, 0.15)',
           zIndex: 1000,
           fontFamily: "'Space Grotesk', 'Inter', sans-serif"
         }}>
@@ -258,7 +258,7 @@ export default function AdminLayout({ children }) {
             }}
             onMouseOver={e => {
               e.currentTarget.style.background = 'white'
-              e.currentTarget.style.color = '#e91e63'
+              e.currentTarget.style.color = '#7949da'
               e.currentTarget.style.transform = 'translateY(-1px)'
               e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
             }}
@@ -289,7 +289,7 @@ export default function AdminLayout({ children }) {
           <div style={{ marginBottom: '40px', display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'space-between' }}>
             {!isCollapsed && (
               <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
-                Auto<span style={{ color: '#f06292' }}>Flow</span> <span style={{ fontSize: '0.7rem', color: '#94A3B8', verticalAlign: 'middle', marginLeft: '4px' }}>ADMIN</span>
+                Auto<span style={{ color: '#7949da' }}>Flow</span> <span style={{ fontSize: '0.7rem', color: '#94A3B8', verticalAlign: 'middle', marginLeft: '4px' }}>ADMIN</span>
               </h2>
             )}
             <button 
@@ -317,7 +317,7 @@ export default function AdminLayout({ children }) {
                     display: 'flex', alignItems: 'center', gap: isCollapsed ? '0' : '12px', padding: '12px', 
                     justifyContent: isCollapsed ? 'center' : 'flex-start',
                     borderRadius: '12px', textDecoration: 'none', color: location.pathname.startsWith(item.to) ? 'white' : '#94A3B8',
-                    background: location.pathname.startsWith(item.to) ? 'rgba(233, 30, 99, 0.1)' : 'transparent',
+                    background: location.pathname.startsWith(item.to) ? 'rgba(121, 73, 218, 0.1)' : 'transparent',
                     transition: 'all 0.2s',
                     overflow: 'hidden'
                   }}
@@ -364,7 +364,7 @@ export default function AdminLayout({ children }) {
                 width: '36px',
                 height: '36px',
                 borderRadius: '50%',
-                background: profile?.role === 'admin' ? 'linear-gradient(135deg, #e91e63, #9c27b0)' : profile?.role === 'Napoleon' ? 'linear-gradient(135deg, #a855f7, #e91e63)' : 'linear-gradient(135deg, #3b82f6, #10b981)',
+                background: profile?.role === 'admin' ? 'linear-gradient(135deg, #7949da, #5646e4)' : profile?.role === 'Napoleon' ? 'linear-gradient(135deg, #a855f7, #7949da)' : 'linear-gradient(135deg, #3b82f6, #10b981)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -384,7 +384,7 @@ export default function AdminLayout({ children }) {
                   fontSize: '0.7rem', 
                   fontWeight: 800, 
                   textTransform: 'uppercase', 
-                  color: profile?.role === 'admin' ? '#f06292' : profile?.role === 'Napoleon' ? '#c084fc' : '#4ade80',
+                  color: profile?.role === 'admin' ? '#7949da' : profile?.role === 'Napoleon' ? '#c084fc' : '#4ade80',
                   letterSpacing: '0.05em'
                 }}>
                   {profile?.role || 'salesperson'}
@@ -455,7 +455,7 @@ export default function AdminLayout({ children }) {
                   border: '1px solid rgba(255,255,255,0.06)',
                   padding: '10px',
                   borderRadius: '12px',
-                  color: unreadCount > 0 ? '#e91e63' : '#94A3B8',
+                  color: unreadCount > 0 ? '#7949da' : '#94A3B8',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -475,14 +475,14 @@ export default function AdminLayout({ children }) {
                     position: 'absolute',
                     top: '-4px',
                     right: '-4px',
-                    background: 'linear-gradient(135deg, #e91e63, #9c27b0)',
+                    background: 'linear-gradient(135deg, #7949da, #5646e4)',
                     color: 'white',
                     fontSize: '0.65rem',
                     fontWeight: 800,
                     borderRadius: '10px',
                     padding: '2px 6px',
                     border: '2px solid #0a0a0a',
-                    boxShadow: '0 0 10px rgba(233, 30, 99, 0.4)'
+                    boxShadow: '0 0 10px rgba(121, 73, 218, 0.4)'
                   }}>
                     {unreadCount}
                   </span>
@@ -513,7 +513,7 @@ export default function AdminLayout({ children }) {
                     {unreadCount > 0 && (
                       <button 
                         onClick={markAllAsRead}
-                        style={{ background: 'none', border: 'none', color: '#f06292', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                        style={{ background: 'none', border: 'none', color: '#7949da', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
                       >
                         Mark all read
                       </button>
@@ -536,7 +536,7 @@ export default function AdminLayout({ children }) {
                           style={{
                             padding: '14px 20px',
                             borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
-                            background: notif.is_read ? 'transparent' : 'rgba(233, 30, 99, 0.03)',
+                            background: notif.is_read ? 'transparent' : 'rgba(121, 73, 218, 0.03)',
                             cursor: 'pointer',
                             display: 'flex',
                             gap: '12px',
@@ -544,11 +544,11 @@ export default function AdminLayout({ children }) {
                             transition: 'background 0.2s'
                           }}
                           onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
-                          onMouseOut={e => e.currentTarget.style.background = notif.is_read ? 'transparent' : 'rgba(233, 30, 99, 0.03)'}
+                          onMouseOut={e => e.currentTarget.style.background = notif.is_read ? 'transparent' : 'rgba(121, 73, 218, 0.03)'}
                         >
                           <div style={{
                             width: '8px', height: '8px', borderRadius: '50%',
-                            background: notif.is_read ? 'transparent' : 'linear-gradient(135deg, #e91e63, #9c27b0)',
+                            background: notif.is_read ? 'transparent' : 'linear-gradient(135deg, #7949da, #5646e4)',
                             marginTop: '6px', flexShrink: 0
                           }} />
                           <div style={{ flex: 1, minWidth: 0 }}>
@@ -556,7 +556,50 @@ export default function AdminLayout({ children }) {
                               <span style={{ fontWeight: 700, fontSize: '0.8rem', color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 {notif.title}
                               </span>
-                              <span style={{ fontSize: '0.7rem', color: '#64748B', flexShrink: 0 }}>{timeAgo(notif.created_at)}</span>
+                              <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                                <span style={{ fontSize: '0.7rem', color: '#64748B' }}>{timeAgo(notif.created_at)}</span>
+                                
+                                {/* Quick Mark As Read */}
+                                {!notif.is_read && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      markAsRead(notif.id)
+                                    }}
+                                    style={{
+                                      background: 'none', border: 'none', color: '#10b981', padding: '2px', cursor: 'pointer',
+                                      opacity: 0.6, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: '8px'
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.opacity = 1}
+                                    onMouseLeave={e => e.currentTarget.style.opacity = 0.6}
+                                    title="Mark as read"
+                                  >
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                      <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                  </button>
+                                )}
+
+                                {/* Delete Button */}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    deleteNotification(notif.id)
+                                  }}
+                                  style={{
+                                    background: 'none', border: 'none', color: '#ef4444', padding: '2px', cursor: 'pointer',
+                                    opacity: 0.6, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: '6px'
+                                  }}
+                                  onMouseEnter={e => e.currentTarget.style.opacity = 1}
+                                  onMouseLeave={e => e.currentTarget.style.opacity = 0.6}
+                                  title="Delete notification"
+                                >
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                  </svg>
+                                </button>
+                              </div>
                             </div>
                             <p style={{ margin: 0, fontSize: '0.75rem', color: '#94A3B8', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                               {notif.content}

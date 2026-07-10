@@ -1114,6 +1114,8 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           align-self: start;
           position: sticky;
           top: 40px;
+          max-height: calc(100vh - 80px);
+          overflow-y: auto;
         }
         @media (max-width: 768px) {
           .leadbank-grid.has-selection { grid-template-columns: 1fr !important; }
@@ -1560,11 +1562,11 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
               </button>
             </div>
 
-            <div style={{ background: 'linear-gradient(145deg, #160a0f, #0a0a0a)', border: '1px solid rgba(233, 30, 99, 0.2)', borderRadius: '16px', padding: '20px', marginBottom: '32px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div style={{ background: 'linear-gradient(145deg, #160a0f, #0a0a0a)', border: '1px solid rgba(233, 30, 99, 0.2)', borderRadius: '16px', padding: '20px', marginBottom: '18px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <h4 style={{ margin: 0, color: 'white', fontSize: '0.95rem', fontWeight: 700 }}>Quick Notes</h4>
               </div>
-              {selectedLead.notes && <p style={{ margin: '0 0 16px', color: '#94a3b8', fontSize: '0.85rem', lineHeight: '1.6' }}>{selectedLead.notes}</p>}
+              {selectedLead.notes && <p style={{ margin: '0 0 12px', color: '#94a3b8', fontSize: '0.85rem', lineHeight: '1.6' }}>{selectedLead.notes}</p>}
               <div style={{ display: 'flex', gap: '8px' }}>
                 <input
                   type="text"
@@ -1584,14 +1586,14 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
               </div>
             </div>
 
-            <div style={{ marginBottom: '32px' }}>
-              <h4 style={{ color: 'white', fontSize: '0.95rem', fontWeight: 700, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ marginBottom: '18px' }}>
+              <h4 style={{ color: 'white', fontSize: '0.95rem', fontWeight: 700, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span>Timeline</span>
                 <span style={{ fontSize: '0.75rem', color: '#64748b', background: 'rgba(255, 255, 255, 0.05)', padding: '2px 8px', borderRadius: '10px' }}>{history.length} events</span>
               </h4>
-              <div style={{ display: 'grid', gap: 0, maxHeight: '400px', overflowY: 'auto', paddingRight: '10px' }}>
+              <div style={{ display: 'grid', gap: 0, maxHeight: '160px', overflowY: 'auto', paddingRight: '10px' }}>
                 {history.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '40px 20px', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '20px' }}>
+                  <div style={{ textAlign: 'center', padding: '30px 20px', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '20px' }}>
                     <p style={{ color: '#64748b', fontSize: '0.85rem' }}>No activity logged for this lead yet.</p>
                   </div>
                 ) : history.map((item, idx) => {

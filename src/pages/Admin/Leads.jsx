@@ -608,7 +608,7 @@ export default function AdminLeads() {
         .leads-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         .leads-grid { display: grid; gap: 24px; transition: all 0.4s; grid-template-columns: 1fr; }
         .leads-grid.has-selection { grid-template-columns: 1fr 480px; }
-        .lead-detail-panel { background: #0a0a0a; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 32px; align-self: start; position: sticky; top: 40px; animation: 0.4s ease-out 0s 1 normal none running slideIn; }
+        .lead-detail-panel { background: #0a0a0a; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 32px; align-self: start; position: sticky; top: 40px; max-height: calc(100vh - 80px); overflow-y: auto; animation: 0.4s ease-out 0s 1 normal none running slideIn; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
         @media (max-width: 1024px) { .leads-grid.has-selection { grid-template-columns: 1fr 340px; } }
         @media (max-width: 768px) {
@@ -880,12 +880,12 @@ export default function AdminLeads() {
               </button>
             </div>
 
-            <div style={{ background: 'linear-gradient(145deg, #160a0f, #0a0a0a)', border: '1px solid rgba(233, 30, 99, 0.2)', borderRadius: '16px', padding: '20px', marginBottom: '32px' }}>
+             <div style={{ background: 'linear-gradient(145deg, #160a0f, #0a0a0a)', border: '1px solid rgba(233, 30, 99, 0.2)', borderRadius: '16px', padding: '20px', marginBottom: '18px' }}>
               <h4 style={{ margin: 0, color: '#e91e63', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '10px', letterSpacing: '0.1em' }}>User Problem Response</h4>
               <p style={{ margin: 0, color: 'white', fontSize: '1rem', lineHeight: '1.6', fontWeight: 500 }}>{selectedLead.message || 'No initial problem described.'}</p>
             </div>
 
-            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '16px', padding: '20px', marginBottom: '32px' }}>
+            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '16px', padding: '20px', marginBottom: '18px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h4 style={{ margin: 0, color: 'white', fontSize: '0.95rem', fontWeight: 700 }}>Internal Admin Notes</h4>
                 <button
@@ -898,14 +898,14 @@ export default function AdminLeads() {
               <p style={{ margin: 0, color: '#94A3B8', fontSize: '0.85rem', lineHeight: '1.6' }}>{selectedLead.notes || 'No admin notes added yet.'}</p>
             </div>
 
-            <div style={{ marginBottom: '32px' }}>
-              <h4 style={{ color: 'white', fontSize: '0.95rem', fontWeight: 700, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ marginBottom: '18px' }}>
+              <h4 style={{ color: 'white', fontSize: '0.95rem', fontWeight: 700, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span>Timeline</span>
                 <span style={{ fontSize: '0.75rem', color: '#64748B', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '10px' }}>{history.length} events</span>
               </h4>
-              <div style={{ display: 'grid', gap: '0' }}>
+              <div style={{ display: 'grid', gap: '0', maxHeight: '160px', overflowY: 'auto', paddingRight: '10px' }}>
                 {history.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '40px 20px', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '20px' }}>
+                  <div style={{ textAlign: 'center', padding: '30px 20px', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '20px' }}>
                     <p style={{ color: '#64748B', fontSize: '0.85rem' }}>No activity logged for this lead yet.</p>
                   </div>
                 ) : history.map((item, idx) => {
