@@ -433,8 +433,8 @@ export default function Marketing() {
             recipient: sp.email,
             name: sp.name || sp.email.split('@')[0],
             status: task.status === 'todo' ? 'To Do' : task.status === 'in_progress' ? 'In Progress' : 'Done',
-            subject: '[AutoFlow Board] Task Assigned: {service}',
-            body: 'Hi {name},\n\nYou have been assigned to the marketing task: "{service}".\n\nDescription:\n{company}\n\nStatus: {status}\n\nGo to the Marketing Board to view details.',
+            subject: '[AutoFlow Board] Task Assigned: {{service}}',
+            body: 'Hi {{name}},\n\nYou have been assigned to the marketing task: "{{service}}".\n\nDescription:\n{{company}}\n\nStatus: {{status}}\n\nGo to the Marketing Board to view details.',
             service: task.title,
             company: task.description || '(No description)'
           }
@@ -455,8 +455,8 @@ export default function Marketing() {
             recipient: sp.email,
             name: sp.name || sp.email.split('@')[0],
             status: statusText,
-            subject: '[AutoFlow Board] Status Updated: "{service}" is now {status}',
-            body: 'Hi {name},\n\nThe status of your assigned marketing task "{service}" has been updated.\n\nNew Status: {status}\n\nGo to the Marketing Board to view details.',
+            subject: '[AutoFlow Board] Status Updated: "{{service}}" is now {{status}}',
+            body: 'Hi {{name}},\n\nThe status of your assigned marketing task "{{service}}" has been updated.\n\nNew Status: {{status}}\n\nGo to the Marketing Board to view details.',
             service: task.title,
             company: task.description || '(No description)'
           }
