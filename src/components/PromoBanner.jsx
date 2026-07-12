@@ -115,7 +115,7 @@ const pingStyle = {
   width: '10px',
   height: '10px',
   borderRadius: '50%',
-  background: '#e91e63',
+  background: '#d1bbfb',
   animation: 'promo-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite'
 }
 
@@ -124,13 +124,13 @@ const dotStyle = {
   width: '10px',
   height: '10px',
   borderRadius: '50%',
-  background: '#e91e63',
-  boxShadow: '0 0 15px rgba(233, 30, 99, 0.8)'
+  background: '#d1bbfb',
+  boxShadow: '0 0 15px rgba(209, 187, 251, 0.8)'
 }
 
 const badgeTextStyle = {
   fontFamily: "'Space Grotesk', sans-serif",
-  color: '#e91e63',
+  color: '#d1bbfb',
   fontSize: '0.8rem',
   fontWeight: 800,
   letterSpacing: '0.12em',
@@ -176,7 +176,7 @@ const actionsStyle = {
 }
 
 const ctaStyle = {
-  background: 'linear-gradient(135deg, #e91e63, #9c27b0)',
+  background: 'linear-gradient(135deg, #d1bbfb, #5646e4)',
   color: 'white',
   padding: '12px 28px',
   borderRadius: '100px',
@@ -184,7 +184,7 @@ const ctaStyle = {
   fontWeight: 800,
   textDecoration: 'none',
   transition: 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
-  boxShadow: '0 10px 25px rgba(233, 30, 99, 0.4)',
+  boxShadow: '0 10px 25px rgba(209, 187, 251, 0.4)',
   display: 'flex',
   alignItems: 'center',
   border: 'none',

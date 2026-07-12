@@ -144,8 +144,8 @@ export default function AdminCampaigns() {
           <p style={{ color: '#94A3B8' }}>Proactive outreach and batch email engine.</p>
         </div>
         <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '4px' }}>
-          <button onClick={() => setActiveTab('new')} style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', background: activeTab === 'new' ? '#e91e63' : 'transparent', color: 'white', cursor: 'pointer', fontWeight: 600 }}>New Blast</button>
-          <button onClick={() => setActiveTab('history')} style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', background: activeTab === 'history' ? '#e91e63' : 'transparent', color: 'white', cursor: 'pointer', fontWeight: 600 }}>History</button>
+          <button onClick={() => setActiveTab('new')} style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', background: activeTab === 'new' ? '#d1bbfb' : 'transparent', color: 'white', cursor: 'pointer', fontWeight: 600 }}>New Blast</button>
+          <button onClick={() => setActiveTab('history')} style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', background: activeTab === 'history' ? '#d1bbfb' : 'transparent', color: 'white', cursor: 'pointer', fontWeight: 600 }}>History</button>
         </div>
       </div>
 
@@ -171,7 +171,7 @@ export default function AdminCampaigns() {
               </div>
               <button 
                 type="submit" disabled={loading}
-                style={{ padding: '16px', background: 'linear-gradient(135deg, #e91e63, #9c27b0)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', opacity: loading ? 0.7 : 1 }}
+                style={{ padding: '16px', background: 'linear-gradient(135deg, #d1bbfb, #5646e4)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', opacity: loading ? 0.7 : 1 }}
               >
                 {loading ? `Launching... (${sentCount}/${totalTarget})` : 'Launch Campaign'}
               </button>
@@ -224,8 +224,8 @@ export default function AdminCampaigns() {
                   <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#10b981' }}>{camp.stats.opened || 0}</p>
                   <p style={{ margin: 0, fontSize: '0.7rem', color: '#065f46', textTransform: 'uppercase' }}>Opens</p>
                 </div>
-                <div style={{ background: 'rgba(233, 30, 99, 0.05)', padding: '12px', borderRadius: '12px' }}>
-                  <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#e91e63' }}>{camp.stats.replied || 0}</p>
+                <div style={{ background: 'rgba(209, 187, 251, 0.05)', padding: '12px', borderRadius: '12px' }}>
+                  <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#d1bbfb' }}>{camp.stats.replied || 0}</p>
                   <p style={{ margin: 0, fontSize: '0.7rem', color: '#831843', textTransform: 'uppercase' }}>Replies</p>
                 </div>
               </div>

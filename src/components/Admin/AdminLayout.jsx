@@ -171,11 +171,11 @@ export default function AdminLayout({ children }) {
             style={{
               pointerEvents: 'auto',
               background: 'rgba(10, 10, 10, 0.95)',
-              border: '1px solid rgba(121, 73, 218, 0.3)',
+              border: '1px solid rgba(209, 187, 251, 0.3)',
               borderRadius: '16px',
               padding: '16px 20px',
               width: '320px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(121, 73, 218, 0.1)',
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(209, 187, 251, 0.1)',
               display: 'flex',
               flexDirection: 'column',
               gap: '4px',
@@ -191,7 +191,7 @@ export default function AdminLayout({ children }) {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontWeight: 800, fontSize: '0.85rem', color: '#7949da', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <span style={{ fontWeight: 800, fontSize: '0.85rem', color: '#d1bbfb', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {toast.title}
               </span>
               <span style={{ fontSize: '0.7rem', color: '#64748B' }}>Just now</span>
@@ -205,14 +205,14 @@ export default function AdminLayout({ children }) {
 
       {isImpersonating && (
         <div style={{
-          background: 'linear-gradient(90deg, #5646e4, #7949da)',
+          background: 'linear-gradient(90deg, #5646e4, #d1bbfb)',
           color: 'white',
           padding: '12px 24px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
-          boxShadow: '0 4px 20px rgba(121, 73, 218, 0.15)',
+          boxShadow: '0 4px 20px rgba(209, 187, 251, 0.15)',
           zIndex: 1000,
           fontFamily: "'Space Grotesk', 'Inter', sans-serif"
         }}>
@@ -258,7 +258,7 @@ export default function AdminLayout({ children }) {
             }}
             onMouseOver={e => {
               e.currentTarget.style.background = 'white'
-              e.currentTarget.style.color = '#7949da'
+              e.currentTarget.style.color = '#d1bbfb'
               e.currentTarget.style.transform = 'translateY(-1px)'
               e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
             }}
@@ -289,7 +289,7 @@ export default function AdminLayout({ children }) {
           <div style={{ marginBottom: '40px', display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'space-between' }}>
             {!isCollapsed && (
               <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
-                Auto<span style={{ color: '#7949da' }}>Flow</span> <span style={{ fontSize: '0.7rem', color: '#94A3B8', verticalAlign: 'middle', marginLeft: '4px' }}>ADMIN</span>
+                Auto<span style={{ color: '#d1bbfb' }}>Flow</span> <span style={{ fontSize: '0.7rem', color: '#94A3B8', verticalAlign: 'middle', marginLeft: '4px' }}>ADMIN</span>
               </h2>
             )}
             <button 
@@ -317,7 +317,7 @@ export default function AdminLayout({ children }) {
                     display: 'flex', alignItems: 'center', gap: isCollapsed ? '0' : '12px', padding: '12px', 
                     justifyContent: isCollapsed ? 'center' : 'flex-start',
                     borderRadius: '12px', textDecoration: 'none', color: location.pathname.startsWith(item.to) ? 'white' : '#94A3B8',
-                    background: location.pathname.startsWith(item.to) ? 'rgba(121, 73, 218, 0.1)' : 'transparent',
+                    background: location.pathname.startsWith(item.to) ? 'rgba(209, 187, 251, 0.1)' : 'transparent',
                     transition: 'all 0.2s',
                     overflow: 'hidden'
                   }}
@@ -364,7 +364,7 @@ export default function AdminLayout({ children }) {
                 width: '36px',
                 height: '36px',
                 borderRadius: '50%',
-                background: profile?.role === 'admin' ? 'linear-gradient(135deg, #7949da, #5646e4)' : profile?.role === 'Napoleon' ? 'linear-gradient(135deg, #a855f7, #7949da)' : 'linear-gradient(135deg, #3b82f6, #10b981)',
+                background: profile?.role === 'admin' ? 'linear-gradient(135deg, #d1bbfb, #5646e4)' : profile?.role === 'Napoleon' ? 'linear-gradient(135deg, #a855f7, #d1bbfb)' : 'linear-gradient(135deg, #3b82f6, #10b981)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -384,7 +384,7 @@ export default function AdminLayout({ children }) {
                   fontSize: '0.7rem', 
                   fontWeight: 800, 
                   textTransform: 'uppercase', 
-                  color: profile?.role === 'admin' ? '#7949da' : profile?.role === 'Napoleon' ? '#c084fc' : '#4ade80',
+                  color: profile?.role === 'admin' ? '#d1bbfb' : profile?.role === 'Napoleon' ? '#c084fc' : '#4ade80',
                   letterSpacing: '0.05em'
                 }}>
                   {profile?.role || 'salesperson'}
@@ -455,7 +455,7 @@ export default function AdminLayout({ children }) {
                   border: '1px solid rgba(255,255,255,0.06)',
                   padding: '10px',
                   borderRadius: '12px',
-                  color: unreadCount > 0 ? '#7949da' : '#94A3B8',
+                  color: unreadCount > 0 ? '#d1bbfb' : '#94A3B8',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -475,14 +475,14 @@ export default function AdminLayout({ children }) {
                     position: 'absolute',
                     top: '-4px',
                     right: '-4px',
-                    background: 'linear-gradient(135deg, #7949da, #5646e4)',
+                    background: 'linear-gradient(135deg, #d1bbfb, #5646e4)',
                     color: 'white',
                     fontSize: '0.65rem',
                     fontWeight: 800,
                     borderRadius: '10px',
                     padding: '2px 6px',
                     border: '2px solid #0a0a0a',
-                    boxShadow: '0 0 10px rgba(121, 73, 218, 0.4)'
+                    boxShadow: '0 0 10px rgba(209, 187, 251, 0.4)'
                   }}>
                     {unreadCount}
                   </span>
@@ -513,7 +513,7 @@ export default function AdminLayout({ children }) {
                     {unreadCount > 0 && (
                       <button 
                         onClick={markAllAsRead}
-                        style={{ background: 'none', border: 'none', color: '#7949da', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                        style={{ background: 'none', border: 'none', color: '#d1bbfb', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
                       >
                         Mark all read
                       </button>
@@ -536,7 +536,7 @@ export default function AdminLayout({ children }) {
                           style={{
                             padding: '14px 20px',
                             borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
-                            background: notif.is_read ? 'transparent' : 'rgba(121, 73, 218, 0.03)',
+                            background: notif.is_read ? 'transparent' : 'rgba(209, 187, 251, 0.03)',
                             cursor: 'pointer',
                             display: 'flex',
                             gap: '12px',
@@ -544,11 +544,11 @@ export default function AdminLayout({ children }) {
                             transition: 'background 0.2s'
                           }}
                           onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
-                          onMouseOut={e => e.currentTarget.style.background = notif.is_read ? 'transparent' : 'rgba(121, 73, 218, 0.03)'}
+                          onMouseOut={e => e.currentTarget.style.background = notif.is_read ? 'transparent' : 'rgba(209, 187, 251, 0.03)'}
                         >
                           <div style={{
                             width: '8px', height: '8px', borderRadius: '50%',
-                            background: notif.is_read ? 'transparent' : 'linear-gradient(135deg, #7949da, #5646e4)',
+                            background: notif.is_read ? 'transparent' : 'linear-gradient(135deg, #d1bbfb, #5646e4)',
                             marginTop: '6px', flexShrink: 0
                           }} />
                           <div style={{ flex: 1, minWidth: 0 }}>

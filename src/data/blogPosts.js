@@ -914,7 +914,7 @@ export const BLOG_POSTS = [
                 <div style="overflow-x: auto; margin: 30px 0;">
                     <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
                         <thead>
-                            <tr style="background: linear-gradient(135deg, #e91e63, #9c27b0); color: white;">
+                            <tr style="background: linear-gradient(135deg, #d1bbfb, #5646e4); color: white;">
                                 <th style="padding: 20px; text-align: left; font-weight: 600;"></th>
                                 <th style="padding: 20px; text-align: left; font-weight: 600;">Workflow Automation</th>
                                 <th style="padding: 20px; text-align: left; font-weight: 600;">Business Process Automation (BPA)</th>
@@ -1833,7 +1833,7 @@ export const BLOG_POSTS = [
                     <h3>💰 Let's Use Our Example</h3>
                     <p>You onboard an average of 2 new clients per week.</p>
                     <p><strong>The calculation is:</strong> 1.5 hours/client x 2 clients/week x €60/hour x 52 weeks</p>
-                    <p style="font-size: 1.2em; font-weight: bold; color: #e91e63;"><strong>The Annual Cost of manually onboarding clients = €9,360.</strong></p>
+                    <p style="font-size: 1.2em; font-weight: bold; color: #d1bbfb;"><strong>The Annual Cost of manually onboarding clients = €9,360.</strong></p>
                     <p>Take a moment to look at that number. You are spending nearly ten thousand euros worth of your valuable time each year on a single, repetitive process. This is your hidden cost of doing nothing.</p>
                 </div>
 
@@ -1870,7 +1870,7 @@ export const BLOG_POSTS = [
                     </ul>
                     <p><strong>ROI = [ (€9,360 - €720) / €720 ] x 100%</strong></p>
                     <p><strong>ROI = [ €8,640 / €720 ] x 100%</strong></p>
-                    <p style="font-size: 1.5em; font-weight: bold; color: #e91e63;"><strong>ROI = 1200%</strong></p>
+                    <p style="font-size: 1.5em; font-weight: bold; color: #d1bbfb;"><strong>ROI = 1200%</strong></p>
                     <p>An ROI of 1200% is astounding. For every single euro you invested in automating this process, you got €12 back in productive time within the first year. In the second year, the setup cost is gone, and your only cost is the software subscription, making the return even higher.</p>
                 </div>
 
@@ -2892,7 +2892,7 @@ export const BLOG_POSTS = [
                 <div style="overflow-x: auto; margin: 30px 0;">
                     <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); font-size: 0.9rem;">
                         <thead>
-                            <tr style="background: linear-gradient(135deg, #e91e63, #9c27b0); color: white;">
+                            <tr style="background: linear-gradient(135deg, #d1bbfb, #5646e4); color: white;">
                                 <th style="padding: 20px; text-align: left; font-weight: 600;">Cost Factor</th>
                                 <th style="padding: 20px; text-align: left; font-weight: 600;">Zapier / No-Code<br/>(The OpEx "Rental" Model)</th>
                                 <th style="padding: 20px; text-align: left; font-weight: 600;">Custom Automation<br/>(The CapEx "Asset" Model)</th>
@@ -2964,7 +2964,7 @@ export const BLOG_POSTS = [
                         <li><strong>Overage Cost:</strong> €30 × 12 = €360</li>
                         <li><strong>Internal Labor Cost:</strong> 3 hours/week × €50/hour × 52 weeks = €7,800</li>
                     </ul>
-                    <p style="font-size: 1.2rem; font-weight: 700; color: #e91e63; margin-top: 15px;"><strong>Tulip Trends' Annual TCO for Zapier = €9,228</strong></p>
+                    <p style="font-size: 1.2rem; font-weight: 700; color: #d1bbfb; margin-top: 15px;"><strong>Tulip Trends' Annual TCO for Zapier = €9,228</strong></p>
                 </div>
 
                 <p>This is the crucial number. The "cheap" €89/month tool is actually costing the business over <strong>€760 per month</strong> in total resources.</p>
@@ -2999,8 +2999,8 @@ export const BLOG_POSTS = [
                         <li><strong>Upfront Investment:</strong> €7,500</li>
                         <li><strong>First-Year Hosting/Maintenance:</strong> €40 × 12 = €480</li>
                     </ul>
-                    <p style="font-size: 1.2rem; font-weight: 700; color: #e91e63; margin-top: 15px;"><strong>Tulip Trends' Year 1 Cost for a Custom Solution = €7,980</strong></p>
-                    <p style="font-size: 1.1rem; font-weight: 600; color: #9c27b0;"><strong>Year 2 (and beyond) Cost = €480</strong></p>
+                    <p style="font-size: 1.2rem; font-weight: 700; color: #d1bbfb; margin-top: 15px;"><strong>Tulip Trends' Year 1 Cost for a Custom Solution = €7,980</strong></p>
+                    <p style="font-size: 1.1rem; font-weight: 600; color: #5646e4;"><strong>Year 2 (and beyond) Cost = €480</strong></p>
                 </div>
 
                 <h3>Step 3: Find the Break-Even Point and Multi-Year ROI</h3>
@@ -3011,7 +3011,7 @@ export const BLOG_POSTS = [
                     <h3>🎯 The Financial Reality</h3>
                     <p><strong>Year 1:</strong> The costs are surprisingly close, but the custom solution is already cheaper. Tulip Trends spends €9,228 to "rent" or only €7,980 to "build." The upfront investment is fully paid back by the savings in about 10 months.</p>
                     <p><strong>Year 2:</strong> The comparison becomes dramatic. They can either spend another €9,228 on their Zapier TCO, or just €480 on their custom asset's upkeep.</p>
-                    <p style="font-size: 1.2rem; font-weight: 700; color: #e91e63;"><strong>Annual Savings in Year 2 and Beyond = €8,748</strong></p>
+                    <p style="font-size: 1.2rem; font-weight: 700; color: #d1bbfb;"><strong>Annual Savings in Year 2 and Beyond = €8,748</strong></p>
                 </div>
 
                 <p><strong>Year 3:</strong> The savings continue to compound, freeing up significant capital for growth.</p>
@@ -3022,7 +3022,7 @@ export const BLOG_POSTS = [
                         <li><strong>Cumulative 3-Year Cost of Zapier:</strong> €9,228 × 3 = €27,684</li>
                         <li><strong>Cumulative 3-Year Cost of Custom Solution:</strong> €7,980 (Year 1) + €480 (Year 2) + €480 (Year 3) = €8,940</li>
                     </ul>
-                    <p style="font-size: 1.3rem; font-weight: 800; color: #e91e63; margin-top: 15px;"><strong>Net Saving Over 3 Years: €18,744</strong></p>
+                    <p style="font-size: 1.3rem; font-weight: 800; color: #d1bbfb; margin-top: 15px;"><strong>Net Saving Over 3 Years: €18,744</strong></p>
                 </div>
 
                 <p>For a growing SME, that €18k is a new marketing campaign, a down payment on new equipment, or a significant bonus for the team.</p>
@@ -3066,7 +3066,7 @@ export const BLOG_POSTS = [
                         <li style="margin-bottom: 10px;">☐ You are forecasting significant growth in sales or transaction volume in the next 12-18 months.</li>
                         <li style="margin-bottom: 10px;">☐ You have ever decided not to build a useful automation because you were worried about the task usage and cost.</li>
                     </ul>
-                    <p style="margin-top: 20px; font-weight: 600; color: #e91e63;">If you checked three or more of these boxes, you have likely passed your financial break-even point.</p>
+                    <p style="margin-top: 20px; font-weight: 600; color: #d1bbfb;">If you checked three or more of these boxes, you have likely passed your financial break-even point.</p>
                 </div>
 
                 <p>Continuing to rent a temporary solution when your business needs permanent infrastructure is one of the most common, and costly, mistakes a scaling company can make. It's time to shift from short-term operational thinking to long-term value creation.</p>

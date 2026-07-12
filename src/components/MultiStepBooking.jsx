@@ -139,7 +139,7 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
       }}>
         <div style={{
           height: '100%', width: `${progress}%`,
-          background: 'linear-gradient(90deg, #680E2E, #4a0a20)',
+          background: 'linear-gradient(90deg, #d1bbfb, #5646e4)',
           transition: 'width 0.3s ease'
         }} />
       </div>
@@ -184,7 +184,7 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
                     placeholder={step.id === 'phone' ? (lang === 'nl' ? 'Typ uw telefoonnummer hier...' : 'Type your phone number here...') : 'Type your answer here...'}
                     style={{
                       width: '100%', background: 'transparent', border: 'none',
-                      borderBottom: '2px solid rgba(104, 14, 46, 0.3)',
+                      borderBottom: '2px solid rgba(209, 187, 251, 0.3)',
                       color: 'white', fontSize: '1.5rem', padding: '10px 0',
                       outline: 'none', transition: 'border-color 0.3s'
                     }}
@@ -212,7 +212,7 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
                       }}
                       style={{
                         padding: '16px 32px', borderRadius: '50px',
-                        background: form[step.field] === opt.id ? '#680E2E' : 'rgba(255,255,255,0.05)',
+                        background: form[step.field] === opt.id ? '#d1bbfb' : 'rgba(255,255,255,0.05)',
                         border: '1px solid rgba(255,255,255,0.1)',
                         color: 'white', cursor: 'pointer', fontSize: '1.1rem',
                         transition: 'all 0.2s ease', fontFamily: "'Space Grotesk', sans-serif"
@@ -256,10 +256,10 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
                   onClick={next}
                   className="typeform-btn"
                   style={{
-                    background: 'linear-gradient(135deg, #680E2E, #4a0a20)',
+                    background: 'linear-gradient(135deg, #d1bbfb, #5646e4)',
                     color: 'white', border: 'none', padding: '16px 40px',
                     borderRadius: '12px', cursor: 'pointer', fontWeight: 700,
-                    fontSize: '1.1rem', boxShadow: '0 10px 20px rgba(104, 14, 46, 0.3)'
+                    fontSize: '1.1rem', boxShadow: '0 10px 20px rgba(209, 187, 251, 0.3)'
                   }}
                 >
                   {currentStep === STEPS.length - 1 ? (isSubmitting ? 'Sending...' : 'Complete') : 'Next'}
@@ -294,7 +294,7 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
 
       <style>{`
         .typeform-input:focus {
-          border-bottom-color: #680E2E !important;
+          border-bottom-color: #d1bbfb !important;
         }
         .typeform-btn:hover {
           transform: translateY(-2px);

@@ -914,7 +914,7 @@ export const NL_BLOG_POSTS = [
                 <div style="overflow-x: auto; margin: 30px 0;">
                     <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
                         <thead>
-                            <tr style="background: linear-gradient(135deg, #e91e63, #9c27b0); color: white;">
+                            <tr style="background: linear-gradient(135deg, #d1bbfb, #5646e4); color: white;">
                                 <th style="padding: 20px; text-align: left; font-weight: 600;"></th>
                                 <th style="padding: 20px; text-align: left; font-weight: 600;">Workflow Automatisering</th>
                                 <th style="padding: 20px; text-align: left; font-weight: 600;">Business Process Automation (BPA)</th>
@@ -1833,7 +1833,7 @@ export const NL_BLOG_POSTS = [
                     <h3>💰 Laten We Ons Voorbeeld Gebruiken</h3>
                     <p>Je onboardt gemiddeld 2 nieuwe klanten per week.</p>
                     <p><strong>De berekening is:</strong> 1,5 uur/klant x 2 klanten/week x €60/uur x 52 weken</p>
-                    <p style="font-size: 1.2em; font-weight: bold; color: #e91e63;"><strong>De Jaarlijkse Kosten van handmatig klanten onboarden = €9.360.</strong></p>
+                    <p style="font-size: 1.2em; font-weight: bold; color: #d1bbfb;"><strong>De Jaarlijkse Kosten van handmatig klanten onboarden = €9.360.</strong></p>
                     <p>Neem even de tijd om naar dat getal te kijken. Je besteedt bijna tienduizend euro aan je waardevolle tijd elk jaar aan een enkel, repetitief proces. Dit zijn je verborgen kosten van niets doen.</p>
                 </div>
 
@@ -1870,7 +1870,7 @@ export const NL_BLOG_POSTS = [
                     </ul>
                     <p><strong>ROI = [ (€9.360 - €720) / €720 ] x 100%</strong></p>
                     <p><strong>ROI = [ €8.640 / €720 ] x 100%</strong></p>
-                    <p style="font-size: 1.5em; font-weight: bold; color: #e91e63;"><strong>ROI = 1200%</strong></p>
+                    <p style="font-size: 1.5em; font-weight: bold; color: #d1bbfb;"><strong>ROI = 1200%</strong></p>
                     <p>Een ROI van 1200% is verbluffend. Voor elke euro die je investeerde in het automatiseren van dit proces, kreeg je €12 terug in productieve tijd binnen het eerste jaar. In het tweede jaar zijn de setupkosten verdwenen en zijn je enige kosten het software abonnement, waardoor het rendement nog hoger wordt.</p>
                 </div>
 
@@ -2892,7 +2892,7 @@ export const NL_BLOG_POSTS = [
                 <div style="overflow-x: auto; margin: 30px 0;">
                     <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); font-size: 0.9rem;">
                         <thead>
-                            <tr style="background: linear-gradient(135deg, #e91e63, #9c27b0); color: white;">
+                            <tr style="background: linear-gradient(135deg, #d1bbfb, #5646e4); color: white;">
                                 <th style="padding: 20px; text-align: left; font-weight: 600;">Kostenfactor</th>
                                 <th style="padding: 20px; text-align: left; font-weight: 600;">Zapier / No-Code<br/>(Het OpEx "Huur" Model)</th>
                                 <th style="padding: 20px; text-align: left; font-weight: 600;">Maatwerk Automatisering<br/>(Het CapEx "Actief" Model)</th>
@@ -2964,7 +2964,7 @@ export const NL_BLOG_POSTS = [
                         <li><strong>Overschrijdingskosten:</strong> €30 × 12 = €360</li>
                         <li><strong>Interne Arbeidskosten:</strong> 3 uur/week × €50/uur × 52 weken = €7.800</li>
                     </ul>
-                    <p style="font-size: 1.2rem; font-weight: 700; color: #e91e63; margin-top: 15px;"><strong>Tulp Trends' Jaarlijkse TCO voor Zapier = €9.228</strong></p>
+                    <p style="font-size: 1.2rem; font-weight: 700; color: #d1bbfb; margin-top: 15px;"><strong>Tulp Trends' Jaarlijkse TCO voor Zapier = €9.228</strong></p>
                 </div>
 
                 <p>Dit is het cruciale cijfer. De "goedkope" €89/maand tool kost het bedrijf eigenlijk meer dan <strong>€760 per maand</strong> aan totale middelen.</p>
@@ -2999,8 +2999,8 @@ export const NL_BLOG_POSTS = [
                         <li><strong>Vooruit Investering:</strong> €7.500</li>
                         <li><strong>Eerste-Jaar Hosting/Onderhoud:</strong> €40 × 12 = €480</li>
                     </ul>
-                    <p style="font-size: 1.2rem; font-weight: 700; color: #e91e63; margin-top: 15px;"><strong>Tulp Trends' Jaar 1 Kosten voor een Maatwerk Oplossing = €7.980</strong></p>
-                    <p style="font-size: 1.1rem; font-weight: 600; color: #9c27b0;"><strong>Jaar 2 (en verder) Kosten = €480</strong></p>
+                    <p style="font-size: 1.2rem; font-weight: 700; color: #d1bbfb; margin-top: 15px;"><strong>Tulp Trends' Jaar 1 Kosten voor een Maatwerk Oplossing = €7.980</strong></p>
+                    <p style="font-size: 1.1rem; font-weight: 600; color: #5646e4;"><strong>Jaar 2 (en verder) Kosten = €480</strong></p>
                 </div>
 
                 <h3>Stap 3: Vind het Break-Even Punt en Meerjarige ROI</h3>
@@ -3011,7 +3011,7 @@ export const NL_BLOG_POSTS = [
                     <h3>🎯 De Financiële Realiteit</h3>
                     <p><strong>Jaar 1:</strong> De kosten zijn verrassend dicht bij elkaar, maar de maatwerk oplossing is al goedkoper. Tulp Trends besteedt €9.228 aan "huren" of slechts €7.980 aan "bouwen." De vooruit investering is volledig terugverdiend door de besparingen in ongeveer 10 maanden.</p>
                     <p><strong>Jaar 2:</strong> De vergelijking wordt dramatisch. Ze kunnen ofwel nog eens €9.228 besteden aan hun Zapier TCO, of slechts €480 aan het onderhoud van hun maatwerk actief.</p>
-                    <p style="font-size: 1.2rem; font-weight: 700; color: #e91e63;"><strong>Jaarlijkse Besparing in Jaar 2 en Verder = €8.748</strong></p>
+                    <p style="font-size: 1.2rem; font-weight: 700; color: #d1bbfb;"><strong>Jaarlijkse Besparing in Jaar 2 en Verder = €8.748</strong></p>
                 </div>
 
                 <p><strong>Jaar 3:</strong> De besparingen blijven zich opstapelen en maken aanzienlijk kapitaal vrij voor groei.</p>
@@ -3022,7 +3022,7 @@ export const NL_BLOG_POSTS = [
                         <li><strong>Cumulatieve 3-Jarige Kosten van Zapier:</strong> €9.228 × 3 = €27.684</li>
                         <li><strong>Cumulatieve 3-Jarige Kosten van Maatwerk Oplossing:</strong> €7.980 (Jaar 1) + €480 (Jaar 2) + €480 (Jaar 3) = €8.940</li>
                     </ul>
-                    <p style="font-size: 1.3rem; font-weight: 800; color: #e91e63; margin-top: 15px;"><strong>Netto Besparing Over 3 Jaar: €18.744</strong></p>
+                    <p style="font-size: 1.3rem; font-weight: 800; color: #d1bbfb; margin-top: 15px;"><strong>Netto Besparing Over 3 Jaar: €18.744</strong></p>
                 </div>
 
                 <p>Voor een groeiend MKB is die €18k een nieuwe marketingcampagne, een aanbetaling op nieuwe apparatuur, of een significante bonus voor het team.</p>
@@ -3066,7 +3066,7 @@ export const NL_BLOG_POSTS = [
                         <li style="margin-bottom: 10px;">☐ Je voorspelt significante groei in verkoop of transactievolume in de komende 12-18 maanden.</li>
                         <li style="margin-bottom: 10px;">☐ Je hebt ooit besloten om een nuttige automatisering niet te bouwen omdat je je zorgen maakte over taakgebruik en kosten.</li>
                     </ul>
-                    <p style="margin-top: 20px; font-weight: 600; color: #e91e63;">Als je drie of meer van deze vakjes hebt aangevinkt, heb je waarschijnlijk je financiële break-even punt gepasseerd.</p>
+                    <p style="margin-top: 20px; font-weight: 600; color: #d1bbfb;">Als je drie of meer van deze vakjes hebt aangevinkt, heb je waarschijnlijk je financiële break-even punt gepasseerd.</p>
                 </div>
 
                 <p>Blijven huren van een tijdelijke oplossing wanneer je bedrijf permanente infrastructuur nodig heeft, is een van de meest voorkomende en kostbare fouten die een schalingsbedrijf kan maken. Het is tijd om te verschuiven van kortetermijn operationeel denken naar langetermijn waardecreatie.</p>

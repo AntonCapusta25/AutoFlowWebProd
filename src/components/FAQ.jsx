@@ -46,7 +46,7 @@ export default function FAQ({ lang = 'en' }) {
                   {item.q}
                 </span>
                 <svg
-                  width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e91e63" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                  width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d1bbfb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
                   style={{ transform: openIdx === i ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.3s ease' }}
                 >
                   <polyline points="6 9 12 15 18 9"></polyline>

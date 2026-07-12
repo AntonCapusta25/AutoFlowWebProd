@@ -292,7 +292,7 @@ export default function AdminDashboard() {
       return [x, y]
     }
 
-    const colors = ['#e91e63', '#3b82f6', '#10b981', '#f59e0b', '#9c27b0']
+    const colors = ['#d1bbfb', '#3b82f6', '#10b981', '#f59e0b', '#5646e4']
 
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
@@ -409,7 +409,7 @@ export default function AdminDashboard() {
                 position: 'absolute',
                 top: 0,
                 height: '100%',
-                background: 'linear-gradient(90deg, transparent, #e91e63, #9c27b0, transparent)',
+                background: 'linear-gradient(90deg, transparent, #d1bbfb, #5646e4, transparent)',
                 borderRadius: '10px',
                 animation: 'dash-bar-sweep 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite'
               }} />
@@ -551,7 +551,7 @@ export default function AdminDashboard() {
                     onClick={() => setActiveTab(tab)}
                     style={{ 
                       padding: '10px 24px', borderRadius: '12px', border: 'none', cursor: 'pointer', transition: 'all 0.2s',
-                      background: activeTab === tab ? '#e91e63' : 'transparent',
+                      background: activeTab === tab ? '#d1bbfb' : 'transparent',
                       color: activeTab === tab ? 'white' : '#94A3B8',
                       fontWeight: 700, fontSize: '0.9rem', textTransform: 'capitalize'
                     }}
@@ -564,7 +564,7 @@ export default function AdminDashboard() {
           </div>
 
           <div className="stat-grid">
-            <StatCard title="Total Leads" value={stats.totalLeads} color="#e91e63" icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e91e63" strokeWidth="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>} />
+            <StatCard title="Total Leads" value={stats.totalLeads} color="#d1bbfb" icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d1bbfb" strokeWidth="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>} />
             <StatCard title="Booking Leads" value={stats.bookingLeads} color="#3b82f6" icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>} />
             <StatCard title="Contact Leads" value={stats.contactLeads} color="#10b981" icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>} />
             <StatCard title="Newsletters" value={stats.newsletterSubs} color="#f59e0b" icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>} />
@@ -588,11 +588,11 @@ export default function AdminDashboard() {
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%' }}>
                           <div style={{ 
-                            width: '44px', height: '44px', borderRadius: '12px', background: item.event_type === 'call' ? 'rgba(233, 30, 99, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+                            width: '44px', height: '44px', borderRadius: '12px', background: item.event_type === 'call' ? 'rgba(209, 187, 251, 0.1)' : 'rgba(59, 130, 246, 0.1)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
                           }}>
                             {item.event_type === 'call' ? (
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e91e63" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d1bbfb" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                             ) : (
                               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                             )}
@@ -607,7 +607,7 @@ export default function AdminDashboard() {
                             {new Date(item.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })} at {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </p>
                           {agentName && (
-                            <p style={{ margin: '4px 0 0', color: '#f06292', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            <p style={{ margin: '4px 0 0', color: '#d1bbfb', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                               by {agentName}
                             </p>
                           )}
@@ -637,7 +637,7 @@ export default function AdminDashboard() {
                           top: 0,
                           height: '100%',
                           width: '40%',
-                          background: 'linear-gradient(90deg, transparent, #e91e63, #3b82f6, transparent)',
+                          background: 'linear-gradient(90deg, transparent, #d1bbfb, #3b82f6, transparent)',
                           borderRadius: '10px',
                           animation: 'dash-bar-sweep 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite'
                         }} />
@@ -649,7 +649,7 @@ export default function AdminDashboard() {
                   <div className="growth-grid">
                     <div style={{ background: 'rgba(255,255,255,0.01)', padding: '32px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
                       <h4 style={{ color: 'white', marginBottom: '24px', fontSize: '1.1rem', fontWeight: 800 }}>Leads Added (7 Days)</h4>
-                      <BarChart data={dailyData.dailyLeads} color="#e91e63" />
+                      <BarChart data={dailyData.dailyLeads} color="#d1bbfb" />
                     </div>
                     <div style={{ background: 'rgba(255,255,255,0.01)', padding: '32px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
                       <h4 style={{ color: 'white', marginBottom: '24px', fontSize: '1.1rem', fontWeight: 800 }}>Calls Logged (7 Days)</h4>
@@ -678,7 +678,7 @@ export default function AdminDashboard() {
                           top: 0,
                           height: '100%',
                           width: '40%',
-                          background: 'linear-gradient(90deg, transparent, #e91e63, #10b981, transparent)',
+                          background: 'linear-gradient(90deg, transparent, #d1bbfb, #10b981, transparent)',
                           borderRadius: '10px',
                           animation: 'dash-bar-sweep 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite'
                         }} />
@@ -715,7 +715,7 @@ export default function AdminDashboard() {
                           top: 0,
                           height: '100%',
                           width: '40%',
-                          background: 'linear-gradient(90deg, transparent, #fbbf24, #e91e63, transparent)',
+                          background: 'linear-gradient(90deg, transparent, #fbbf24, #d1bbfb, transparent)',
                           borderRadius: '10px',
                           animation: 'dash-bar-sweep 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite'
                         }} />
@@ -748,24 +748,24 @@ export default function AdminDashboard() {
                                 <tr key={item.id} style={{ 
                                   borderBottom: '1px solid rgba(255,255,255,0.04)', 
                                   fontSize: '0.9rem', 
-                                  background: isCurrentUser ? 'rgba(233, 30, 99, 0.05)' : 'transparent',
+                                  background: isCurrentUser ? 'rgba(209, 187, 251, 0.05)' : 'transparent',
                                   fontWeight: isCurrentUser ? 700 : 500,
                                   transition: 'all 0.2s'
                                 }}>
                                   <td style={{ padding: '16px 10px', fontSize: '1.1rem', color: idx === 0 ? '#fbbf24' : idx === 1 ? '#cbd5e1' : idx === 2 ? '#cd7f32' : '#64748B' }}>
                                     {idx === 0 ? '🏆 1' : idx === 1 ? '🥈 2' : idx === 2 ? '🥉 3' : `${idx + 1}`}
                                   </td>
-                                  <td style={{ padding: '16px 10px', color: isCurrentUser ? '#e91e63' : 'white' }}>
-                                    {item.name} {isCurrentUser && <span style={{ fontSize: '0.7rem', background: '#e91e63', color: 'white', padding: '2px 8px', borderRadius: '20px', marginLeft: '8px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>You</span>}
+                                  <td style={{ padding: '16px 10px', color: isCurrentUser ? '#d1bbfb' : 'white' }}>
+                                    {item.name} {isCurrentUser && <span style={{ fontSize: '0.7rem', background: '#d1bbfb', color: 'white', padding: '2px 8px', borderRadius: '20px', marginLeft: '8px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>You</span>}
                                   </td>
                                   <td style={{ padding: '16px 10px', color: '#cbd5e1' }}>{item.totalLeads}</td>
                                   <td style={{ padding: '16px 10px', color: '#10b981', fontWeight: 700 }}>{item.convertedLeads}</td>
                                   <td style={{ padding: '16px 10px', color: '#3b82f6' }}>{item.callsLogged}</td>
                                   <td style={{ padding: '16px 10px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                      <span style={{ color: '#e91e63', fontWeight: 700, width: '40px' }}>{item.conversionRate}%</span>
+                                      <span style={{ color: '#d1bbfb', fontWeight: 700, width: '40px' }}>{item.conversionRate}%</span>
                                       <div style={{ width: '80px', height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden' }}>
-                                        <div style={{ width: `${item.conversionRate}%`, height: '100%', background: 'linear-gradient(90deg, #e91e63, #9c27b0)', borderRadius: '10px' }} />
+                                        <div style={{ width: `${item.conversionRate}%`, height: '100%', background: 'linear-gradient(90deg, #d1bbfb, #5646e4)', borderRadius: '10px' }} />
                                       </div>
                                     </div>
                                   </td>

@@ -46,14 +46,14 @@ export default function ProjectDetail({ lang = 'en' }) {
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         {/* Navigation */}
         <Link to={backLink} style={{ display: 'inline-flex', alignItems: 'center', color: '#94A3B8', textDecoration: 'none', marginBottom: '40px', fontSize: '0.9rem', transition: 'color 0.2s' }}
-          onMouseOver={e => e.currentTarget.style.color = '#e91e63'}
+          onMouseOver={e => e.currentTarget.style.color = '#d1bbfb'}
           onMouseOut={e => e.currentTarget.style.color = '#94A3B8'}>
           {t.backToPortfolio}
         </Link>
 
         {/* Header */}
         <header style={{ marginBottom: '60px', maxWidth: '1000px' }}>
-          <div style={{ display: 'inline-block', padding: '6px 16px', borderRadius: '100px', background: 'rgba(233, 30, 99, 0.1)', border: '1px solid rgba(233, 30, 99, 0.2)', color: '#e91e63', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '24px' }}>
+          <div style={{ display: 'inline-block', padding: '6px 16px', borderRadius: '100px', background: 'rgba(209, 187, 251, 0.1)', border: '1px solid rgba(209, 187, 251, 0.2)', color: '#d1bbfb', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '24px' }}>
             {project.category.toUpperCase()}
           </div>
           <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '24px', background: 'linear-gradient(to bottom, #FFFFFF 0%, #94A3B8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
@@ -102,7 +102,7 @@ export default function ProjectDetail({ lang = 'en' }) {
                       <ul key={i} style={{ marginBottom: '32px', paddingLeft: '20px', listStyleType: 'none' }}>
                         {block.items.map((item, j) => (
                           <li key={j} style={{ marginBottom: '12px', position: 'relative', paddingLeft: '24px' }}>
-                            <span style={{ position: 'absolute', left: 0, color: '#e91e63', fontWeight: 900 }}>•</span>
+                            <span style={{ position: 'absolute', left: 0, color: '#d1bbfb', fontWeight: 900 }}>•</span>
                             <span dangerouslySetInnerHTML={{ __html: item }} />
                           </li>
                         ))}
@@ -110,7 +110,7 @@ export default function ProjectDetail({ lang = 'en' }) {
                     )
                   case 'box':
                     return (
-                      <div key={i} style={{ background: 'rgba(233, 30, 99, 0.05)', borderLeft: '4px solid #e91e63', padding: '32px', borderRadius: '0 16px 16px 0', margin: '40px 0' }}>
+                      <div key={i} style={{ background: 'rgba(209, 187, 251, 0.05)', borderLeft: '4px solid #d1bbfb', padding: '32px', borderRadius: '0 16px 16px 0', margin: '40px 0' }}>
                         <h4 style={{ color: '#F8FAFC', fontSize: '1.25rem', fontWeight: 700, marginBottom: '12px' }} dangerouslySetInnerHTML={{ __html: block.title }} />
                         <p style={{ margin: 0, fontSize: '1.05rem', color: '#CBD5E1' }} dangerouslySetInnerHTML={{ __html: block.content }} />
                       </div>
@@ -118,7 +118,7 @@ export default function ProjectDetail({ lang = 'en' }) {
                   case 'testimonial':
                     return (
                       <blockquote key={i} style={{ margin: '60px 0', padding: '48px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.08)', position: 'relative', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
-                        <div style={{ position: 'absolute', top: '20px', left: '20px', fontSize: '6rem', color: '#e91e63', opacity: 0.1, fontFamily: 'serif', lineHeight: 1 }}>"</div>
+                        <div style={{ position: 'absolute', top: '20px', left: '20px', fontSize: '6rem', color: '#d1bbfb', opacity: 0.1, fontFamily: 'serif', lineHeight: 1 }}>"</div>
                         <p style={{ fontStyle: 'italic', fontSize: '1.4rem', color: '#F8FAFC', marginBottom: '24px', lineHeight: 1.6, position: 'relative', zIndex: 1 }}>{block.quote}</p>
                         <cite style={{ display: 'block', fontWeight: 700, color: '#94A3B8', fontStyle: 'normal', fontSize: '1.1rem' }}>— {block.author}</cite>
                       </blockquote>
@@ -139,7 +139,7 @@ export default function ProjectDetail({ lang = 'en' }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                 {stats.map((s, i) => (
                   <div key={i}>
-                    <div style={{ color: '#e91e63', fontWeight: 900, fontSize: '1.75rem', lineHeight: 1.2 }}>{s.value}</div>
+                    <div style={{ color: '#d1bbfb', fontWeight: 900, fontSize: '1.75rem', lineHeight: 1.2 }}>{s.value}</div>
                     <div style={{ color: '#CBD5E1', fontSize: '0.95rem', fontWeight: 700, marginTop: '4px' }}>{s.label}</div>
                     <div style={{ color: '#64748B', fontSize: '0.85rem', marginTop: '4px', lineHeight: 1.4 }}>{s.desc}</div>
                   </div>
@@ -160,10 +160,10 @@ export default function ProjectDetail({ lang = 'en' }) {
               </div>
             </div>
 
-            <div style={{ ...glassStyle, marginTop: '30px', padding: '30px', background: 'linear-gradient(135deg, rgba(233,30,99,0.05) 0%, rgba(156,39,176,0.05) 100%)', textAlign: 'center' }}>
+            <div style={{ ...glassStyle, marginTop: '30px', padding: '30px', background: 'linear-gradient(135deg, rgba(209, 187, 251,0.05) 0%, rgba(156,39,176,0.05) 100%)', textAlign: 'center' }}>
               <h4 style={{ color: 'white', marginBottom: '12px', fontSize: '1rem' }}>{t.questions}</h4>
               <p style={{ color: '#94A3B8', fontSize: '0.85rem', marginBottom: '20px' }}>{t.helpText}</p>
-              <Link to={isNl ? '/nl/contact' : '/contact'} style={{ color: '#e91e63', fontWeight: 700, textDecoration: 'none', fontSize: '0.9rem' }}>{t.contactUs}</Link>
+              <Link to={isNl ? '/nl/contact' : '/contact'} style={{ color: '#d1bbfb', fontWeight: 700, textDecoration: 'none', fontSize: '0.9rem' }}>{t.contactUs}</Link>
             </div>
           </aside>
 

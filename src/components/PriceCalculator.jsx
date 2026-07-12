@@ -99,7 +99,7 @@ export default function PriceCalculator() {
             <div style={{marginBottom:'25px'}}>
               <label style={{display:'flex',alignItems:'center',fontWeight:600,color:'#1a1a1a',cursor:'pointer',fontSize:'0.95rem',gap:'10px'}}>
                 <input type="checkbox" checked={support} onChange={e=>setSupport(e.target.checked)}
-                  style={{width:'18px',height:'18px',accentColor:'#e91e63'}} />
+                  style={{width:'18px',height:'18px',accentColor:'#d1bbfb'}} />
                 Monthly support plan
               </label>
             </div>
@@ -107,13 +107,13 @@ export default function PriceCalculator() {
             {/* Result */}
             <div style={{background:'linear-gradient(135deg,#fce4ec,#f3e5f5)',padding:'20px',borderRadius:'15px',textAlign:'center'}}>
               <div style={{color:'#9ca3af',fontSize:'0.8rem',fontWeight:600,letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:'8px'}}>ESTIMATED TOTAL</div>
-              <div style={{fontSize:'2.5rem',fontWeight:800,background:'linear-gradient(135deg,#e91e63,#9c27b0)',WebkitBackgroundClip:'text',backgroundClip:'text',WebkitTextFillColor:'transparent',lineHeight:1}}>
+              <div style={{fontSize:'2.5rem',fontWeight:800,background:'linear-gradient(135deg,#d1bbfb,#a78bfa)',WebkitBackgroundClip:'text',backgroundClip:'text',WebkitTextFillColor:'transparent',lineHeight:1}}>
                 €{oneTime.toLocaleString()}
               </div>
               <div style={{color:'#6b7280',fontSize:'0.8rem',marginBottom:'8px'}}>(One-Time Project Cost)</div>
               {support && (
                 <div style={{marginBottom:'12px'}}>
-                  <div style={{fontSize:'1.25rem',fontWeight:'bold',color:'#e91e63'}}>+ €{monthly}/month</div>
+                  <div style={{fontSize:'1.25rem',fontWeight:'bold',color:'#d1bbfb'}}>+ €{monthly}/month</div>
                   <div style={{color:'#6b7280',fontSize:'0.8rem'}}>(Monthly Support Plan)</div>
                 </div>
               )}
@@ -121,7 +121,7 @@ export default function PriceCalculator() {
                 Rough estimate — final price depends on your specific requirements.
               </p>
               <a href="https://calendar.app.google/bnsr9k5VHi5EYgdM8" target="_blank" rel="noreferrer"
-                style={{display:'inline-block',background:'linear-gradient(135deg,#e91e63,#9c27b0)',color:'white',padding:'12px 30px',borderRadius:'50px',textDecoration:'none',fontWeight:600,fontSize:'0.95rem',boxShadow:'0 8px 25px rgba(233,30,99,0.3)'}}>
+                style={{display:'inline-block',background:'linear-gradient(135deg,#d1bbfb,#a78bfa)',color:'white',padding:'12px 30px',borderRadius:'50px',textDecoration:'none',fontWeight:600,fontSize:'0.95rem',boxShadow:'0 8px 25px rgba(209, 187, 251,0.3)'}}>
                 Schedule a free consultation
               </a>
             </div>

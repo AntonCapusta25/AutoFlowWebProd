@@ -65,6 +65,14 @@ export default function Hero({ lang = 'en' }) {
   const [inputVal, setInputVal] = useState('')
   const navigate = useNavigate()
   const inputRef = useRef(null)
+  const heroRef = useRef(null)
+  const videoRef = useRef(null)
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(err => console.log('Video play triggered:', err))
+    }
+  }, [])
 
 
 
@@ -78,6 +86,7 @@ export default function Hero({ lang = 'en' }) {
   useEffect(() => {
     if (!headlineWords.length) return
     const current = headlineWords[headlineWordIdx]
+    if (!current) return
     let timeout
 
     if (!headlineDeleting) {
@@ -101,7 +110,7 @@ export default function Hero({ lang = 'en' }) {
       }
     }
     return () => clearTimeout(timeout)
-  }, [headlineCharIdx, headlineDeleting, headlineWordIdx, headlineWords])
+  }, [headlineCharIdx, headlineDeleting, headlineWordIdx, lang])
 
   const inputLabel = isNl ? 'Welk probleem heeft u?' : 'What problem do you have?'
   const sendText = isNl ? 'Stuur' : 'Send'
@@ -112,6 +121,7 @@ export default function Hero({ lang = 'en' }) {
   useEffect(() => {
     const prefixStr = isNl ? 'Wij automatiseren het ' : 'We automate '
     const current = prefixStr + typeItems[itemIdx]
+    if (!current) return
     let timeout
 
     if (!deleting) {
@@ -135,7 +145,7 @@ export default function Hero({ lang = 'en' }) {
       }
     }
     return () => clearTimeout(timeout)
-  }, [charIdx, deleting, itemIdx, isNl, typeItems])
+  }, [charIdx, deleting, itemIdx, lang])
 
   const handleSend = (e) => {
     e.preventDefault()
@@ -189,9 +199,9 @@ export default function Hero({ lang = 'en' }) {
         
         .logo-pill:hover {
           background: rgba(255,255,255,0.08);
-          border-color: #e91e63;
+          border-color: #d1bbfb;
           transform: scale(1.05);
-          box-shadow: 0 0 25px rgba(233, 30, 99, 0.3);
+          box-shadow: 0 0 25px rgba(209, 187, 251, 0.3);
         }
         
         .logo-pill img {
@@ -199,7 +209,7 @@ export default function Hero({ lang = 'en' }) {
         }
         
         .logo-pill:hover img {
-          filter: drop-shadow(0 0 10px rgba(233, 30, 99, 0.8)) brightness(1.5) !important;
+          filter: drop-shadow(0 0 10px rgba(209, 187, 251, 0.8)) brightness(1.5) !important;
           transform: scale(1.1);
         }
 
@@ -259,45 +269,81 @@ export default function Hero({ lang = 'en' }) {
           display: inline-block;
           width: 2px;
           height: 0.8em;
-          background-color: #e91e63;
+          background-color: #d1bbfb;
           margin-left: 4px;
           animation: blink 1s step-end infinite;
           vertical-align: middle;
         }
       `}</style>
-      <section className="hero hero-section" style={{ 
+      <section ref={heroRef} className="hero hero-section" style={{ 
         paddingBottom: '0',
-        background: `url('/images/hero-night-sky.jpg') center bottom / cover no-repeat`,
-        backgroundColor: '#050505',
+        backgroundColor: '#000000',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        position: 'relative'
+        position: 'relative',
+        overflow: 'hidden'
       }}>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '0 24px' }}>
+        {/* Background Video looping */}
+        <video
+          ref={videoRef}
+          src="/hero_loop.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            pointerEvents: 'none',
+            opacity: 0.35,
+            zIndex: 0
+          }}
+        />
+        {/* Dark overlay to reduce white shine and blend into black */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.85) 100%)',
+          zIndex: 0,
+          pointerEvents: 'none'
+        }} />
+        <div style={{ position: 'relative', zIndex: 2, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '0 24px' }}>
           
           {/* Top Section: Text in Night Sky */}
-          <div style={{ textAlign: 'center', marginTop: '2vh' }}>
+          <div style={{ textAlign: 'center', marginTop: '4vh' }}>
             <h1 className="hero-title" style={{ 
-              fontFamily: "'Space Grotesk', 'Inter', sans-serif", 
-              fontWeight: 800, 
-              lineHeight: 1.15, 
+              fontFamily: "'Bebas Neue', 'Space Grotesk', 'Inter', sans-serif", 
+              fontWeight: 'normal', 
+              lineHeight: 1.05, 
               marginBottom: '24px', 
-              letterSpacing: '-0.02em',
-              textShadow: '0 4px 20px rgba(0,0,0,0.5)'
+              letterSpacing: '0.03em',
+              textShadow: '0 4px 20px rgba(0,0,0,0.6)',
+              textTransform: 'uppercase'
             }}>
-              {t.hero.headlinePrefix}
-              <br className="mobile-only-br" />
-              <span className="glass-pill" style={{ minWidth: '12ch', justifyContent: 'flex-start' }}>
-                <span style={{
-                  background: 'linear-gradient(135deg, #e91e63, #9c27b0)', 
-                  WebkitBackgroundClip: 'text', 
-                  WebkitTextFillColor: 'transparent',
-                  whiteSpace: 'nowrap'
+              <div style={{ color: '#FFFFFF' }}>{t.hero.headlinePrefix}</div>
+              <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'center' }}>
+                <span className="glass-pill" style={{ 
+                  minWidth: '12ch', 
+                  justifyContent: 'center', 
+                  padding: '12px 40px',
+                  height: 'auto',
+                  display: 'inline-flex'
                 }}>
-                  {headlineText}
+                  <span style={{
+                    background: 'var(--primary-gradient)', 
+                    WebkitBackgroundClip: 'text', 
+                    WebkitTextFillColor: 'transparent',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {headlineText}
+                  </span>
                 </span>
-              </span>
+              </div>
             </h1>
           <p className="hero-subtext" style={{ 
             fontFamily: "'Inter', sans-serif", 
@@ -332,7 +378,7 @@ export default function Hero({ lang = 'en' }) {
             <label style={{
               fontFamily: "'Space Grotesk', sans-serif",
               fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.1em',
-              color: '#e91e63', textTransform: 'uppercase', whiteSpace: 'nowrap', flexShrink: 0,
+              color: '#d1bbfb', textTransform: 'uppercase', whiteSpace: 'nowrap', flexShrink: 0,
             }}>
               {inputLabel}
             </label>
@@ -351,13 +397,13 @@ export default function Hero({ lang = 'en' }) {
                 />
               </div>
               <button className="hero-search-btn" type="submit" style={{
-                background: inputVal.trim() ? 'linear-gradient(135deg,#e91e63,#9c27b0)' : 'rgba(255,255,255,0.08)',
+                background: inputVal.trim() ? 'linear-gradient(135deg,#d1bbfb,#a78bfa)' : 'rgba(255,255,255,0.08)',
                 color: inputVal.trim() ? '#fff' : 'rgba(255,255,255,0.4)',
                 border: 'none', borderRadius: '8px', padding: '12px 32px',
                 fontFamily: "'Space Grotesk', sans-serif",
                 fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer',
                 transition: 'all 0.2s', letterSpacing: '0.05em',
-                boxShadow: inputVal.trim() ? '0 8px 25px rgba(233,30,99,0.4)' : 'none',
+                boxShadow: inputVal.trim() ? '0 8px 25px rgba(209, 187, 251,0.4)' : 'none',
               }}>
                 {sendText}
               </button>

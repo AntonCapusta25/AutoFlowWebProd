@@ -190,7 +190,7 @@ export default function AdminDeals() {
           {['all', 'pipeline', 'won', 'lost'].map(s => (
             <button key={s} onClick={() => setStatusFilter(s)} style={{
               padding: '9px 20px', borderRadius: '10px', border: 'none', cursor: 'pointer',
-              background: statusFilter === s ? '#e91e63' : 'transparent',
+              background: statusFilter === s ? '#d1bbfb' : 'transparent',
               color: statusFilter === s ? 'white' : '#94A3B8',
               fontWeight: 700, fontSize: '0.85rem', textTransform: 'capitalize', transition: 'all 0.2s'
             }}>{s === 'all' ? 'All' : statusColors[s]?.label}</button>
@@ -205,7 +205,7 @@ export default function AdminDeals() {
           <StatCard label="Admin Share (60%)" value={fmt(totalRevenue * 0.60)} color="#3b82f6" icon="🏦" />
           <StatCard label="Napoleon Share (30%)" value={fmt(totalRevenue * 0.30)} color="#a855f7" icon="👑" />
           <StatCard label="Sales Team Share (10%)" value={fmt(totalRevenue * 0.10)} color="#f59e0b" icon="🤝" />
-          <StatCard label="Won Deals" value={wonDeals.length} color="#e91e63" icon="🏆" />
+          <StatCard label="Won Deals" value={wonDeals.length} color="#d1bbfb" icon="🏆" />
         </>) : (<>
           <StatCard label={`My Commission (${profile?.role === 'Napoleon' ? '30%' : '5%'})`} value={fmt(myCommission)} color="#f59e0b" icon="💸" />
           <StatCard label="My Won Deals" value={myWonDeals.length} color="#3b82f6" icon="🏆" />
@@ -233,7 +233,7 @@ export default function AdminDeals() {
               return (
                 <div key={sp.id} style={{ display: 'grid', gridTemplateColumns: '150px 1fr 120px 130px 130px 130px', alignItems: 'center', gap: '16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: isNap ? 'linear-gradient(135deg, #a855f7, #e91e63)' : 'linear-gradient(135deg, #e91e63, #9c27b0)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, color: 'white', flexShrink: 0 }}>
+                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: isNap ? 'linear-gradient(135deg, #a855f7, #d1bbfb)' : 'linear-gradient(135deg, #d1bbfb, #5646e4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, color: 'white', flexShrink: 0 }}>
                       {(sp.name || sp.email || '?').charAt(0).toUpperCase()}
                     </div>
                     <span style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -244,7 +244,7 @@ export default function AdminDeals() {
                     </span>
                   </div>
                   <div style={{ height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden' }}>
-                    <div style={{ width: `${(sp.revenue / maxRev) * 100}%`, height: '100%', background: isNap ? 'linear-gradient(90deg, #a855f7, #e91e63)' : 'linear-gradient(90deg, #e91e63, #9c27b0)', borderRadius: '10px', transition: 'width 0.6s ease' }} />
+                    <div style={{ width: `${(sp.revenue / maxRev) * 100}%`, height: '100%', background: isNap ? 'linear-gradient(90deg, #a855f7, #d1bbfb)' : 'linear-gradient(90deg, #d1bbfb, #5646e4)', borderRadius: '10px', transition: 'width 0.6s ease' }} />
                   </div>
                   <span style={{ color: '#10b981', fontWeight: 700, fontSize: '0.9rem', textAlign: 'right' }}>{fmt(sp.revenue)}</span>
                   <span style={{ color: '#3b82f6', fontWeight: 600, fontSize: '0.85rem', textAlign: 'right' }}>+{fmt(sp.revenue * 0.60)}</span>
@@ -293,7 +293,7 @@ export default function AdminDeals() {
                       style={{
                         borderBottom: '1px solid rgba(255,255,255,0.04)',
                         cursor: 'pointer',
-                        background: isSelected ? 'rgba(233,30,99,0.06)' : 'transparent',
+                        background: isSelected ? 'rgba(209, 187, 251,0.06)' : 'transparent',
                         transition: 'background 0.15s'
                       }}
                     >
@@ -336,7 +336,7 @@ export default function AdminDeals() {
                       </td>
                       {isAdmin && (
                         <td style={{ padding: '16px 20px', color: deal.deal_value ? '#10b981' : '#475569', fontWeight: 700, fontSize: '0.9rem' }}>
-                          {deal.deal_value ? fmt(deal.deal_value) : <span style={{ color: '#e91e63', fontSize: '0.75rem', fontWeight: 700 }}>SET PRICE ↗</span>}
+                          {deal.deal_value ? fmt(deal.deal_value) : <span style={{ color: '#d1bbfb', fontSize: '0.75rem', fontWeight: 700 }}>SET PRICE ↗</span>}
                         </td>
                       )}
                       <td style={{ padding: '16px 20px', color: deal.commission ? '#f59e0b' : '#334155', fontWeight: 700, fontSize: '0.9rem' }}>
@@ -468,10 +468,10 @@ export default function AdminDeals() {
                 onClick={saveDealValue}
                 disabled={saving}
                 style={{
-                  width: '100%', padding: '14px', background: saving ? 'rgba(233,30,99,0.4)' : '#e91e63',
+                  width: '100%', padding: '14px', background: saving ? 'rgba(209, 187, 251,0.4)' : '#d1bbfb',
                   border: 'none', color: 'white', borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem',
                   cursor: saving ? 'not-allowed' : 'pointer', transition: 'all 0.2s',
-                  boxShadow: '0 8px 20px rgba(233,30,99,0.25)'
+                  boxShadow: '0 8px 20px rgba(209, 187, 251,0.25)'
                 }}
               >
                 {saving ? 'Saving...' : 'Save Deal Value'}

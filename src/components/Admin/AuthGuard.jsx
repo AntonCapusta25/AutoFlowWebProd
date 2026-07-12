@@ -35,7 +35,7 @@ function AuthGuardContent({ children }) {
             }
             50% {
               transform: translateY(-12px);
-              text-shadow: 0 10px 15px rgba(233, 30, 99, 0.3), 0 0 25px rgba(156, 39, 176, 0.2);
+              text-shadow: 0 10px 15px rgba(209, 187, 251, 0.3), 0 0 25px rgba(156, 39, 176, 0.2);
             }
           }
           @keyframes bar-sweep {
@@ -96,9 +96,9 @@ function AuthGuardContent({ children }) {
                     fontSize: '2.75rem',
                     letterSpacing: '1px',
                     fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-                    color: isFlow ? '#e91e63' : '#F8FAFC',
+                    color: isFlow ? '#d1bbfb' : '#F8FAFC',
                     // Apply gradient text effect to the "Flow" part
-                    background: isFlow ? 'linear-gradient(135deg, #f06292, #9c27b0)' : 'none',
+                    background: isFlow ? 'linear-gradient(135deg, #d1bbfb, #5646e4)' : 'none',
                     WebkitBackgroundClip: isFlow ? 'text' : 'none',
                     WebkitTextFillColor: isFlow ? 'transparent' : 'none',
                     animation: 'letter-bounce 1.6s ease-in-out infinite',
@@ -127,7 +127,7 @@ function AuthGuardContent({ children }) {
               position: 'absolute',
               top: 0,
               height: '100%',
-              background: 'linear-gradient(90deg, transparent, #e91e63, #9c27b0, transparent)',
+              background: 'linear-gradient(90deg, transparent, #d1bbfb, #5646e4, transparent)',
               borderRadius: '10px',
               animation: 'bar-sweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite'
             }} />

@@ -52,7 +52,7 @@ export default function AdminCalendar() {
           <button 
             onClick={handleCopyLink}
             style={{ 
-              background: copied ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #e91e63, #9c27b0)',
+              background: copied ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #d1bbfb, #5646e4)',
               border: 'none', 
               color: 'white', 
               padding: '10px 18px', 
@@ -64,7 +64,7 @@ export default function AdminCalendar() {
               alignItems: 'center',
               gap: '6px',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              boxShadow: copied ? '0 4px 15px rgba(16,185,129,0.3)' : '0 4px 15px rgba(233,30,99,0.3)'
+              boxShadow: copied ? '0 4px 15px rgba(16,185,129,0.3)' : '0 4px 15px rgba(209, 187, 251,0.3)'
             }}
           >
             {copied ? (
@@ -134,7 +134,7 @@ export default function AdminCalendar() {
                 width: '40px',
                 height: '40px',
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, #e91e63, #9c27b0)',
+                background: 'linear-gradient(135deg, #d1bbfb, #5646e4)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

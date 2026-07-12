@@ -23,7 +23,7 @@ export default function Portfolio({ lang = 'en' }) {
       }}>
         <div style={{ position:'absolute',top:'20%',right:'10%',width:'300px',height:'300px',borderRadius:'50%',background:'radial-gradient(circle,rgba(156,39,176,0.07) 0%,transparent 70%)',pointerEvents:'none' }} />
         <div style={{ maxWidth:'700px',margin:'0 auto',padding:'0 24px',position:'relative',zIndex:1 }}>
-          <span style={{ display:'inline-block',background:'rgba(233,30,99,0.12)',border:'1px solid rgba(233,30,99,0.3)',color:'#e91e63',padding:'6px 18px',borderRadius:'20px',fontSize:'0.75rem',fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',marginBottom:'20px' }}>
+          <span style={{ display:'inline-block',background:'rgba(209, 187, 251,0.12)',border:'1px solid rgba(209, 187, 251,0.3)',color:'#d1bbfb',padding:'6px 18px',borderRadius:'20px',fontSize:'0.75rem',fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',marginBottom:'20px' }}>
             {t.badge}
           </span>
           <h1 style={{ color:'#F8FAFC',fontSize:'clamp(2rem,5vw,3.2rem)',fontWeight:800,marginBottom:'16px',lineHeight:1.15 }}>
@@ -55,12 +55,12 @@ export default function Portfolio({ lang = 'en' }) {
                   transition:'transform 0.25s,box-shadow 0.25s,border-color 0.25s',
                   display:'flex', flexDirection:'column',
                 }}
-                  onMouseOver={e=>{e.currentTarget.style.transform='translateY(-5px)';e.currentTarget.style.boxShadow='inset 0 0 0 1px rgba(255,255,255,0.1), inset 0 2px 20px rgba(255,255,255,0.25), 0 40px 80px rgba(0,0,0,0.9)';e.currentTarget.style.borderColor='rgba(233,30,99,0.3)'}}
+                  onMouseOver={e=>{e.currentTarget.style.transform='translateY(-5px)';e.currentTarget.style.boxShadow='inset 0 0 0 1px rgba(255,255,255,0.1), inset 0 2px 20px rgba(255,255,255,0.25), 0 40px 80px rgba(0,0,0,0.9)';e.currentTarget.style.borderColor='rgba(209, 187, 251,0.3)'}}
                   onMouseOut={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 2px 20px rgba(255,255,255,0.15), 0 30px 60px rgba(0,0,0,0.8)';e.currentTarget.style.borderColor='rgba(255,255,255,0.1)'}}>
                   {/* top bar */}
-                  <div style={{ height:'4px',background:'linear-gradient(90deg,#e91e63,#9c27b0)' }} />
+                  <div style={{ height:'4px',background:'linear-gradient(90deg,#d1bbfb,#a78bfa)' }} />
                   <div style={{ padding:'32px',flex:1,display:'flex',flexDirection:'column' }}>
-                    <div style={{ display:'inline-block',background:'linear-gradient(135deg,#e91e63,#9c27b0)',color:'white',fontSize:'0.75rem',fontWeight:700,padding:'4px 12px',borderRadius:'20px',marginBottom:'16px',letterSpacing:'0.05em',alignSelf:'flex-start' }}>
+                    <div style={{ display:'inline-block',background:'linear-gradient(135deg,#d1bbfb,#a78bfa)',color:'white',fontSize:'0.75rem',fontWeight:700,padding:'4px 12px',borderRadius:'20px',marginBottom:'16px',letterSpacing:'0.05em',alignSelf:'flex-start' }}>
                       {t.caseStudy}
                     </div>
                     <h2 style={{ color:'#F8FAFC',fontSize:'1.25rem',fontWeight:700,marginBottom:'12px',lineHeight:1.35 }}>{projectTitle}</h2>
@@ -70,7 +70,7 @@ export default function Portfolio({ lang = 'en' }) {
                     <div style={{ display:'flex',gap:'20px',marginBottom:'28px',padding:'16px',background:'rgba(255,255,255,0.03)',borderRadius:'12px',border:'1px solid rgba(255,255,255,0.05)',overflowX:'auto' }}>
                       {projectStats.slice(0, 3).map((s, j) => (
                         <div key={j} style={{ minWidth:'fit-content' }}>
-                          <div style={{ color:'#F8FAFC',fontWeight:800,fontSize:'1.1rem',background:'linear-gradient(135deg,#e91e63,#9c27b0)',WebkitBackgroundClip:'text',backgroundClip:'text',WebkitTextFillColor:'transparent' }}>{s.value}</div>
+                          <div style={{ color:'#F8FAFC',fontWeight:800,fontSize:'1.1rem',background:'linear-gradient(135deg,#d1bbfb,#a78bfa)',WebkitBackgroundClip:'text',backgroundClip:'text',WebkitTextFillColor:'transparent' }}>{s.value}</div>
                           <div style={{ color:'#64748B',fontSize:'0.7rem',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.05em' }}>{s.label.split(' ')[0]}</div>
                         </div>
                       ))}

@@ -134,10 +134,10 @@ export default function TeamManagement() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                     <div style={{ 
                       width: '40px', height: '40px', borderRadius: '12px', 
-                      background: member.role === 'admin' ? 'linear-gradient(135deg, #e91e63, #9c27b0)' : member.role === 'Napoleon' ? 'linear-gradient(135deg, #a855f7, #e91e63)' : 'linear-gradient(135deg, #3b82f6, #10b981)', 
+                      background: member.role === 'admin' ? 'linear-gradient(135deg, #d1bbfb, #5646e4)' : member.role === 'Napoleon' ? 'linear-gradient(135deg, #a855f7, #d1bbfb)' : 'linear-gradient(135deg, #3b82f6, #10b981)', 
                       display: 'flex', alignItems: 'center', justifyContent: 'center', 
                       fontSize: '0.9rem', fontWeight: 800, color: 'white',
-                      boxShadow: member.role === 'admin' ? '0 4px 12px rgba(233, 30, 99, 0.2)' : member.role === 'Napoleon' ? '0 4px 12px rgba(168, 85, 247, 0.2)' : '0 4px 12px rgba(59, 130, 246, 0.2)'
+                      boxShadow: member.role === 'admin' ? '0 4px 12px rgba(209, 187, 251, 0.2)' : member.role === 'Napoleon' ? '0 4px 12px rgba(168, 85, 247, 0.2)' : '0 4px 12px rgba(59, 130, 246, 0.2)'
                     }}>
                       {(member.name || member.email).charAt(0).toUpperCase()}
                     </div>
@@ -160,8 +160,8 @@ export default function TeamManagement() {
                     disabled={actionLoading}
                     style={{
                       padding: '8px 12px',
-                      background: member.role === 'admin' ? 'rgba(233, 30, 99, 0.1)' : member.role === 'Napoleon' ? 'rgba(168, 85, 247, 0.1)' : 'rgba(59, 130, 246, 0.1)',
-                      border: `1px solid ${member.role === 'admin' ? 'rgba(233, 30, 99, 0.2)' : member.role === 'Napoleon' ? 'rgba(168, 85, 247, 0.2)' : 'rgba(59, 130, 246, 0.2)'}`,
+                      background: member.role === 'admin' ? 'rgba(209, 187, 251, 0.1)' : member.role === 'Napoleon' ? 'rgba(168, 85, 247, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+                      border: `1px solid ${member.role === 'admin' ? 'rgba(209, 187, 251, 0.2)' : member.role === 'Napoleon' ? 'rgba(168, 85, 247, 0.2)' : 'rgba(59, 130, 246, 0.2)'}`,
                       borderRadius: '10px',
                       color: member.role === 'admin' ? '#f472b6' : member.role === 'Napoleon' ? '#c084fc' : '#93c5fd',
                       fontSize: '0.8rem',
@@ -186,7 +186,7 @@ export default function TeamManagement() {
                         disabled={actionLoading}
                         style={{
                           padding: '8px 16px',
-                          background: 'linear-gradient(135deg, #e91e63, #9c27b0)',
+                          background: 'linear-gradient(135deg, #d1bbfb, #5646e4)',
                           border: 'none',
                           color: 'white',
                           borderRadius: '8px',
@@ -194,7 +194,7 @@ export default function TeamManagement() {
                           fontWeight: 700,
                           cursor: 'pointer',
                           transition: 'all 0.2s',
-                          boxShadow: '0 4px 12px rgba(233, 30, 99, 0.2)'
+                          boxShadow: '0 4px 12px rgba(209, 187, 251, 0.2)'
                         }}
                         onMouseOver={e => e.currentTarget.style.transform = 'translateY(-1px)'}
                         onMouseOut={e => e.currentTarget.style.transform = 'none'}

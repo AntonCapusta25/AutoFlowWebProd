@@ -35,7 +35,7 @@ export default function AdminLogin() {
       }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#F8FAFC', fontSize: '1.75rem', fontWeight: 800, marginBottom: '8px' }}>
-            Admin <span style={{ color: '#e91e63' }}>Login</span>
+            Admin <span style={{ color: '#d1bbfb' }}>Login</span>
           </h1>
           <p style={{ color: '#94A3B8', fontSize: '0.9rem' }}>Enter your credentials to access the dashboard</p>
         </div>
@@ -70,7 +70,7 @@ export default function AdminLogin() {
           <button 
             type="submit" disabled={loading}
             style={{ 
-              marginTop: '8px', padding: '14px', background: 'linear-gradient(135deg, #e91e63, #9c27b0)', color: 'white', 
+              marginTop: '8px', padding: '14px', background: 'linear-gradient(135deg, #d1bbfb, #5646e4)', color: 'white', 
               border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
               opacity: loading ? 0.7 : 1
             }}

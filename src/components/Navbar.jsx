@@ -51,7 +51,7 @@ export default function Navbar() {
       <nav className={`navbar${scrolled ? ' scrolled' : ''}${menuOpen ? ' menu-open' : ''}`}>
         <div className="nav-container">
           <Link to={prefix || '/'} className="logo">
-            Auto<span style={{ color: '#f06292' }}>Flow</span>
+            Auto<span style={{ color: '#d1bbfb' }}>Flow</span>
           </Link>
 
           {/* Desktop Nav Links */}

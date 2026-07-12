@@ -96,14 +96,14 @@ export default function ServiceOrbit({ services = [] }) {
         }
         @keyframes so-pulse {
           0%, 100% {
-            box-shadow: 0 0 40px 10px rgba(233,30,99,0.35),
+            box-shadow: 0 0 40px 10px rgba(209, 187, 251,0.35),
                         0 0 80px 20px rgba(156,39,176,0.15),
-                        inset 0 0 30px rgba(233,30,99,0.2);
+                        inset 0 0 30px rgba(209, 187, 251,0.2);
           }
           50% {
-            box-shadow: 0 0 70px 20px rgba(233,30,99,0.6),
+            box-shadow: 0 0 70px 20px rgba(209, 187, 251,0.6),
                         0 0 140px 40px rgba(156,39,176,0.3),
-                        inset 0 0 50px rgba(233,30,99,0.35);
+                        inset 0 0 50px rgba(209, 187, 251,0.35);
           }
         }
         @keyframes so-dash {
@@ -155,8 +155,8 @@ export default function ServiceOrbit({ services = [] }) {
 
         .so-card:hover {
           transform: scale(1.08) translateY(-5px);
-          border-color: rgba(233,30,99,0.55);
-          box-shadow: 0 24px 60px rgba(0,0,0,0.9), 0 0 40px rgba(233,30,99,0.3);
+          border-color: rgba(209, 187, 251,0.55);
+          box-shadow: 0 24px 60px rgba(0,0,0,0.9), 0 0 40px rgba(209, 187, 251,0.3);
           background: rgba(20, 20, 30, 0.95);
         }
 
@@ -187,13 +187,13 @@ export default function ServiceOrbit({ services = [] }) {
         >
           <defs>
             <linearGradient id="so-line-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#e91e63" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#9c27b0" stopOpacity="0.4" />
+              <stop offset="0%" stopColor="#d1bbfb" stopOpacity="0.9" />
+              <stop offset="100%" stopColor="#5646e4" stopOpacity="0.4" />
             </linearGradient>
             <radialGradient id="so-ring-glow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#e91e63" stopOpacity="0" />
-              <stop offset="70%" stopColor="#e91e63" stopOpacity="0.08" />
-              <stop offset="100%" stopColor="#9c27b0" stopOpacity="0.18" />
+              <stop offset="0%" stopColor="#d1bbfb" stopOpacity="0" />
+              <stop offset="70%" stopColor="#d1bbfb" stopOpacity="0.08" />
+              <stop offset="100%" stopColor="#5646e4" stopOpacity="0.18" />
             </radialGradient>
             <filter id="so-glow" x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur stdDeviation="3" result="blur" />
@@ -210,7 +210,7 @@ export default function ServiceOrbit({ services = [] }) {
           <circle
             cx={CX} cy={CY} r={ORBIT_R}
             fill="none"
-            stroke="rgba(233,30,99,0.18)"
+            stroke="rgba(209, 187, 251,0.18)"
             strokeWidth="1.5"
             strokeDasharray="6 10"
             style={{ animation: 'so-spin 40s linear infinite', transformOrigin: `${CX}px ${CY}px` }}
@@ -228,7 +228,7 @@ export default function ServiceOrbit({ services = [] }) {
           <circle
             cx={CX} cy={CY} r="95"
             fill="none"
-            stroke="rgba(233,30,99,0.4)"
+            stroke="rgba(209, 187, 251,0.4)"
             strokeWidth="2"
             strokeDasharray="8 6"
             style={{ animation: 'so-spin 10s linear infinite', transformOrigin: `${CX}px ${CY}px` }}
@@ -244,9 +244,9 @@ export default function ServiceOrbit({ services = [] }) {
           <circle
             cx={CX} cy={CY} r="68"
             fill="rgba(10,10,10,0.95)"
-            stroke="rgba(233,30,99,0.6)"
+            stroke="rgba(209, 187, 251,0.6)"
             strokeWidth="1.5"
-            style={{ filter: 'drop-shadow(0 0 20px rgba(233,30,99,0.5))' }}
+            style={{ filter: 'drop-shadow(0 0 20px rgba(209, 187, 251,0.5))' }}
           />
         </svg>
 
@@ -265,10 +265,10 @@ export default function ServiceOrbit({ services = [] }) {
         }}>
           <div style={{
             width: '44px', height: '44px',
-            background: 'linear-gradient(135deg, #e91e63, #9c27b0)',
+            background: 'linear-gradient(135deg, #d1bbfb, #5646e4)',
             borderRadius: '12px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 0 30px rgba(233,30,99,0.7)',
+            boxShadow: '0 0 30px rgba(209, 187, 251,0.7)',
           }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
@@ -278,7 +278,7 @@ export default function ServiceOrbit({ services = [] }) {
             color: 'white', fontWeight: 900, fontSize: '0.8rem',
             textTransform: 'uppercase', letterSpacing: '0.18em', lineHeight: 1.3,
             textAlign: 'center',
-            textShadow: '0 0 20px rgba(233,30,99,0.8)',
+            textShadow: '0 0 20px rgba(209, 187, 251,0.8)',
           }}>
             AutoFlow<br />Core
           </span>
@@ -309,9 +309,9 @@ export default function ServiceOrbit({ services = [] }) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
                   <div style={{
                     width: '42px', height: '42px', borderRadius: '12px',
-                    background: 'linear-gradient(135deg, rgba(233,30,99,0.2), rgba(156,39,176,0.2))',
+                    background: 'linear-gradient(135deg, rgba(209, 187, 251,0.2), rgba(156,39,176,0.2))',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#e91e63', flexShrink: 0,
+                    color: '#d1bbfb', flexShrink: 0,
                   }}>
                     {ICONS[service.icon] || ICONS.custom}
                   </div>
@@ -356,9 +356,9 @@ export default function ServiceOrbit({ services = [] }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
               <div style={{
                 width: '42px', height: '42px', borderRadius: '12px',
-                background: 'linear-gradient(135deg, rgba(233,30,99,0.2), rgba(156,39,176,0.2))',
+                background: 'linear-gradient(135deg, rgba(209, 187, 251,0.2), rgba(156,39,176,0.2))',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#e91e63',
+                color: '#d1bbfb',
               }}>
                 {ICONS[service.icon] || ICONS.custom}
               </div>

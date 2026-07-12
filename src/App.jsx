@@ -35,7 +35,7 @@ import AdminTeam from './pages/Admin/Team'
 import AdminDeals from './pages/Admin/Deals'
 import AdminChat from './pages/Admin/Chat'
 import AdminCalendar from './pages/Admin/Calendar'
-import AdminMarketing from './pages/Admin/Marketing'
+import AdminMarketing from './pages/Admin/Marketing/index'
 import AuthGuard, { AdminGuard } from './components/Admin/AuthGuard'
 
 

@@ -87,7 +87,7 @@ export default function AdminSegments() {
         </div>
         <button 
           onClick={() => setIsCreating(true)}
-          style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #e91e63, #9c27b0)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}
+          style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #d1bbfb, #5646e4)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}
         >
           + New Segment
         </button>
@@ -202,7 +202,7 @@ export default function AdminSegments() {
                       </span>
                     )}
                     {seg.filter_criteria.tags && (
-                      <span style={{ padding: '4px 10px', background: 'rgba(233, 30, 99, 0.15)', color: '#f472b6', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>
+                      <span style={{ padding: '4px 10px', background: 'rgba(209, 187, 251, 0.15)', color: '#f472b6', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>
                         Tags: {seg.filter_criteria.tags}
                       </span>
                     )}

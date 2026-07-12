@@ -165,7 +165,7 @@ export default function AdminChat() {
                 alignItems: 'center',
                 gap: '12px',
                 padding: '12px 16px',
-                background: activeTarget === null ? 'rgba(233, 30, 99, 0.1)' : 'transparent',
+                background: activeTarget === null ? 'rgba(209, 187, 251, 0.1)' : 'transparent',
                 border: 'none',
                 borderRadius: '12px',
                 color: activeTarget === null ? 'white' : '#94A3B8',
@@ -177,7 +177,7 @@ export default function AdminChat() {
               onMouseOver={e => { if (activeTarget !== null) e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
               onMouseOut={e => { if (activeTarget !== null) e.currentTarget.style.background = 'transparent' }}
             >
-              <span style={{ fontSize: '1.1rem', color: activeTarget === null ? '#f06292' : '#64748B' }}>#</span>
+              <span style={{ fontSize: '1.1rem', color: activeTarget === null ? '#d1bbfb' : '#64748B' }}>#</span>
               <span>general</span>
             </button>
 
@@ -199,7 +199,7 @@ export default function AdminChat() {
                       alignItems: 'center',
                       gap: '12px',
                       padding: '10px 16px',
-                      background: isActive ? 'rgba(233, 30, 99, 0.1)' : 'transparent',
+                      background: isActive ? 'rgba(209, 187, 251, 0.1)' : 'transparent',
                       border: 'none',
                       borderRadius: '12px',
                       color: isActive ? 'white' : '#CBD5E1',
@@ -216,7 +216,7 @@ export default function AdminChat() {
                       width: '28px',
                       height: '28px',
                       borderRadius: '50%',
-                      background: p.role === 'admin' ? 'linear-gradient(135deg, #e91e63, #9c27b0)' : p.role === 'Napoleon' ? 'linear-gradient(135deg, #a855f7, #e91e63)' : 'linear-gradient(135deg, #3b82f6, #10b981)',
+                      background: p.role === 'admin' ? 'linear-gradient(135deg, #d1bbfb, #5646e4)' : p.role === 'Napoleon' ? 'linear-gradient(135deg, #a855f7, #d1bbfb)' : 'linear-gradient(135deg, #3b82f6, #10b981)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -232,7 +232,7 @@ export default function AdminChat() {
                       <p style={{ margin: 0, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {p.name || p.email.split('@')[0]}
                       </p>
-                      <p style={{ margin: 0, fontSize: '0.65rem', color: p.role === 'admin' ? '#f06292' : p.role === 'Napoleon' ? '#c084fc' : '#4ade80', textTransform: 'uppercase', fontWeight: 800 }}>
+                      <p style={{ margin: 0, fontSize: '0.65rem', color: p.role === 'admin' ? '#d1bbfb' : p.role === 'Napoleon' ? '#c084fc' : '#4ade80', textTransform: 'uppercase', fontWeight: 800 }}>
                         {p.role}
                       </p>
                     </div>
@@ -258,7 +258,7 @@ export default function AdminChat() {
             alignItems: 'center',
             gap: '12px'
           }}>
-            <span style={{ fontSize: '1.25rem', color: '#f06292', fontWeight: 800 }}>
+            <span style={{ fontSize: '1.25rem', color: '#d1bbfb', fontWeight: 800 }}>
               {activeTarget === null ? '#' : '@'}
             </span>
             <div>
@@ -313,7 +313,7 @@ export default function AdminChat() {
                       <span style={{
                         fontSize: '0.7rem',
                         fontWeight: 700,
-                        color: senderProf?.role === 'admin' ? '#f06292' : senderProf?.role === 'Napoleon' ? '#c084fc' : '#4ade80',
+                        color: senderProf?.role === 'admin' ? '#d1bbfb' : senderProf?.role === 'Napoleon' ? '#c084fc' : '#4ade80',
                         marginBottom: '4px',
                         marginLeft: '12px'
                       }}>
@@ -323,12 +323,12 @@ export default function AdminChat() {
 
                     {/* Message Bubble */}
                     <div style={{
-                      background: isMine ? 'linear-gradient(135deg, #e91e63, #9c27b0)' : 'rgba(255,255,255,0.04)',
+                      background: isMine ? 'linear-gradient(135deg, #d1bbfb, #5646e4)' : 'rgba(255,255,255,0.04)',
                       color: 'white',
                       padding: '12px 18px',
                       borderRadius: isMine ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
                       border: isMine ? 'none' : '1px solid rgba(255,255,255,0.06)',
-                      boxShadow: isMine ? '0 4px 15px rgba(233, 30, 99, 0.15)' : 'none',
+                      boxShadow: isMine ? '0 4px 15px rgba(209, 187, 251, 0.15)' : 'none',
                       position: 'relative'
                     }}>
                       <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: 1.4, wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>
@@ -383,7 +383,7 @@ export default function AdminChat() {
                 fontSize: '0.9rem',
                 transition: 'all 0.2s'
               }}
-              onFocus={e => e.currentTarget.style.border = '1px solid rgba(233, 30, 99, 0.4)'}
+              onFocus={e => e.currentTarget.style.border = '1px solid rgba(209, 187, 251, 0.4)'}
               onBlur={e => e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.08)'}
             />
             <button
@@ -391,7 +391,7 @@ export default function AdminChat() {
               disabled={!inputText.trim() || sending}
               style={{
                 padding: '14px 24px',
-                background: 'linear-gradient(135deg, #e91e63, #9c27b0)',
+                background: 'linear-gradient(135deg, #d1bbfb, #5646e4)',
                 color: 'white',
                 border: 'none',
                 borderRadius: '16px',

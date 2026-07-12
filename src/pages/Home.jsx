@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion'
-import BookingForm from '../components/BookingForm'
 import Hero from '../components/Hero'
 import { getT } from '../i18n/translations'
 const ICONS = {
@@ -90,28 +89,28 @@ const CAROUSEL_SLIDES = [
 ]
 
 const TESTIMONIALS = [
-  { name: 'Sarah Chen', role: 'E-commerce Founder', text: 'AutoFlow Studio automated our entire order processing workflow. What used to take our team 3 hours daily now happens automatically in minutes.', initials: 'SC', color: '#e91e63' },
-  { name: 'Marcus Rodriguez', role: 'Operations Manager', text: 'The Google Sheets automation they built saves us 15 hours per week. The ROI was immediate and the support has been fantastic.', initials: 'MR', color: '#e91e63' },
-  { name: 'Lisa Park', role: 'Startup Founder', text: 'Finally, someone who understands both the technical side and business needs. They delivered exactly what we needed, on time.', initials: 'LP', color: '#e91e63' },
+  { name: 'Sarah Chen', role: 'E-commerce Founder', text: 'AutoFlow Studio automated our entire order processing workflow. What used to take our team 3 hours daily now happens automatically in minutes.', initials: 'SC', color: '#d1bbfb' },
+  { name: 'Marcus Rodriguez', role: 'Operations Manager', text: 'The Google Sheets automation they built saves us 15 hours per week. The ROI was immediate and the support has been fantastic.', initials: 'MR', color: '#d1bbfb' },
+  { name: 'Lisa Park', role: 'Startup Founder', text: 'Finally, someone who understands both the technical side and business needs. They delivered exactly what we needed, on time.', initials: 'LP', color: '#d1bbfb' },
   { name: 'David Müller', role: 'Head of Operations', text: 'Incredible work on our CRM integration. We went from manual data entry to fully automated pipelines in under a week.', initials: 'DM', color: '#7c3aed' },
   { name: 'Emma Visser', role: 'CEO, Homemade BV', text: 'The outreach automation they built scaled our pipeline 10x without adding headcount. Genuinely impressive execution.', initials: 'EV', color: '#0ea5e9' },
   { name: 'Tom Bakker', role: 'Co-founder', text: 'Clean, fast, and exactly what we asked for. They even suggested improvements we hadn\'t thought of. Will work with them again.', initials: 'TB', color: '#10b981' },
   { name: 'Elena Petrova', role: 'SaaS Founder', text: 'The AI customer support bot they integrated reduced our ticket volume by 65%. It sounds completely natural and handles complex queries.', initials: 'EP', color: '#f59e0b' },
-  { name: 'James Wilson', role: 'Marketing Director', text: 'Automating our lead scoring changed everything. Our sales team now only talks to high-intent prospects. Revenue is up 40%.', initials: 'JW', color: '#ec4899' },
+  { name: 'James Wilson', role: 'Marketing Director', text: 'Automating our lead scoring changed everything. Our sales team now only talks to high-intent prospects. Revenue is up 40%.', initials: 'JW', color: '#d1bbfb' },
   { name: 'Sophie Martin', role: 'Creative Director', text: 'They automated our entire content distribution pipeline. One upload now triggers 12 different social media posts perfectly.', initials: 'SM', color: '#8b5cf6' },
   { name: 'Arjun Mehta', role: 'Tech Lead', text: 'Seamless integration with our legacy systems. They navigated our complex API requirements with ease and delivered a robust solution.', initials: 'AM', color: '#3b82f6' },
   { name: 'Isabella Rossi', role: 'Product Manager', text: 'The automated reporting dashboard is a game changer. We have real-time visibility into all our KPIs without any manual data crunching.', initials: 'IR', color: '#10b981' },
   { name: 'Lars Jensen', role: 'Logistics Head', text: 'Our inventory management is now 100% autonomous. Errors have dropped to zero and our efficiency is at an all-time high.', initials: 'LJ', color: '#ef4444' },
   { name: 'Chloe Thompson', role: 'HR Director', text: 'The automated onboarding workflow saved our HR team hundreds of hours. New hires feel supported from day one.', initials: 'CT', color: '#06b6d4' },
   { name: 'Michael Osei', role: 'FinTech Founder', text: 'Security and reliability were our top concerns. AutoFlow delivered a rock-solid automation that handles sensitive data flawlessly.', initials: 'MO', color: '#6366f1' },
-  { name: 'Yuki Tanaka', role: 'AI Developer', text: 'Their understanding of LLM orchestration is top-tier. They built a custom RAG system that has transformed our internal knowledge base.', initials: 'YT', color: '#f43f5e' },
+  { name: 'Yuki Tanaka', role: 'AI Developer', text: 'Their understanding of LLM orchestration is top-tier. They built a custom RAG system that has transformed our internal knowledge base.', initials: 'YT', color: '#d1bbfb' },
   { name: 'Alex Rivera', role: 'Growth Lead', text: 'Fast, professional, and highly effective. The automated email sequences they built converted better than any manual campaign we ever ran.', initials: 'AR', color: '#14b8a6' },
 ]
 
 const Stars = () => (
   <div style={{ display: 'flex', gap: '3px', marginTop: '12px' }}>
     {[1, 2, 3, 4, 5].map(s => (
-      <svg key={s} width="16" height="16" viewBox="0 0 24 24" fill="#e91e63" xmlns="http://www.w3.org/2000/svg">
+      <svg key={s} width="16" height="16" viewBox="0 0 24 24" fill="#d1bbfb" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
       </svg>
     ))}
@@ -121,13 +120,13 @@ const Stars = () => (
 const FlowStyles = () => (
   <style>{`
     @keyframes super-flow {
-      0% { transform: translateX(-20px); opacity: 0.1; stroke: #e91e63; }
-      50% { transform: translateX(0); opacity: 1; stroke: #e91e63; stroke-width: 3px; }
-      100% { transform: translateX(20px); opacity: 0.1; stroke: #e91e63; }
+      0% { transform: translateX(-20px); opacity: 0.1; stroke: #d1bbfb; }
+      50% { transform: translateX(0); opacity: 1; stroke: #d1bbfb; stroke-width: 3px; }
+      100% { transform: translateX(20px); opacity: 0.1; stroke: #d1bbfb; }
     }
     .process-arrow-animated {
       animation: super-flow 1.5s infinite ease-in-out !important;
-      filter: drop-shadow(0 0 8px rgba(233, 30, 99, 0.6)) !important;
+      filter: drop-shadow(0 0 8px rgba(209, 187, 251, 0.6)) !important;
       overflow: visible !important;
     }
     .bento-grid {
@@ -156,13 +155,13 @@ const FlowStyles = () => (
     }
     .bento-card:hover {
       background: rgba(255, 255, 255, 0.04);
-      border-color: rgba(233, 30, 99, 0.4);
+      border-color: rgba(209, 187, 251, 0.4);
     }
     .card-glow {
       position: absolute;
       width: 150%;
       height: 150%;
-      background: radial-gradient(circle at center, rgba(233, 30, 99, 0.08) 0%, transparent 60%);
+      background: radial-gradient(circle at center, rgba(209, 187, 251, 0.08) 0%, transparent 60%);
       top: -25%;
       left: -25%;
       pointer-events: none;
@@ -180,13 +179,13 @@ const FlowStyles = () => (
     .bento-icon {
       width: 50px;
       height: 50px;
-      background: rgba(233, 30, 99, 0.1);
-      border: 1px solid rgba(233, 30, 99, 0.2);
+      background: rgba(209, 187, 251, 0.1);
+      border: 1px solid rgba(209, 187, 251, 0.2);
       border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #e91e63;
+      color: #d1bbfb;
       margin-bottom: 24px;
       z-index: 2;
     }
@@ -232,14 +231,14 @@ const FlowStyles = () => (
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #e91e63;
-      box-shadow: 0 0 10px rgba(233, 30, 99, 0.5);
+      background: #d1bbfb;
+      box-shadow: 0 0 10px rgba(209, 187, 251, 0.5);
     }
     .badge-tag {
       font-family: 'Inter', sans-serif;
-      background: rgba(233, 30, 99, 0.1);
-      border: 1px solid rgba(233, 30, 99, 0.2);
-      color: #e91e63;
+      background: rgba(209, 187, 251, 0.1);
+      border: 1px solid rgba(209, 187, 251, 0.2);
+      color: #d1bbfb;
       font-size: 0.7rem;
       font-weight: 700;
       padding: 3px 8px;
@@ -406,7 +405,7 @@ export default function Home({ lang = 'en' }) {
           <div style={{ textAlign: 'center', marginBottom: '60px' }}>
             <p style={{
               fontFamily: "'Inter', sans-serif", fontSize: '0.85rem', fontWeight: 600, letterSpacing: '0.2em',
-              color: '#e91e63', textTransform: 'uppercase', marginBottom: '16px'
+              color: '#d1bbfb', textTransform: 'uppercase', marginBottom: '16px'
             }}>
               {t.services.badge}
             </p>
@@ -416,7 +415,7 @@ export default function Home({ lang = 'en' }) {
             }}>
               {t.services.title}
               <span style={{
-                background: 'linear-gradient(135deg, #e91e63, #e91e63)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', textAlign: 'left'
+                background: 'linear-gradient(135deg, #d1bbfb, #d1bbfb)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', textAlign: 'left'
               }}>
                 {buildText}<span style={{ opacity: 0.7, animation: 'blink 1s step-start infinite' }}>|</span>
               </span>
@@ -457,7 +456,7 @@ export default function Home({ lang = 'en' }) {
               }}
             >
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(5,5,5,0.85) 0%, rgba(5,5,5,0.3) 50%, rgba(5,5,5,0) 100%)', zIndex: 1 }} />
-              <div className="card-glow" style={{ background: 'radial-gradient(circle at top right, rgba(233, 30, 99, 0.1) 0%, transparent 60%)', zIndex: 1 }} />
+              <div className="card-glow" style={{ background: 'radial-gradient(circle at top right, rgba(209, 187, 251, 0.1) 0%, transparent 60%)', zIndex: 1 }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
                 <motion.div whileHover={{ scale: 1.1 }} className="bento-icon" style={{ marginBottom: 0 }}>{ICONS[t.services.items[1].icon]}</motion.div>
                 <div className="status-dot" />
@@ -477,12 +476,12 @@ export default function Home({ lang = 'en' }) {
               <div className="card-pattern" style={{ opacity: 0.5 }} />
               <div style={{ position: 'absolute', inset: 0, opacity: 0.05, zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg width="400" height="400" viewBox="0 0 400 400">
-                  <path d="M0,200 Q100,100 200,200 T400,200" fill="none" stroke="#e91e63" strokeWidth="2" />
-                  <path d="M0,220 Q100,120 200,220 T400,220" fill="none" stroke="#e91e63" strokeWidth="2" />
+                  <path d="M0,200 Q100,100 200,200 T400,200" fill="none" stroke="#d1bbfb" strokeWidth="2" />
+                  <path d="M0,220 Q100,120 200,220 T400,220" fill="none" stroke="#d1bbfb" strokeWidth="2" />
                 </svg>
               </div>
               <div style={{ position: 'relative', zIndex: 2 }}>
-                <p className="bento-desc" style={{ marginBottom: '12px', fontSize: '0.75rem', letterSpacing: '0.2em', fontWeight: 700, color: '#e91e63' }}>CORE PLATFORM</p>
+                <p className="bento-desc" style={{ marginBottom: '12px', fontSize: '0.75rem', letterSpacing: '0.2em', fontWeight: 700, color: '#d1bbfb' }}>CORE PLATFORM</p>
                 <h3 className="bento-title">{t.services.items[0].title}</h3>
                 <p className="bento-desc" style={{ fontSize: '1rem', maxWidth: '360px', margin: '0 auto', opacity: 0.9 }}>
                   {t.services.items[0].desc}
@@ -500,7 +499,7 @@ export default function Home({ lang = 'en' }) {
               whileHover={{ y: -8 }}
               className="bento-card card-botmid"
             >
-              <div className="card-glow" style={{ background: 'radial-gradient(circle at bottom left, rgba(233, 30, 99, 0.1) 0%, transparent 60%)' }} />
+              <div className="card-glow" style={{ background: 'radial-gradient(circle at bottom left, rgba(209, 187, 251, 0.1) 0%, transparent 60%)' }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
                 <motion.div whileHover={{ scale: 1.1 }} className="bento-icon" style={{ marginBottom: 0 }}>{ICONS[t.services.items[4].icon]}</motion.div>
                 <div className="badge-tag">Pipes</div>
@@ -560,7 +559,7 @@ export default function Home({ lang = 'en' }) {
           overflow: 'hidden'
         }}>
           {/* decorative glows */}
-          <div style={{ position: 'absolute', top: '20px', left: '-80px', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(233,30,99,0.1) 0%,transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+          <div style={{ position: 'absolute', top: '20px', left: '-80px', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(209, 187, 251,0.1) 0%,transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
           <div style={{ position: 'absolute', bottom: '40px', right: '-60px', width: '350px', height: '350px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(156,39,176,0.1) 0%,transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
 
           <div className="process-grid" style={{
@@ -578,7 +577,7 @@ export default function Home({ lang = 'en' }) {
             <div>
               <p style={{
                 fontFamily: "'Space Grotesk', sans-serif", fontSize: '1rem', fontWeight: 700, letterSpacing: '0.2em',
-                color: '#e91e63', textTransform: 'uppercase', marginBottom: '20px'
+                color: '#d1bbfb', textTransform: 'uppercase', marginBottom: '20px'
               }}>
                 {t.timeline.badge}
               </p>
@@ -605,7 +604,7 @@ export default function Home({ lang = 'en' }) {
                         ? 'rgba(255, 255, 255, 0.08)' 
                         : 'rgba(255, 255, 255, 0.01)',
                       borderColor: activeStep === idx 
-                        ? 'rgba(233, 30, 99, 0.4)' 
+                        ? 'rgba(209, 187, 251, 0.4)' 
                         : 'rgba(255, 255, 255, 0.04)',
                     }}
                     transition={{ 
@@ -636,9 +635,9 @@ export default function Home({ lang = 'en' }) {
                           top: '20%',
                           bottom: '20%',
                           width: '4px',
-                          background: '#e91e63',
+                          background: '#d1bbfb',
                           borderRadius: '0 4px 4px 0',
-                          boxShadow: '0 0 15px rgba(233, 30, 99, 0.5)'
+                          boxShadow: '0 0 15px rgba(209, 187, 251, 0.5)'
                         }}
                       />
                     )}
@@ -648,7 +647,7 @@ export default function Home({ lang = 'en' }) {
                           fontFamily: "'Space Grotesk', sans-serif",
                           fontSize: '1.25rem',
                           fontWeight: 800,
-                          color: activeStep === idx ? '#e91e63' : '#334155'
+                          color: activeStep === idx ? '#d1bbfb' : '#334155'
                         }}>
                           {idx + 1}
                         </span>
@@ -776,7 +775,7 @@ export default function Home({ lang = 'en' }) {
             }}>
               {t.startupDreams.title}
               <span style={{
-                background: 'linear-gradient(135deg, #e91e63, #e91e63)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', minWidth: '4ch', textAlign: 'left'
+                background: 'linear-gradient(135deg, #d1bbfb, #d1bbfb)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block', minWidth: '4ch', textAlign: 'left'
               }}>
                 {dreamText}<span style={{ opacity: 0.7, animation: 'blink 1s step-start infinite' }}>|</span>
               </span>
@@ -810,7 +809,7 @@ export default function Home({ lang = 'en' }) {
                   transition: 'transform 0.3s ease, border-color 0.3s ease',
                   cursor: 'pointer'
                 }}
-                  onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-8px)'; e.currentTarget.style.borderColor = 'rgba(233,30,99,0.4)'; }}
+                  onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-8px)'; e.currentTarget.style.borderColor = 'rgba(209, 187, 251,0.4)'; }}
                   onMouseOut={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'; }}>
                   <div style={{
                     position: 'absolute', inset: 0,
@@ -849,7 +848,7 @@ export default function Home({ lang = 'en' }) {
               transition: 'transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
               cursor: 'pointer'
             }}
-              onMouseOver={e => { e.currentTarget.style.transform = 'scale(1.01)'; e.currentTarget.style.borderColor = 'rgba(233,30,99,0.4)'; e.currentTarget.style.boxShadow = 'inset 0 0 100px rgba(0,0,0,0.4), 0 50px 100px rgba(0,0,0,0.9)'; }}
+              onMouseOver={e => { e.currentTarget.style.transform = 'scale(1.01)'; e.currentTarget.style.borderColor = 'rgba(209, 187, 251,0.4)'; e.currentTarget.style.boxShadow = 'inset 0 0 100px rgba(0,0,0,0.4), 0 50px 100px rgba(0,0,0,0.9)'; }}
               onMouseOut={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.boxShadow = 'inset 0 0 100px rgba(0,0,0,0.6), 0 40px 80px rgba(0,0,0,0.8)'; }}>
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.4) 40%, rgba(5,5,5,0) 100%)' }} />
               <div style={{ position: 'relative', zIndex: 1, maxWidth: '400px', textAlign: 'left' }}>
@@ -936,7 +935,7 @@ export default function Home({ lang = 'en' }) {
                       border: 'none',
                       cursor: 'pointer',
                       background: i === currentSlide
-                        ? 'linear-gradient(135deg,#e91e63,#e91e63)'
+                        ? 'linear-gradient(135deg,#d1bbfb,#d1bbfb)'
                         : 'rgba(255,255,255,0.3)',
                       transition: 'all 0.3s ease',
                       padding: 0,
@@ -958,7 +957,7 @@ export default function Home({ lang = 'en' }) {
         overflow: 'hidden',
       }}>
         {/* decorative glows */}
-        <div style={{ position: 'absolute', top: '20px', left: '-80px', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(233,30,99,0.12) 0%,transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '20px', left: '-80px', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(209, 187, 251,0.12) 0%,transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: '-60px', right: '-60px', width: '350px', height: '350px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(156,39,176,0.12) 0%,transparent 70%)', pointerEvents: 'none' }} />
 
         <div style={{ width: '100%', position: 'relative', zIndex: 1, overflow: 'hidden' }}>
@@ -967,7 +966,7 @@ export default function Home({ lang = 'en' }) {
             <h2 style={{ fontFamily: "'Space Grotesk', 'Inter', sans-serif", color: '#F8FAFC', fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 900, lineHeight: 1.1, margin: '0 0 16px', letterSpacing: '-0.03em' }}>
               {t.testimonials.title}<br />
               <span style={{
-                background: 'linear-gradient(135deg, #e91e63 20%, #ff4081 80%)',
+                background: 'linear-gradient(135deg, #d1bbfb 20%, #a78bfa 80%)',
                 WebkitBackgroundClip: 'text',
                 backgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -1013,7 +1012,7 @@ export default function Home({ lang = 'en' }) {
                             width: '52px',
                             height: '52px',
                             borderRadius: '18px',
-                            background: `linear-gradient(135deg, ${testimonial.color}, #e91e63)`,
+                            background: `linear-gradient(135deg, ${testimonial.color}, #d1bbfb)`,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -1078,7 +1077,7 @@ export default function Home({ lang = 'en' }) {
                             width: '52px',
                             height: '52px',
                             borderRadius: '18px',
-                            background: `linear-gradient(135deg, ${testimonial.color}, #e91e63)`,
+                            background: `linear-gradient(135deg, ${testimonial.color}, #d1bbfb)`,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -1140,28 +1139,145 @@ export default function Home({ lang = 'en' }) {
       <FAQ lang={lang} />
 
       {/* ── Booking CTA ── */}
-      <section id="booking" className="booking-section">
-        <div className="booking-bg-decoration">
-          <div className="booking-circle-1" /><div className="booking-circle-2" /><div className="booking-noise" />
-        </div>
-        <div className="booking-container">
-          <div className="booking-flex">
-            <div className="booking-text">
-              <h2 className="booking-title" style={{ fontFamily: "'Space Grotesk', 'Inter', sans-serif" }}>
-                {t.booking.title} <br /><span className="text-gradient">{t.booking.highlight}</span>
-              </h2>
-              <p className="booking-description" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{t.booking.sub}</p>
-              <div className="booking-features">
-                <div className="feature-pill"><div className="pill-icon">⭐</div><span style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{t.booking.feat1}</span></div>
-                <div className="feature-pill"><div className="pill-icon">⚡</div><span style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{t.booking.feat2}</span></div>
-              </div>
+      {/* ── Booking CTA ── */}
+      <section id="booking" style={{ padding: '96px 16px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative' }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #131024, #08070d)',
+            border: '1px solid rgba(255, 255, 255, 0.05)',
+            borderRadius: '3rem',
+            overflow: 'hidden',
+            position: 'relative',
+            minHeight: '480px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            padding: '48px 24px'
+          }}>
+            {/* Background elements */}
+            <div style={{ position: 'absolute', inset: 0, opacity: 0.15, pointerEvents: 'none' }}>
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: 'radial-gradient(circle at center, rgba(209, 187, 251, 0.15) 0%, transparent 70%)'
+              }}></div>
+              {/* Dot Grid */}
+              <div style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                backgroundImage: 'radial-gradient(rgba(209, 187, 251, 0.1) 1.5px, transparent 1.5px)',
+                backgroundSize: '24px 24px'
+              }}></div>
             </div>
-            <div className="booking-form-wrapper">
-              <div className="form-glass-container">
-                <div className="form-inner">
-                  <BookingForm lang={lang} />
-                </div>
+            {/* Glowing blur spheres */}
+            <div style={{
+              position: 'absolute',
+              top: '-100px',
+              right: '-100px',
+              width: '380px',
+              height: '380px',
+              background: 'rgba(209, 187, 251, 0.18)',
+              borderRadius: '50%',
+              filter: 'blur(100px)',
+              pointerEvents: 'none',
+              mixBlendMode: 'screen'
+            }}></div>
+            <div style={{
+              position: 'absolute',
+              bottom: '-100px',
+              left: '-100px',
+              width: '380px',
+              height: '380px',
+              background: 'rgba(121, 73, 218, 0.15)',
+              borderRadius: '50%',
+              filter: 'blur(100px)',
+              pointerEvents: 'none',
+              mixBlendMode: 'screen'
+            }}></div>
+
+            {/* Content Container */}
+            <div style={{ position: 'relative', zIndex: 10, maxWidth: '800px', margin: '0 auto' }}>
+              <span style={{
+                display: 'inline-block',
+                padding: '6px 18px',
+                borderRadius: '50px',
+                background: 'rgba(255, 255, 255, 0.04)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                color: 'rgba(255, 255, 255, 0.75)',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                marginBottom: '28px',
+                border: '1px solid rgba(255, 255, 255, 0.08)'
+              }}>
+                {lang === 'nl' ? 'BEPERKTE CAPACITEIT' : 'Limited Monthly Spots'}
+              </span>
+              
+              <h2 style={{
+                fontFamily: "'Bebas Neue', 'Space Grotesk', sans-serif",
+                fontSize: 'clamp(2.5rem, 6.5vw, 4.8rem)',
+                fontWeight: 'normal',
+                color: '#FFFFFF',
+                marginBottom: '24px',
+                lineHeight: 1.05,
+                letterSpacing: '0.02em',
+                textShadow: '0 4px 15px rgba(0,0,0,0.5)'
+              }}>
+                {t.blog.ctaTitle}
+              </h2>
+              
+              <p style={{
+                fontFamily: "'Inter', sans-serif",
+                color: 'rgba(255, 255, 255, 0.7)',
+                fontSize: 'clamp(1rem, 2vw, 1.25rem)',
+                marginBottom: '40px',
+                maxWidth: '620px',
+                margin: '0 auto 40px',
+                lineHeight: 1.6
+              }}>
+                {t.blog.ctaSub}
+              </p>
+              
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <button
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-booking'))}
+                  className="cta-button"
+                  style={{
+                    padding: '20px 48px',
+                    fontSize: '1.25rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    background: 'var(--primary-gradient)',
+                    boxShadow: '0 10px 30px var(--primary-glow)',
+                    borderRadius: '50px',
+                    border: 'none',
+                    color: 'white',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease-in-out'
+                  }}
+                >
+                  {t.blog.ctaBtn}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide-arrow-right" style={{ transition: 'transform 0.2s' }}>
+                    <path d="M5 12h14"></path>
+                    <path d="m12 5 7 7-7 7"></path>
+                  </svg>
+                </button>
               </div>
+              
+              <p style={{ marginTop: '28px', fontSize: '0.8rem', color: '#64748B', fontFamily: "'Inter', sans-serif" }}>
+                {lang === 'nl' 
+                  ? 'Geen commitment vereist. 100% op maat gemaakte automatisering audit.' 
+                  : 'No credit card or commitment required. 100% free automation roadmap.'}
+              </p>
             </div>
           </div>
         </div>

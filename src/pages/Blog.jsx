@@ -22,9 +22,9 @@ export default function Blog({ lang = 'en' }) {
         background: 'linear-gradient(180deg,#050505 0%,#0a0a0a 100%)',
         position: 'relative', overflow: 'hidden',
       }}>
-        <div style={{ position:'absolute',top:'20%',left:'10%',width:'300px',height:'300px',borderRadius:'50%',background:'radial-gradient(circle,rgba(233,30,99,0.07) 0%,transparent 70%)',pointerEvents:'none' }} />
+        <div style={{ position:'absolute',top:'20%',left:'10%',width:'300px',height:'300px',borderRadius:'50%',background:'radial-gradient(circle,rgba(209, 187, 251,0.07) 0%,transparent 70%)',pointerEvents:'none' }} />
         <div style={{ maxWidth:'700px',margin:'0 auto',padding:'0 24px',position:'relative',zIndex:1 }}>
-          <span style={{ display:'inline-block',background:'rgba(233,30,99,0.12)',border:'1px solid rgba(233,30,99,0.3)',color:'#e91e63',padding:'6px 18px',borderRadius:'20px',fontSize:'0.75rem',fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',marginBottom:'20px' }}>
+          <span style={{ display:'inline-block',background:'rgba(209, 187, 251,0.12)',border:'1px solid rgba(209, 187, 251,0.3)',color:'#d1bbfb',padding:'6px 18px',borderRadius:'20px',fontSize:'0.75rem',fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',marginBottom:'20px' }}>
             {t.blog.badge}
           </span>
           <h1 style={{ color:'#F8FAFC',fontSize:'clamp(2rem,5vw,3.2rem)',fontWeight:800,marginBottom:'16px',lineHeight:1.15 }}>{t.blog.title}</h1>
@@ -50,7 +50,7 @@ export default function Blog({ lang = 'en' }) {
                     transition:'transform 0.25s,box-shadow 0.25s,border-color 0.25s',
                     display:'flex', flexDirection:'column' 
                   }}
-                  onMouseOver={e=>{e.currentTarget.style.transform='translateY(-5px)';e.currentTarget.style.boxShadow='inset 0 0 0 1px rgba(255,255,255,0.1), inset 0 2px 20px rgba(255,255,255,0.25), 0 40px 80px rgba(0,0,0,0.9)';e.currentTarget.style.borderColor='rgba(233,30,99,0.3)'}}
+                  onMouseOver={e=>{e.currentTarget.style.transform='translateY(-5px)';e.currentTarget.style.boxShadow='inset 0 0 0 1px rgba(255,255,255,0.1), inset 0 2px 20px rgba(255,255,255,0.25), 0 40px 80px rgba(0,0,0,0.9)';e.currentTarget.style.borderColor='rgba(209, 187, 251,0.3)'}}
                   onMouseOut={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 2px 20px rgba(255,255,255,0.15), 0 30px 60px rgba(0,0,0,0.8)';e.currentTarget.style.borderColor='rgba(255,255,255,0.1)'}}>
                   <div style={{ height:'200px', overflow:'hidden', position:'relative', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
                     <img src={imgSrc} alt={post.title} style={{ width:'100%', height:'100%', objectFit:'cover', transition:'transform 0.5s ease' }}
@@ -64,7 +64,7 @@ export default function Blog({ lang = 'en' }) {
                       {post.desc.length > 140 ? post.desc.slice(0,140)+'…' : post.desc}
                     </p>
                     <Link to={`${base}/${post.slug}`}
-                      style={{ display:'inline-flex',alignItems:'center',gap:'6px',color:'#e91e63',fontWeight:600,fontSize:'0.875rem',textDecoration:'none',marginTop:'auto' }}>
+                      style={{ display:'inline-flex',alignItems:'center',gap:'6px',color:'#d1bbfb',fontWeight:600,fontSize:'0.875rem',textDecoration:'none',marginTop:'auto' }}>
                       {t.blog.readMore}
                     </Link>
                   </div>

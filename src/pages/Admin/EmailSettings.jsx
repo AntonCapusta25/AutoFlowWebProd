@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase'
 import AdminLayout from '../../components/Admin/AdminLayout'
 
 const STATUSES = [
-  { key: 'New',                 color: '#f472b6', bg: 'rgba(233,30,99,0.1)',       border: 'rgba(233,30,99,0.2)',       icon: '✨' },
+  { key: 'New',                 color: '#f472b6', bg: 'rgba(209, 187, 251,0.1)',       border: 'rgba(209, 187, 251,0.2)',       icon: '✨' },
   { key: 'Contacted',          color: '#93c5fd', bg: 'rgba(59,130,246,0.1)',       border: 'rgba(59,130,246,0.2)',      icon: '📞' },
   { key: 'In Progress',        color: '#fbbf24', bg: 'rgba(245,158,11,0.1)',       border: 'rgba(245,158,11,0.2)',      icon: '⚙️' },
   { key: 'Meeting Booked',     color: '#c084fc', bg: 'rgba(168,85,247,0.1)',       border: 'rgba(168,85,247,0.2)',      icon: '🗓️' },
@@ -252,7 +252,7 @@ export default function AdminEmailSettings() {
       <AdminLayout>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ width: '48px', height: '48px', border: '3px solid rgba(233,30,99,0.2)', borderTopColor: '#e91e63', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 20px' }} />
+            <div style={{ width: '48px', height: '48px', border: '3px solid rgba(209, 187, 251,0.2)', borderTopColor: '#d1bbfb', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 20px' }} />
             <p style={{ color: '#64748B' }}>Loading templates…</p>
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
@@ -278,7 +278,7 @@ export default function AdminEmailSettings() {
           overflow: hidden;
         }
         .bento-card:hover {
-          border-color: rgba(233,30,99,0.4);
+          border-color: rgba(209, 187, 251,0.4);
           transform: translateY(-2px);
           box-shadow: 0 12px 30px rgba(0,0,0,0.5);
         }
@@ -304,7 +304,7 @@ export default function AdminEmailSettings() {
           font-size: 0.85rem;
           transition: all 0.2s;
         }
-        .chip-btn:hover { background: rgba(233,30,99,0.15) !important; transform: translateY(-1px); }
+        .chip-btn:hover { background: rgba(209, 187, 251,0.15) !important; transform: translateY(-1px); }
       `}</style>
 
       {/* Toast */}
@@ -334,14 +334,14 @@ export default function AdminEmailSettings() {
             onClick={handleOpenCreate}
             style={{
               padding: '10px 20px',
-              background: 'linear-gradient(135deg, #e91e63, #9c27b0)',
+              background: 'linear-gradient(135deg, #d1bbfb, #5646e4)',
               border: 'none',
               borderRadius: '12px',
               fontSize: '0.85rem',
               fontWeight: 700,
               color: 'white',
               cursor: 'pointer',
-              boxShadow: '0 8px 20px rgba(233, 30, 99, 0.25)',
+              boxShadow: '0 8px 20px rgba(209, 187, 251, 0.25)',
               transition: 'transform 0.2s'
             }}
             onMouseEnter={e => e.target.style.transform = 'translateY(-1px)'}
@@ -384,7 +384,7 @@ export default function AdminEmailSettings() {
                   className="toggle-track"
                   style={{
                     width: '38px', height: '20px', borderRadius: '10px',
-                    background: t.enabled ? '#e91e63' : 'rgba(255,255,255,0.1)',
+                    background: t.enabled ? '#d1bbfb' : 'rgba(255,255,255,0.1)',
                     position: 'relative'
                   }}
                 >
@@ -405,7 +405,7 @@ export default function AdminEmailSettings() {
                 }}>
                   System
                 </span>
-                <span style={{ fontSize: '0.75rem', color: '#e91e63', fontWeight: 700 }}>Edit →</span>
+                <span style={{ fontSize: '0.75rem', color: '#d1bbfb', fontWeight: 700 }}>Edit →</span>
               </div>
             </div>
           )
@@ -454,7 +454,7 @@ export default function AdminEmailSettings() {
                     className="toggle-track"
                     style={{
                       width: '38px', height: '20px', borderRadius: '10px',
-                      background: t.enabled ? '#e91e63' : 'rgba(255,255,255,0.1)',
+                      background: t.enabled ? '#d1bbfb' : 'rgba(255,255,255,0.1)',
                       position: 'relative'
                     }}
                   >
@@ -471,11 +471,11 @@ export default function AdminEmailSettings() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{
                     fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em',
-                    padding: '2px 8px', borderRadius: '12px', background: 'rgba(233,30,99,0.1)', color: '#f472b6'
+                    padding: '2px 8px', borderRadius: '12px', background: 'rgba(209, 187, 251,0.1)', color: '#f472b6'
                   }}>
                     Custom
                   </span>
-                  <span style={{ fontSize: '0.75rem', color: '#e91e63', fontWeight: 700 }}>Edit →</span>
+                  <span style={{ fontSize: '0.75rem', color: '#d1bbfb', fontWeight: 700 }}>Edit →</span>
                 </div>
               </div>
             )
@@ -512,9 +512,9 @@ export default function AdminEmailSettings() {
                     <div
                       className="step-bubble"
                       style={{
-                        background: isActive ? '#e91e63' : isPassed ? 'rgba(233,30,99,0.15)' : 'rgba(255,255,255,0.03)',
+                        background: isActive ? '#d1bbfb' : isPassed ? 'rgba(209, 187, 251,0.15)' : 'rgba(255,255,255,0.03)',
                         color: isActive ? 'white' : isPassed ? '#f472b6' : '#64748B',
-                        border: `1px solid ${isActive ? '#e91e63' : isPassed ? 'rgba(233,30,99,0.3)' : 'rgba(255,255,255,0.08)'}`
+                        border: `1px solid ${isActive ? '#d1bbfb' : isPassed ? 'rgba(209, 187, 251,0.3)' : 'rgba(255,255,255,0.08)'}`
                       }}
                     >
                       {isPassed ? '✓' : step.number}
@@ -589,8 +589,8 @@ export default function AdminEmailSettings() {
                         onClick={() => insertModalVariable(v.label)}
                         className="chip-btn"
                         style={{
-                          padding: '5px 12px', background: 'rgba(233,30,99,0.06)',
-                          border: '1px solid rgba(233,30,99,0.15)', borderRadius: '8px',
+                          padding: '5px 12px', background: 'rgba(209, 187, 251,0.06)',
+                          border: '1px solid rgba(209, 187, 251,0.15)', borderRadius: '8px',
                           color: '#f472b6', fontSize: '0.75rem', fontWeight: 700,
                           cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px',
                           userSelect: 'none'
@@ -638,7 +638,7 @@ export default function AdminEmailSettings() {
                           style={{
                             padding: '4px 12px', border: 'none', borderRadius: '6px', cursor: 'pointer',
                             fontSize: '0.72rem', fontWeight: 700, transition: 'all 0.2s',
-                            background: modalPreviewTab === tabKey ? 'rgba(233,30,99,0.1)' : 'transparent',
+                            background: modalPreviewTab === tabKey ? 'rgba(209, 187, 251,0.1)' : 'transparent',
                             color: modalPreviewTab === tabKey ? '#f472b6' : '#64748B'
                           }}
                         >
@@ -660,8 +660,8 @@ export default function AdminEmailSettings() {
                             onClick={() => insertModalVariable(v.label)}
                             className="chip-btn"
                             style={{
-                              padding: '5px 12px', background: 'rgba(233,30,99,0.06)',
-                              border: '1px solid rgba(233,30,99,0.15)', borderRadius: '8px',
+                              padding: '5px 12px', background: 'rgba(209, 187, 251,0.06)',
+                              border: '1px solid rgba(209, 187, 251,0.15)', borderRadius: '8px',
                               color: '#f472b6', fontSize: '0.75rem', fontWeight: 700,
                               cursor: 'grab', display: 'inline-flex', alignItems: 'center', gap: '4px',
                               userSelect: 'none'
@@ -721,7 +721,7 @@ export default function AdminEmailSettings() {
                   ) : (
                     /* Live Preview pane */
                     <div style={{ minHeight: '220px', background: '#111', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
-                      <div style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)', padding: '16px 20px', textAlign: 'center' }}>
+                      <div style={{ background: 'linear-gradient(135deg, #d1bbfb, #8b5cf6)', padding: '16px 20px', textAlign: 'center' }}>
                         <p style={{ margin: 0, color: 'white', fontWeight: 800, fontSize: '0.95rem' }}>AutoFlow Studio</p>
                       </div>
                       <div style={{ padding: '20px' }}>
@@ -792,7 +792,7 @@ export default function AdminEmailSettings() {
                       setWizardStep(prev => prev + 1)
                     }}
                     style={{
-                      padding: '10px 24px', background: 'linear-gradient(135deg, #e91e63, #9c27b0)',
+                      padding: '10px 24px', background: 'linear-gradient(135deg, #d1bbfb, #5646e4)',
                       border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem'
                     }}
                   >
