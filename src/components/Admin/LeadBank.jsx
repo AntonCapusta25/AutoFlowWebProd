@@ -281,7 +281,27 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
   useEffect(() => {
     async function fetchFilterOptions() {
-      const { data } = await supabase.from('outreach_leads').select('industry, tags').limit(10000)
+      // 1. Try to fetch from the optimized unique views first
+      const [indRes, tagRes] = await Promise.all([
+        supabase.from('unique_outreach_industries').select('industry'),
+        supabase.from('unique_outreach_tags').select('tag')
+      ])
+
+      if (!indRes.error && indRes.data && !tagRes.error && tagRes.data) {
+        setDbIndustries(indRes.data.map(d => d.industry).filter(Boolean).sort())
+        setDbTags(tagRes.data.map(d => d.tag).filter(Boolean).sort())
+        return
+      }
+
+      // 2. Fallback to direct table scan if views are not available
+      const { data, error } = await supabase
+        .from('outreach_leads')
+        .select('industry, tags')
+        .order('created_at', { ascending: false })
+        .limit(10000)
+      if (error) {
+        console.error('Error fetching filter options from outreach_leads:', error)
+      }
       if (data) {
         setDbIndustries([...new Set(data.map(d => d.industry).filter(Boolean))].sort())
         setDbTags([...new Set(data.flatMap(d => Array.isArray(d.tags) ? d.tags : []).filter(Boolean))].sort())
