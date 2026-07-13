@@ -7,7 +7,7 @@ export const PROJECTS = [
     client: 'Homemade B.V.',
     industry: 'Food Delivery Platform',
     location: 'The Netherlands',
-    heroImage: 'https://i.postimg.cc/L5sJLvd7/Chat-GPT-Image-Aug-10-2025-02-50-11-AM.png',
+    heroImage: '/images/food_photography_automation.jpg',
     overview: {
       client: 'Homemade B.V. - Food delivery platform connecting home chefs with customers',
       challenge: 'Inconsistent food photography quality hindering growth and professional brand image',
@@ -86,7 +86,7 @@ export const PROJECTS = [
     client: 'Confidential SME',
     industry: 'E-commerce Retail',
     location: 'The Netherlands',
-    heroImage: 'https://i.postimg.cc/5075FXYx/Chat-GPT-Image-Aug-10-2025-01-39-56-AM.png',
+    heroImage: '/images/customer_support_ai.jpg',
     overview: {
       client: 'Dutch E-commerce SME (Specialty Retail)',
       challenge: 'Overwhelming customer support volume on Telegram threatening service quality',
@@ -156,7 +156,7 @@ export const PROJECTS = [
     client: 'Confidential SME',
     industry: 'B2B Consulting',
     location: 'Multi-national Operations',
-    heroImage: 'https://i.postimg.cc/ncQKCcHJ/Chat-GPT-Image-Aug-9-2025-08-10-00-PM-1-1.png',
+    heroImage: '/images/lead_generation_ai.jpg',
     overview: {
       client: 'European B2B Consulting SME (Multi-national operations)',
       challenge: 'Manual lead research limiting growth to 50-80 leads per day',
@@ -239,7 +239,7 @@ export const PROJECTS = [
     client: 'Confidential SME',
     industry: 'B2B SaaS',
     location: 'Global Remote-first',
-    heroImage: 'https://i.postimg.cc/G2GjtpLS/Chat-GPT-Image-Aug-9-2025-05-46-52-PM-1.png',
+    heroImage: '/images/sales_outreach_ai.png',
     overview: {
       client: 'Global B2B SaaS SME (Remote-first operations)',
       challenge: 'Scaling personalized email outreach without sacrificing quality or authenticity',
@@ -320,7 +320,7 @@ export const PROJECTS = [
     client: 'VeloTrans Logistics',
     industry: 'Logistics & Supply Chain',
     location: 'Belgium & Germany',
-    heroImage: '/images/crm_dashboard_mockup.png',
+    heroImage: '/images/custom_crm_logistics.png',
     overview: {
       client: 'VeloTrans Logistics - European freight forwarding and warehousing provider',
       challenge: 'Disjointed communication and manual Excel-based tracking blocking business growth',
