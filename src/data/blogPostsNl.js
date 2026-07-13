@@ -7,7 +7,7 @@ export const NL_BLOG_POSTS = [
     date: 'Maart 2026',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/mZFhGqJ2/Chat-GPT-Image-Aug-15-2025-06-43-48-PM.png" 
+                <img src="/images/blog_10_repetitive_tasks.png" 
                 alt="Nederlands MKB Bedrijfsautomatisering Dashboard" />
                 </div>
 
@@ -193,7 +193,7 @@ export const NL_BLOG_POSTS = [
     date: 'Maart 2026',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/JnNzrSbh/Chat-GPT-Image-Sep-11-2025-12-24-21-PM.png" 
+                <img src="/images/blog_5_signs.png" 
                 alt="Nederlands MKB Bedrijfsautomatisering Dashboard" />
                 </div>
 
@@ -308,7 +308,7 @@ export const NL_BLOG_POSTS = [
     date: 'Februari 2026',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/15rqbgYr/photo-2025-10-17-18-56-59.jpg" 
+                <img src="/images/blog_5_ways_to_customer.png" 
                 alt="Klantenservice CRM Dashboard" />
                 </div>
 
@@ -461,7 +461,7 @@ export const NL_BLOG_POSTS = [
     date: 'December 2025',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/3N4QQJDb/photo-2025-10-17-16-42-34.jpg" 
+                <img src="/images/blog_automation_intro.png" 
                 alt="Nederlands MKB Bedrijfsautomatisering Dashboard" />
                 </div>
 
@@ -667,7 +667,7 @@ export const NL_BLOG_POSTS = [
     date: 'Januari 2026',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/k4zCh4q6/photo-2025-10-17-17-07-45.jpg" 
+                <img src="/images/blog_bottlenecks_guide.png" 
                 alt="Nederlands MKB Bedrijfsautomatisering Dashboard" />
                 </div>
 
@@ -847,7 +847,7 @@ export const NL_BLOG_POSTS = [
     date: 'Januari 2026',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/BbWS6SkZ/Chat-GPT-Image-Aug-15-2025-06-54-26-PM.png" 
+                <img src="/images/blog_bpa_guide.png" 
                 alt="Nederlands MKB Bedrijfsautomatisering Dashboard" />
                 </div>
 
@@ -1013,7 +1013,7 @@ export const NL_BLOG_POSTS = [
     date: 'Januari 2026',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/L5yP09FZ/Chat-GPT-Image-Sep-12-2025-11-11-26-AM.png" 
+                <img src="/images/blog_bpa_vs_workflow.png" 
                 alt="Nederlands MKB Bedrijfsautomatisering Dashboard" />
                 </div>
 
@@ -1239,7 +1239,7 @@ export const NL_BLOG_POSTS = [
     date: 'Februari 2026',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/YqBSB3xr/Chat-GPT-Image-Sep-12-2025-03-38-48-PM.png" 
+                <img src="/images/blog_documents_drowning.png" 
                 alt="Nederlands MKB Bedrijfsautomatisering Dashboard" />
                 </div>
 
@@ -1387,7 +1387,7 @@ export const NL_BLOG_POSTS = [
     date: 'Februari 2026',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/vB7nMcZc/photo-2025-10-17-19-06-35.jpg" 
+                <img src="/images/blog_e_commerce_smes.png" 
                 alt="E-commerce Voorraadbeheer Dashboard" />
                 </div>
 
@@ -1570,7 +1570,7 @@ export const NL_BLOG_POSTS = [
     date: 'Januari 2026',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/638qq1Qc/Chat-GPT-Image-Aug-15-2025-06-44-19-PM-1.png" 
+                <img src="/images/blog_guide_for_sme.png" 
                 alt="Nederlands MKB Bedrijfsautomatisering Dashboard" />
                 </div>
 
@@ -1777,7 +1777,7 @@ export const NL_BLOG_POSTS = [
     date: 'Februari 2026',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/vZKB3rYG/Chat-GPT-Image-Sep-11-2025-01-56-18-PM.png" 
+                <img src="/images/blog_hidden_cost.png" 
                 alt="Nederlands MKB Bedrijfsautomatisering Dashboard" />
                 </div>
 
@@ -1912,7 +1912,7 @@ export const NL_BLOG_POSTS = [
     date: 'Maart 2026',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/JzdW07Bw/Chat-GPT-Image-Aug-17-2025-10-39-44-PM.png" 
+                <img src="/images/blog_how_to_choose.png" 
                 alt="Nederlands MKB Bedrijfsautomatisering Dashboard" />
                 </div>
 
@@ -2136,7 +2136,7 @@ export const NL_BLOG_POSTS = [
     date: 'Januari 2026',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/QtxZM7x1/photo-2025-10-17-17-06-00.jpg" 
+                <img src="/images/blog_invoicing_guide.png" 
                 alt="Nederlands MKB Bedrijfsautomatisering Dashboard" />
                 </div>
 
@@ -2335,7 +2335,7 @@ export const NL_BLOG_POSTS = [
     date: 'December 2025',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/fLds64LG/Chat-GPT-Image-Aug-15-2025-07-25-50-PM.png" 
+                <img src="/images/blog_outgrown_zapier.png" 
                 alt="Nederlands MKB Bedrijfsautomatisering Dashboard" />
                 </div>
 
@@ -2448,7 +2448,7 @@ export const NL_BLOG_POSTS = [
     date: 'December 2025',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/2yjrzykH/Chat-GPT-Image-Sep-8-2025-01-46-37-PM.png" 
+                <img src="/images/blog_outgrown_zapier.png" 
                 alt="Nederlands MKB Bedrijfsautomatisering Dashboard" />
                 </div>
 
@@ -2616,7 +2616,7 @@ export const NL_BLOG_POSTS = [
     date: 'Maart 2026',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/QtJjG139/Chat-GPT-Image-Sep-8-2025-02-30-08-PM.png" 
+                <img src="/images/blog_working_for_you.png" 
                 alt="Nederlands MKB Bedrijfsautomatisering Dashboard" />
                 </div>
 
@@ -2728,7 +2728,7 @@ export const NL_BLOG_POSTS = [
     date: 'Februari 2026',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/JzdW07Bw/Chat-GPT-Image-Aug-17-2025-10-39-44-PM.png" 
+                <img src="/images/blog_zapier_expert.png" 
                 alt="Nederlands MKB Bedrijfsautomatisering Dashboard" />
                 </div>
 
@@ -2868,7 +2868,7 @@ export const NL_BLOG_POSTS = [
     date: 'Januari 2026',
     body: `<div class="article-content">
                 <div class="hero-image">
-                <img src="https://i.postimg.cc/c40W5bNz/Chat-GPT-Image-Aug-17-2025-10-43-18-PM.png" 
+                <img src="/images/blog_zapier_vs_custom.png" 
                 alt="Nederlands MKB Bedrijfsautomatisering Dashboard" />
                 </div>
 
