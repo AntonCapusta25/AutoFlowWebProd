@@ -868,7 +868,14 @@ export default function AdminLeads() {
           <div className="lead-detail-panel">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
               <div>
-                <h3 style={{ margin: 0, color: 'white', fontSize: '1.4rem', fontWeight: 800, marginBottom: '4px' }}>{selectedLead.name}</h3>
+                <h3 style={{ margin: 0, color: 'white', fontSize: '1.4rem', fontWeight: 800, marginBottom: '4px', display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap' }}>
+                  <span>{selectedLead.name}</span>
+                  {selectedLead.phone && (
+                    <span style={{ fontSize: '0.95rem', color: '#94A3B8', fontWeight: 500 }}>
+                      ({selectedLead.phone})
+                    </span>
+                  )}
+                </h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '0.85rem', color: '#64748B' }}>{selectedLead.email}</span>
                   <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#334155' }} />
