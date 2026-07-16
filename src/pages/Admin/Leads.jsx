@@ -11,6 +11,10 @@ export default function AdminLeads() {
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedLead, setSelectedLead] = useSessionState(`${stateKey}_selectedLead`, null)
+  const activeLead = useMemo(() => {
+    if (!selectedLead) return null
+    return leads.find(l => l.id === selectedLead.id) || selectedLead
+  }, [selectedLead, leads])
   const [history, setHistory] = useState([])
   const [selectedIds, setSelectedIds] = useState([])
   const [noteModalLead, setNoteModalLead] = useState(null)
@@ -864,22 +868,22 @@ export default function AdminLeads() {
           </table>
         </div>
 
-        {selectedLead && (
+        {activeLead && (
           <div className="lead-detail-panel">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
               <div>
                 <h3 style={{ margin: 0, color: 'white', fontSize: '1.4rem', fontWeight: 800, marginBottom: '4px', display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap' }}>
-                  <span>{selectedLead.name}</span>
-                  {selectedLead.phone && (
+                  <span>{activeLead.name}</span>
+                  {activeLead.phone && (
                     <span style={{ fontSize: '0.95rem', color: '#94A3B8', fontWeight: 500 }}>
-                      ({selectedLead.phone})
+                      ({activeLead.phone})
                     </span>
                   )}
                 </h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '0.85rem', color: '#64748B' }}>{selectedLead.email}</span>
+                  <span style={{ fontSize: '0.85rem', color: '#64748B' }}>{activeLead.email}</span>
                   <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#334155' }} />
-                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: getStatusColor(selectedLead.status).color }}>{selectedLead.status}</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: getStatusColor(activeLead.status).color }}>{activeLead.status}</span>
                 </div>
               </div>
               <button onClick={() => setSelectedLead(null)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#64748B', cursor: 'pointer', padding: '8px', borderRadius: '8px' }}>
@@ -889,20 +893,20 @@ export default function AdminLeads() {
 
              <div style={{ background: 'linear-gradient(145deg, #160a0f, #0a0a0a)', border: '1px solid rgba(233, 30, 99, 0.2)', borderRadius: '16px', padding: '20px', marginBottom: '18px' }}>
               <h4 style={{ margin: 0, color: '#e91e63', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '10px', letterSpacing: '0.1em' }}>User Problem Response</h4>
-              <p style={{ margin: 0, color: 'white', fontSize: '1rem', lineHeight: '1.6', fontWeight: 500 }}>{selectedLead.message || 'No initial problem described.'}</p>
+              <p style={{ margin: 0, color: 'white', fontSize: '1rem', lineHeight: '1.6', fontWeight: 500 }}>{activeLead.message || 'No initial problem described.'}</p>
             </div>
 
             <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '16px', padding: '20px', marginBottom: '18px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h4 style={{ margin: 0, color: 'white', fontSize: '0.95rem', fontWeight: 700 }}>Internal Admin Notes</h4>
                 <button
-                  onClick={() => setNoteModalLead(selectedLead)}
+                  onClick={() => setNoteModalLead(activeLead)}
                   style={{ padding: '6px 12px', background: 'rgba(233, 30, 99, 0.1)', border: '1px solid rgba(233, 30, 99, 0.2)', color: '#e91e63', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
                 >
                   + Add Note
                 </button>
               </div>
-              <p style={{ margin: 0, color: '#94A3B8', fontSize: '0.85rem', lineHeight: '1.6' }}>{selectedLead.notes || 'No admin notes added yet.'}</p>
+              <p style={{ margin: 0, color: '#94A3B8', fontSize: '0.85rem', lineHeight: '1.6' }}>{activeLead.notes || 'No admin notes added yet.'}</p>
             </div>
 
             <div style={{ marginBottom: '18px' }}>
@@ -945,13 +949,13 @@ export default function AdminLeads() {
               </div>
               <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'flex', gap: '12px' }}>
-                  <button onClick={() => setCallModalLead(selectedLead)} style={{ flex: 1, padding: '14px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 8px 20px rgba(233, 30, 99, 0.3)' }}>
+                  <button onClick={() => setCallModalLead(activeLead)} style={{ flex: 1, padding: '14px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifycontent: 'center', gap: '8px', boxShadow: '0 8px 20px rgba(233, 30, 99, 0.3)' }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                     Log Call
                   </button>
 
                   <button
-                    onClick={() => openCustomEmailModal(selectedLead)}
+                    onClick={() => openCustomEmailModal(activeLead)}
                     disabled={emailSending}
                     style={{
                       flex: 1, padding: '14px',
@@ -988,7 +992,7 @@ export default function AdminLeads() {
 
                 <div style={{ display: 'flex', gap: '12px' }}>
                   <button
-                    onClick={() => setBookingLead(selectedLead)}
+                    onClick={() => setBookingLead(activeLead)}
                     style={{
                       flex: 2, padding: '14px',
                       background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)',
@@ -1015,7 +1019,7 @@ export default function AdminLeads() {
                   </button>
                   {isAdmin && (
                     <button
-                      onClick={() => deleteLead(selectedLead)}
+                      onClick={() => deleteLead(activeLead)}
                       style={{
                         flex: 1, padding: '14px', background: 'transparent',
                         border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444',
