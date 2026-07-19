@@ -3437,6 +3437,116 @@ export const BLOG_POSTS = [
                 </div>
             </div>`,
   },
+  {
+    slug: 'exact-online-crm-integration',
+    title: `The Ultimate Guide to Exact Online CRM Integration: Connect HubSpot, Salesforce & More`,
+    desc: `Discover how a custom Exact Online CRM integration streamlines your sales and accounting. Eliminate manual data entry, sync invoices, and accelerate cash flow.`,
+    date: 'July 2026',
+    faqs: [
+      {
+            "q": "How does an Exact Online CRM integration handle tax and VAT codes?",
+            "a": "A custom integration maps tax settings in your CRM to corresponding tax codes inside Exact Online. By setting up lookup tables in the integration logic, the system automatically assigns correct VAT percentages (such as high, low, or reverse-charged VAT) based on customer location and product category, ensuring seamless financial compliance."
+      },
+      {
+            "q": "Can we sync multiple CRM accounts to a single Exact Online division?",
+            "a": "Yes. A custom integration can handle complex multi-account configurations, routing different sales pipelines, teams, or subsidiaries to a centralized financial division in Exact Online, or routing them to separate divisions based on predefined triggers."
+      },
+      {
+            "q": "What happens if the Exact Online API limit is reached during the day?",
+            "a": "An optimized integration built by experts uses queues. If API limits are close to being reached, the integration prioritizes high-priority events (like processing sales orders) and schedules non-urgent syncs (like contact updates) to process overnight, preventing system downtime."
+      }
+],
+    body: `<div class="article-content">
+<div class="hero-image"><img src="/images/blog_exact-online-crm-integration.png" alt="Exact Online CRM Integration Dashboard" /></div>
+
+<h2>The Silent Growth Killer: Disconnected Sales and Finance Teams</h2>
+<p>In fast-growing organizations, the gap between the sales department and the back office is a constant source of friction. Sales representatives close deals in modern CRMs like HubSpot or Salesforce, celebrating their success. Meanwhile, financial administration teams struggle with manual data entry, copying client details, preparing sales orders, and generating invoices manually inside <strong>Exact Online</strong>. This disconnect creates unnecessary delays, leads to human error, and obscures real-time visibility into financial performance.</p>
+<p>If your team is constantly copy-pasting customer details or wasting time manually checking if an invoice has been paid, your business processes are lagging. Establishing a robust <strong>Exact Online CRM integration</strong> is no longer just a luxury—it is a strategic necessity to scale operations smoothly, eliminate administrative overhead, and build a cohesive customer experience.</p>
+
+<div class="highlight-box">
+<h3>Why System Silos Cost Dutch Businesses Thousands of Euros Annually</h3>
+<p>When customer data, quotes, and invoice histories live in separate databases, your team operates blindly. Sales reps might pitch to accounts with overdue invoices, or finance might chase clients using incorrect contact details updated only in the CRM. These errors directly hurt customer relationships and delay payment cycles. Integrating your systems fixes these communication gaps at their root.</p>
+</div>
+
+<h2>What is an Exact Online CRM Integration?</h2>
+<p>At its core, an Exact Online CRM integration connects your financial ERP database with your frontline sales tools. Rather than treating Exact Online and your CRM as isolated silos, an integration allows data to flow securely and automatically between them in real time (or near-real time). This is achieved through secure API connections, where webhooks notify systems of changes and trigger immediate updates.</p>
+<p>By connecting these environments, any change in your CRM—such as a deal being marked as "Closed Won"—immediately triggers actions in Exact Online, such as creating a new account record, generating a sales order, or issuing an invoice. Similarly, invoice payments received in Exact Online can write back status updates directly to the CRM, giving sales teams complete visibility without ever leaving their preferred interface.</p>
+<p>If you are noticing friction in how your teams collaborate, it might be one of the <a href="/blog/5-signs">5 signs your business processes need urgent automation</a>. A custom integration solves this by aligning your systems and ensuring data integrity across your entire software stack.</p>
+
+<h2>The Core Data Syncs You Need to Automate</h2>
+<p>A truly comprehensive integration involves several key data objects. Understanding how these objects map between Exact Online and your CRM is crucial for a successful setup. Let's break down the essential flows:</p>
+
+<h3>1. Accounts and Contacts Synchronization</h3>
+<p>To prevent duplicate records, your CRM must act as the primary source of truth for prospective customer data. Once a prospect converts into a paying customer, their data should instantly sync with Exact Online to create a corresponding Account (Relatie). Key fields to synchronize include:</p>
+<ul>
+  <li>Company Name and Legal Structure</li>
+  <li>VAT Number and Chamber of Commerce (KvK) number</li>
+  <li>Billing and Shipping Addresses</li>
+  <li>Primary Financial and Administrative Contact Details</li>
+  <li>Payment terms and currency preferences</li>
+</ul>
+
+<h3>2. Quotes, Sales Orders, and Deal Lifecycle</h3>
+<p>When a deal reaches the closing stage in your CRM, the integration should automatically generate the matching financial documents in Exact Online. Whether your business model relies on Sales Orders (Verkooporders) or direct Sales Invoices (Verkoopfacturen), your integration should pass line-item data seamlessly. This includes SKUs, quantity, custom pricing, discounts, and tax codes, eliminating any manual translation between systems.</p>
+
+<h3>3. Invoice Status and Payment Tracking</h3>
+<p>One of the biggest wins of a custom Exact Online CRM integration is returning payment status information back to sales reps. When finance marks an invoice as "Paid" in Exact Online, a webhook sends this update back to the CRM. The account manager can see instantly that the invoice is cleared, allowing them to confidently kick off service delivery or ship physical products.</p>
+
+<h3>4. Products, Pricing, and Stock Levels</h3>
+<p>Managing pricing and stock details in two separate systems is a recipe for disaster. By establishing Exact Online as your master product inventory database, you can automatically sync product SKUs, descriptions, prices, and current stock levels to your CRM. Sales reps will always sell with accurate pricing and avoid promising products that are out of stock.</p>
+
+<h2>Why Standard Integration Plugins Often Fail</h2>
+<p>Many organizations attempt to use cheap, out-of-the-box integration plugins. While these can work for basic, highly standardized setups, they quickly fall short for established businesses. Standard plugins often suffer from severe limitations:</p>
+<ul>
+  <li><strong>Rigid Mapping:</strong> They cannot handle custom fields or custom properties essential to your specific sales workflow.</li>
+  <li><strong>Rate Limit Crashes:</strong> Exact Online enforces strict API rate limits. Basic plugins often exhaust these limits quickly, causing syncs to fail silently.</li>
+  <li><strong>Poor Error Handling:</strong> When a sync fails (e.g., due to an invalid VAT number), basic plugins often freeze without notifying your team, leading to lost invoices and broken trust.</li>
+  <li><strong>No Business Logic:</strong> They cannot execute complex rules, such as "only sync the deal to Exact Online if the customer country is in the EU, and route non-EU customers to a different financial division."</li>
+</ul>
+<p>To overcome these bottlenecks and build an integration that scales with your growth, custom middleware or expert custom integration design is required. <strong>AutoFlow Studio</strong> specializes in building reliable, custom integrations that map precisely to your unique business workflows, avoiding the fragile nature of generic plug-and-play tools.</p>
+
+<div class="results-box">
+<h3>Real-World Impact: What Successful Integration Looks Like</h3>
+<p>By automating the data transfer between sales and finance, businesses experience a massive drop in administrative workloads. Instead of spending hours keying in orders, administrative teams transition into strategic oversight roles. The cash-flow cycle accelerates because invoices are sent minutes after a sale, rather than days or weeks later.</p>
+</div>
+
+<h2>The Technical Architecture of a Robust Integration</h2>
+<p>Building a scalable, production-grade Exact Online CRM integration requires deep technical expertise regarding API constraints and synchronization patterns. Here is how our team at <strong>AutoFlow Studio</strong> approaches custom integrations:</p>
+
+<h3>OAuth 2.0 Security & Token Management</h3>
+<p>Exact Online uses the secure OAuth 2.0 protocol for authentication. This requires an authorized app connection, producing short-lived access tokens and refresh tokens. If token renewal logic is poorly programmed, your integration will break every few days, requiring manual reconnects. Our integration architectures use robust token vaulting and automated refreshing mechanisms to guarantee 100% uptime.</p>
+
+<h3>Managing Exact Online API Limits</h3>
+<p>Exact Online imposes minutely and daily API request limits. Every API call—whether retrieving a customer, creating an invoice, or updating stock—consumes these credits. A poorly optimized sync engine can exhaust daily limits by mid-morning. We design integrations using smart caching, delta syncs (only updating changed records), and batch requests to minimize API consumption and avoid system lockouts.</p>
+
+<h3>Webhooks and Real-Time Event Routing</h3>
+<p>Rather than continuously querying (polling) the API for changes, we leverage webhooks. When an invoice is paid in Exact Online, a webhook immediately fires a payload to our secure integration middleware, which translates and pushes the update to your CRM in under a minute. This reduces server strain and ensures instant data updates for your front-line team.</p>
+<p>If you're interested in learning more about how API-driven logic can modernize your company, take a look at our comprehensive guide on <a href="/blog/automation-intro">how to automate business processes</a> to understand the basic concepts and strategies.</p>
+
+<h2>Comparing the Big Two: HubSpot vs. Salesforce with Exact Online</h2>
+<p>Depending on your CRM platform, the mechanics of your integration will vary slightly. Let's look at the two most popular CRM ecosystems in the Netherlands:</p>
+
+<h3>Exact Online to HubSpot Integration</h3>
+<p>HubSpot is highly intuitive, relying on standard objects like Companies, Contacts, Deals, and Products. A custom HubSpot integration maps CRM 'Deals' to Exact Online 'Sales Invoices'. By building custom cards within the HubSpot contact view, sales reps can see a direct list of past Exact Online invoices, complete with payment statuses, directly inside the HubSpot dashboard, eliminating the need to ask finance for status updates.</p>
+
+<h3>Exact Online to Salesforce Integration</h3>
+<p>Salesforce is highly customizable, often utilizing complex custom objects, multi-currency frameworks, and intricate validation rules. Connecting Salesforce to Exact Online requires a sophisticated mapping strategy. This integration typically binds Salesforce Orders or Opportunities directly to Exact Online's financial divisions, handling multi-entity configurations and complex tax compliance rules seamlessly across international borders.</p>
+
+<h2>Steps to Plan and Execute Your Integration Project</h2>
+<p>Setting up an integration without planning is a recipe for data corruption. Follow this structured roadmap to ensure a smooth project delivery:</p>
+<ol>
+  <li><strong>Audit Your Existing Data:</strong> Clean your CRM and Exact Online databases. Eliminate duplicate contacts, standardise address formats, and ensure product SKUs match exactly.</li>
+  <li><strong>Define the Golden Source:</strong> Determine which system owns which data. Usually, the CRM owns prospect and contact details, while Exact Online owns invoice numbers, pricing rules, and inventory levels.</li>
+  <li><strong>Map the Fields:</strong> Document exactly where each data point goes. For example, map the CRM "Company Registration Number" to the "KvK Nummer" field in Exact Online.</li>
+  <li><strong>Build a Testing Sandbox:</strong> Never test an integration in your live production environment. Build the flow in a staging environment using test divisions to ensure VAT and pricing calculate correctly.</li>
+  <li><strong>Launch with Monitoring:</strong> Once deployed, set up automated error logging. If an integration run fails, alerts should automatically route to your support team so it can be fixed before anyone notices.</li>
+</ol>
+<p>Developing this mapping can reveal many repetitive administrative processes holding your team back. For inspiration on other areas to optimize, read our article on <a href="/blog/10-repetitive-tasks">10 repetitive tasks you can automate today</a> to free up valuable time for your staff.</p>
+
+<h2>Scale Smart with AutoFlow Studio</h2>
+<p>Setting up an Exact Online CRM integration can feel overwhelming. Balancing API rates, matching data structures, and ensuring 100% reliability requires specialized development expertise. That is where we come in. At <strong>AutoFlow Studio</strong>, we design, build, and maintain high-performing integrations that keep your sales and financial systems perfectly aligned. We take care of the technical complexity so you can focus on growing your business. Contact us today to discuss your integration needs and unlock a frictionless flow of business data.</p>
+</div>`,
+  },
 ]
 
 export const getBlogBySlug = (slug) => BLOG_POSTS.find(p => p.slug === slug)

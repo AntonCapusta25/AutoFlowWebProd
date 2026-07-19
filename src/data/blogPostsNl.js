@@ -3436,5 +3436,115 @@ export const NL_BLOG_POSTS = [
                 </div>
             </div>`,
   },
+  {
+    slug: 'exact-online-crm-integration',
+    title: `Exact Online koppelen met CRM: De Ultieme Gids voor HubSpot & Salesforce`,
+    desc: `Ontdek hoe het koppelen van Exact Online met uw CRM (HubSpot of Salesforce) uw processen automatiseert. Voorkom fouten en versnel uw cashflow direct.`,
+    date: 'Juli 2026',
+    faqs: [
+      {
+            "q": "Hoe gaat de koppeling om met btw-tarieven en belastingregels?",
+            "a": "Een op maat gemaakte integratie koppelt de belastinginstellingen in uw CRM aan de juiste btw-codes binnen Exact Online. Via slimme logica in de koppeling wordt op basis van de locatie van de klant en het type product automatisch het juiste btw-tarief (bijv. 21%, 9% of btw verlegd) toegepast, zodat uw administratie altijd aan de wetgeving voldoet."
+      },
+      {
+            "q": "Kunnen we meerdere CRM-accounts koppelen aan één Exact Online administratie?",
+            "a": "Ja, dat is zeker mogelijk. Een maatwerkkoppeling kan data uit verschillende CRM-kanalen, dochterondernemingen of sales pipelines verzamelen en deze gecentraliseerd verwerken in één of meerdere administraties binnen Exact Online op basis van vooraf ingestelde regels."
+      },
+      {
+            "q": "Wat gebeurt er als de dagelijkse API-limiet van Exact Online wordt bereikt?",
+            "a": "Een professioneel gebouwde koppeling maakt gebruik van wachtrijen (queues). Als de API-limiet bijna is bereikt, geeft het systeem voorrang aan kritieke processen (zoals het direct doorsturen van nieuwe orders) en stelt minder dringende synchronisaties (zoals adreswijzigingen) uit tot de nacht, waardoor uw systemen nooit vastlopen."
+      }
+],
+    body: `<div class="article-content">
+<div class="hero-image"><img src="/images/blog_exact-online-crm-integration.png" alt="Exact Online koppelen met CRM - Dashboard Overzicht" /></div>
+
+<h2>De Stille Groeiremmer: Een Kloof Tussen Sales en Financiën</h2>
+<p>In snelgroeiende bedrijven is de kloof tussen de verkoopafdeling en de administratie een constante bron van frustratie. Salesmedewerkers sluiten deals in moderne CRM-systemen zoals HubSpot of Salesforce en vieren hun succes. Ondertussen worstelt de financiële administratie met handmatige gegevensinvoer: klantgegevens overtikken, verkooporders aanmaken en handmatig facturen opstellen in <strong>Exact Online</strong>. Deze kloof zorgt voor vertragingen, verhoogt de kans op fouten en ontneemt u het realtime zicht op uw financiële prestaties.</p>
+<p>Als uw team continu klantgegevens aan het kopiëren en plakken is, of kostbare tijd verspilt om handmatig te controleren of een factuur al is betaald, lopen uw bedrijfsprocessen achter de feiten aan. Het <strong>Exact Online koppelen met CRM</strong> is niet langer een luxe; het is een strategische noodzaak om uw operatie soepel te schalen, administratieve rompslomp te elimineren en een naadloze klantervaring op te bouwen.</p>
+
+<div class="highlight-box">
+<h3>Waarom losstaande systemen Nederlandse bedrijven duizenden euro's per jaar kosten</h3>
+<p>Wanneer klantgegevens, offertes en factuurgeschiedenissen in aparte databases leven, werkt uw team met een blinddoek op. Salesmedewerkers kunnen onbewust proberen up-sells te doen bij klanten met openstaande facturen, of de administratie stuurt herinneringen naar verkeerde e-mailadressen omdat de salesafdeling de contactgegevens alleen in het CRM heeft aangepast. Dit schaadt klantrelaties en vertraagt uw cashflow. Het integreren van uw systemen lost deze problemen direct op.</p>
+</div>
+
+<h2>Wat houdt Exact Online koppelen met CRM precies in?</h2>
+<p>In de basis verbindt een Exact Online CRM-koppeling uw boekhoudpakket of ERP met uw commerciële software. In plaats van Exact Online en uw CRM te behandelen als losstaande eilandjes, zorgt een koppeling ervoor dat data veilig en automatisch heen en weer stroomt via een beveiligde API-verbinding. Webhooks informeren de systemen onmiddellijk over wijzigingen, waardoor processen direct in gang worden gezet.</p>
+<p>Wanneer een deal in uw CRM de status "Closed Won" bereikt, zorgt de integratie er bijvoorbeeld voor dat er direct een relatie, verkooporder of verkoopfactuur wordt aangemaakt in Exact Online. Omgekeerd kan een betalingsstatus in Exact Online direct worden teruggestuurd naar het CRM. Hierdoor heeft het salesteam direct inzicht in de betaalstatus van hun klanten, zonder dat ze ooit hun vertrouwde CRM-omgeving hoeven te verlaten.</p>
+<p>Merkt u dat de samenwerking tussen uw teams stroef verloopt door systemen die niet met elkaar praten? Dit is vaak een van de <a href="/nl/blog/5-signs">5 tekenen dat uw bedrijfsprocessen automatisering nodig hebben</a>. Een op maat gemaakte integratie lost dit op door al uw systemen naadloos op elkaar af te stemmen.</p>
+
+<h2>De Belangrijkste Datastromen om te Automatiseren</h2>
+<p>Een succesvolle integratie omvat diverse cruciale datastromen. Het is belangrijk om te begrijpen hoe deze objecten tussen Exact Online en uw CRM gekoppeld worden. Dit zijn de belangrijkste stromen:</p>
+
+<h3>1. Relaties en Contactpersonen Synchroniseren</h3>
+<p>Om dubbele invoer te voorkomen, moet uw CRM de leidende bron van waarheid (Source of Truth) zijn voor prospect- en klantgegevens. Zodra een prospect klant wordt, moeten deze gegevens direct gesynchroniseerd worden naar Exact Online om daar een nieuwe Relatie (Account) aan te maken. Denk hierbij aan:</p>
+<ul>
+  <li>Bedrijfsnaam en rechtsvorm</li>
+  <li>Btw-nummer en KvK-nummer</li>
+  <li>Factuur- en afleveradressen</li>
+  <li>Contactgegevens van de financiële contactpersoon</li>
+  <li>Betalingscondities en valuta-instellingen</li>
+</ul>
+
+<h3>2. Offertes en Verkooporders</h3>
+<p>Wanneer een deal in uw CRM succesvol wordt afgerond, moet de integratie automatisch de bijbehorende financiële documenten aanmaken in Exact Online. Of u nu werkt met Verkooporders of directe Verkoopfacturen, de koppeling stuurt alle orderregels foutloos door. Dit omvat SKU-nummers, aantallen, prijsafspraken, kortingen en btw-codes, waardoor handmatig overtikken verleden tijd is.</p>
+
+<h3>3. Facturatie- en Betalingsstatus</h3>
+<p>Een van de grootste voordelen van Exact Online koppelen met uw CRM is het terugkoppelen van de betalingsstatus naar de salesafdeling. Zodra de administratie een factuur in Exact Online op "Betaald" zet, stuurt een webhook deze update naar het CRM. De accountmanager ziet direct dat de betaling binnen is en kan direct de levering van de diensten of producten in gang zetten.</p>
+
+<h3>4. Producten, Prijzen en Voorraadstanden</h3>
+<p>Het bijhouden van productgegevens en prijzen in twee verschillende systemen leidt onherroepelijk tot fouten. Door Exact Online als leidend productbestand te gebruiken, kunt u product-SKU's, omschrijvingen, prijzen en actuele voorraadniveaus automatisch synchroniseren naar uw CRM. Salesmedewerkers verkopen zo altijd met de juiste prijzen en verkopen nooit nee vanwege onverwachte voorraadtekorten.</p>
+
+<h2>Waarom Standaard Koppelingen Vaak Tekortschieten</h2>
+<p>Veel bedrijven beginnen met een goedkope, kant-en-klare integratie-plug-in. Hoewel dit voor eenvoudige start-ups prima kan werken, lopen gevestigde bedrijven hier snel tegen de lamp. Standaard plug-ins hebben namelijk grote nadelen:</p>
+<ul>
+  <li><strong>Starre datamapping:</strong> Ze kunnen niet omgaan met unieke, aangepaste velden (custom fields) die essentieel zijn voor uw salesproces.</li>
+  <li><strong>API-limieten overschrijden:</strong> Exact Online hanteert strikte API-limieten. Simpele plug-ins gaan hier inefficiënt mee om, waardoor de synchronisatie ongemerkt stopt als de limiet is bereikt.</li>
+  <li><strong>Gebrekkige foutafhandeling:</strong> Als een synchronisatie mislukt (bijvoorbeeld door een ongeldig btw-nummer), stopt de plug-in vaak zonder waarschuwing, waardoor facturen blijven liggen.</li>
+  <li><strong>Geen bedrijfsspecifieke logica:</strong> Ze kunnen geen complexe regels uitvoeren, zoals "stuur facturen van EU-klanten naar administratie A en facturen van buiten de EU naar administratie B".</li>
+</ul>
+<p>Om deze obstakels te overwinnen is een maatwerk integratie noodzakelijk. <strong>AutoFlow Studio</strong> is gespecialiseerd in het bouwen van betrouwbare, op maat gemaakte koppelingen die exact aansluiten op uw specifieke bedrijfsprocessen, zonder de kwetsbaarheid van standaard plug-ins.</p>
+
+<div class="results-box">
+<h3>Praktijkvoorbeeld: De winst van een feilloze integratie</h3>
+<p>Door de informatiestroom tussen sales en administratie te automatiseren, daalt de administratieve werkdruk aanzienlijk. In plaats van urenlang orders overtikken, krijgt het administratieteam een controlerende, strategische rol. De cashflow versnelt omdat facturen direct na de verkoop worden verstuurd, in plaats van dagen of weken later.</p>
+</div>
+
+<h2>De Technische Architectuur van een Betrouwbare Koppeling</h2>
+<p>Het bouwen van een stabiele koppeling met Exact Online vereist diepgaande technische kennis van API-structuren en synchronisatiemethoden. Bij <strong>AutoFlow Studio</strong> hanteren we een bewezen aanpak:</p>
+
+<h3>OAuth 2.0 Beveiliging en Tokenbeheer</h3>
+<p>Exact Online maakt gebruik van het OAuth 2.0-protocol voor veilige gegevensoverdracht. Dit vereist het beheer van tijdelijke toegangstokens en refresh-tokens. Als dit tokenbeheer niet perfect is geprogrammeerd, valt de koppeling om de paar dagen uit. Onze integraties maken gebruik van een veilig, geautomatiseerd tokenbeheer dat 100% uptime garandeert.</p>
+
+<h3>Omgaan met Exact Online API-limieten</h3>
+<p>Exact Online heeft strenge limieten voor het aantal API-aanroepen per minuut en per dag. Elke actie verbruikt credits. Een inefficiënte koppeling kan ervoor zorgen dat u halverwege de dag de limiet bereikt en de systemen blokkeren. Wij bouwen integraties met slimme caching en 'delta-syncs' (alleen gewijzigde gegevens doorsturen) om het API-verbruik tot een minimum te beperken.</p>
+
+<h3>Webhooks voor Realtime Updates</h3>
+<p>In plaats van dat de koppeling continu de Exact Online-database 'popt' om te kijken of er iets is veranderd, maken wij gebruik van webhooks. Zodra een factuur is betaald, stuurt Exact Online direct een signaal naar onze integratieserver, die de status in uw CRM binnen enkele seconden bijwerkt. Dit ontlast de servers en zorgt voor actuele data.</p>
+<p>Wilt u meer weten over de kracht van API's en procesoptimalisatie? Lees dan onze uitgebreide <a href="/nl/blog/automation-intro">introductie over het automatiseren van bedrijfsprocessen</a>.</p>
+
+<h2>De Verschillen: HubSpot vs. Salesforce Koppelen met Exact Online</h2>
+<p>Afhankelijk van uw CRM-systeem verschilt de aanpak van de integratie. Laten we kijken naar de twee meest gebruikte CRM-systemen in Nederland:</p>
+
+<h3>Exact Online koppelen met HubSpot</h3>
+<p>HubSpot blinkt uit in gebruiksvriendelijkheid en werkt met standaardobjecten zoals Bedrijven, Contactpersonen, Deals en Producten. Een op maat gemaakte HubSpot-koppeling zet Deals bij succes om in verkoopfacturen. We kunnen daarnaast custom kaarten in HubSpot bouwen, zodat salesreps direct de factuurgeschiedenis en betaalstatussen uit Exact Online in hun HubSpot-scherm zien.</p>
+
+<h3>Exact Online koppelen met Salesforce</h3>
+<p>Salesforce is extreem flexibel en maakt vaak gebruik van complexe custom objecten, multi-valuta en ingewikkelde validatieregels. Een Salesforce-koppeling vereist een geavanceerde mapping-strategie. We koppelen Salesforce Opportunities vaak aan specifieke administratieve divisies binnen Exact Online, inclusief complexe btw-regels voor internationale transacties.</p>
+
+<h2>Stappenplan voor een Succesvol Integratietraject</h2>
+<p>Een integratie bouwen zonder gedegen voorbereiding leidt tot fouten in uw administratie. Volg daarom altijd dit stappenplan:</p>
+<ol>
+  <li><strong>Data opschonen:</strong> Zorg dat de gegevens in uw CRM en Exact Online up-to-date zijn. Verwijder dubbele contacten en zorg dat product-SKU's in beide systemen identiek zijn.</li>
+  <li><strong>Bepaal de 'Golden Source':</strong> Bepaal welk systeem leidend is voor welke data. Meestal is het CRM leidend voor klantgegevens en Exact Online voor artikelprijzen, factuurnummers en voorraad.</li>
+  <li><strong>Data mapping:</strong> Breng nauwkeurig in kaart welk veld in het CRM hoort bij welk veld in Exact Online (bijvoorbeeld het KvK-nummer koppelen aan het juiste relatieveld).</li>
+  <li><strong>Testen in een Sandbox:</strong> Test de koppeling nooit direct live. We bouwen de integratie eerst op in een testomgeving (sandbox) met een testadministratie om te controleren of alle berekeningen en btw-tarieven kloppen.</li>
+  <li><strong>Livegang en monitoring:</strong> Richt automatische foutmeldingen (logs) in. Mocht er een synchronisatie mislukken, dan krijgt ons supportteam direct een melding om het op te lossen voordat uw medewerkers er last van hebben.</li>
+</ol>
+<p>Het in kaart brengen van deze stromen legt vaak ook andere inefficiënte processen binnen uw organisatie bloot. Voor meer inspiratie over wat u nog meer kunt optimaliseren, bekijk ons artikel over <a href="/nl/blog/10-repetitive-tasks">10 repetitieve taken die u vandaag nog kunt automatiseren</a>.</p>
+
+<h2>Slim Schalen met AutoFlow Studio</h2>
+<p>Het koppelen van Exact Online met uw CRM kan complex en overweldigend overkomen. Het beheren van API-limieten, het vertalen van datastructuren en het garanderen van een 100% betrouwbare werking vereist specialistische kennis. <strong>AutoFlow Studio</strong> ontwerpt, bouwt en onderhoudt hoogwaardige koppelingen die uw sales en financiële systemen perfect op elkaar afstemmen. Wij nemen de technische complexiteit uit handen, zodat u zich kunt richten op de groei van uw onderneming. Laat <strong>AutoFlow Studio</strong> uw integratielandschap optimaliseren en neem vandaag nog contact met ons op om de mogelijkheden te bespreken.</p>
+</div>`,
+  },
 ]
 export const getNlBlogBySlug = (slug) => NL_BLOG_POSTS.find(p => p.slug === slug)
