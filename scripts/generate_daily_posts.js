@@ -10,40 +10,40 @@ const projectRoot = path.join(__dirname, '..');
 // High-intent keywords and topics targeting the Netherlands
 const TOPIC_QUEUE = [
   {
-    topic: 'Exact Online CRM Integration',
-    keywordEn: 'Exact Online CRM integration',
-    keywordNl: 'Exact Online koppelen met CRM',
-    concept: 'Connecting the popular Dutch accounting ERP Exact Online to CRM systems like HubSpot or Salesforce to sync invoices, contacts, and orders.'
+    topic: 'Klantenportaal op maat bouwen voor B2B en dienstverleners',
+    keywordEn: 'custom client portal software development',
+    keywordNl: 'klantenportaal op maat bouwen',
+    concept: 'Why off-the-shelf client portals are frustrating, and how building a custom client portal (React/Node/Supabase) streamlines operations and client communication.'
   },
   {
-    topic: 'ActiveCampaign Marketing Automation',
-    keywordEn: 'ActiveCampaign marketing automation B2B',
-    keywordNl: 'ActiveCampaign marketing automatisering',
-    concept: 'Designing automated customer journeys, lead nurturing campaigns, and database cleanup routines in ActiveCampaign for Dutch B2B SMEs.'
+    topic: 'Bespoke CRM en ERP software laten bouwen',
+    keywordEn: 'bespoke CRM ERP software development',
+    keywordNl: 'CRM op maat laten bouwen',
+    concept: 'Standard CRMs like HubSpot are bloated and expensive. Why scaling companies build bespoke CRMs tailored exactly to their proprietary operational workflows.'
   },
   {
-    topic: 'Automated PDF Quote Generation',
-    keywordEn: 'automated PDF quote generation CRM',
-    keywordNl: 'automatische offertegeneratie PDF',
-    concept: 'Building pipelines that automatically generate custom-designed PDF quotes or proposals when a deal reaches a specific stage in the CRM.'
+    topic: 'Interne software en dashboard applicaties op maat',
+    keywordEn: 'custom internal tools and dashboards development',
+    keywordNl: 'interne software op maat laten maken',
+    concept: 'Building proprietary operations dashboards, inventory trackers, and admin panels that eliminate spreadsheet chaos and integrate securely with existing data sources.'
   },
   {
-    topic: 'WooCommerce Bookkeeping Integration',
-    keywordEn: 'WooCommerce accounting integration',
-    keywordNl: 'WooCommerce koppelen aan boekhouding',
-    concept: 'Connecting WooCommerce shops directly to Dutch bookkeeping tools like SnelStart, Moneybird, or Exact Online to sync sales invoices.'
+    topic: 'Legacy software moderniseren en cloud migratie',
+    keywordEn: 'modernizing legacy software systems databases',
+    keywordNl: 'legacy software moderniseren',
+    concept: 'Migrating legacy desktop software and outdated databases (Access, local Excel sheets) to secure, cloud-native SQL/PostgreSQL databases with modern APIs.'
   },
   {
-    topic: 'Lead Scoring and Routing Logic',
-    keywordEn: 'automated lead scoring routing',
-    keywordNl: 'lead scoring en verdeling automatiseren',
-    concept: 'Setting up automated routing systems that score inbound leads based on company size and behavior, routing them instantly to the correct agent.'
+    topic: 'Custom software versus No-Code software',
+    keywordEn: 'custom software development vs no code platforms',
+    keywordNl: 'maatwerk software versus no-code',
+    concept: 'The architectural, performance, and scaling limits of no-code platforms (Bubble, Retool) and why serious scaling companies must invest in custom code assets.'
   },
   {
-    topic: 'Automated Contract Signatures',
-    keywordEn: 'automated contract signature workflow',
-    keywordNl: 'contract digitaal ondertekenen workflow',
-    concept: 'Integrating DocuSign or Signwell with CRM deal flows to automatically send and track contracts, moving deal stages on signature.'
+    topic: 'Automatische documenten en offertes genereren op maat',
+    keywordEn: 'custom automated document generation system',
+    keywordNl: 'automatische documentengenerator op maat',
+    concept: 'Building scalable serverless document generators that render and deliver thousands of custom PDF quotes, contracts, or analytical reports instantly.'
   }
 ];
 
@@ -82,19 +82,24 @@ async function generate() {
   const linksCatalog = existingSlugs.slice(0, 5).map(s => `/blog/${s}`).join(', ');
 
   const prompt = `
-You are a elite copywriter and SEO/GEO expert for AutoFlow Studio (an automation and integration agency in the Netherlands).
+You are a software engineer and content writer for AutoFlow Studio (a custom software development and automation agency in the Netherlands).
 Generate a blog post in BOTH English and Dutch for the topic: "${selectTopic.topic}".
 Focus keyword (English): "${selectTopic.keywordEn}"
 Focus keyword (Dutch): "${selectTopic.keywordNl}"
 Concept: ${selectTopic.concept}
 
 Requirements for the generated copy:
-1. **Length**: The text body (bodyEn and bodyNl) MUST be strictly greater than 8,500 characters. Write a highly detailed, comprehensive guide.
-2. **Layout**: Format the body as HTML wrapped inside a '<div class="article-content">' element. Use proper headers (h2, h3), lists (ul, ol), and highlight blocks ('<div class="results-box">...</div>' or '<div class="highlight-box">...</div>'). Include a hero image block at the top: '<div class="hero-image"><img src="/images/blog_${slug}.png" alt="Descriptive Alt Text" /></div>'.
-3. **Keyword Placement**: Place the main keyword in the H1 title, and naturally place related keywords inside H2 and H3 elements.
-4. **Interlinking**: Integrate 2-3 links to existing blog posts. Use exactly these URLs in your links if relevant: ${linksCatalog}. Format: <a href="/blog/slug-name">Anchor Text</a> (for English) and <a href="/nl/blog/slug-name">Anchor Text</a> (for Dutch).
-5. **Brand Placement**: Highlight "AutoFlow Studio" naturally in the body text twice, as the expert implementation agency for custom integrations.
-6. **FAQs**: Provide 3 relevant FAQ Q&As for both languages.
+1. **Tone and Voice**:
+   - Write in a natural, conversational, human-written style, like a smart 11th grader or first-year university student.
+   - Do NOT use typical robotic AI words, transition words, or corporate marketing slop (avoid: "Furthermore", "Moreover", "In this comprehensive guide", "In conclusion", "It is important to note", "In today's fast-paced digital world").
+   - Shift the tone dynamically: sometimes sound enthusiastic and marketing-minded like Neil Patel (simple, punchy, engaging, story-driven), and sometimes sound like a sharp, slightly cynical junior engineer who is tired of manual corporate BS.
+   - Keep sentences and paragraphs short and varied in length. Use casual phrasing like "Look," "Honestly," "Here is the thing," "Let's be real."
+2. **Length**: The text body (bodyEn and bodyNl) MUST be strictly greater than 8,500 characters. Go deep into real setups, examples, and technical details.
+3. **Layout**: Format the body as HTML wrapped inside a '<div class="article-content">' element. Use proper headers (h2, h3), lists (ul, ol), and highlight blocks ('<div class="results-box">...</div>' or '<div class="highlight-box">...</div>'). Include a hero image block at the top: '<div class="hero-image"><img src="/images/blog_${slug}.png" alt="Descriptive Alt Text" /></div>'.
+4. **Keyword Placement**: Place the main keyword in the H1 title, and naturally place related keywords inside H2 and H3 elements.
+5. **Interlinking**: Integrate 2-3 links to existing blog posts. Use exactly these URLs in your links if relevant: ${linksCatalog}. Format: <a href="/blog/slug-name">Anchor Text</a> (for English) and <a href="/nl/blog/slug-name">Anchor Text</a> (for Dutch).
+6. **Brand Placement**: Highlight "AutoFlow Studio" naturally in the body text twice, as the expert implementation agency for custom integrations.
+7. **FAQs**: Provide 3 relevant FAQ Q&As for both languages.
 
 Output your response ONLY in JSON format matching the schema:
 {
