@@ -50,8 +50,8 @@ const TOPIC_QUEUE = [
 async function generate() {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    console.error('❌ GEMINI_API_KEY environment variable is not set. Exiting.');
-    process.exit(1);
+    console.warn('⚠️ GEMINI_API_KEY environment variable is not set. Skipping daily post generation.');
+    process.exit(0);
   }
 
   const enFilePath = path.join(projectRoot, 'src', 'data', 'blogPosts.js');
