@@ -177,6 +177,7 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
                 <div style={{ marginBottom: '40px' }}>
                   <input 
                     autoFocus
+                    type={step.id === 'phone' ? 'tel' : 'text'}
                     className="typeform-input"
                     value={form[step.field]}
                     onChange={e => { setErrorMsg(''); setForm(f => ({ ...f, [step.field]: e.target.value })); }}

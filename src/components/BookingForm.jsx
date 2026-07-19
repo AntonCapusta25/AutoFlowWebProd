@@ -20,9 +20,9 @@ export default function BookingForm({ title = 'Book Your Automation Audit', lang
     service: 'Selecteer Service',
     servicePlaceholder: '-- Kies Uw Behoefte --',
     size: 'Bedrijfsgrootte',
-    name: 'Uw Naam',
-    email: 'E-mailadres',
-    phone: 'Telefoonnummer',
+    name: 'Uw Naam *',
+    email: 'E-mailadres *',
+    phone: 'Telefoonnummer *',
     note: 'Opmerking (Optioneel)',
     notePlaceholder: 'Heeft u specifieke behoeften of vragen?',
     btn: 'Krijg Gratis Audit',
@@ -36,9 +36,9 @@ export default function BookingForm({ title = 'Book Your Automation Audit', lang
     service: 'Selecteer Service',
     servicePlaceholder: '-- Select Your Need --',
     size: 'Business Size',
-    name: 'Your Name',
-    email: 'Email Address',
-    phone: 'Phone Number',
+    name: 'Your Name *',
+    email: 'Email Address *',
+    phone: 'Phone Number *',
     note: 'Leave a Note (Optional)',
     notePlaceholder: 'Any specific needs or questions?',
     btn: 'Get Free Audit',
@@ -52,7 +52,7 @@ export default function BookingForm({ title = 'Book Your Automation Audit', lang
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.service || !form.name || !form.email) {
+    if (!form.service || !form.name || !form.email || !form.phone) {
       showNotification(labels.errorFields, 'error'); return
     }
     setLoading(true)
@@ -114,7 +114,7 @@ export default function BookingForm({ title = 'Book Your Automation Audit', lang
       </div>
       <div className="input-wrapper">
         <svg className="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        <input type="tel" placeholder={labels.phone} className="booking-input" value={form.phone} onChange={e=>set('phone',e.target.value)} />
+        <input type="tel" placeholder={labels.phone} required className="booking-input" value={form.phone} onChange={e=>set('phone',e.target.value)} />
       </div>
 
       <div>
