@@ -115,7 +115,7 @@ Output your response ONLY in JSON format matching the schema:
 `;
 
   console.log('Sending request to Gemini API...');
-  const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
 
   const response = await fetch(apiEndpoint, {
     method: 'POST',
