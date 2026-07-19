@@ -14,9 +14,69 @@ export default function BlogPost({ lang = 'en' }) {
   const base = isNl ? '/nl/blog' : '/blog'
 
   useEffect(() => {
-    if (post) document.title = `${post.title} - AutoFlow Studio`
+    if (!post) return
+    document.title = `${post.title} - AutoFlow Studio`
     document.documentElement.lang = lang
     window.scrollTo(0, 0)
+
+    const schemaId = 'blog-jsonld-schema'
+    let scriptEl = document.getElementById(schemaId)
+    if (!scriptEl) {
+      scriptEl = document.createElement('script')
+      scriptEl.id = schemaId
+      scriptEl.type = 'application/ld+json'
+      document.head.appendChild(scriptEl)
+    }
+
+    const articleSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'TechArticle',
+      'headline': post.title,
+      'description': post.desc,
+      'datePublished': '2026-07-20T09:00:00+02:00',
+      'dateModified': '2026-07-20T09:00:00+02:00',
+      'author': {
+        '@type': 'Organization',
+        'name': 'AutoFlow Studio',
+        'url': 'https://autoflow.studio'
+      },
+      'publisher': {
+        '@type': 'Organization',
+        'name': 'AutoFlow Studio',
+        'url': 'https://autoflow.studio',
+        'logo': {
+          '@type': 'ImageObject',
+          'url': 'https://autoflow.studio/images/logo.png'
+        }
+      },
+      'mainEntityOfPage': {
+        '@type': 'WebPage',
+        '@id': window.location.href
+      }
+    }
+
+    if (post.faqs && post.faqs.length > 0) {
+      const faqSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        'mainEntity': post.faqs.map(faq => ({
+          '@type': 'Question',
+          'name': faq.q,
+          'acceptedAnswer': {
+            '@type': 'Answer',
+            'text': faq.a
+          }
+        }))
+      }
+      scriptEl.textContent = JSON.stringify([articleSchema, faqSchema])
+    } else {
+      scriptEl.textContent = JSON.stringify(articleSchema)
+    }
+
+    return () => {
+      const el = document.getElementById(schemaId)
+      if (el) el.remove()
+    }
   }, [slug, post, lang])
 
   if (!post) return <Navigate to={base} replace />
@@ -24,6 +84,10 @@ export default function BlogPost({ lang = 'en' }) {
   const idx = posts.findIndex(p => p.slug === slug)
   const prev = posts[idx - 1]
   const next = posts[idx + 1]
+
+  const relatedPosts = posts
+    .filter(p => p.slug !== slug)
+    .slice(0, 3)
 
   return (
     <main className="main-content" style={{ background: '#050505' }}>
@@ -63,6 +127,60 @@ export default function BlogPost({ lang = 'en' }) {
                 <div style={{ color:'#F8FAFC',fontSize:'0.875rem',fontWeight:600,lineHeight:1.4 }}>{next.title}</div>
               </Link>
             ) : <div style={{flex:1}} />}
+          </div>
+        </div>
+      </section>
+
+      <section style={{ padding: '80px 24px', background: '#0a0a0a', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <h2 style={{ color: 'white', fontSize: '1.75rem', fontWeight: 800, marginBottom: '32px', textAlign: 'left', fontFamily: 'inherit' }}>
+            {isNl ? 'Gerelateerde Artikelen' : 'Related Articles'}
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px' }}>
+            {relatedPosts.map(p => (
+              <Link 
+                key={p.slug}
+                to={`${base}/${p.slug}`}
+                style={{ 
+                  background: '#050505', 
+                  border: '1px solid rgba(255,255,255,0.06)', 
+                  borderRadius: '16px', 
+                  padding: '24px', 
+                  textDecoration: 'none', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.borderColor = 'rgba(209, 187, 251, 0.3)'
+                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.boxShadow = '0 12px 30px rgba(191, 163, 255, 0.08)'
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'
+                  e.currentTarget.style.transform = 'none'
+                  e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)'
+                }}
+              >
+                <div style={{ color: '#d1bbfb', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '8px' }}>
+                  {p.date}
+                </div>
+                <h3 style={{ color: 'white', fontSize: '1.1rem', fontWeight: 700, lineHeight: 1.4, marginBottom: '8px', fontFamily: 'inherit', textTransform: 'none' }}>
+                  {p.title}
+                </h3>
+                <p style={{ color: '#94A3B8', fontSize: '0.85rem', lineHeight: 1.6, marginBottom: '16px' }}>
+                  {p.desc.length > 90 ? `${p.desc.slice(0, 87)}...` : p.desc}
+                </p>
+                <div style={{ color: '#d1bbfb', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', marginTop: 'auto' }}>
+                  {isNl ? 'Lees Artikel' : 'Read Article'} 
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
