@@ -2,6 +2,9 @@ import { useEffect, useState, useMemo, useRef, useCallback } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAdmin } from './AdminContext'
 import useSessionState from '../../hooks/useSessionState'
+import FollowUpCalendar from './FollowUpCalendar'
+import { parseFollowUpDate } from '../../lib/followUpParser'
+import { scheduleFollowUp } from '../../lib/followUps'
 
 export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle = "Manage your leads." }) {
   const { user, isAdmin, profile, salespeople, loading: authLoading } = useAdmin()
@@ -19,6 +22,14 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   const [noteModalLead, setNoteModalLead] = useState(null)
   const [callModalLead, setCallModalLead] = useState(null)
   const [isActionLoading, setIsActionLoading] = useState(false)
+  const [viewMode, setViewMode] = useSessionState(`${stateKey}_viewMode`, 'leads')
+  const [editingEmail, setEditingEmail] = useState(false)
+  const [emailDraft, setEmailDraft] = useState('')
+  const [followUpModalLead, setFollowUpModalLead] = useState(null)
+  const [followUpDate, setFollowUpDate] = useState('')
+  const [followUpTime, setFollowUpTime] = useState('')
+  const [followUpNote, setFollowUpNote] = useState('')
+  const [followUpSaving, setFollowUpSaving] = useState(false)
   const [page, setPage] = useSessionState(`${stateKey}_page`, 0)
   const [totalCount, setTotalCount] = useState(0)
   const [searchTerm, setSearchTerm] = useSessionState(`${stateKey}_searchTerm`, '')
@@ -204,12 +215,17 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
     { label: 'New' },
     { label: 'Contacted' },
     { label: 'In Progress' },
+    { label: 'Follow Up Needed' },
     { label: 'Meeting Booked' },
     { label: 'Waiting for Invoice' },
     { label: 'No Response' },
     { label: 'Converted' },
     { label: 'Lost' }
   ]
+
+  useEffect(() => {
+    setEditingEmail(false)
+  }, [selectedLead?.id])
 
   async function fetchLeads() {
     setLoading(true)
@@ -364,6 +380,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         setNewNote('')
       }
       setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, notes: content, call_attempts: newCallCount } : l))
+      maybeAutoScheduleFollowUp(lead, content)
     }
     setIsActionLoading(false)
   }
@@ -445,6 +462,129 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       }
     }
     setIsActionLoading(false)
+  }
+
+  async function updateLeadEmail(lead, newEmail) {
+    const trimmed = newEmail.trim()
+    if (!trimmed || trimmed === lead.email || isActionLoading) {
+      setEditingEmail(false)
+      return
+    }
+    setIsActionLoading(true)
+    const oldEmail = lead.email
+    const { error } = await supabase.from('outreach_leads').update({ email: trimmed }).eq('id', lead.id)
+    if (error) {
+      alert('Failed to update email: ' + error.message)
+    } else {
+      setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, email: trimmed } : l))
+      if (selectedLead?.id === lead.id) setSelectedLead(prev => ({ ...prev, email: trimmed }))
+
+      await supabase.from('lead_history').insert({
+        lead_id: lead.id,
+        lead_type: 'outreach',
+        event_type: 'note',
+        content: `Email updated to ${trimmed}${oldEmail ? ` (was ${oldEmail})` : ''}`,
+        admin_id: user?.id
+      })
+      if (selectedLead?.id === lead.id) fetchUnifiedHistory(lead.id)
+      setEditingEmail(false)
+    }
+    setIsActionLoading(false)
+  }
+
+  // Reads a note/call's text for a schedulable date ("call back tmrw", "follow up
+  // next Monday at 2pm") and quietly books it onto the salesperson's follow-up calendar.
+  async function maybeAutoScheduleFollowUp(lead, text) {
+    const when = parseFollowUpDate(text)
+    if (!when) return
+    const { error } = await scheduleFollowUp({
+      lead,
+      leadType: 'outreach',
+      scheduledAt: when,
+      notesContent: text,
+      source: 'note',
+      salespeople,
+      currentUser: user,
+      currentProfile: profile
+    })
+    if (!error) {
+      await supabase.from('lead_history').insert({
+        lead_id: lead.id,
+        lead_type: 'outreach',
+        event_type: 'follow_up_scheduled',
+        content: `📅 Detected a follow-up in your note — scheduled for ${when.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}`,
+        admin_id: user?.id
+      })
+      if (selectedLead?.id === lead.id) fetchUnifiedHistory(lead.id)
+    }
+  }
+
+  function openFollowUpPicker(lead) {
+    const def = new Date()
+    def.setDate(def.getDate() + 1)
+    def.setHours(9, 0, 0, 0)
+    setFollowUpDate(def.toISOString().slice(0, 10))
+    setFollowUpTime('09:00')
+    setFollowUpNote('')
+    setFollowUpModalLead(lead)
+  }
+
+  async function confirmFollowUpPicker() {
+    const lead = followUpModalLead
+    if (!lead || !followUpDate || !followUpTime || followUpSaving) return
+    setFollowUpSaving(true)
+
+    const scheduledAt = new Date(`${followUpDate}T${followUpTime}:00`)
+    const noteText = followUpNote.trim()
+
+    await updateStatus(lead.id, 'Follow Up Needed')
+
+    const { error } = await scheduleFollowUp({
+      lead,
+      leadType: 'outreach',
+      scheduledAt,
+      notesContent: noteText || `Follow up with ${lead.name || lead.email}`,
+      source: 'manual',
+      salespeople,
+      currentUser: user,
+      currentProfile: profile
+    })
+
+    if (error) {
+      alert('Follow-up status saved, but the reminder could not be scheduled: ' + error.message)
+    } else {
+      await supabase.from('lead_history').insert({
+        lead_id: lead.id,
+        lead_type: 'outreach',
+        event_type: 'follow_up_scheduled',
+        content: `📅 Follow-up scheduled for ${scheduledAt.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}${noteText ? ` — "${noteText}"` : ''}`,
+        admin_id: user?.id
+      })
+      if (selectedLead?.id === lead.id) fetchUnifiedHistory(lead.id)
+    }
+
+    setFollowUpSaving(false)
+    setFollowUpModalLead(null)
+  }
+
+  async function handleViewLeadFromFollowUp(reminder) {
+    const existing = leads.find(l => l.id === reminder.lead_id)
+    if (existing) {
+      setViewMode('leads')
+      setSelectedLead(existing)
+      return
+    }
+    if (reminder.lead_type !== 'outreach') {
+      alert('This follow-up is for an inbound lead — open it from the Inbound Leads tab.')
+      return
+    }
+    const { data } = await supabase.from('outreach_leads').select('*').eq('id', reminder.lead_id).maybeSingle()
+    if (data) {
+      setViewMode('leads')
+      setSelectedLead(data)
+    } else {
+      alert('Could not find this lead — it may have been deleted.')
+    }
   }
 
   async function sendManualEmail(lead, statusKey) {
@@ -608,6 +748,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         admin_id: user?.id
       })
       if (selectedLead?.id === lead.id) fetchUnifiedHistory(lead.id)
+      if (noteContent) maybeAutoScheduleFollowUp(lead, noteContent)
     }
     setIsActionLoading(false)
   }
@@ -665,6 +806,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       case 'Waiting for Invoice': return { bg: 'rgba(6, 182, 212, 0.1)', text: '#67e8f9', border: '1px solid rgba(6, 182, 212, 0.2)' }
       case 'Converted': return { bg: 'rgba(16, 185, 129, 0.1)', text: '#6ee7b7', border: '1px solid rgba(16, 185, 129, 0.2)' }
       case 'Lost': return { bg: 'rgba(239, 68, 68, 0.1)', text: '#fca5a5', border: '1px solid rgba(239, 68, 68, 0.2)' }
+      case 'Follow Up Needed': return { bg: 'rgba(251, 146, 60, 0.1)', text: '#fdba74', border: '1px solid rgba(251, 146, 60, 0.2)' }
       // legacy support
       case 'Scraped': return { bg: 'rgba(148, 163, 184, 0.1)', text: '#94A3B8', border: '1px solid rgba(148, 163, 184, 0.2)' }
       case 'Interested': return { bg: 'rgba(16, 185, 129, 0.1)', text: '#6ee7b7', border: '1px solid rgba(16, 185, 129, 0.2)' }
@@ -1232,6 +1374,31 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         </div>
       )} */}
 
+      {title === 'Outbound' && (
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+          {[{ id: 'leads', label: 'Leads' }, { id: 'followups', label: '📅 Follow-Ups' }].map(t => (
+            <button
+              key={t.id}
+              onClick={() => setViewMode(t.id)}
+              style={{
+                padding: '9px 18px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer',
+                border: viewMode === t.id ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                background: viewMode === t.id ? 'linear-gradient(135deg, #e91e63, #9c27b0)' : 'rgba(255,255,255,0.03)',
+                color: viewMode === t.id ? 'white' : '#94A3B8',
+                boxShadow: viewMode === t.id ? '0 4px 15px rgba(233,30,99,0.3)' : 'none',
+                transition: 'all 0.2s'
+              }}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {viewMode === 'followups' ? (
+        <FollowUpCalendar user={user} isAdmin={isAdmin} salespeople={salespeople} onViewLead={handleViewLeadFromFollowUp} />
+      ) : (
+      <>
       <div className="leadbank-filters">
         <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Quick Filter Status:</p>
         <select
@@ -1429,7 +1596,13 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                     <td style={{ padding: '20px' }}>
                       <select
                         value={lead.status === 'Scraped' ? 'New' : (lead.status || 'New')}
-                        onChange={(e) => updateStatus(lead.id, e.target.value)}
+                        onChange={(e) => {
+                          if (e.target.value === 'Follow Up Needed') {
+                            openFollowUpPicker(lead)
+                          } else {
+                            updateStatus(lead.id, e.target.value)
+                          }
+                        }}
                         style={{
                           padding: '8px 12px',
                           background: getStatusColor(lead.status === 'Scraped' ? 'New' : (lead.status || 'New')).bg,
@@ -1446,6 +1619,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                         <option value="New" style={{ background: '#0a0a0a', color: 'white' }}>New</option>
                         <option value="Contacted" style={{ background: '#0a0a0a', color: 'white' }}>Contacted</option>
                         <option value="In Progress" style={{ background: '#0a0a0a', color: 'white' }}>In Progress</option>
+                        <option value="Follow Up Needed" style={{ background: '#0a0a0a', color: 'white' }}>Follow Up Needed</option>
                         <option value="Meeting Booked" style={{ background: '#0a0a0a', color: 'white' }}>Meeting Booked</option>
                         <option value="Waiting for Invoice" style={{ background: '#0a0a0a', color: 'white' }}>Waiting for Invoice</option>
                         <option value="No Response" style={{ background: '#0a0a0a', color: 'white' }}>No Response</option>
@@ -1583,7 +1757,48 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                   )}
                 </h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '0.85rem', color: '#64748b' }}>{activeLead.email}</span>
+                  {editingEmail ? (
+                    <>
+                      <input
+                        type="email"
+                        autoFocus
+                        value={emailDraft}
+                        onChange={e => setEmailDraft(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') updateLeadEmail(activeLead, emailDraft)
+                          if (e.key === 'Escape') setEditingEmail(false)
+                        }}
+                        style={{ fontSize: '0.85rem', color: 'white', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(233, 30, 99, 0.4)', borderRadius: '8px', padding: '5px 8px', outline: 'none', minWidth: '200px' }}
+                      />
+                      <button
+                        onClick={() => updateLeadEmail(activeLead, emailDraft)}
+                        title="Save email"
+                        style={{ background: 'rgba(16, 185, 129, 0.15)', border: 'none', color: '#6ee7b7', cursor: 'pointer', padding: '5px', borderRadius: '6px', display: 'flex' }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </button>
+                      <button
+                        onClick={() => setEditingEmail(false)}
+                        title="Cancel"
+                        style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#64748B', cursor: 'pointer', padding: '5px', borderRadius: '6px', display: 'flex' }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ fontSize: '0.85rem', color: '#64748b' }}>{activeLead.email}</span>
+                      <button
+                        onClick={() => { setEmailDraft(activeLead.email || ''); setEditingEmail(true) }}
+                        title="Edit email"
+                        style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', padding: '2px', display: 'flex', opacity: 0.7 }}
+                        onMouseEnter={e => e.currentTarget.style.opacity = 1}
+                        onMouseLeave={e => e.currentTarget.style.opacity = 0.7}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
+                      </button>
+                    </>
+                  )}
                   <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#334155' }}></span>
                   <span style={{ fontSize: '0.85rem', fontWeight: 700, color: getStatusColor(activeLead.status === 'Scraped' ? 'New' : (activeLead.status || 'New')).text }}>{activeLead.status === 'Scraped' ? 'New' : (activeLead.status || 'New')}</span>
                 </div>
@@ -1635,9 +1850,9 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                       {idx !== history.length - 1 && <div style={{ position: 'absolute', left: '7px', top: '24px', bottom: 0, width: '2px', background: 'rgba(255, 255, 255, 0.05)' }} />}
                       <div style={{
                         width: '16px', height: '16px', borderRadius: '50%',
-                        background: item.event_type === 'call' ? '#e91e63' : item.event_type === 'status_change' ? '#3b82f6' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '#a855f7' : '#10b981',
+                        background: item.event_type === 'call' ? '#e91e63' : item.event_type === 'status_change' ? '#3b82f6' : item.event_type === 'follow_up_scheduled' ? '#fb923c' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '#a855f7' : '#10b981',
                         zIndex: 1, marginTop: '4px', flexShrink: 0,
-                        boxShadow: item.event_type === 'call' ? '0 0 10px rgba(233, 30, 99, 0.3)' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '0 0 10px rgba(168, 85, 247, 0.3)' : 'none'
+                        boxShadow: item.event_type === 'call' ? '0 0 10px rgba(233, 30, 99, 0.3)' : item.event_type === 'follow_up_scheduled' ? '0 0 10px rgba(251, 146, 60, 0.35)' : (item.event_type === 'email' || item.event_type === 'email_sent') ? '0 0 10px rgba(168, 85, 247, 0.3)' : 'none'
                       }} />
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
@@ -1748,6 +1963,8 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           </div>
         )}
       </div>
+      </>
+      )}
 
       {showImportModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
@@ -1814,6 +2031,67 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                 style={{ flex: 1, padding: '12px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}
               >
                 Log Call
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {followUpModalLead && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+          <div style={{ background: '#111', border: '1px solid rgba(251, 146, 60, 0.25)', borderRadius: '24px', width: '100%', maxWidth: '400px', padding: '24px', boxShadow: '0 30px 60px rgba(0,0,0,0.8)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <h3 style={{ margin: 0, color: 'white', fontSize: '1.1rem', fontWeight: 800 }}>Schedule Follow-Up</h3>
+              <button onClick={() => setFollowUpModalLead(null)} style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
+            <p style={{ margin: '0 0 20px', color: '#94A3B8', fontSize: '0.85rem' }}>
+              Pick when to follow up with <strong style={{ color: '#CBD5E1' }}>{followUpModalLead.name || followUpModalLead.email}</strong>. It'll show up on your Follow-Ups calendar and you'll get an email reminder.
+            </p>
+
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Date</label>
+                <input
+                  type="date"
+                  value={followUpDate}
+                  onChange={e => setFollowUpDate(e.target.value)}
+                  style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', outline: 'none', fontSize: '0.9rem', colorScheme: 'dark', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Time</label>
+                <input
+                  type="time"
+                  value={followUpTime}
+                  onChange={e => setFollowUpTime(e.target.value)}
+                  style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', outline: 'none', fontSize: '0.9rem', colorScheme: 'dark', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+
+            <label style={{ display: 'block', color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Note (optional)</label>
+            <textarea
+              value={followUpNote}
+              onChange={e => setFollowUpNote(e.target.value)}
+              placeholder="What's this follow-up about?"
+              style={{ width: '100%', height: '80px', padding: '14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', color: 'white', outline: 'none', resize: 'none', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '20px', boxSizing: 'border-box' }}
+            />
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => setFollowUpModalLead(null)}
+                disabled={followUpSaving}
+                style={{ flex: 1, padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#94A3B8', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmFollowUpPicker}
+                disabled={followUpSaving || !followUpDate || !followUpTime}
+                style={{ flex: 1, padding: '12px', background: '#fb923c', border: 'none', color: '#1a0f00', borderRadius: '12px', fontWeight: 800, cursor: followUpSaving ? 'default' : 'pointer', fontSize: '0.9rem', opacity: followUpSaving ? 0.7 : 1 }}
+              >
+                {followUpSaving ? 'Saving…' : 'Schedule'}
               </button>
             </div>
           </div>

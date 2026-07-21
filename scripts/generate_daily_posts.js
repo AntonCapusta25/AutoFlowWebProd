@@ -13,7 +13,7 @@ const TOPIC_QUEUE = [
     topic: 'Klantenportaal op maat bouwen voor B2B en dienstverleners',
     keywordEn: 'custom client portal software development',
     keywordNl: 'klantenportaal op maat bouwen',
-    concept: 'Why off-the-shelf client portals are frustrating, and how building a custom client portal (React/Node/Supabase) streamlines operations and client communication.'
+    concept: 'Why off-the-shelf client portals are frustrating, and how building a custom client portal streamlines operations and client communication.'
   },
   {
     topic: 'Bespoke CRM en ERP software laten bouwen',
