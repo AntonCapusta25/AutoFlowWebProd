@@ -50,8 +50,8 @@ export default function Navbar() {
     <>
       <nav className={`navbar${scrolled ? ' scrolled' : ''}${menuOpen ? ' menu-open' : ''}`}>
         <div className="nav-container">
-          <Link to={prefix || '/'} className="logo">
-            Auto<span style={{ color: '#d1bbfb' }}>Flow</span>
+          <Link to={prefix || '/'} className="logo" aria-label="AutoFlow Studio Home">
+            <img src="/images/logo.png" alt="AutoFlow Studio" style={{ height: '36px', width: 'auto', display: 'block' }} />
           </Link>
 
           {/* Desktop Nav Links */}

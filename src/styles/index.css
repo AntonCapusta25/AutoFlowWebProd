@@ -236,6 +236,8 @@ nav.navbar::after {
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     text-decoration: none;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
 }
 
 .nav-links {
@@ -3196,7 +3198,7 @@ nav.navbar::after {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 45px;
+    padding: 30px 45px;
     min-width: 220px;
 }
 
@@ -3259,7 +3261,7 @@ nav.navbar::after {
     }
 
     .logo-item {
-        padding: 0 30px;
+        padding: 30px 30px;
         min-width: 160px;
     }
 
@@ -3314,7 +3316,7 @@ nav.navbar::after {
     }
 
     .logo-item {
-        padding: 0 20px;
+        padding: 30px 20px;
         min-width: 140px;
     }
 
