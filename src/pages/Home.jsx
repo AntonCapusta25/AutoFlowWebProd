@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import Hero from '../components/Hero'
 import { getT } from '../i18n/translations'
 const ICONS = {
@@ -133,7 +133,7 @@ const FlowStyles = () => (
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       grid-template-rows: repeat(2, 280px) 200px;
-      grid-template-areas: 
+      grid-template-areas:
         "tall topmid big big"
         "tall botmid big big"
         "wide wide small1 small2";
@@ -209,16 +209,16 @@ const FlowStyles = () => (
     .card-tall { grid-area: tall; }
     .card-topmid { grid-area: topmid; }
     .card-botmid { grid-area: botmid; }
-    .card-big { 
-      grid-area: big; 
+    .card-big {
+      grid-area: big;
       justify-content: center;
       text-align: center;
     }
     .card-big .bento-title { font-size: 2.8rem; line-height: 1.1; margin-bottom: 16px; }
-    .card-wide { 
-      grid-area: wide; 
-      flex-direction: row !important; 
-      align-items: center; 
+    .card-wide {
+      grid-area: wide;
+      flex-direction: row !important;
+      align-items: center;
       gap: 24px;
     }
     .card-wide .bento-icon { margin-bottom: 0; flex-shrink: 0; }
@@ -226,7 +226,6 @@ const FlowStyles = () => (
     .card-small2 { grid-area: small2; padding: 24px; }
     .card-small1 .bento-title, .card-small2 .bento-title { font-size: 1.1rem; margin-bottom: 6px; }
     .card-small1 .bento-desc, .card-small2 .bento-desc { font-size: 0.85rem; }
-
     .status-dot {
       width: 8px;
       height: 8px;
@@ -246,12 +245,207 @@ const FlowStyles = () => (
       text-transform: uppercase;
       z-index: 2;
     }
-    
+    .services-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 64px;
+    }
+    .service-stack-card {
+      position: sticky;
+      top: 110px;
+      min-height: 540px;
+      border-radius: 36px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.42);
+      background: #101010;
+      isolation: isolate;
+    }
+    .service-stack-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent 45%);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .service-stack-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 26px 26px;
+      opacity: 0.18;
+      mix-blend-mode: soft-light;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .service-stack-inner {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      min-height: 540px;
+    }
+    .service-stack-copy {
+      padding: 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 32px;
+    }
+    .service-stack-meta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      color: rgba(255,255,255,0.75);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.76rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .service-stack-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #111111;
+      background: rgba(255,255,255,0.78);
+      border-radius: 999px;
+      padding: 8px 14px;
+    }
+    .service-stack-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.6rem, 4vw, 4.5rem);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      color: #F8FAFC;
+      margin: 0 0 18px;
+      text-wrap: balance;
+      max-width: 10ch;
+    }
+    .service-stack-desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.08rem;
+      line-height: 1.75;
+      color: rgba(226, 232, 240, 0.84);
+      margin: 0;
+      max-width: 58ch;
+    }
+    .service-stack-badges {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+    }
+    .service-stack-badge {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.78);
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .service-stack-link {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-radius: 999px;
+      text-decoration: none;
+      color: #091018;
+      background: #F8FAFC;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      transition: transform 220ms ease, box-shadow 220ms ease, background 220ms ease;
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.25);
+    }
+    .service-stack-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 24px 46px rgba(0, 0, 0, 0.3);
+      background: #ffffff;
+    }
+    .service-stack-media {
+      position: relative;
+      min-height: 320px;
+      overflow: hidden;
+    }
+    .service-stack-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.02);
+    }
+    .service-stack-orbit {
+      position: absolute;
+      width: 520px;
+      height: 520px;
+      border-radius: 50%;
+      right: -140px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 1px solid rgba(255,255,255,0.18);
+      opacity: 0.42;
+    }
+    .service-stack-orbit::before,
+    .service-stack-orbit::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.12);
+      inset: 44px;
+    }
+    .service-stack-orbit::after {
+      inset: 108px;
+    }
+    .service-stack-dot {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 0 22px rgba(255,255,255,0.3);
+    }
+    .service-stack-dot.one { top: 84px; right: 124px; }
+    .service-stack-dot.two { bottom: 134px; left: 96px; }
+    .service-stack-dot.three { top: 50%; left: 42px; width: 10px; height: 10px; }
+
+    @media (max-width: 960px) {
+      .service-stack-card {
+        top: 84px;
+        min-height: auto;
+      }
+      .service-stack-inner {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+      .service-stack-copy {
+        padding: 32px 24px 20px;
+      }
+      .service-stack-title {
+        max-width: none;
+        font-size: clamp(2.2rem, 9vw, 3.2rem);
+      }
+      .service-stack-media {
+        min-height: 300px;
+      }
+      .service-stack-orbit {
+        width: 360px;
+        height: 360px;
+        right: -120px;
+      }
+    }
     @media (max-width: 1200px) {
       .bento-grid {
         grid-template-columns: repeat(2, 1fr);
         grid-template-rows: auto;
-        grid-template-areas: 
+        grid-template-areas:
           "big big"
           "tall topmid"
           "tall botmid"
@@ -275,7 +469,11 @@ export default function Home({ lang = 'en' }) {
   const t = getT(lang)
   const trackRef = useRef(null)
   const timerRef = useRef(null)
+  const processSectionRef = useRef(null)
+  const processFrameRef = useRef(0)
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [isMobileProcessLayout, setIsMobileProcessLayout] = useState(false)
+  const [processScrollProgress, setProcessScrollProgress] = useState(0)
 
   useEffect(() => {
     document.title = 'AutoFlow Studio - Automate the Work You Hate'
@@ -363,15 +561,103 @@ export default function Home({ lang = 'en' }) {
   }, [buildCharIdx, buildDeleting, buildWordIdx, buildWords])
 
   const [activeStep, setActiveStep] = useState(0)
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const processStepCount = t.timeline.steps.length
+  const startupStackCards = [
+    {
+      ...t.startupDreams.cards[0],
+      image: '/images/startup-stack/card-1.png',
+      theme: lang === 'nl' ? 'rommel eruit' : 'fix the mess',
+      tint: 'linear-gradient(135deg, #2d3444 0%, #151821 45%, #0d0f15 100%)',
+      badges: lang === 'nl'
+        ? ['maatwerk code', 'minder fouten', 'meer grip']
+        : ['custom code', 'fewer breakages', 'more control'],
+    },
+    {
+      ...t.startupDreams.cards[1],
+      image: '/images/startup-stack/card-2.png',
+      theme: lang === 'nl' ? 'sneller live' : 'move faster',
+      tint: 'linear-gradient(135deg, #4d2e28 0%, #1b1514 48%, #110e0d 100%)',
+      badges: lang === 'nl'
+        ? ['minder handwerk', 'snelle onboarding', 'kortere doorlooptijd']
+        : ['less admin', 'faster onboarding', 'shorter cycles'],
+    },
+    {
+      ...t.startupDreams.cards[4],
+      image: '/images/startup-stack/card-3.png',
+      theme: lang === 'nl' ? 'meer groei' : 'more growth',
+      tint: 'linear-gradient(135deg, #1e433d 0%, #111a1a 48%, #0b1010 100%)',
+      badges: lang === 'nl'
+        ? ['meer output', 'minder overhead', 'schaalbaar team']
+        : ['more output', 'less overhead', 'scalable ops'],
+    },
+    {
+      ...t.startupDreams.cards[5],
+      image: '/images/startup-stack/card-4.png',
+      theme: lang === 'nl' ? 'klaar voor groei' : 'built to last',
+      tint: 'linear-gradient(135deg, #36304d 0%, #17141f 46%, #0d0c12 100%)',
+      badges: lang === 'nl'
+        ? ['stabiele basis', 'groeit mee', 'lange termijn']
+        : ['stable foundation', 'grows with you', 'long-term fit'],
+    },
+  ]
+  const processImages = [
+    '/images/weve-been-there.jpg',
+    '/images/build-step.jpg',
+    '/images/built-for-long-run.jpg',
+    '/images/more-growth.jpg',
+  ]
 
   useEffect(() => {
-    if (!isAutoPlaying) return
-    const timer = setInterval(() => {
-      setActiveStep(s => (s + 1) % t.timeline.steps.length)
-    }, 3000)
-    return () => clearInterval(timer)
-  }, [t.timeline.steps.length, isAutoPlaying])
+    const onResize = () => {
+      setIsMobileProcessLayout(window.innerWidth <= 991)
+    }
+
+    onResize()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  useEffect(() => {
+    const section = processSectionRef.current
+    if (!section) return
+
+    if (isMobileProcessLayout) {
+      setActiveStep(0)
+      setProcessScrollProgress(0)
+      return
+    }
+
+    const updateProcessScroll = () => {
+      const rect = section.getBoundingClientRect()
+      const totalScrollable = Math.max(section.offsetHeight - window.innerHeight, 1)
+      const progress = Math.min(Math.max(-rect.top / totalScrollable, 0), 1)
+      const nextStep = Math.min(processStepCount - 1, Math.round(progress * (processStepCount - 1)))
+
+      setProcessScrollProgress(prev => (Math.abs(prev - progress) > 0.002 ? progress : prev))
+      setActiveStep(prev => (prev === nextStep ? prev : nextStep))
+    }
+
+    const onScroll = () => {
+      if (processFrameRef.current) return
+      processFrameRef.current = window.requestAnimationFrame(() => {
+        processFrameRef.current = 0
+        updateProcessScroll()
+      })
+    }
+
+    updateProcessScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', updateProcessScroll)
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', updateProcessScroll)
+      if (processFrameRef.current) {
+        window.cancelAnimationFrame(processFrameRef.current)
+        processFrameRef.current = 0
+      }
+    }
+  }, [isMobileProcessLayout, processStepCount])
 
   useEffect(() => {
     timerRef.current = setInterval(() => {
@@ -423,7 +709,6 @@ export default function Home({ lang = 'en' }) {
           </div>
 
           <div className="bento-grid">
-            {/* 1. Tall Card - Outreach Automation */}
             <motion.div
               whileHover={{ y: -8, transition: { duration: 0.3 } }}
               className="bento-card card-tall"
@@ -447,7 +732,6 @@ export default function Home({ lang = 'en' }) {
               </div>
             </motion.div>
 
-            {/* 2. Top Mid - Smart Reporting */}
             <motion.div
               whileHover={{ y: -8 }}
               className="bento-card card-topmid"
@@ -467,7 +751,6 @@ export default function Home({ lang = 'en' }) {
               </div>
             </motion.div>
 
-            {/* 3. Big Featured - Custom CRM Systems */}
             <motion.div
               whileHover={{ scale: 1.02 }}
               className="bento-card card-big"
@@ -494,7 +777,6 @@ export default function Home({ lang = 'en' }) {
               </div>
             </motion.div>
 
-            {/* 4. Bot Mid - Website Integrations */}
             <motion.div
               whileHover={{ y: -8 }}
               className="bento-card card-botmid"
@@ -510,7 +792,6 @@ export default function Home({ lang = 'en' }) {
               </div>
             </motion.div>
 
-            {/* 5. Wide Card - AI Chatbots */}
             <motion.div
               whileHover={{ x: 10 }}
               className="bento-card card-wide"
@@ -527,7 +808,6 @@ export default function Home({ lang = 'en' }) {
               </div>
             </motion.div>
 
-            {/* 6. Small 1 - Custom Business Workflows */}
             <motion.div
               whileHover={{ scale: 1.05 }}
               className="bento-card card-small1"
@@ -537,7 +817,6 @@ export default function Home({ lang = 'en' }) {
               <p className="bento-desc" style={{ position: 'relative', zIndex: 2 }}>{t.services.items[5].desc}</p>
             </motion.div>
 
-            {/* 7. Small 2 - Performance Analytics */}
             <motion.div
               whileHover={{ scale: 1.05 }}
               className="bento-card card-small2"
@@ -551,10 +830,22 @@ export default function Home({ lang = 'en' }) {
       </section>
 
       {/* ── Process Wrapper ── */}
-      <div style={{ backgroundColor: '#050505', padding: '1px 0' }}>
-        <section className="process-section" id="how-it-works" style={{
+      <div
+        ref={processSectionRef}
+        style={{
+          backgroundColor: '#050505',
+          padding: '1px 0',
           position: 'relative',
-          padding: '120px 24px',
+          minHeight: isMobileProcessLayout ? 'auto' : `${Math.max(processStepCount * 100, 240)}vh`
+        }}
+      >
+        <section className="process-section" id="how-it-works" style={{
+          position: isMobileProcessLayout ? 'relative' : 'sticky',
+          top: 0,
+          minHeight: isMobileProcessLayout ? 'auto' : '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          padding: isMobileProcessLayout ? '120px 24px' : '48px 24px',
           backgroundColor: '#050505',
           overflow: 'hidden'
         }}>
@@ -588,11 +879,11 @@ export default function Home({ lang = 'en' }) {
                 {t.timeline.title}
               </h2>
 
-              <div style={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
                 gap: '12px',
-                height: '560px', 
+                height: isMobileProcessLayout ? 'auto' : '560px',
                 position: 'relative'
               }}>
                 {t.timeline.steps.map((s, idx) => (
@@ -600,6 +891,9 @@ export default function Home({ lang = 'en' }) {
                     key={idx}
                     initial={false}
                     animate={{
+                      opacity: isMobileProcessLayout || idx <= activeStep ? 1 : 0.35,
+                      y: isMobileProcessLayout || idx <= activeStep ? 0 : 28,
+                      scale: activeStep === idx ? 1 : 0.985,
                       background: activeStep === idx 
                         ? 'rgba(255, 255, 255, 0.08)' 
                         : 'rgba(255, 255, 255, 0.01)',
@@ -612,8 +906,7 @@ export default function Home({ lang = 'en' }) {
                       ease: "easeOut"
                     }}
                     onClick={() => {
-                      setActiveStep(idx)
-                      setIsAutoPlaying(false)
+                      if (isMobileProcessLayout) setActiveStep(idx)
                     }}
                     whileHover={{ x: activeStep === idx ? 0 : 8 }}
                     style={{
@@ -625,6 +918,10 @@ export default function Home({ lang = 'en' }) {
                       boxShadow: activeStep === idx ? '0 20px 40px rgba(0,0,0,0.3)' : 'none',
                       backdropFilter: 'blur(12px)',
                       WebkitBackdropFilter: 'blur(12px)',
+                      minHeight: '126px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center'
                     }}>
                     {activeStep === idx && (
                       <motion.div
@@ -663,28 +960,30 @@ export default function Home({ lang = 'en' }) {
                       </div>
                     </div>
 
-                    <AnimatePresence>
-                      {activeStep === idx && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.5, ease: "easeOut" }}
-                          style={{ overflow: 'hidden' }}
-                        >
-                          <p style={{
-                            fontFamily: "'Space Grotesk', sans-serif",
-                            color: '#94A3B8',
-                            fontSize: '1.05rem',
-                            lineHeight: 1.6,
-                            margin: 0,
-                            marginTop: 16
-                          }}>
-                            {s.desc}
-                          </p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    <motion.div
+                      initial={false}
+                      animate={{
+                        opacity: activeStep === idx ? 1 : idx < activeStep ? 0.45 : 0,
+                        y: activeStep === idx ? 0 : idx < activeStep ? -4 : 10
+                      }}
+                      transition={{ duration: 0.35, ease: 'easeOut' }}
+                      style={{
+                        overflow: 'hidden',
+                        minHeight: '52px',
+                        marginTop: 16,
+                        pointerEvents: 'none'
+                      }}
+                    >
+                      <p style={{
+                        fontFamily: "'Space Grotesk', sans-serif",
+                        color: '#94A3B8',
+                        fontSize: '1.05rem',
+                        lineHeight: 1.6,
+                        margin: 0
+                      }}>
+                        {s.desc}
+                      </p>
+                    </motion.div>
                   </motion.div>
                 ))}
               </div>
@@ -710,47 +1009,136 @@ export default function Home({ lang = 'en' }) {
                 }}
               />
 
-              <AnimatePresence>
-                <motion.div
-                  key={activeStep}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.6, ease: "easeOut" }}
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    borderRadius: '48px',
-                    overflow: 'hidden',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    boxShadow: '0 50px 100px -30px rgba(0,0,0,0.8)',
-                    zIndex: 2,
-                    background: '#0a0a0a',
-                    willChange: 'transform, opacity'
-                  }}
-                >
-                  <img
-                    src={
-                      activeStep === 0 ? '/images/weve-been-there.jpg' :
-                        activeStep === 1 ? '/images/build-step.jpg' :
-                          activeStep === 2 ? '/images/built-for-long-run.jpg' :
-                            '/images/more-growth.jpg'
-                    }
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  borderRadius: '48px',
+                  overflow: 'hidden',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  boxShadow: '0 50px 100px -30px rgba(0,0,0,0.8)',
+                  zIndex: 2,
+                  background: '#0a0a0a',
+                  willChange: 'transform, opacity'
+                }}
+              >
+                {processImages.map((src, idx) => (
+                  <motion.img
+                    key={src}
+                    src={src}
                     alt=""
+                    initial={false}
+                    animate={{
+                      opacity: activeStep === idx ? 1 : 0,
+                      scale: activeStep === idx ? 1 : 1.045,
+                      filter: activeStep === idx ? 'blur(0px)' : 'blur(6px)'
+                    }}
+                    transition={{ duration: 0.7, ease: 'easeOut' }}
                     style={{
+                      position: 'absolute',
+                      inset: 0,
                       width: '100%',
                       height: '100%',
                       objectFit: 'cover'
                     }}
                   />
-                  <div style={{
+                ))}
+                <motion.div
+                  initial={false}
+                  animate={{ y: `${processScrollProgress * -24}px` }}
+                  transition={{ duration: 0.35, ease: 'easeOut' }}
+                  style={{
                     position: 'absolute',
                     inset: 0,
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.05), transparent 60%)',
+                    background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0) 30%, rgba(5,5,5,0.18) 100%)',
                     pointerEvents: 'none'
+                  }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  left: '28px',
+                  top: '28px',
+                  zIndex: 3,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  borderRadius: '999px',
+                  background: 'rgba(8, 10, 14, 0.48)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)'
+                }}>
+                  <span style={{
+                    width: '10px',
+                    height: '10px',
+                    borderRadius: '50%',
+                    background: '#d1bbfb',
+                    boxShadow: '0 0 18px rgba(209, 187, 251, 0.7)'
                   }} />
-                </motion.div>
-              </AnimatePresence>
+                  <span style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: '0.76rem',
+                    letterSpacing: '0.16em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(255,255,255,0.82)'
+                  }}>
+                    Step {activeStep + 1} / {processStepCount}
+                  </span>
+                </div>
+                <div style={{
+                  position: 'absolute',
+                  left: '28px',
+                  right: '28px',
+                  bottom: '92px',
+                  zIndex: 3
+                }}>
+                  <p style={{
+                    margin: 0,
+                    color: '#FFFFFF',
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontSize: '2rem',
+                    fontWeight: 700,
+                    letterSpacing: '-0.03em'
+                  }}>
+                    {t.timeline.steps[activeStep].title}
+                  </p>
+                  <div style={{
+                    margin: '12px 0 0',
+                    color: 'rgba(226,232,240,0.88)',
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: '0.98rem',
+                    lineHeight: 1.7,
+                    maxWidth: '44ch'
+                  }}>
+                    {t.timeline.steps[activeStep].desc}
+                  </div>
+                </div>
+                {!isMobileProcessLayout && (
+                  <div style={{
+                    position: 'absolute',
+                    left: '32px',
+                    right: '32px',
+                    bottom: '28px',
+                    height: '4px',
+                    borderRadius: '999px',
+                    background: 'rgba(255,255,255,0.12)',
+                    overflow: 'hidden',
+                    zIndex: 3
+                  }}>
+                    <motion.div
+                      initial={false}
+                      animate={{ width: `${Math.max(processScrollProgress, 1 / (processStepCount * 4)) * 100}%` }}
+                      transition={{ duration: 0.25, ease: 'easeOut' }}
+                      style={{
+                        height: '100%',
+                        borderRadius: '999px',
+                        background: 'linear-gradient(90deg, #d1bbfb, #ffffff)'
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
           </div>
@@ -788,49 +1176,75 @@ export default function Home({ lang = 'en' }) {
             </p>
           </div>
 
-          {/* Cards Grid */}
-          <div style={{
-            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '40px 32px', marginBottom: '60px'
-          }}>
-            {t.startupDreams.cards.map((card, i) => (
-              <Link key={i} to={lang === 'nl' ? '/nl/contact' : '/contact'} style={{ textDecoration: 'none', display: 'flex' }}>
+          <div className="services-stack" style={{ maxWidth: '1180px', margin: '0 auto 60px' }}>
+            {startupStackCards.map((card, idx) => (
+              <article
+                key={card.title}
+                className="service-stack-card"
+                style={{
+                  top: `${96 + idx * 18}px`,
+                  background: card.tint,
+                }}
+              >
+                <img
+                  src={card.image}
+                  alt={card.title}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center',
+                    zIndex: 0
+                  }}
+                />
                 <div style={{
                   position: 'relative',
+                  zIndex: 2,
+                  minHeight: '540px',
                   display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'flex-end',
-                  width: '100%',
-                  minHeight: '360px',
-                  borderRadius: '24px',
-                  overflow: 'hidden',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
-                  background: `url('/images/${card.img}') center center / cover no-repeat`,
-                  transition: 'transform 0.3s ease, border-color 0.3s ease',
-                  cursor: 'pointer'
-                }}
-                  onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-8px)'; e.currentTarget.style.borderColor = 'rgba(209, 187, 251,0.4)'; }}
-                  onMouseOut={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'; }}>
+                  justifyContent: 'space-between',
+                  padding: isMobileProcessLayout ? '28px 22px' : '42px 40px',
+                }}>
                   <div style={{
-                    position: 'absolute', inset: 0,
-                    background: 'linear-gradient(to top, rgba(5,5,5,0.8) 0%, rgba(5,5,5,0.4) 50%, rgba(5,5,5,0) 100%)',
-                    zIndex: 1
+                    position: 'absolute',
+                    inset: 0,
+                    background: `${card.tint}, linear-gradient(180deg, rgba(5,5,5,0.08) 0%, rgba(5,5,5,0.04) 22%, rgba(5,5,5,0.54) 72%, rgba(5,5,5,0.76) 100%)`,
+                    zIndex: -1
                   }} />
-                  <div style={{ position: 'relative', zIndex: 2, padding: '32px 24px' }}>
-                    <h3 style={{
-                      fontFamily: "'Space Grotesk', 'Inter', sans-serif", fontSize: '1.4rem', fontWeight: 700, color: '#F8FAFC',
-                      marginBottom: '12px', letterSpacing: '-0.01em'
-                    }}>
-                      {card.title}
-                    </h3>
-                    <p style={{
-                      fontFamily: "'Inter', sans-serif", fontSize: '0.95rem', color: '#E2E8F0', lineHeight: 1.6
-                    }}>
-                      {card.desc}
-                    </p>
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    gap: '32px',
+                    minHeight: '100%'
+                  }}>
+                    <div>
+                      <div className="service-stack-meta">
+                        <span className="service-stack-number">{String(idx + 1).padStart(2, '0')}</span>
+                        <span>{card.theme}</span>
+                      </div>
+                      <div style={{ maxWidth: '42rem', marginTop: 'auto', paddingTop: isMobileProcessLayout ? '120px' : '180px' }}>
+                        <h3 className="service-stack-title" style={{ maxWidth: '12ch', marginBottom: '14px' }}>{card.title}</h3>
+                        <p className="service-stack-desc" style={{ maxWidth: '46ch', color: 'rgba(241,245,249,0.9)' }}>{card.desc}</p>
+                        <div className="service-stack-badges">
+                          {card.badges.map(badge => (
+                            <span key={badge} className="service-stack-badge">{badge}</span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <Link to={lang === 'nl' ? '/nl/contact' : '/contact'} className="service-stack-link">
+                        {lang === 'nl' ? 'Plan dit met ons' : 'Plan this with us'}
+                        <span aria-hidden="true">→</span>
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </Link>
+              </article>
             ))}
           </div>
         </div>
