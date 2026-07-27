@@ -82,8 +82,8 @@ export default function AdminLayout({ children }) {
     ] : []),
     { to: '/admin/outreach', label: 'Outbound', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg> },
     ...(isAdmin ? [
-      { 
-        to: '/admin/segments', label: 'Segments', 
+      {
+        to: '/admin/segments', label: 'Segments',
         icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>,
         children: segments.map(s => ({ to: `/admin/segments/${s.id}`, label: s.name }))
       },
@@ -92,7 +92,7 @@ export default function AdminLayout({ children }) {
     { to: '/admin/deals', label: 'Deals & Revenue', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> },
     ...(isAdmin ? [
       { to: '/admin/email-settings', label: 'Email Settings', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"><circle cx="18" cy="18" r="3" fill="currentColor" stroke="none"></circle></polyline><line x1="21" y1="18" x2="23" y2="18" stroke="currentColor"></line><line x1="15" y1="18" x2="13" y2="18" stroke="currentColor"></line><line x1="18" y1="21" x2="18" y2="23" stroke="currentColor"></line><line x1="18" y1="15" x2="18" y2="13" stroke="currentColor"></line></svg> },
-      { to: '/admin/marketing', label: 'Marketing', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg> },
+      { to: '/admin/marketing', label: 'Marketing', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 2L11 13" /><path d="M22 2L15 22 11 13 2 9l20-7z" /></svg> },
     ] : []),
   ]
 
@@ -141,13 +141,13 @@ export default function AdminLayout({ children }) {
 
       {/* Mobile Sidebar Overlay */}
       {isMobileMenuOpen && (
-        <div 
-          className="admin-mobile-overlay" 
+        <div
+          className="admin-mobile-overlay"
           style={{ display: 'none' }}
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
-      
+
       {/* Toast Alert Popups Container */}
       <div style={{
         position: 'fixed',
@@ -166,7 +166,7 @@ export default function AdminLayout({ children }) {
           }
         `}</style>
         {toasts.map(toast => (
-          <div 
+          <div
             key={toast.id}
             style={{
               pointerEvents: 'auto',
@@ -237,7 +237,7 @@ export default function AdminLayout({ children }) {
               Impersonating salesperson: <strong style={{ textDecoration: 'underline' }}>{profile?.name || 'No Name'}</strong> ({profile?.email}) &bull; <span style={{ opacity: 0.9 }}>Views and queries are restricted to their profile.</span>
             </span>
           </div>
-          <button 
+          <button
             onClick={stopImpersonating}
             style={{
               background: 'rgba(255, 255, 255, 0.12)',
@@ -280,8 +280,8 @@ export default function AdminLayout({ children }) {
 
       <div style={{ display: 'flex', flex: 1 }}>
         {/* Sidebar */}
-        <aside className={`admin-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`} style={{ 
-          width: isCollapsed ? '80px' : '260px', background: '#0a0a0a', borderRight: '1px solid rgba(255, 255, 255, 0.1)', 
+        <aside className={`admin-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`} style={{
+          width: isCollapsed ? '80px' : '260px', background: '#0a0a0a', borderRight: '1px solid rgba(255, 255, 255, 0.1)',
           display: 'flex', flexDirection: 'column', padding: isCollapsed ? '24px 12px' : '24px',
           transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
           position: 'relative'
@@ -292,11 +292,11 @@ export default function AdminLayout({ children }) {
                 Auto<span style={{ color: '#d1bbfb' }}>Flow</span> <span style={{ fontSize: '0.7rem', color: '#94A3B8', verticalAlign: 'middle', marginLeft: '4px' }}>ADMIN</span>
               </h2>
             )}
-            <button 
+            <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              style={{ 
-                background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94A3B8', 
-                cursor: 'pointer', padding: '8px', borderRadius: '8px', 
+              style={{
+                background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94A3B8',
+                cursor: 'pointer', padding: '8px', borderRadius: '8px',
                 display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}
             >
@@ -310,11 +310,11 @@ export default function AdminLayout({ children }) {
           <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', paddingRight: '4px' }}>
             {menu.map(item => (
               <div key={item.to}>
-                <Link 
+                <Link
                   to={item.to}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  style={{ 
-                    display: 'flex', alignItems: 'center', gap: isCollapsed ? '0' : '12px', padding: '12px', 
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: isCollapsed ? '0' : '12px', padding: '12px',
                     justifyContent: isCollapsed ? 'center' : 'flex-start',
                     borderRadius: '12px', textDecoration: 'none', color: location.pathname.startsWith(item.to) ? 'white' : '#94A3B8',
                     background: location.pathname.startsWith(item.to) ? 'rgba(209, 187, 251, 0.1)' : 'transparent',
@@ -329,10 +329,10 @@ export default function AdminLayout({ children }) {
                 {!isCollapsed && item.children && location.pathname.startsWith(item.to) && (
                   <div style={{ marginLeft: '42px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '4px', borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
                     {item.children.map(child => (
-                      <Link 
+                      <Link
                         key={child.to} to={child.to}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        style={{ 
+                        style={{
                           padding: '8px 12px', color: location.pathname === child.to ? 'white' : '#64748B',
                           fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none', borderRadius: '8px',
                           background: location.pathname === child.to ? 'rgba(255,255,255,0.03)' : 'transparent',
@@ -379,11 +379,11 @@ export default function AdminLayout({ children }) {
                 <p style={{ margin: 0, fontWeight: 700, fontSize: '0.85rem', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {profile?.name || profile?.email?.split('@')[0] || 'User'}
                 </p>
-                <p style={{ 
-                  margin: 0, 
-                  fontSize: '0.7rem', 
-                  fontWeight: 800, 
-                  textTransform: 'uppercase', 
+                <p style={{
+                  margin: 0,
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
                   color: profile?.role === 'admin' ? '#d1bbfb' : profile?.role === 'Napoleon' ? '#c084fc' : '#4ade80',
                   letterSpacing: '0.05em'
                 }}>
@@ -393,10 +393,10 @@ export default function AdminLayout({ children }) {
             </div>
           )}
 
-          <button 
+          <button
             onClick={handleLogout}
-            style={{ 
-              marginTop: 'auto', padding: '12px', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)', 
+            style={{
+              marginTop: 'auto', padding: '12px', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)',
               borderRadius: '12px', color: '#ef4444', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
             }}
@@ -491,7 +491,7 @@ export default function AdminLayout({ children }) {
 
               {/* Bell Dropdown Overlay */}
               {isNotifOpen && (
-                <div 
+                <div
                   onClick={(e) => e.stopPropagation()}
                   style={{
                     position: 'absolute',
@@ -511,7 +511,7 @@ export default function AdminLayout({ children }) {
                   <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'white', fontFamily: "'Space Grotesk', sans-serif" }}>Notifications</span>
                     {unreadCount > 0 && (
-                      <button 
+                      <button
                         onClick={markAllAsRead}
                         style={{ background: 'none', border: 'none', color: '#d1bbfb', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
                       >
@@ -526,7 +526,7 @@ export default function AdminLayout({ children }) {
                       </div>
                     ) : (
                       notifications.map(notif => (
-                        <div 
+                        <div
                           key={notif.id}
                           onClick={() => {
                             markAsRead(notif.id)
@@ -558,7 +558,7 @@ export default function AdminLayout({ children }) {
                               </span>
                               <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                                 <span style={{ fontSize: '0.7rem', color: '#64748B' }}>{timeAgo(notif.created_at)}</span>
-                                
+
                                 {/* Quick Mark As Read */}
                                 {!notif.is_read && (
                                   <button

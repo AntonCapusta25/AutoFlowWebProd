@@ -1211,7 +1211,7 @@ export default function Home({ lang = 'en' }) {
                   <div style={{
                     position: 'absolute',
                     inset: 0,
-                    background: `${card.tint}, linear-gradient(180deg, rgba(5,5,5,0.08) 0%, rgba(5,5,5,0.04) 22%, rgba(5,5,5,0.54) 72%, rgba(5,5,5,0.76) 100%)`,
+                    background: 'linear-gradient(180deg, rgba(5,5,5,0.08) 0%, rgba(5,5,5,0.04) 22%, rgba(5,5,5,0.54) 72%, rgba(5,5,5,0.76) 100%)',
                     zIndex: -1
                   }} />
                   <div style={{
