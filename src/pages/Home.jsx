@@ -1219,28 +1219,37 @@ export default function Home({ lang = 'en' }) {
                     flexDirection: 'column',
                     justifyContent: 'space-between',
                     gap: '32px',
-                    minHeight: '100%'
+                    flex: 1
                   }}>
-                    <div>
-                      <div className="service-stack-meta">
-                        <span className="service-stack-number">{String(idx + 1).padStart(2, '0')}</span>
-                        <span>{card.theme}</span>
-                      </div>
-                      <div style={{ maxWidth: '42rem', marginTop: 'auto', paddingTop: isMobileProcessLayout ? '120px' : '180px' }}>
-                        <h3 className="service-stack-title" style={{ maxWidth: '12ch', marginBottom: '14px' }}>{card.title}</h3>
-                        <p className="service-stack-desc" style={{ maxWidth: '46ch', color: 'rgba(241,245,249,0.9)' }}>{card.desc}</p>
-                        <div className="service-stack-badges">
-                          {card.badges.map(badge => (
-                            <span key={badge} className="service-stack-badge">{badge}</span>
-                          ))}
-                        </div>
-                      </div>
+                    <div className="service-stack-meta">
+                      <span className="service-stack-number">{String(idx + 1).padStart(2, '0')}</span>
+                      <span>{card.theme}</span>
                     </div>
-                    <div>
-                      <Link to={lang === 'nl' ? '/nl/contact' : '/contact'} className="service-stack-link">
+
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'flex-end',
+                      textAlign: 'center',
+                      gap: '24px',
+                      flex: 1,
+                      paddingBottom: '8px'
+                    }}>
+                      <div className="service-stack-badges" style={{ justifyContent: 'center', margin: 0 }}>
+                        {card.badges.map(badge => (
+                          <span key={badge} className="service-stack-badge">{badge}</span>
+                        ))}
+                      </div>
+
+                      <button
+                        onClick={() => window.dispatchEvent(new CustomEvent('open-booking'))}
+                        className="service-stack-link"
+                        style={{ alignSelf: 'center', border: 'none', cursor: 'pointer' }}
+                      >
                         {lang === 'nl' ? 'Plan dit met ons' : 'Plan this with us'}
-                        <span aria-hidden="true">→</span>
-                      </Link>
+                        <span aria-hidden="true" style={{ marginLeft: '6px' }}>→</span>
+                      </button>
                     </div>
                   </div>
                 </div>

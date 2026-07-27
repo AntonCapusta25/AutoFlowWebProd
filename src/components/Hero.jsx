@@ -221,6 +221,7 @@ export default function Hero({ lang = 'en' }) {
         @media (max-width: 768px) {
           .hero-section {
             min-height: 100vh !important;
+            max-height: none !important;
             padding-top: 120px !important;
             padding-bottom: 60px !important;
             display: flex !important;

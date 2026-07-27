@@ -115,7 +115,7 @@ export const translations = {
       next: 'Next →',
       ctaTitle: 'Ready to automate your business?',
       ctaSub: "Book a free audit and we'll identify your top automation opportunities.",
-      ctaBtn: 'Book Free Audit →',
+      ctaBtn: 'Book Free Audit',
     },
     contact: {
       badge: "Let's Talk",
@@ -328,7 +328,7 @@ export const translations = {
       next: 'Volgende →',
       ctaTitle: 'Klaar om je bedrijf te automatiseren?',
       ctaSub: 'Boek een gratis audit en we identificeren je beste automatiseringsmogelijkheden.',
-      ctaBtn: 'Boek Gratis Audit →',
+      ctaBtn: 'Boek Gratis Audit',
     },
     contact: {
       badge: 'Neem Contact Op',

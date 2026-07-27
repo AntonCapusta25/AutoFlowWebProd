@@ -3210,6 +3210,10 @@ nav.navbar::after {
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 1024px) {
+    .hero-section {
+        max-height: none !important;
+    }
+
     .hero-container-new {
         padding: 0 40px;
     }
