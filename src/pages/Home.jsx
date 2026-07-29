@@ -254,7 +254,8 @@ const FlowStyles = () => (
     .service-stack-card {
       position: sticky;
       top: 110px;
-      min-height: 540px;
+      width: 100%;
+      aspect-ratio: 16 / 9;
       border-radius: 36px;
       overflow: hidden;
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -351,6 +352,27 @@ const FlowStyles = () => (
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
     }
+    .service-stack-card-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      z-index: 0;
+      transition: transform 0.5s ease;
+    }
+    .service-stack-card-inner {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 42px 40px;
+      box-sizing: border-box;
+    }
     .service-stack-link {
       align-self: flex-start;
       display: inline-flex;
@@ -419,7 +441,20 @@ const FlowStyles = () => (
     @media (max-width: 960px) {
       .service-stack-card {
         top: 84px;
-        min-height: auto;
+        min-height: auto !important;
+        aspect-ratio: 1.5 !important;
+      }
+      .service-stack-card-inner {
+        padding: 24px 20px !important;
+        height: 100% !important;
+        min-height: 100% !important;
+      }
+      .service-stack-card-img {
+        object-fit: cover !important;
+        padding: 0 !important;
+      }
+      .service-stack-badges {
+        display: none !important;
       }
       .service-stack-inner {
         grid-template-columns: 1fr;
@@ -460,8 +495,420 @@ const FlowStyles = () => (
       }
       .card-wide { flex-direction: column !important; align-items: flex-start; }
     }
+    @media (max-width: 991px) {
+      .process-grid {
+        grid-template-columns: 1fr !important;
+        gap: 40px !important;
+        height: auto !important;
+        min-height: 0 !important;
+      }
+      .process-image-container {
+        display: none !important;
+      }
+      .process-grid > div:first-child > div:last-child {
+        height: auto !important;
+      }
+    }
   `}</style>
 )
+
+const ProcessSection = ({ lang }) => {
+  const t = getT(lang)
+  const [activeStep, setActiveStep] = useState(0)
+  const [processScrollProgress, setProcessScrollProgress] = useState(0)
+  const [isMobileProcessLayout, setIsMobileProcessLayout] = useState(false)
+  const processSectionRef = useRef(null)
+  const processFrameRef = useRef(0)
+  const processStepCount = t.timeline.steps.length
+  
+  const processImages = [
+    '/images/weve-been-there.jpg',
+    '/images/build-step.jpg',
+    '/images/built-for-long-run.jpg',
+    '/images/more-growth.jpg',
+  ]
+
+  useEffect(() => {
+    const onResize = () => {
+      setIsMobileProcessLayout(window.innerWidth <= 991)
+    }
+
+    onResize()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  useEffect(() => {
+    const section = processSectionRef.current
+    if (!section) return
+
+    const updateProcessScroll = () => {
+      const rect = section.getBoundingClientRect()
+      const totalScrollable = Math.max(section.offsetHeight - window.innerHeight, 1)
+      const progress = Math.min(Math.max(-rect.top / totalScrollable, 0), 1)
+      
+      let nextStep = 0
+      if (isMobileProcessLayout) {
+        // Mobile: find step closest to viewport center
+        const cards = section.querySelectorAll('.process-step-card-item')
+        const centerY = window.innerHeight / 2
+        let minDistance = Infinity
+        cards.forEach((cardEl, idx) => {
+          const cardRect = cardEl.getBoundingClientRect()
+          const cardCenter = cardRect.top + cardRect.height / 2
+          const dist = Math.abs(cardCenter - centerY)
+          if (dist < minDistance) {
+            minDistance = dist
+            nextStep = idx
+          }
+        })
+      } else {
+        // Desktop: based on sticky scroll progress
+        nextStep = Math.min(processStepCount - 1, Math.round(progress * (processStepCount - 1)))
+      }
+
+      setProcessScrollProgress(prev => (Math.abs(prev - progress) > 0.002 ? progress : prev))
+      setActiveStep(prev => (prev === nextStep ? prev : nextStep))
+    }
+
+    const onScroll = () => {
+      if (processFrameRef.current) return
+      processFrameRef.current = window.requestAnimationFrame(() => {
+        processFrameRef.current = 0
+        updateProcessScroll()
+      })
+    }
+
+    updateProcessScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', updateProcessScroll)
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', updateProcessScroll)
+      if (processFrameRef.current) {
+        window.cancelAnimationFrame(processFrameRef.current)
+        processFrameRef.current = 0
+      }
+    }
+  }, [isMobileProcessLayout, processStepCount])
+
+  return (
+    <div
+      ref={processSectionRef}
+      style={{
+        backgroundColor: '#050505',
+        padding: '1px 0',
+        position: 'relative',
+        minHeight: isMobileProcessLayout ? 'auto' : `${Math.max(processStepCount * 100, 240)}vh`
+      }}
+    >
+      <section className="process-section" id="how-it-works" style={{
+        position: isMobileProcessLayout ? 'relative' : 'sticky',
+        top: 0,
+        minHeight: isMobileProcessLayout ? 'auto' : '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        padding: isMobileProcessLayout ? '120px 24px' : '48px 24px',
+        backgroundColor: '#050505',
+        overflow: 'hidden'
+      }}>
+        {/* decorative glows */}
+        <div style={{ position: 'absolute', top: '20px', left: '-80px', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(209, 187, 251,0.1) 0%,transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'absolute', bottom: '40px', right: '-60px', width: '350px', height: '350px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(156,39,176,0.1) 0%,transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+
+        <div className="process-grid" style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '80px',
+          alignItems: 'center',
+          position: 'relative',
+          zIndex: 1
+        }}>
+
+          {/* Left: Steps */}
+          <div>
+            <p style={{
+              fontFamily: "'Space Grotesk', sans-serif", fontSize: '1rem', fontWeight: 700, letterSpacing: '0.2em',
+              color: '#d1bbfb', textTransform: 'uppercase', marginBottom: '20px'
+            }}>
+              {t.timeline.badge}
+            </p>
+            <h2 style={{
+              fontFamily: "'Inter', sans-serif", fontSize: 'clamp(2.5rem, 4vw, 3.5rem)',
+              fontWeight: 800, color: '#FFFFFF', marginBottom: '48px', letterSpacing: '-0.02em', lineHeight: 1.1
+            }}>
+              {t.timeline.title}
+            </h2>
+
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              height: isMobileProcessLayout ? 'auto' : '560px',
+              position: 'relative'
+            }}>
+              {t.timeline.steps.map((s, idx) => (
+                <motion.div
+                  key={idx}
+                  className="process-step-card-item"
+                  initial={false}
+                  animate={{
+                    opacity: idx <= activeStep ? 1 : 0.35,
+                    y: idx <= activeStep ? 0 : 28,
+                    scale: activeStep === idx ? 1 : 0.985,
+                    background: activeStep === idx 
+                      ? 'rgba(255, 255, 255, 0.08)' 
+                      : 'rgba(255, 255, 255, 0.01)',
+                    borderColor: 'rgba(255, 255, 255, 0.04)',
+                  }}
+                  transition={{ 
+                    duration: 0.4,
+                    ease: "easeInOut"
+                  }}
+                  onClick={() => {
+                    if (isMobileProcessLayout) setActiveStep(idx)
+                  }}
+                  whileHover={{ x: activeStep === idx ? 0 : 8 }}
+                  style={{
+                    padding: '24px 32px',
+                    borderRadius: '24px',
+                    cursor: 'pointer',
+                    border: '1px solid',
+                    position: 'relative',
+                    boxShadow: activeStep === idx ? '0 20px 40px rgba(0,0,0,0.3)' : 'none',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    minHeight: '126px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center'
+                  }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                      <span style={{
+                        fontFamily: "'Space Grotesk', sans-serif",
+                        fontSize: '1.25rem',
+                        fontWeight: 800,
+                        color: activeStep === idx ? '#d1bbfb' : '#334155'
+                      }}>
+                        {idx + 1}
+                      </span>
+                      <h3 style={{
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: '1.4rem',
+                        fontWeight: 700,
+                        margin: 0,
+                        color: activeStep === idx ? '#FFFFFF' : '#475569'
+                      }}>
+                        {s.title}
+                      </h3>
+                    </div>
+                  </div>
+
+                  <motion.div
+                    initial={false}
+                    animate={{
+                      opacity: activeStep === idx ? 1 : idx < activeStep ? 0.45 : 0,
+                      y: activeStep === idx ? 0 : idx < activeStep ? -4 : 10
+                    }}
+                    transition={{ duration: 0.35, ease: 'easeOut' }}
+                    style={{
+                      overflow: 'hidden',
+                      minHeight: '52px',
+                      marginTop: 16,
+                      pointerEvents: 'none'
+                    }}
+                  >
+                    <p style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      color: '#94A3B8',
+                      fontSize: '1.05rem',
+                      lineHeight: 1.6,
+                      margin: 0
+                    }}>
+                      {s.desc}
+                    </p>
+                  </motion.div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: Dynamic Image */}
+          <div className="process-image-container" style={{
+            position: 'relative',
+            height: '640px'
+          }}>
+            {/* Offset Glassmorphism Card in Background */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: '24px -24px -24px 24px',
+                borderRadius: '48px',
+                background: 'rgba(255, 255, 255, 0.03)',
+                backdropFilter: 'blur(40px)',
+                WebkitBackdropFilter: 'blur(40px)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                boxShadow: '0 40px 80px rgba(0,0,0,0.4)',
+                zIndex: 0
+              }}
+            />
+
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                borderRadius: '48px',
+                overflow: 'hidden',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                boxShadow: '0 50px 100px -30px rgba(0,0,0,0.8)',
+                zIndex: 2,
+                background: '#0a0a0a',
+                willChange: 'transform, opacity'
+              }}
+            >
+              {processImages.map((src, idx) => (
+                <motion.img
+                  key={src}
+                  src={src}
+                  alt=""
+                  initial={false}
+                  animate={{
+                    opacity: activeStep === idx ? 1 : 0,
+                    scale: activeStep === idx ? 1 : 1.045
+                  }}
+                  transition={{ duration: 0.5, ease: 'easeInOut' }}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+              ))}
+              <motion.div
+                initial={false}
+                animate={{ y: `${processScrollProgress * -24}px` }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0) 30%, rgba(5,5,5,0.18) 100%)',
+                  pointerEvents: 'none',
+                  zIndex: 3
+                }}
+              />
+              <div style={{
+                position: 'absolute',
+                left: '32px',
+                right: '32px',
+                top: '32px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                zIndex: 4
+              }}>
+                <div style={{
+                  background: 'rgba(5, 5, 5, 0.65)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: '999px',
+                  padding: '10px 22px',
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: '0.88rem',
+                  fontWeight: 700,
+                  color: '#FFFFFF'
+                }}>
+                  Step {activeStep + 1} / {processStepCount}
+                </div>
+                <div style={{
+                  background: 'rgba(5, 5, 5, 0.65)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: '999px',
+                  padding: '10px 22px',
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: '0.88rem',
+                  fontWeight: 600,
+                  color: '#CBD5E1'
+                }}>
+                  {t.timeline.badge}
+                </div>
+              </div>
+
+              <div style={{
+                position: 'absolute',
+                left: '32px',
+                right: '32px',
+                bottom: '44px',
+                background: 'rgba(5, 5, 5, 0.65)',
+                backdropFilter: 'blur(30px)',
+                WebkitBackdropFilter: 'blur(30px)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '32px',
+                padding: '24px 32px',
+                zIndex: 4,
+                textAlign: 'left'
+              }}>
+                <p style={{
+                  margin: 0,
+                  color: '#FFFFFF',
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: '1.45rem',
+                  fontWeight: 800,
+                  letterSpacing: '-0.03em'
+                }}>
+                  {t.timeline.steps[activeStep].title}
+                </p>
+                <div style={{
+                  margin: '12px 0 0',
+                  color: 'rgba(226,232,240,0.88)',
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: '0.98rem',
+                  lineHeight: 1.7,
+                  maxWidth: '44ch'
+                }}>
+                  {t.timeline.steps[activeStep].desc}
+                </div>
+              </div>
+              {!isMobileProcessLayout && (
+                <div style={{
+                  position: 'absolute',
+                  left: '32px',
+                  right: '32px',
+                  bottom: '28px',
+                  height: '4px',
+                  borderRadius: '999px',
+                  background: 'rgba(255,255,255,0.12)',
+                  overflow: 'hidden',
+                  zIndex: 3
+                }}>
+                  <motion.div
+                    initial={false}
+                    animate={{ width: `${Math.max(processScrollProgress, 1 / (processStepCount * 4)) * 100}%` }}
+                    transition={{ duration: 0.25, ease: 'easeOut' }}
+                    style={{
+                      height: '100%',
+                      borderRadius: '999px',
+                      background: 'linear-gradient(90deg, #d1bbfb, #ffffff)'
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </div>
+  )
+}
 
 import FAQ from '../components/FAQ'
 
@@ -469,11 +916,7 @@ export default function Home({ lang = 'en' }) {
   const t = getT(lang)
   const trackRef = useRef(null)
   const timerRef = useRef(null)
-  const processSectionRef = useRef(null)
-  const processFrameRef = useRef(0)
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [isMobileProcessLayout, setIsMobileProcessLayout] = useState(false)
-  const [processScrollProgress, setProcessScrollProgress] = useState(0)
 
   useEffect(() => {
     document.title = 'AutoFlow Studio - Automate the Work You Hate'
@@ -560,8 +1003,6 @@ export default function Home({ lang = 'en' }) {
     return () => clearTimeout(timeout)
   }, [buildCharIdx, buildDeleting, buildWordIdx, buildWords])
 
-  const [activeStep, setActiveStep] = useState(0)
-  const processStepCount = t.timeline.steps.length
   const startupStackCards = [
     {
       ...t.startupDreams.cards[0],
@@ -600,64 +1041,6 @@ export default function Home({ lang = 'en' }) {
         : ['stable foundation', 'grows with you', 'long-term fit'],
     },
   ]
-  const processImages = [
-    '/images/weve-been-there.jpg',
-    '/images/build-step.jpg',
-    '/images/built-for-long-run.jpg',
-    '/images/more-growth.jpg',
-  ]
-
-  useEffect(() => {
-    const onResize = () => {
-      setIsMobileProcessLayout(window.innerWidth <= 991)
-    }
-
-    onResize()
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [])
-
-  useEffect(() => {
-    const section = processSectionRef.current
-    if (!section) return
-
-    if (isMobileProcessLayout) {
-      setActiveStep(0)
-      setProcessScrollProgress(0)
-      return
-    }
-
-    const updateProcessScroll = () => {
-      const rect = section.getBoundingClientRect()
-      const totalScrollable = Math.max(section.offsetHeight - window.innerHeight, 1)
-      const progress = Math.min(Math.max(-rect.top / totalScrollable, 0), 1)
-      const nextStep = Math.min(processStepCount - 1, Math.round(progress * (processStepCount - 1)))
-
-      setProcessScrollProgress(prev => (Math.abs(prev - progress) > 0.002 ? progress : prev))
-      setActiveStep(prev => (prev === nextStep ? prev : nextStep))
-    }
-
-    const onScroll = () => {
-      if (processFrameRef.current) return
-      processFrameRef.current = window.requestAnimationFrame(() => {
-        processFrameRef.current = 0
-        updateProcessScroll()
-      })
-    }
-
-    updateProcessScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', updateProcessScroll)
-
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', updateProcessScroll)
-      if (processFrameRef.current) {
-        window.cancelAnimationFrame(processFrameRef.current)
-        processFrameRef.current = 0
-      }
-    }
-  }, [isMobileProcessLayout, processStepCount])
 
   useEffect(() => {
     timerRef.current = setInterval(() => {
@@ -829,321 +1212,8 @@ export default function Home({ lang = 'en' }) {
         </div>
       </section>
 
-      {/* ── Process Wrapper ── */}
-      <div
-        ref={processSectionRef}
-        style={{
-          backgroundColor: '#050505',
-          padding: '1px 0',
-          position: 'relative',
-          minHeight: isMobileProcessLayout ? 'auto' : `${Math.max(processStepCount * 100, 240)}vh`
-        }}
-      >
-        <section className="process-section" id="how-it-works" style={{
-          position: isMobileProcessLayout ? 'relative' : 'sticky',
-          top: 0,
-          minHeight: isMobileProcessLayout ? 'auto' : '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          padding: isMobileProcessLayout ? '120px 24px' : '48px 24px',
-          backgroundColor: '#050505',
-          overflow: 'hidden'
-        }}>
-          {/* decorative glows */}
-          <div style={{ position: 'absolute', top: '20px', left: '-80px', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(209, 187, 251,0.1) 0%,transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
-          <div style={{ position: 'absolute', bottom: '40px', right: '-60px', width: '350px', height: '350px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(156,39,176,0.1) 0%,transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
-
-          <div className="process-grid" style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '80px',
-            alignItems: 'center',
-            position: 'relative',
-            zIndex: 1
-          }}>
-
-            {/* Left: Steps */}
-            <div>
-              <p style={{
-                fontFamily: "'Space Grotesk', sans-serif", fontSize: '1rem', fontWeight: 700, letterSpacing: '0.2em',
-                color: '#d1bbfb', textTransform: 'uppercase', marginBottom: '20px'
-              }}>
-                {t.timeline.badge}
-              </p>
-              <h2 style={{
-                fontFamily: "'Inter', sans-serif", fontSize: 'clamp(2.5rem, 4vw, 3.5rem)',
-                fontWeight: 800, color: '#FFFFFF', marginBottom: '48px', letterSpacing: '-0.02em', lineHeight: 1.1
-              }}>
-                {t.timeline.title}
-              </h2>
-
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-                height: isMobileProcessLayout ? 'auto' : '560px',
-                position: 'relative'
-              }}>
-                {t.timeline.steps.map((s, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={false}
-                    animate={{
-                      opacity: isMobileProcessLayout || idx <= activeStep ? 1 : 0.35,
-                      y: isMobileProcessLayout || idx <= activeStep ? 0 : 28,
-                      scale: activeStep === idx ? 1 : 0.985,
-                      background: activeStep === idx 
-                        ? 'rgba(255, 255, 255, 0.08)' 
-                        : 'rgba(255, 255, 255, 0.01)',
-                      borderColor: activeStep === idx 
-                        ? 'rgba(209, 187, 251, 0.4)' 
-                        : 'rgba(255, 255, 255, 0.04)',
-                    }}
-                    transition={{ 
-                      duration: 0.6,
-                      ease: "easeOut"
-                    }}
-                    onClick={() => {
-                      if (isMobileProcessLayout) setActiveStep(idx)
-                    }}
-                    whileHover={{ x: activeStep === idx ? 0 : 8 }}
-                    style={{
-                      padding: '24px 32px',
-                      borderRadius: '24px',
-                      cursor: 'pointer',
-                      border: '1px solid',
-                      position: 'relative',
-                      boxShadow: activeStep === idx ? '0 20px 40px rgba(0,0,0,0.3)' : 'none',
-                      backdropFilter: 'blur(12px)',
-                      WebkitBackdropFilter: 'blur(12px)',
-                      minHeight: '126px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center'
-                    }}>
-                    {activeStep === idx && (
-                      <motion.div
-                        layoutId="active-step-bar"
-                        style={{
-                          position: 'absolute',
-                          left: 0,
-                          top: '20%',
-                          bottom: '20%',
-                          width: '4px',
-                          background: '#d1bbfb',
-                          borderRadius: '0 4px 4px 0',
-                          boxShadow: '0 0 15px rgba(209, 187, 251, 0.5)'
-                        }}
-                      />
-                    )}
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                        <span style={{
-                          fontFamily: "'Space Grotesk', sans-serif",
-                          fontSize: '1.25rem',
-                          fontWeight: 800,
-                          color: activeStep === idx ? '#d1bbfb' : '#334155'
-                        }}>
-                          {idx + 1}
-                        </span>
-                        <h3 style={{
-                          fontFamily: "'Inter', sans-serif",
-                          fontSize: '1.4rem',
-                          fontWeight: 700,
-                          margin: 0,
-                          color: activeStep === idx ? '#FFFFFF' : '#475569'
-                        }}>
-                          {s.title}
-                        </h3>
-                      </div>
-                    </div>
-
-                    <motion.div
-                      initial={false}
-                      animate={{
-                        opacity: activeStep === idx ? 1 : idx < activeStep ? 0.45 : 0,
-                        y: activeStep === idx ? 0 : idx < activeStep ? -4 : 10
-                      }}
-                      transition={{ duration: 0.35, ease: 'easeOut' }}
-                      style={{
-                        overflow: 'hidden',
-                        minHeight: '52px',
-                        marginTop: 16,
-                        pointerEvents: 'none'
-                      }}
-                    >
-                      <p style={{
-                        fontFamily: "'Space Grotesk', sans-serif",
-                        color: '#94A3B8',
-                        fontSize: '1.05rem',
-                        lineHeight: 1.6,
-                        margin: 0
-                      }}>
-                        {s.desc}
-                      </p>
-                    </motion.div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            {/* Right: Dynamic Image */}
-            <div className="process-image-container" style={{
-              position: 'relative',
-              height: '640px'
-            }}>
-              {/* Offset Glassmorphism Card in Background */}
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: '24px -24px -24px 24px',
-                  borderRadius: '48px',
-                  background: 'rgba(255, 255, 255, 0.03)',
-                  backdropFilter: 'blur(40px)',
-                  WebkitBackdropFilter: 'blur(40px)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  boxShadow: '0 40px 80px rgba(0,0,0,0.4)',
-                  zIndex: 0
-                }}
-              />
-
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  borderRadius: '48px',
-                  overflow: 'hidden',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  boxShadow: '0 50px 100px -30px rgba(0,0,0,0.8)',
-                  zIndex: 2,
-                  background: '#0a0a0a',
-                  willChange: 'transform, opacity'
-                }}
-              >
-                {processImages.map((src, idx) => (
-                  <motion.img
-                    key={src}
-                    src={src}
-                    alt=""
-                    initial={false}
-                    animate={{
-                      opacity: activeStep === idx ? 1 : 0,
-                      scale: activeStep === idx ? 1 : 1.045,
-                      filter: activeStep === idx ? 'blur(0px)' : 'blur(6px)'
-                    }}
-                    transition={{ duration: 0.7, ease: 'easeOut' }}
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover'
-                    }}
-                  />
-                ))}
-                <motion.div
-                  initial={false}
-                  animate={{ y: `${processScrollProgress * -24}px` }}
-                  transition={{ duration: 0.35, ease: 'easeOut' }}
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0) 30%, rgba(5,5,5,0.18) 100%)',
-                    pointerEvents: 'none'
-                  }}
-                />
-                <div style={{
-                  position: 'absolute',
-                  left: '28px',
-                  top: '28px',
-                  zIndex: 3,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '12px 16px',
-                  borderRadius: '999px',
-                  background: 'rgba(8, 10, 14, 0.48)',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)'
-                }}>
-                  <span style={{
-                    width: '10px',
-                    height: '10px',
-                    borderRadius: '50%',
-                    background: '#d1bbfb',
-                    boxShadow: '0 0 18px rgba(209, 187, 251, 0.7)'
-                  }} />
-                  <span style={{
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: '0.76rem',
-                    letterSpacing: '0.16em',
-                    textTransform: 'uppercase',
-                    color: 'rgba(255,255,255,0.82)'
-                  }}>
-                    Step {activeStep + 1} / {processStepCount}
-                  </span>
-                </div>
-                <div style={{
-                  position: 'absolute',
-                  left: '28px',
-                  right: '28px',
-                  bottom: '92px',
-                  zIndex: 3
-                }}>
-                  <p style={{
-                    margin: 0,
-                    color: '#FFFFFF',
-                    fontFamily: "'Space Grotesk', sans-serif",
-                    fontSize: '2rem',
-                    fontWeight: 700,
-                    letterSpacing: '-0.03em'
-                  }}>
-                    {t.timeline.steps[activeStep].title}
-                  </p>
-                  <div style={{
-                    margin: '12px 0 0',
-                    color: 'rgba(226,232,240,0.88)',
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: '0.98rem',
-                    lineHeight: 1.7,
-                    maxWidth: '44ch'
-                  }}>
-                    {t.timeline.steps[activeStep].desc}
-                  </div>
-                </div>
-                {!isMobileProcessLayout && (
-                  <div style={{
-                    position: 'absolute',
-                    left: '32px',
-                    right: '32px',
-                    bottom: '28px',
-                    height: '4px',
-                    borderRadius: '999px',
-                    background: 'rgba(255,255,255,0.12)',
-                    overflow: 'hidden',
-                    zIndex: 3
-                  }}>
-                    <motion.div
-                      initial={false}
-                      animate={{ width: `${Math.max(processScrollProgress, 1 / (processStepCount * 4)) * 100}%` }}
-                      transition={{ duration: 0.25, ease: 'easeOut' }}
-                      style={{
-                        height: '100%',
-                        borderRadius: '999px',
-                        background: 'linear-gradient(90deg, #d1bbfb, #ffffff)'
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-
-          </div>
-        </section>
-      </div>
+      {/* ── Process Section ── */}
+      <ProcessSection lang={lang} />
 
       {/* ── Startup Dreams Section ── */}
       <section style={{ backgroundColor: '#050505', padding: '120px 24px', position: 'relative' }}>
@@ -1189,25 +1259,9 @@ export default function Home({ lang = 'en' }) {
                 <img
                   src={card.image}
                   alt={card.title}
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    objectPosition: 'center',
-                    zIndex: 0
-                  }}
+                  className="service-stack-card-img"
                 />
-                <div style={{
-                  position: 'relative',
-                  zIndex: 2,
-                  minHeight: '540px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  padding: isMobileProcessLayout ? '28px 22px' : '42px 40px',
-                }}>
+                <div className="service-stack-card-inner">
                   <div style={{
                     position: 'absolute',
                     inset: 0,
@@ -1247,7 +1301,7 @@ export default function Home({ lang = 'en' }) {
                         className="service-stack-link"
                         style={{ alignSelf: 'center', border: 'none', cursor: 'pointer' }}
                       >
-                        {lang === 'nl' ? 'Plan dit met ons' : 'Plan this with us'}
+                        {lang === 'nl' ? 'Plan nu een gesprek' : 'Book a call now'}
                         <span aria-hidden="true" style={{ marginLeft: '6px' }}>→</span>
                       </button>
                     </div>
@@ -1258,38 +1312,7 @@ export default function Home({ lang = 'en' }) {
           </div>
         </div>
 
-        {/* Premium Bottom Banner */}
-        <div style={{ marginTop: '50px', width: '100%', display: 'flex', justifyContent: 'center' }}>
-          <Link to={lang === 'nl' ? '/nl/contact' : '/contact'} style={{ textDecoration: 'none', width: '100%', maxWidth: '1200px' }}>
-            <div style={{
-              width: '100%', borderRadius: '32px', overflow: 'hidden', position: 'relative',
-              minHeight: '240px', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '60px 80px',
-              background: `url('/images/${t.startupDreams.banner.img}') center center / cover no-repeat`,
-              backgroundColor: '#050505',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              boxShadow: 'inset 0 0 100px rgba(0,0,0,0.6), 0 40px 80px rgba(0,0,0,0.8)',
-              transition: 'transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
-              cursor: 'pointer'
-            }}
-              onMouseOver={e => { e.currentTarget.style.transform = 'scale(1.01)'; e.currentTarget.style.borderColor = 'rgba(209, 187, 251,0.4)'; e.currentTarget.style.boxShadow = 'inset 0 0 100px rgba(0,0,0,0.4), 0 50px 100px rgba(0,0,0,0.9)'; }}
-              onMouseOut={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.boxShadow = 'inset 0 0 100px rgba(0,0,0,0.6), 0 40px 80px rgba(0,0,0,0.8)'; }}>
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.4) 40%, rgba(5,5,5,0) 100%)' }} />
-              <div style={{ position: 'relative', zIndex: 1, maxWidth: '400px', textAlign: 'left' }}>
-                <h3 style={{
-                  fontFamily: "'Space Grotesk', 'Inter', sans-serif", fontSize: '2.4rem', fontWeight: 800, color: '#F8FAFC',
-                  marginBottom: '12px', letterSpacing: '-0.02em', lineHeight: 1.1
-                }}>
-                  {t.startupDreams.banner.title}
-                </h3>
-                <p style={{
-                  fontFamily: "'Inter', sans-serif", fontSize: '1.2rem', color: '#CBD5E1', lineHeight: 1.5, opacity: 0.9
-                }}>
-                  {t.startupDreams.banner.sub}
-                </p>
-              </div>
-            </div>
-          </Link>
-        </div>
+
       </section>
 
       {/* ── Case Studies Carousel (Hidden for now) ── */}
@@ -1373,18 +1396,17 @@ export default function Home({ lang = 'en' }) {
       )}
 
       {/* ── Testimonials ── */}
+      {/*
       <section style={{
         backgroundColor: '#050505',
         padding: '100px 24px',
         position: 'relative',
         overflow: 'hidden',
       }}>
-        {/* decorative glows */}
         <div style={{ position: 'absolute', top: '20px', left: '-80px', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(209, 187, 251,0.12) 0%,transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: '-60px', right: '-60px', width: '350px', height: '350px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(156,39,176,0.12) 0%,transparent 70%)', pointerEvents: 'none' }} />
 
         <div style={{ width: '100%', position: 'relative', zIndex: 1, overflow: 'hidden' }}>
-          {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '80px', padding: '0 24px' }}>
             <h2 style={{ fontFamily: "'Space Grotesk', 'Inter', sans-serif", color: '#F8FAFC', fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 900, lineHeight: 1.1, margin: '0 0 16px', letterSpacing: '-0.03em' }}>
               {t.testimonials.title}<br />
@@ -1401,10 +1423,8 @@ export default function Home({ lang = 'en' }) {
             </h2>
           </div>
 
-          {/* Scrolling Rows Container */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-            {/* Top Row: Scrolls Left */}
             <div style={{ overflow: 'hidden', padding: '10px 0' }}>
               <motion.div
                 animate={{ x: [0, -7040] }}
@@ -1469,7 +1489,6 @@ export default function Home({ lang = 'en' }) {
               </motion.div>
             </div>
 
-            {/* Bottom Row: Scrolls Right */}
             <div style={{ overflow: 'hidden', padding: '10px 0' }}>
               <motion.div
                 animate={{ x: [-7040, 0] }}
