@@ -9,13 +9,32 @@ export default function AdminCalendar() {
   const [activeTab, setActiveTab] = useState('scheduler')
   const [followupsCalendarId, setFollowupsCalendarId] = useState('')
   const [loadingCalendar, setLoadingCalendar] = useState(false)
+  const [teamMembers, setTeamMembers] = useState([])
   const shortLink = 'https://calendar.app.google/BVJPx8LMquzT35pE9'
+
+  useEffect(() => {
+    fetchTeamMembers()
+  }, [])
 
   useEffect(() => {
     if (activeTab === 'followups' && !followupsCalendarId) {
       fetchFollowupsCalendarId()
     }
   }, [activeTab])
+
+  const fetchTeamMembers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('name', { ascending: true })
+      if (!error && data) {
+        setTeamMembers(data)
+      }
+    } catch (err) {
+      console.error('[Calendar] Error fetching team profiles:', err)
+    }
+  }
 
   const fetchFollowupsCalendarId = async () => {
     setLoadingCalendar(true)
@@ -40,15 +59,36 @@ export default function AdminCalendar() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const GCAL_COLORS = ['1','2','3','4','5','6','7','8','9','10','11']
+  const COLOR_MAP = {
+    '1': { name: 'Lavender', hex: '#818cf8', bg: 'rgba(129, 140, 248, 0.15)' },
+    '2': { name: 'Sage', hex: '#34d399', bg: 'rgba(52, 211, 153, 0.15)' },
+    '3': { name: 'Grape', hex: '#c084fc', bg: 'rgba(192, 132, 252, 0.15)' },
+    '4': { name: 'Tomato', hex: '#f87171', bg: 'rgba(248, 113, 113, 0.15)' },
+    '5': { name: 'Banana', hex: '#fbbf24', bg: 'rgba(251, 191, 36, 0.15)' },
+    '6': { name: 'Tangerine', hex: '#fb923c', bg: 'rgba(251, 146, 60, 0.15)' },
+    '7': { name: 'Peacock', hex: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)' },
+    '8': { name: 'Graphite', hex: '#94a3b8', bg: 'rgba(148, 163, 184, 0.15)' },
+    '9': { name: 'Blueberry', hex: '#60a5fa', bg: 'rgba(96, 165, 250, 0.15)' },
+    '10': { name: 'Basil', hex: '#4ade80', bg: 'rgba(74, 222, 128, 0.15)' },
+    '11': { name: 'Flamingo', hex: '#f472b6', bg: 'rgba(244, 114, 182, 0.15)' }
+  }
+
+  const getGoogleCalendarColor = (name) => {
+    const norm = (name || '').trim().toLowerCase()
+    if (!norm) return COLOR_MAP['9']
+    let hash = 0
+    for (let i = 0; i < norm.length; i++) {
+      hash = ((hash << 5) - hash) + norm.charCodeAt(i)
+      hash |= 0 // Convert to 32-bit integer
+    }
+    const colorId = GCAL_COLORS[Math.abs(hash) % GCAL_COLORS.length]
+    return COLOR_MAP[colorId]
+  }
+
   const getAdminColorBadge = (name) => {
-    const norm = (name || '').toLowerCase()
-    if (norm.includes('justin')) {
-      return { label: 'Lavender / Blue', color: '#818cf8', bg: 'rgba(129, 140, 248, 0.15)' }
-    }
-    if (norm.includes('mzi')) {
-      return { label: 'Tomato / Red', color: '#f87171', bg: 'rgba(248, 113, 113, 0.15)' }
-    }
-    return { label: 'Lavender / Blue (Default)', color: '#818cf8', bg: 'rgba(129, 140, 248, 0.15)' }
+    const colorObj = getGoogleCalendarColor(name)
+    return { label: `${colorObj.name} (Your Color)`, color: colorObj.hex, bg: colorObj.bg }
   }
 
   const badge = getAdminColorBadge(profile?.name || profile?.email)
@@ -269,14 +309,19 @@ export default function AdminCalendar() {
             <p style={{ margin: '0 0 20px', color: '#94A3B8', fontSize: '0.85rem', lineHeight: '1.5' }}>Events are color-coded in the primary calendar based on the agent booking them:</p>
             
             <div style={{ display: 'grid', gap: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '16px' }}>
-                <span style={{ color: 'white', fontWeight: 600, fontSize: '0.85rem' }}>Justin</span>
-                <span style={{ color: '#818cf8', background: 'rgba(129, 140, 248, 0.15)', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800 }}>Lavender</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '16px' }}>
-                <span style={{ color: 'white', fontWeight: 600, fontSize: '0.85rem' }}>Mzi</span>
-                <span style={{ color: '#f87171', background: 'rgba(248, 113, 113, 0.15)', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800 }}>Tomato</span>
-              </div>
+              {teamMembers.map(member => {
+                const name = member.name || member.email?.split('@')[0] || 'Team Member'
+                const colorObj = getGoogleCalendarColor(name)
+                return (
+                  <div key={member.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '16px' }}>
+                    <span style={{ color: 'white', fontWeight: 600, fontSize: '0.85rem' }}>{name}</span>
+                    <span style={{ color: colorObj.hex, background: colorObj.bg, padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800 }}>{colorObj.name}</span>
+                  </div>
+                )
+              })}
+              {teamMembers.length === 0 && (
+                <p style={{ color: '#64748B', fontSize: '0.8rem', textAlign: 'center', margin: 0 }}>No team members loaded.</p>
+              )}
             </div>
           </div>
 
