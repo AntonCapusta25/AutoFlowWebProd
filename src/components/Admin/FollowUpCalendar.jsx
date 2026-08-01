@@ -55,6 +55,19 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
     fetchReminders()
   }, [assigneeFilter, isAdmin, user?.id])
 
+  // Auto-sync Google Calendar on mount (throttled to once every 2 minutes)
+  useEffect(() => {
+    if (!user?.id) return
+
+    const now = Date.now()
+    const lastSyncStr = sessionStorage.getItem('last_followup_sync_time')
+    const lastSync = lastSyncStr ? parseInt(lastSyncStr, 10) : 0
+
+    if (now - lastSync > 120000) {
+      syncGoogleCalendar(true)
+    }
+  }, [user?.id])
+
   useEffect(() => {
     setLoggingCall(false)
     setCallNote('')
@@ -237,7 +250,7 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
     }
   }
 
-  async function syncGoogleCalendar() {
+  async function syncGoogleCalendar(isSilent = false) {
     if (syncingCalendar) return
     setSyncingCalendar(true)
 
@@ -247,7 +260,7 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
       })
 
       if (funcError || !funcData?.success) {
-        alert('Failed to fetch events from Google Calendar: ' + (funcError?.message || 'Unknown error'))
+        if (!isSilent) alert('Failed to fetch events from Google Calendar: ' + (funcError?.message || 'Unknown error'))
         setSyncingCalendar(false)
         return
       }
@@ -370,10 +383,15 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
 
       // 4. Refetch reminders
       await fetchReminders()
-      alert(`Synchronization complete!\n- Uploaded to Google Calendar: ${addedToGoogleCount}\n- Added to CRM: ${addedCount}\n- Rescheduled/Updated: ${updatedCount}\n- Deleted/Completed: ${deletedCount}`)
+      sessionStorage.setItem('last_followup_sync_time', Date.now().toString())
+      if (!isSilent) {
+        alert(`Synchronization complete!\n- Uploaded to Google Calendar: ${addedToGoogleCount}\n- Added to CRM: ${addedCount}\n- Rescheduled/Updated: ${updatedCount}\n- Deleted/Completed: ${deletedCount}`)
+      }
     } catch (err) {
       console.error('[Calendar Sync] Error during synchronization:', err)
-      alert('An error occurred during synchronization. Please try again.')
+      if (!isSilent) {
+        alert('An error occurred during synchronization. Please try again.')
+      }
     } finally {
       setSyncingCalendar(false)
     }
