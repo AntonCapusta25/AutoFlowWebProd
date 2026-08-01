@@ -110,6 +110,18 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
     if (!confirm('Remove this follow-up from your calendar?')) return
     const { error } = await supabase.from('reminders').delete().eq('id', r.id)
     if (!error) {
+      if (r.google_event_id) {
+        try {
+          await supabase.functions.invoke('send-email', {
+            body: {
+              type: 'delete_followup',
+              eventId: r.google_event_id
+            }
+          })
+        } catch (err) {
+          console.error('[Google Calendar] Failed to delete event:', err)
+        }
+      }
       setReminders(prev => prev.filter(x => x.id !== r.id))
       setDetailReminder(null)
     }
@@ -131,6 +143,19 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
       .update({ scheduled_at: newDate.toISOString(), sent: false, completed: false, updated_at: new Date().toISOString() })
       .eq('id', detailReminder.id)
     if (!error) {
+      if (detailReminder.google_event_id) {
+        try {
+          await supabase.functions.invoke('send-email', {
+            body: {
+              type: 'update_followup',
+              eventId: detailReminder.google_event_id,
+              scheduledAt: newDate.toISOString()
+            }
+          })
+        } catch (err) {
+          console.error('[Google Calendar] Failed to update event:', err)
+        }
+      }
       setReminders(prev => prev.map(x => x.id === detailReminder.id ? { ...x, scheduled_at: newDate.toISOString(), sent: false, completed: false } : x))
       setDetailReminder(prev => ({ ...prev, scheduled_at: newDate.toISOString(), sent: false, completed: false }))
       setRescheduling(false)

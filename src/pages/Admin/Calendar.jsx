@@ -1,11 +1,38 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import AdminLayout from '../../components/Admin/AdminLayout'
 import { useAdmin } from '../../components/Admin/AdminContext'
+import { supabase } from '../../lib/supabase'
 
 export default function AdminCalendar() {
   const { profile } = useAdmin()
   const [copied, setCopied] = useState(false)
+  const [activeTab, setActiveTab] = useState('scheduler')
+  const [followupsCalendarId, setFollowupsCalendarId] = useState('')
+  const [loadingCalendar, setLoadingCalendar] = useState(false)
   const shortLink = 'https://calendar.app.google/BVJPx8LMquzT35pE9'
+
+  useEffect(() => {
+    if (activeTab === 'followups' && !followupsCalendarId) {
+      fetchFollowupsCalendarId()
+    }
+  }, [activeTab])
+
+  const fetchFollowupsCalendarId = async () => {
+    setLoadingCalendar(true)
+    try {
+      const { data, error } = await supabase.functions.invoke('send-email', {
+        body: { type: 'get_followups_calendar_id' }
+      })
+      if (!error && data?.calendarId) {
+        setFollowupsCalendarId(data.calendarId)
+      } else {
+        console.error('[Calendar] Error fetching follow-ups calendar ID:', error)
+      }
+    } catch (err) {
+      console.error('[Calendar] Exception fetching calendar ID:', err)
+    }
+    setLoadingCalendar(false)
+  }
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shortLink)
@@ -30,8 +57,8 @@ export default function AdminCalendar() {
     <AdminLayout>
       <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '20px' }}>
         <div>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 900, margin: '0 0 8px', letterSpacing: '-0.02em', fontFamily: "'Space Grotesk', sans-serif" }}>Shared Scheduling Hub</h1>
-          <p style={{ color: '#94A3B8', fontSize: '1.1rem', fontWeight: 500 }}>View team appointments and share your scheduling link with clients.</p>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 900, margin: '0 0 8px', letterSpacing: '-0.02em', fontFamily: "'Space Grotesk', sans-serif" }}>Calendar Hub</h1>
+          <p style={{ color: '#94A3B8', fontSize: '1.1rem', fontWeight: 500 }}>Manage client bookings and internal team follow-ups.</p>
         </div>
         
         {/* Quick share action */}
@@ -82,6 +109,42 @@ export default function AdminCalendar() {
         </div>
       </div>
 
+      {/* Sub-tabs Selector */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '28px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.06)', padding: '6px', borderRadius: '14px', width: 'fit-content' }}>
+        <button
+          onClick={() => setActiveTab('scheduler')}
+          style={{
+            background: activeTab === 'scheduler' ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+            border: activeTab === 'scheduler' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid transparent',
+            color: activeTab === 'scheduler' ? 'white' : '#64748B',
+            padding: '8px 16px',
+            borderRadius: '10px',
+            fontWeight: 700,
+            fontSize: '0.85rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+        >
+          📅 Client Booking Scheduler
+        </button>
+        <button
+          onClick={() => setActiveTab('followups')}
+          style={{
+            background: activeTab === 'followups' ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+            border: activeTab === 'followups' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid transparent',
+            color: activeTab === 'followups' ? 'white' : '#64748B',
+            padding: '8px 16px',
+            borderRadius: '10px',
+            fontWeight: 700,
+            fontSize: '0.85rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+        >
+          🔔 Team Follow-Ups Calendar
+        </button>
+      </div>
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '28px', alignItems: 'start' }}>
         
         {/* Calendar Frame */}
@@ -101,18 +164,41 @@ export default function AdminCalendar() {
             border: '1px solid rgba(255,255,255,0.05)',
             background: '#111'
           }}>
-            <iframe 
-              src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ1QPv4EeVy2duOD95DWsndpXHj5szlOnQob7iBc2pSm0hX00QceACDO3PhdsNGin5Kupdyfa1N-?gv=true" 
-              style={{ 
-                border: 0, 
-                width: '100%', 
-                height: '700px', 
-                display: 'block',
-                background: '#ffffff',
-                filter: 'invert(0.9) hue-rotate(180deg)'
-              }}
-              frameBorder="0"
-            ></iframe>
+            {activeTab === 'scheduler' ? (
+              <iframe 
+                src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ1QPv4EeVy2duOD95DWsndpXHj5szlOnQob7iBc2pSm0hX00QceACDO3PhdsNGin5Kupdyfa1N-?gv=true" 
+                style={{ 
+                  border: 0, 
+                  width: '100%', 
+                  height: '700px', 
+                  display: 'block',
+                  background: '#ffffff',
+                  filter: 'invert(0.9) hue-rotate(180deg)'
+                }}
+                frameBorder="0"
+              ></iframe>
+            ) : loadingCalendar ? (
+              <div style={{ height: '700px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', fontWeight: 600 }}>
+                Loading Follow-Ups Calendar...
+              </div>
+            ) : followupsCalendarId ? (
+              <iframe 
+                src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(followupsCalendarId)}&mode=WEEK&showPrint=0&showTabs=0&showCalendars=0&showTz=1`}
+                style={{ 
+                  border: 0, 
+                  width: '100%', 
+                  height: '700px', 
+                  display: 'block',
+                  background: '#ffffff',
+                  filter: 'invert(0.9) hue-rotate(180deg)'
+                }}
+                frameBorder="0"
+              ></iframe>
+            ) : (
+              <div style={{ height: '700px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f87171', fontWeight: 600, textAlign: 'center', padding: '0 24px' }}>
+                Failed to load Follow-Ups calendar.<br />Please ensure the edge function is deployed and access token is valid.
+              </div>
+            )}
           </div>
         </div>
 

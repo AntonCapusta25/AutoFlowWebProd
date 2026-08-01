@@ -1,5 +1,12 @@
 import { supabase } from './supabase'
 
+function getGoogleCalendarColorId(name) {
+  const norm = (name || '').toLowerCase()
+  if (norm.includes('justin')) return '1' // Lavender
+  if (norm.includes('mzi')) return '4' // Tomato
+  return '9' // Blueberry/Blue (default)
+}
+
 // Shared helper for writing a row into public.reminders (the table backing
 // the per-salesperson follow-up calendar). Used both when a note/call is
 // auto-parsed for a date ("call back tmrw") and when a follow-up is set
@@ -14,6 +21,32 @@ export async function scheduleFollowUp({ lead, leadType, scheduledAt, notesConte
 
   if (!salespersonEmail) return { error: new Error('Could not resolve salesperson email') }
 
+  let googleEventId = null
+  try {
+    const colorId = getGoogleCalendarColorId(salespersonName)
+    const { data, error: funcError } = await supabase.functions.invoke('send-email', {
+      body: {
+        type: 'create_followup',
+        leadName: lead.name || lead.email || 'Client',
+        leadEmail: lead.email || '',
+        leadType: leadType.toLowerCase() === 'booking' ? 'booking' : 'contact',
+        notesContent: notesContent || 'Follow up',
+        scheduledAt: scheduledAt.toISOString(),
+        salespersonName,
+        salespersonEmail,
+        colorId
+      }
+    })
+
+    if (!funcError && data?.eventId) {
+      googleEventId = data.eventId
+    } else if (funcError) {
+      console.error('[Google Calendar] Failed to create follow-up event:', funcError)
+    }
+  } catch (err) {
+    console.error('[Google Calendar] Exception during follow-up event creation:', err)
+  }
+
   return supabase.from('reminders').insert({
     lead_id: lead.id,
     lead_type: leadType.toLowerCase() === 'booking' ? 'booking' : 'contact',
@@ -25,6 +58,7 @@ export async function scheduleFollowUp({ lead, leadType, scheduledAt, notesConte
     scheduled_at: scheduledAt.toISOString(),
     source,
     lead_status_at_creation: lead.status || null,
+    google_event_id: googleEventId
   })
 }
 

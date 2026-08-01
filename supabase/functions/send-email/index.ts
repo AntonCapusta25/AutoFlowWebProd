@@ -89,6 +89,46 @@ function createRawMessage(to: string, subject: string, html: string) {
     .replace(/=+$/, '')
 }
 
+async function getOrCreateFollowUpsCalendar(accessToken: string): Promise<string> {
+  const listRes = await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList', {
+    headers: { 'Authorization': `Bearer ${accessToken}` }
+  })
+  
+  if (!listRes.ok) {
+    const errText = await listRes.text()
+    throw new Error(`Failed to list calendars: ${listRes.status} — ${errText}`)
+  }
+  
+  const listData = await listRes.json()
+  const calendars = listData.items || []
+  
+  const existing = calendars.find((cal: any) => cal.summary === 'AutoFlow Follow-Ups')
+  if (existing) {
+    return existing.id
+  }
+  
+  console.log('[Calendar] Creating secondary calendar "AutoFlow Follow-Ups"...')
+  const createRes = await fetch('https://www.googleapis.com/calendar/v3/calendars', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      summary: 'AutoFlow Follow-Ups',
+      description: 'Internal salesperson follow-up reminders scheduled via CRM.'
+    })
+  })
+  
+  if (!createRes.ok) {
+    const errText = await createRes.text()
+    throw new Error(`Failed to create calendar: ${createRes.status} — ${errText}`)
+  }
+  
+  const createData = await createRes.json()
+  return createData.id
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: CORS })
@@ -276,6 +316,152 @@ Deno.serve(async (req) => {
       }
 
       return new Response(JSON.stringify({ success: true, event }), {
+        headers: { 'Content-Type': 'application/json', ...CORS }
+      })
+    }
+
+    // ── Get Follow Ups Calendar ID (Google Calendar API) ────────────────────
+    if (type === 'get_followups_calendar_id') {
+      const accessToken = await getAccessToken()
+      const calendarId = await getOrCreateFollowUpsCalendar(accessToken)
+      return new Response(JSON.stringify({ success: true, calendarId }), {
+        headers: { 'Content-Type': 'application/json', ...CORS }
+      })
+    }
+
+    // ── Create Follow Up (Google Calendar API) ───────────────────────────────
+    if (type === 'create_followup') {
+      const { leadName, leadEmail, leadType, notesContent, scheduledAt, salespersonName, salespersonEmail, colorId } = body
+      if (!scheduledAt || !leadName) {
+        throw new Error('Missing required fields for create_followup: scheduledAt, leadName')
+      }
+
+      const accessToken = await getAccessToken()
+      const calendarId = await getOrCreateFollowUpsCalendar(accessToken)
+      console.log(`[create_followup] Creating event for ${leadName} on calendar ${calendarId} at ${scheduledAt}`)
+
+      const start = new Date(scheduledAt)
+      const end = new Date(start.getTime() + 15 * 60 * 1000) // 15 mins default
+
+      const eventBody = {
+        summary: `📞 Follow-up: ${leadName} (${salespersonName || 'Agent'})`,
+        description: `Follow-up scheduled via CRM.\n\nLead Details:\n- Name: ${leadName}\n- Email: ${leadEmail || 'N/A'}\n- Type: ${leadType || 'N/A'}\n\nSalesperson: ${salespersonName || 'N/A'} (${salespersonEmail || 'N/A'})\n\nNotes:\n"${notesContent || 'Follow up'}"`,
+        start: {
+          dateTime: start.toISOString(),
+          timeZone: 'UTC'
+        },
+        end: {
+          dateTime: end.toISOString(),
+          timeZone: 'UTC'
+        },
+        attendees: salespersonEmail ? [{ email: salespersonEmail }] : [],
+        colorId: colorId || '1',
+        reminders: {
+          useDefault: false,
+          overrides: [
+            { method: 'email', minutes: 30 },
+            { method: 'popup', minutes: 10 }
+          ]
+        }
+      }
+
+      const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?sendUpdates=all`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventBody)
+      })
+
+      const responseData = await res.text()
+      if (!res.ok) {
+        throw new Error(`Google Calendar API error ${res.status}: ${responseData}`)
+      }
+
+      const event = JSON.parse(responseData)
+      return new Response(JSON.stringify({ success: true, eventId: event.id }), {
+        headers: { 'Content-Type': 'application/json', ...CORS }
+      })
+    }
+
+    // ── Update Follow Up (Google Calendar API) ───────────────────────────────
+    if (type === 'update_followup') {
+      const { eventId, scheduledAt, notesContent, leadName, leadEmail, leadType, salespersonName, salespersonEmail, colorId } = body
+      if (!eventId || !scheduledAt) {
+        throw new Error('Missing required fields for update_followup: eventId, scheduledAt')
+      }
+
+      const accessToken = await getAccessToken()
+      const calendarId = await getOrCreateFollowUpsCalendar(accessToken)
+      console.log(`[update_followup] Updating event ${eventId} on calendar ${calendarId} for new scheduled time ${scheduledAt}`)
+
+      const start = new Date(scheduledAt)
+      const end = new Date(start.getTime() + 15 * 60 * 1000)
+
+      let patchBody: any = {
+        start: {
+          dateTime: start.toISOString(),
+          timeZone: 'UTC'
+        },
+        end: {
+          dateTime: end.toISOString(),
+          timeZone: 'UTC'
+        }
+      }
+
+      if (notesContent || leadName) {
+        patchBody.summary = `📞 Follow-up: ${leadName || 'Client'} (${salespersonName || 'Agent'})`
+        patchBody.description = `Follow-up scheduled via CRM.\n\nLead Details:\n- Name: ${leadName || 'N/A'}\n- Email: ${leadEmail || 'N/A'}\n- Type: ${leadType || 'N/A'}\n\nSalesperson: ${salespersonName || 'N/A'} (${salespersonEmail || 'N/A'})\n\nNotes:\n"${notesContent || 'Follow up'}"`
+      }
+      
+      if (colorId) {
+        patchBody.colorId = colorId
+      }
+
+      const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events/${eventId}?sendUpdates=all`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(patchBody)
+      })
+
+      const responseData = await res.text()
+      if (!res.ok) {
+        throw new Error(`Google Calendar API error ${res.status}: ${responseData}`)
+      }
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { 'Content-Type': 'application/json', ...CORS }
+      })
+    }
+
+    // ── Delete Follow Up (Google Calendar API) ───────────────────────────────
+    if (type === 'delete_followup') {
+      const { eventId } = body
+      if (!eventId) {
+        throw new Error('Missing required fields for delete_followup: eventId')
+      }
+
+      const accessToken = await getAccessToken()
+      const calendarId = await getOrCreateFollowUpsCalendar(accessToken)
+      console.log(`[delete_followup] Deleting event ${eventId} on calendar ${calendarId}`)
+
+      const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events/${eventId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      })
+
+      if (!res.ok && res.status !== 404) {
+        const responseData = await res.text()
+        throw new Error(`Google Calendar API error ${res.status}: ${responseData}`)
+      }
+
+      return new Response(JSON.stringify({ success: true }), {
         headers: { 'Content-Type': 'application/json', ...CORS }
       })
     }
