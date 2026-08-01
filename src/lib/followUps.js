@@ -1,10 +1,19 @@
 import { supabase } from './supabase'
 
+// Google Calendar supports colorIds 1–11. We hash the salesperson name
+// to a stable index so every person gets their own consistent colour
+// without hardcoding any names.
+const GCAL_COLORS = ['1','2','3','4','5','6','7','8','9','10','11']
+
 function getGoogleCalendarColorId(name) {
-  const norm = (name || '').toLowerCase()
-  if (norm.includes('justin')) return '1' // Lavender
-  if (norm.includes('mzi')) return '4' // Tomato
-  return '9' // Blueberry/Blue (default)
+  const norm = (name || '').trim().toLowerCase()
+  if (!norm) return '9'
+  let hash = 0
+  for (let i = 0; i < norm.length; i++) {
+    hash = ((hash << 5) - hash) + norm.charCodeAt(i)
+    hash |= 0 // Convert to 32bit integer
+  }
+  return GCAL_COLORS[Math.abs(hash) % GCAL_COLORS.length]
 }
 
 // Shared helper for writing a row into public.reminders (the table backing
