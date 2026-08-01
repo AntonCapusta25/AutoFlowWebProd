@@ -144,6 +144,12 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
         }} />
       </div>
 
+      {/* Logo in Booking Flow */}
+      <div style={{ position: 'absolute', top: '30px', left: '30px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <img src="/images/logo.png" alt="AutoFlow Studio Logo" style={{ height: '24px', width: 'auto' }} />
+        <span style={{ color: '#F8FAFC', fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.05em' }}>AutoFlow Studio</span>
+      </div>
+
       <button 
         onClick={onClose}
         style={{

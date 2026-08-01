@@ -317,6 +317,9 @@ export default function Hero({ lang = 'en' }) {
           
           {/* Top Section: Text in Night Sky */}
           <div style={{ textAlign: 'center', marginTop: '4vh' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+              <img src="/images/logo.png" alt="AutoFlow Studio Logo" style={{ height: '64px', width: 'auto' }} />
+            </div>
             <h1 className="hero-title" style={{ 
               fontFamily: "'Bebas Neue', 'Space Grotesk', 'Inter', sans-serif", 
               fontWeight: 'normal', 

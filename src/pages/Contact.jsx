@@ -52,6 +52,9 @@ export default function Contact({ lang = 'en' }) {
       }}>
         <div style={{ position:'absolute',top:'20%',left:'10%',width:'300px',height:'300px',borderRadius:'50%',background:'radial-gradient(circle,rgba(209, 187, 251,0.07) 0%,transparent 70%)',pointerEvents:'none' }} />
         <div style={{ maxWidth:'700px',margin:'0 auto',padding:'0 24px',position:'relative',zIndex:1 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '18px' }}>
+            <img src="/images/logo.png" alt="AutoFlow Studio Logo" style={{ height: '48px', width: 'auto' }} />
+          </div>
           <span style={{ display:'inline-block',background:'rgba(209, 187, 251,0.12)',border:'1px solid rgba(209, 187, 251,0.3)',color:'#d1bbfb',padding:'6px 18px',borderRadius:'20px',fontSize:'0.75rem',fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',marginBottom:'20px' }}>
             {t.badge}
           </span>
