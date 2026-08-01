@@ -345,7 +345,7 @@ Deno.serve(async (req) => {
 
       const eventBody = {
         summary: `📞 Follow-up: ${leadName} (${salespersonName || 'Agent'})`,
-        description: `Follow-up scheduled via CRM.\n\nLead Details:\n- Name: ${leadName}\n- Email: ${leadEmail || 'N/A'}\n- Type: ${leadType || 'N/A'}\n\nSalesperson: ${salespersonName || 'N/A'} (${salespersonEmail || 'N/A'})\n\nNotes:\n"${notesContent || 'Follow up'}"`,
+        description: `Follow-up scheduled via CRM.\n\nLead Details:\n- Name: ${leadName}\n- Email: ${leadEmail || 'N/A'}\n- Type: ${leadType || 'N/A'}\n\nSalesperson: ${salespersonName || 'N/A'} (${salespersonEmail || 'N/A'})\n\nNotes:\n"${notesContent || 'Follow up'}"\n\n----\n[CRM_LEAD_ID: ${body.leadId || ''}]\n[CRM_LEAD_TYPE: ${leadType || ''}]`,
         start: {
           dateTime: start.toISOString(),
           timeZone: 'UTC'
@@ -412,7 +412,7 @@ Deno.serve(async (req) => {
 
       if (notesContent || leadName) {
         patchBody.summary = `📞 Follow-up: ${leadName || 'Client'} (${salespersonName || 'Agent'})`
-        patchBody.description = `Follow-up scheduled via CRM.\n\nLead Details:\n- Name: ${leadName || 'N/A'}\n- Email: ${leadEmail || 'N/A'}\n- Type: ${leadType || 'N/A'}\n\nSalesperson: ${salespersonName || 'N/A'} (${salespersonEmail || 'N/A'})\n\nNotes:\n"${notesContent || 'Follow up'}"`
+        patchBody.description = `Follow-up scheduled via CRM.\n\nLead Details:\n- Name: ${leadName || 'N/A'}\n- Email: ${leadEmail || 'N/A'}\n- Type: ${leadType || 'N/A'}\n\nSalesperson: ${salespersonName || 'N/A'} (${salespersonEmail || 'N/A'})\n\nNotes:\n"${notesContent || 'Follow up'}"\n\n----\n[CRM_LEAD_ID: ${body.leadId || ''}]\n[CRM_LEAD_TYPE: ${leadType || ''}]`
       }
       
       if (colorId) {
@@ -462,6 +462,29 @@ Deno.serve(async (req) => {
       }
 
       return new Response(JSON.stringify({ success: true }), {
+        headers: { 'Content-Type': 'application/json', ...CORS }
+      })
+    }
+
+    // ── Sync Calendar (Google Calendar API) ──────────────────────────────────
+    if (type === 'sync_calendar') {
+      const accessToken = await getAccessToken()
+      const calendarId = await getOrCreateFollowUpsCalendar(accessToken)
+      
+      const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?maxResults=250&singleEvents=true`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      })
+      
+      const responseData = await res.text()
+      if (!res.ok) {
+        throw new Error(`Google Calendar API error ${res.status}: ${responseData}`)
+      }
+      
+      const data = JSON.parse(responseData)
+      return new Response(JSON.stringify({ success: true, events: data.items || [] }), {
         headers: { 'Content-Type': 'application/json', ...CORS }
       })
     }

@@ -27,6 +27,7 @@ export async function scheduleFollowUp({ lead, leadType, scheduledAt, notesConte
     const { data, error: funcError } = await supabase.functions.invoke('send-email', {
       body: {
         type: 'create_followup',
+        leadId: lead.id,
         leadName: lead.name || lead.email || 'Client',
         leadEmail: lead.email || '',
         leadType: leadType.toLowerCase() === 'booking' ? 'booking' : leadType.toLowerCase() === 'outreach' ? 'outreach' : 'contact',

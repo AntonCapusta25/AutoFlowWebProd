@@ -49,6 +49,7 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
   const [loggingCall, setLoggingCall] = useState(false)
   const [callNote, setCallNote] = useState('')
   const [isActionLoading, setIsActionLoading] = useState(false)
+  const [syncingCalendar, setSyncingCalendar] = useState(false)
 
   useEffect(() => {
     fetchReminders()
@@ -236,6 +237,113 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
     }
   }
 
+  async function syncGoogleCalendar() {
+    if (syncingCalendar) return
+    setSyncingCalendar(true)
+
+    try {
+      const { data: funcData, error: funcError } = await supabase.functions.invoke('send-email', {
+        body: { type: 'sync_calendar' }
+      })
+
+      if (funcError || !funcData?.success) {
+        alert('Failed to fetch events from Google Calendar: ' + (funcError?.message || 'Unknown error'))
+        setSyncingCalendar(false)
+        return
+      }
+
+      const googleEvents = funcData.events || []
+
+      // 1. Fetch current reminders in DB
+      const { data: dbReminders, error: dbError } = await supabase.from('reminders').select('*')
+      if (dbError) throw dbError
+
+      // Helper to parse CRM lead details from description
+      function parseEventDescription(desc) {
+        if (!desc) return null
+        const idMatch = desc.match(/\[CRM_LEAD_ID:\s*(.*?)\]/)
+        const typeMatch = desc.match(/\[CRM_LEAD_TYPE:\s*(.*?)\]/)
+        if (idMatch && idMatch[1]) {
+          return {
+            leadId: idMatch[1].trim(),
+            leadType: typeMatch && typeMatch[1] ? typeMatch[1].trim() : 'contact'
+          }
+        }
+        return null
+      }
+
+      let updatedCount = 0
+      let addedCount = 0
+      let deletedCount = 0
+
+      // 2. Sync Google events into DB
+      for (const event of googleEvents) {
+        const parsed = parseEventDescription(event.description)
+        if (!parsed) continue // Skip non-CRM followups
+
+        const { leadId, leadType } = parsed
+        const eventTime = event.start?.dateTime || event.start?.date
+        if (!eventTime) continue
+
+        const match = dbReminders.find(r => r.google_event_id === event.id || r.lead_id === leadId)
+
+        if (match) {
+          if (event.status === 'cancelled') {
+            await supabase.from('reminders').delete().eq('id', match.id)
+            deletedCount++
+          } else {
+            const dbTime = new Date(match.scheduled_at).getTime()
+            const ggTime = new Date(eventTime).getTime()
+            if (dbTime !== ggTime) {
+              await supabase.from('reminders')
+                .update({ scheduled_at: eventTime, updated_at: new Date().toISOString() })
+                .eq('id', match.id)
+              updatedCount++
+            }
+          }
+        } else if (event.status !== 'cancelled') {
+          // Lead exists but reminder is not in CRM -> Create it
+          const table = leadType === 'booking' ? 'booking_leads' : leadType === 'outreach' ? 'outreach_leads' : 'contact_leads'
+          const { data: leadData } = await supabase.from(table).select('name, email, assignee_id').eq('id', leadId).maybeSingle()
+          
+          if (leadData) {
+            await supabase.from('reminders').insert({
+              lead_id: leadId,
+              lead_type: leadType,
+              lead_name: leadData.name || leadData.email || 'Client',
+              salesperson_id: leadData.assignee_id || user?.id,
+              salesperson_email: user?.email || '',
+              salesperson_name: user?.user_metadata?.name || 'Agent',
+              notes_content: event.summary || 'Follow up',
+              scheduled_at: eventTime,
+              google_event_id: event.id,
+              source: 'google_calendar'
+            })
+            addedCount++
+          }
+        }
+      }
+
+      // 3. Clean up deleted reminders
+      const activeGoogleEventIds = new Set(googleEvents.filter(e => e.status !== 'cancelled').map(e => e.id))
+      for (const r of dbReminders) {
+        if (r.google_event_id && !activeGoogleEventIds.has(r.google_event_id)) {
+          await supabase.from('reminders').delete().eq('id', r.id)
+          deletedCount++
+        }
+      }
+
+      // 4. Refetch reminders
+      await fetchReminders()
+      alert(`Synchronization complete!\n- Added: ${addedCount}\n- Updated: ${updatedCount}\n- Deleted/Completed: ${deletedCount}`)
+    } catch (err) {
+      console.error('[Calendar Sync] Error during synchronization:', err)
+      alert('An error occurred during synchronization. Please try again.')
+    } finally {
+      setSyncingCalendar(false)
+    }
+  }
+
   function openReschedule(r) {
     const d = new Date(r.scheduled_at)
     setRescheduleDate(d.toISOString().slice(0, 10))
@@ -258,7 +366,10 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
             body: {
               type: 'update_followup',
               eventId: detailReminder.google_event_id,
-              scheduledAt: newDate.toISOString()
+              scheduledAt: newDate.toISOString(),
+              leadId: detailReminder.lead_id,
+              leadName: detailReminder.lead_name,
+              leadType: detailReminder.lead_type
             }
           })
         } catch (err) {
@@ -279,24 +390,68 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
 
   return (
     <div>
+      <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .sync-spin {
+          animation: spin 1s linear infinite;
+        }
+      `}</style>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '12px' }}>
         <p style={{ margin: 0, color: '#94A3B8', fontSize: '0.85rem' }}>
           Follow-ups parsed from notes or scheduled manually.{overdueCount > 0 && (
             <span style={{ color: '#f87171', fontWeight: 700 }}> {overdueCount} overdue.</span>
           )}
         </p>
-        {isAdmin && (
-          <select
-            value={assigneeFilter}
-            onChange={e => setAssigneeFilter(e.target.value)}
-            style={{ padding: '8px 12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#CBD5E1', fontSize: '0.8rem', fontWeight: 600, outline: 'none', cursor: 'pointer' }}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button
+            onClick={syncGoogleCalendar}
+            disabled={syncingCalendar}
+            style={{
+              padding: '8px 12px',
+              background: 'rgba(59, 130, 246, 0.1)',
+              border: '1px solid rgba(59, 130, 246, 0.25)',
+              borderRadius: '10px',
+              color: '#93c5fd',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              opacity: syncingCalendar ? 0.7 : 1,
+              transition: 'all 0.2s'
+            }}
           >
-            <option value="all">All Salespeople</option>
-            {salespeople.map(sp => (
-              <option key={sp.id} value={sp.id}>{sp.name || sp.email}</option>
-            ))}
-          </select>
-        )}
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              className={syncingCalendar ? 'sync-spin' : ''}
+            >
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+            </svg>
+            {syncingCalendar ? 'Syncing...' : 'Sync Calendar'}
+          </button>
+
+          {isAdmin && (
+            <select
+              value={assigneeFilter}
+              onChange={e => setAssigneeFilter(e.target.value)}
+              style={{ padding: '8px 12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#CBD5E1', fontSize: '0.8rem', fontWeight: 600, outline: 'none', cursor: 'pointer' }}
+            >
+              <option value="all">All Salespeople</option>
+              {salespeople.map(sp => (
+                <option key={sp.id} value={sp.id}>{sp.name || sp.email}</option>
+              ))}
+            </select>
+          )}
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '20px', alignItems: 'start' }}>
