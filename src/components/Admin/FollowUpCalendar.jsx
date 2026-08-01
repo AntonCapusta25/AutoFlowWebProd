@@ -258,6 +258,42 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
       const { data: dbReminders, error: dbError } = await supabase.from('reminders').select('*')
       if (dbError) throw dbError
 
+      let addedToGoogleCount = 0
+      let updatedCount = 0
+      let addedCount = 0
+      let deletedCount = 0
+
+      // 1.5 Push database reminders that don't have google_event_id to Google Calendar
+      const remindersToUpload = dbReminders.filter(r => !r.google_event_id && !r.completed)
+      for (const r of remindersToUpload) {
+        const table = r.lead_type === 'booking' ? 'booking_leads' : r.lead_type === 'outreach' ? 'outreach_leads' : 'contact_leads'
+        const { data: leadData } = await supabase.from(table).select('email').eq('id', r.lead_id).maybeSingle()
+        const leadEmail = leadData?.email || ''
+
+        const { data: createData, error: createError } = await supabase.functions.invoke('send-email', {
+          body: {
+            type: 'create_followup',
+            leadId: r.lead_id,
+            leadName: r.lead_name,
+            leadEmail: leadEmail,
+            leadType: r.lead_type,
+            notesContent: r.notes_content,
+            scheduledAt: r.scheduled_at,
+            salespersonName: r.salesperson_name || 'Agent',
+            salespersonEmail: r.salesperson_email
+          }
+        })
+
+        if (!createError && createData?.eventId) {
+          await supabase.from('reminders')
+            .update({ google_event_id: createData.eventId })
+            .eq('id', r.id)
+          
+          r.google_event_id = createData.eventId
+          addedToGoogleCount++
+        }
+      }
+
       // Helper to parse CRM lead details from description
       function parseEventDescription(desc) {
         if (!desc) return null
@@ -271,10 +307,6 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
         }
         return null
       }
-
-      let updatedCount = 0
-      let addedCount = 0
-      let deletedCount = 0
 
       // 2. Sync Google events into DB
       for (const event of googleEvents) {
@@ -335,7 +367,7 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
 
       // 4. Refetch reminders
       await fetchReminders()
-      alert(`Synchronization complete!\n- Added: ${addedCount}\n- Updated: ${updatedCount}\n- Deleted/Completed: ${deletedCount}`)
+      alert(`Synchronization complete!\n- Uploaded to Google Calendar: ${addedToGoogleCount}\n- Added to CRM: ${addedCount}\n- Rescheduled/Updated: ${updatedCount}\n- Deleted/Completed: ${deletedCount}`)
     } catch (err) {
       console.error('[Calendar Sync] Error during synchronization:', err)
       alert('An error occurred during synchronization. Please try again.')
