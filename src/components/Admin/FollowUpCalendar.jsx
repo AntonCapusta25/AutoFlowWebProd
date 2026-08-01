@@ -258,6 +258,9 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
       const { data: dbReminders, error: dbError } = await supabase.from('reminders').select('*')
       if (dbError) throw dbError
 
+      // Record the set of Google event IDs that existed in DB before we started
+      const originalGoogleEventIds = new Set(dbReminders.map(r => r.google_event_id).filter(Boolean))
+
       let addedToGoogleCount = 0
       let updatedCount = 0
       let addedCount = 0
@@ -359,7 +362,7 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
       // 3. Clean up deleted reminders
       const activeGoogleEventIds = new Set(googleEvents.filter(e => e.status !== 'cancelled').map(e => e.id))
       for (const r of dbReminders) {
-        if (r.google_event_id && !activeGoogleEventIds.has(r.google_event_id)) {
+        if (r.google_event_id && originalGoogleEventIds.has(r.google_event_id) && !activeGoogleEventIds.has(r.google_event_id)) {
           await supabase.from('reminders').delete().eq('id', r.id)
           deletedCount++
         }
