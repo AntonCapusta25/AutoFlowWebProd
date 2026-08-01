@@ -520,7 +520,7 @@ const ProcessSection = ({ lang }) => {
   const processSectionRef = useRef(null)
   const processFrameRef = useRef(0)
   const processStepCount = t.timeline.steps.length
-  
+
   const processImages = [
     '/images/weve-been-there.jpg',
     '/images/build-step.jpg',
@@ -546,7 +546,7 @@ const ProcessSection = ({ lang }) => {
       const rect = section.getBoundingClientRect()
       const totalScrollable = Math.max(section.offsetHeight - window.innerHeight, 1)
       const progress = Math.min(Math.max(-rect.top / totalScrollable, 0), 1)
-      
+
       let nextStep = 0
       if (isMobileProcessLayout) {
         // Mobile: find step closest to viewport center
@@ -659,12 +659,12 @@ const ProcessSection = ({ lang }) => {
                     opacity: idx <= activeStep ? 1 : 0.35,
                     y: idx <= activeStep ? 0 : 28,
                     scale: activeStep === idx ? 1 : 0.985,
-                    background: activeStep === idx 
-                      ? 'rgba(255, 255, 255, 0.08)' 
+                    background: activeStep === idx
+                      ? 'rgba(255, 255, 255, 0.08)'
                       : 'rgba(255, 255, 255, 0.01)',
                     borderColor: 'rgba(255, 255, 255, 0.04)',
                   }}
-                  transition={{ 
+                  transition={{
                     duration: 0.4,
                     ease: "easeInOut"
                   }}
@@ -1306,6 +1306,23 @@ export default function Home({ lang = 'en' }) {
                       </button>
                     </div>
                   </div>
+
+                  {/* Logo watermark — bottom-right */}
+                  <img
+                    src="/images/logo.png"
+                    alt=""
+                    aria-hidden="true"
+                    style={{
+                      position: 'absolute',
+                      bottom: '36px',
+                      right: '36px',
+                      height: '72px',
+                      width: 'auto',
+                      opacity: 0.7,
+                      pointerEvents: 'none',
+                      zIndex: 2
+                    }}
+                  />
                 </div>
               </article>
             ))}
@@ -1661,7 +1678,7 @@ export default function Home({ lang = 'en' }) {
               }}>
                 {lang === 'nl' ? 'BEPERKTE CAPACITEIT' : 'Limited Monthly Spots'}
               </span>
-              
+
               <h2 style={{
                 fontFamily: "'Bebas Neue', 'Space Grotesk', sans-serif",
                 fontSize: 'clamp(2.5rem, 6.5vw, 4.8rem)',
@@ -1674,7 +1691,7 @@ export default function Home({ lang = 'en' }) {
               }}>
                 {t.blog.ctaTitle}
               </h2>
-              
+
               <p style={{
                 fontFamily: "'Inter', sans-serif",
                 color: 'rgba(255, 255, 255, 0.7)',
@@ -1686,7 +1703,7 @@ export default function Home({ lang = 'en' }) {
               }}>
                 {t.blog.ctaSub}
               </p>
-              
+
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <button
                   onClick={() => window.dispatchEvent(new CustomEvent('open-booking'))}
@@ -1714,10 +1731,10 @@ export default function Home({ lang = 'en' }) {
                   </svg>
                 </button>
               </div>
-              
+
               <p style={{ marginTop: '28px', fontSize: '0.8rem', color: '#64748B', fontFamily: "'Inter', sans-serif" }}>
-                {lang === 'nl' 
-                  ? 'Geen commitment vereist. 100% op maat gemaakte automatisering audit.' 
+                {lang === 'nl'
+                  ? 'Geen commitment vereist. 100% op maat gemaakte automatisering audit.'
                   : 'No credit card or commitment required. 100% free automation roadmap.'}
               </p>
             </div>

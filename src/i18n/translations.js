@@ -12,7 +12,7 @@ export const translations = {
     hero: {
       headlinePrefix: 'Automate your ',
       headlineWords: ['CRM systems.', 'sales pipelines.', 'smart reporting.', 'client onboarding.', 'marketing funnels.', 'web applications.'],
-      sub: 'Custom software and automation systems that drastically improve your ROI. From professional CRMs to full web applications — built for scale and delivered in under 7 days.',
+      sub: 'Custom software and automation systems that drastically improve your ROI. From professional CRMs to full web applications, built for scale and delivered in under 7 days.',
       cta: 'Book Free Audit',
     },
     logosLabel: 'Our Partners & APIs',
