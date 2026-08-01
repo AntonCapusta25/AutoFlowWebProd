@@ -5,6 +5,7 @@ import useSessionState from '../../hooks/useSessionState'
 import FollowUpCalendar from './FollowUpCalendar'
 import { parseFollowUpDate } from '../../lib/followUpParser'
 import { scheduleFollowUp } from '../../lib/followUps'
+import { getLeadLocalTimeStr } from '../../lib/timezone'
 
 export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle = "Manage your leads." }) {
   const { user, isAdmin, profile, salespeople, loading: authLoading } = useAdmin()
@@ -926,7 +927,14 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
             if (header.includes('website') || (header.includes('url') && !header.includes('maps') && !header.includes('google'))) lead.website = val
             if (header.includes('linkedin')) lead.linkedin = val
             if (header.includes('industry') || header.includes('cuisine')) lead.industry = val
-            if (header.includes('location') || header.includes('address')) lead.location = val
+            if (header.includes('location') || header.includes('address')) {
+              lead.location = val
+            } else if (header.includes('city')) {
+              lead.location = lead.location ? `${val}, ${lead.location}` : val
+            } else if (header.includes('query')) {
+              const cleanLoc = val.replace(/^(restaurants|moving companies|roofers|plumbers|services|shops|businesses|Horeca) in\s+/i, '').trim()
+              lead.location = cleanLoc
+            }
             if (header.includes('phone') || header.includes('tel')) lead.phone = val
           })
 
@@ -1450,6 +1458,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Outbound Profile</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Website</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '160px', width: '160px' }}>Phone</th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '120px', width: '120px' }}>Local Time</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     Industry
@@ -1560,6 +1569,11 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                     <td style={{ padding: '20px', minWidth: '160px', width: '160px', whiteSpace: 'nowrap' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#CBD5E1', fontSize: '0.85rem', fontWeight: 600 }}>
                         <span>{lead.phone || 'N/A'}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: '20px', minWidth: '120px', width: '120px', whiteSpace: 'nowrap' }}>
+                      <div style={{ fontSize: '0.85rem', color: '#a855f7', fontWeight: 700 }}>
+                        {getLeadLocalTimeStr(lead)}
                       </div>
                     </td>
                     <td style={{ padding: '20px' }}>
@@ -1758,6 +1772,10 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                     </span>
                   )}
                 </h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: '#a855f7', fontWeight: 700, marginBottom: '8px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <span>Local Time: {getLeadLocalTimeStr(activeLead)}</span>
+                </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   {editingEmail ? (
                     <>

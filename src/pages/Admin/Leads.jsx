@@ -4,7 +4,8 @@ import AdminLayout from '../../components/Admin/AdminLayout'
 import { useAdmin } from '../../components/Admin/AdminContext'
 import useSessionState from '../../hooks/useSessionState'
 import { parseFollowUpDate } from '../../lib/followUpParser'
-import { scheduleFollowUp } from '../../lib/followUps'
+import { formatFollowUpDate, scheduleFollowUp } from '../../lib/followUps'
+import { getLeadLocalTimeStr } from '../../lib/timezone'
 
 export default function AdminLeads() {
   const { user, isAdmin, profile, salespeople, loading: authLoading } = useAdmin()
@@ -830,6 +831,7 @@ export default function AdminLeads() {
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Website</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Source</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '160px', width: '160px' }}>Phone</th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '120px', width: '120px' }}>Local Time</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
                 {isAdmin && <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Assignee</th>}
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Initial Problem</th>
@@ -899,9 +901,14 @@ export default function AdminLeads() {
                         {lead.type.toLowerCase() === 'booking' ? 'Booking' : 'Message'}
                       </span>
                     </td>
-                     <td style={{ padding: '20px', minWidth: '160px', width: '160px', whiteSpace: 'nowrap' }}>
-                       <div style={{ color: '#CBD5E1', fontSize: '0.85rem', fontWeight: 600 }}>{lead.phone || 'N/A'}</div>
-                     </td>
+                    <td style={{ padding: '20px', minWidth: '160px', width: '160px', whiteSpace: 'nowrap' }}>
+                      <div style={{ color: '#CBD5E1', fontSize: '0.85rem', fontWeight: 600 }}>{lead.phone || 'N/A'}</div>
+                    </td>
+                    <td style={{ padding: '20px', minWidth: '120px', width: '120px', whiteSpace: 'nowrap' }}>
+                      <div style={{ fontSize: '0.85rem', color: '#a855f7', fontWeight: 700 }}>
+                        {getLeadLocalTimeStr(lead)}
+                      </div>
+                    </td>
                     <td style={{ padding: '20px' }}>
                       <select
                         value={lead.status}
@@ -1024,6 +1031,10 @@ export default function AdminLeads() {
                     </span>
                   )}
                 </h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: '#a855f7', fontWeight: 700, marginBottom: '8px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <span>Local Time: {getLeadLocalTimeStr(activeLead)}</span>
+                </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   {editingEmail ? (
                     <>
