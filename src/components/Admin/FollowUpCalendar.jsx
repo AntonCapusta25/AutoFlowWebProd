@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { supabase } from '../../lib/supabase'
 import useSessionState from '../../hooks/useSessionState'
 import { formatFollowUpDate } from '../../lib/followUps'
+import { getLeadLocalTimeStr } from '../../lib/timezone'
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -43,10 +44,38 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
   const [rescheduleDate, setRescheduleDate] = useState('')
   const [rescheduleTime, setRescheduleTime] = useState('')
   const [saving, setSaving] = useState(false)
+  const [leadDetails, setLeadDetails] = useState(null)
 
   useEffect(() => {
     fetchReminders()
   }, [assigneeFilter, isAdmin, user?.id])
+
+  useEffect(() => {
+    if (!detailReminder) {
+      setLeadDetails(null)
+      return
+    }
+
+    async function fetchLeadDetails() {
+      let table = 'outreach_leads'
+      if (detailReminder.lead_type === 'booking') table = 'booking_leads'
+      else if (detailReminder.lead_type === 'contact') table = 'contact_leads'
+
+      const { data } = await supabase
+        .from(table)
+        .select('phone, location')
+        .eq('id', detailReminder.lead_id)
+        .maybeSingle()
+
+      if (data) {
+        setLeadDetails(data)
+      } else {
+        setLeadDetails(null)
+      }
+    }
+
+    fetchLeadDetails()
+  }, [detailReminder])
 
   async function fetchReminders() {
     if (!user?.id && !isAdmin) { setLoading(false); return }
@@ -315,6 +344,19 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
               <div>
                 <h3 style={{ margin: 0, color: 'white', fontSize: '1.15rem', fontWeight: 800, textDecoration: detailReminder.completed ? 'line-through' : 'none' }}>{detailReminder.lead_name}</h3>
                 <p style={{ margin: '4px 0 0', color: '#64748B', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>{detailReminder.lead_type} · {detailReminder.source === 'manual' ? 'Manually scheduled' : 'Detected from note'}</p>
+                {leadDetails?.phone && (
+                  <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <a href={`tel:${leadDetails.phone}`} style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                      {leadDetails.phone}
+                    </a>
+                    <span style={{ color: '#475569', fontSize: '0.8rem' }}>•</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: '#a855f7', fontWeight: 700 }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      <span>{getLeadLocalTimeStr(leadDetails)}</span>
+                    </div>
+                  </div>
+                )}
               </div>
               <button onClick={() => setDetailReminder(null)} style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
