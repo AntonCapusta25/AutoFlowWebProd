@@ -112,6 +112,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
     let timeout
     const handleScroll = () => {
       if (document.visibilityState === 'hidden') return
+      if (!document.hasFocus()) return
       if (loadingRef.current) return
 
       const currentScroll = container.scrollTop
@@ -123,6 +124,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       clearTimeout(timeout)
       timeout = setTimeout(() => {
         if (document.visibilityState === 'hidden') return
+        if (!document.hasFocus()) return
         if (loadingRef.current) return
 
         const finalScroll = container.scrollTop
@@ -1524,7 +1526,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
               </tr>
             </thead>
             <tbody>
-              {loading ? (
+              {loading && leads.length === 0 ? (
                 <tr><td colSpan={isAdmin ? '10' : '9'} style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>Loading outbound leads...</td></tr>
               ) : leads.length === 0 ? (
                 <tr><td colSpan={isAdmin ? '10' : '9'} style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>No outbound leads match table filters.</td></tr>

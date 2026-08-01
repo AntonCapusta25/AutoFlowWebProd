@@ -46,6 +46,7 @@ export default function AdminLeads() {
     let timeout
     const handleScroll = () => {
       if (document.visibilityState === 'hidden') return
+      if (!document.hasFocus()) return
       if (loadingRef.current) return
 
       const currentScroll = container.scrollTop
@@ -57,6 +58,7 @@ export default function AdminLeads() {
       clearTimeout(timeout)
       timeout = setTimeout(() => {
         if (document.visibilityState === 'hidden') return
+        if (!document.hasFocus()) return
         if (loadingRef.current) return
 
         const finalScroll = container.scrollTop
@@ -836,7 +838,7 @@ export default function AdminLeads() {
               </tr>
             </thead>
             <tbody>
-              {loading ? (
+              {loading && leads.length === 0 ? (
                 <tr><td colSpan={isAdmin ? '9' : '8'} style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>Loading inbound leads...</td></tr>
               ) : leads.length === 0 ? (
                 <tr><td colSpan={isAdmin ? '9' : '8'} style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>No leads found.</td></tr>
