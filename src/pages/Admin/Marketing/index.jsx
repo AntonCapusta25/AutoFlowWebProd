@@ -9,6 +9,8 @@ import {
 import MarketingKPIs from './MarketingKPIs'
 import MarketingBoard from './MarketingBoard'
 import MarketingSocials from './MarketingSocials'
+import MarketingCalendarTab from './MarketingCalendarTab'
+import MarketingWeeklyKPIs from './MarketingWeeklyKPIs'
 
 export default function Marketing() {
   const { user, salespeople, profile } = useAdmin()

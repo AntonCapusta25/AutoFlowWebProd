@@ -588,17 +588,23 @@ export default function AdminDashboard() {
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%' }}>
                           <div style={{ 
-                            width: '44px', height: '44px', borderRadius: '12px', background: item.event_type === 'call' ? 'rgba(209, 187, 251, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+                            width: '44px', height: '44px', borderRadius: '12px',
+                            background: item.event_type === 'call' ? 'rgba(209, 187, 251, 0.1)' : 
+                                        item.event_type === 'marketing' ? 'rgba(244, 114, 182, 0.1)' : 'rgba(59, 130, 246, 0.1)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
                           }}>
                             {item.event_type === 'call' ? (
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d1bbfb" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d1bbfb" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                            ) : item.event_type === 'marketing' ? (
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f472b6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                             ) : (
                               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                             )}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ margin: '0 0 4px', color: 'white', fontWeight: 700, wordWrap: 'break-word', overflowWrap: 'break-word' }}>{lead ? lead.name : 'Unknown Lead'}</p>
+                            <p style={{ margin: '0 0 4px', color: 'white', fontWeight: 700, wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+                              {lead ? lead.name : (item.lead_type === 'marketing' ? 'Marketing Activity' : 'Unknown Lead')}
+                            </p>
                             <p style={{ margin: 0, color: '#94A3B8', fontSize: '0.9rem', wordWrap: 'break-word', overflowWrap: 'break-word' }}>{item.content}</p>
                           </div>
                         </div>

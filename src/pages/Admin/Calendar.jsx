@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import AdminLayout from '../../components/Admin/AdminLayout'
 import { useAdmin } from '../../components/Admin/AdminContext'
 import { supabase } from '../../lib/supabase'
@@ -8,6 +8,8 @@ export default function AdminCalendar() {
   const [copied, setCopied] = useState(false)
   const [activeTab, setActiveTab] = useState('scheduler')
   const [followupsCalendarId, setFollowupsCalendarId] = useState('')
+  const [tikTokCalendarId, setTikTokCalendarId] = useState('')
+  const [linkedInCalendarId, setLinkedInCalendarId] = useState('')
   const [loadingCalendar, setLoadingCalendar] = useState(false)
   const [teamMembers, setTeamMembers] = useState([])
   const shortLink = 'https://calendar.app.google/BVJPx8LMquzT35pE9'
@@ -19,8 +21,167 @@ export default function AdminCalendar() {
   useEffect(() => {
     if (activeTab === 'followups' && !followupsCalendarId) {
       fetchFollowupsCalendarId()
+    } else if (activeTab === 'marketing' && (!tikTokCalendarId || !linkedInCalendarId)) {
+      fetchMarketingCalendars()
     }
   }, [activeTab])
+
+  const getDurationMinutes = (item) => {
+    const text = ((item.concept_or_topic || '') + ' ' + (item.notes || '') + ' ' + (item.format || '')).toLowerCase()
+    if (text.includes('15–20 min') || text.includes('15-20 min')) {
+      return 20
+    }
+    if (text.includes('60 second') || text.includes('60-second') || text.includes('60s')) {
+      return 10
+    }
+    if (text.includes('30 min')) {
+      return 30
+    }
+    return 60 // 1 hour default
+  }
+
+  const [syncingCalendar, setSyncingCalendar] = useState(false)
+  const syncLock = useRef(false)
+
+  const syncGoogleCalendar = async (items) => {
+    if (syncLock.current || syncingCalendar || !profile) return
+    const isAdmin = profile.role === 'admin' || profile.role === 'Napoleon'
+    if (!isAdmin) return
+    
+    const postsToSync = items.filter(p => !p.google_event_id)
+    if (postsToSync.length === 0) return
+
+    syncLock.current = true
+    setSyncingCalendar(true)
+    try {
+      const slotsRegistry = {}
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+
+      const mappedPosts = postsToSync.map(item => {
+        let dateStr = item.scheduled_date
+        let isRecurring = false
+        
+        if (!dateStr && item.date_label) {
+          const label = item.date_label.toLowerCase()
+          if (label.includes('wk1') || label.includes('wk 1') || label.includes('week 1')) {
+            dateStr = '2026-07-27'
+          } else if (label.includes('wk2') || label.includes('wk 2') || label.includes('week 2')) {
+            dateStr = '2026-08-03'
+          } else if (label.includes('wk3') || label.includes('wk 3') || label.includes('week 3')) {
+            dateStr = '2026-08-10'
+          } else if (label.includes('wk4') || label.includes('wk 4') || label.includes('week 4')) {
+            dateStr = '2026-08-17'
+          }
+          
+          if (item.day_of_week && (item.day_of_week.includes('Mon–Sun') || item.day_of_week.includes('Mon-Sun') || item.day_of_week.includes('daily'))) {
+            isRecurring = true
+          }
+        }
+        
+        if (!dateStr) {
+          dateStr = new Date().toISOString().split('T')[0]
+        }
+        
+        const duration = getDurationMinutes(item)
+        let startHour = 10
+        let startMin = 0
+        
+        if (isRecurring) {
+          startHour = 9
+          startMin = 0
+        } else {
+          const count = slotsRegistry[dateStr] || 0
+          slotsRegistry[dateStr] = count + 1
+          
+          if (count === 0) {
+            startHour = 10
+          } else if (count === 1) {
+            startHour = 13
+          } else if (count === 2) {
+            startHour = 15
+          } else {
+            startHour = 17
+          }
+        }
+
+        const pad = (n) => String(n).padStart(2, '0')
+        const formatLocalISO = (d) => {
+          return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+        }
+
+        const startDt = new Date(`${dateStr}T00:00:00`)
+        startDt.setHours(startHour, startMin, 0, 0)
+        const endDt = new Date(startDt.getTime() + duration * 60 * 1000)
+
+        return {
+          ...item,
+          startTime: formatLocalISO(startDt),
+          endTime: formatLocalISO(endDt),
+          timeZone,
+          recurrenceRule: isRecurring ? 'RRULE:FREQ=DAILY;COUNT=7' : null
+        }
+      })
+
+      for (const p of mappedPosts) {
+        const { data, error } = await supabase.functions.invoke('send-email', {
+          body: {
+            type: 'create_marketing_event',
+            platform: p.platform,
+            scheduledDate: p.scheduled_date,
+            dateLabel: p.date_label,
+            dayOfWeek: p.day_of_week,
+            account: p.account,
+            pillar: p.pillar,
+            format: p.format,
+            hook: p.hook,
+            conceptOrTopic: p.concept_or_topic,
+            captionOrDestination: p.caption_or_destination,
+            cta: p.cta,
+            notes: p.notes,
+            startTime: p.startTime,
+            endTime: p.endTime,
+            timeZone: p.timeZone,
+            recurrenceRule: p.recurrenceRule
+          }
+        })
+        if (!error && data?.eventId) {
+          await supabase
+            .from('marketing_calendar_items')
+            .update({ google_event_id: data.eventId })
+            .eq('id', p.id)
+        }
+      }
+    } catch (err) {
+      console.error('[Calendar] Error syncing content items to Google Calendar:', err)
+    } finally {
+      setSyncingCalendar(false)
+      syncLock.current = false
+    }
+  }
+
+  useEffect(() => {
+    const isAdmin = profile?.role === 'admin' || profile?.role === 'Napoleon'
+    if (activeTab === 'marketing' && isAdmin) {
+      const runSync = async () => {
+        const hasClearedOldGCal = localStorage.getItem('has_cleared_old_gcal_v7')
+        if (!hasClearedOldGCal) {
+          await supabase
+            .from('marketing_calendar_items')
+            .update({ google_event_id: null })
+            .not('id', 'is', null)
+          localStorage.setItem('has_cleared_old_gcal_v7', 'true')
+        }
+        
+        const { data } = await supabase
+          .from('marketing_calendar_items')
+          .select('*')
+        if (data) {
+          await syncGoogleCalendar(data)
+        }
+      }
+      runSync()
+    }
+  }, [activeTab, profile])
 
   const fetchTeamMembers = async () => {
     try {
@@ -49,6 +210,46 @@ export default function AdminCalendar() {
       }
     } catch (err) {
       console.error('[Calendar] Exception fetching calendar ID:', err)
+    }
+    setLoadingCalendar(false)
+  }
+
+  const fetchMarketingCalendars = async () => {
+    setLoadingCalendar(true)
+    try {
+      const { data, error } = await supabase.functions.invoke('send-email', {
+        body: { type: 'get_marketing_calendars' }
+      })
+      if (!error && data?.tikTokCalendarId && data?.linkedInCalendarId) {
+        setTikTokCalendarId(data.tikTokCalendarId)
+        setLinkedInCalendarId(data.linkedInCalendarId)
+      } else {
+        console.error('[Calendar] Error fetching marketing calendars:', error)
+      }
+    } catch (err) {
+      console.error('[Calendar] Exception fetching marketing calendars:', err)
+    }
+    setLoadingCalendar(false)
+  }
+
+  const handleForceResetSync = async () => {
+    if (!confirm('Are you sure you want to reset all synced events? This will clear all calendar IDs in the database and trigger a fresh sync.')) return
+    setLoadingCalendar(true)
+    try {
+      const { error } = await supabase
+        .from('marketing_calendar_items')
+        .update({ google_event_id: null })
+        .not('id', 'is', null)
+      if (!error) {
+        alert('Database connections cleared! Starting fresh sync...')
+        setTikTokCalendarId('')
+        setLinkedInCalendarId('')
+        await fetchMarketingCalendars()
+      } else {
+        alert('Error resetting database: ' + error.message)
+      }
+    } catch (err) {
+      alert('Exception resetting sync: ' + err.message)
     }
     setLoadingCalendar(false)
   }
@@ -150,39 +351,80 @@ export default function AdminCalendar() {
       </div>
 
       {/* Sub-tabs Selector */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '28px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.06)', padding: '6px', borderRadius: '14px', width: 'fit-content' }}>
-        <button
-          onClick={() => setActiveTab('scheduler')}
-          style={{
-            background: activeTab === 'scheduler' ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
-            border: activeTab === 'scheduler' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid transparent',
-            color: activeTab === 'scheduler' ? 'white' : '#64748B',
-            padding: '8px 16px',
-            borderRadius: '10px',
-            fontWeight: 700,
-            fontSize: '0.85rem',
-            cursor: 'pointer',
-            transition: 'all 0.2s'
-          }}
-        >
-          📅 Client Booking Scheduler
-        </button>
-        <button
-          onClick={() => setActiveTab('followups')}
-          style={{
-            background: activeTab === 'followups' ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
-            border: activeTab === 'followups' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid transparent',
-            color: activeTab === 'followups' ? 'white' : '#64748B',
-            padding: '8px 16px',
-            borderRadius: '10px',
-            fontWeight: 700,
-            fontSize: '0.85rem',
-            cursor: 'pointer',
-            transition: 'all 0.2s'
-          }}
-        >
-          🔔 Team Follow-Ups Calendar
-        </button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ display: 'flex', gap: '8px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.06)', padding: '6px', borderRadius: '14px', width: 'fit-content' }}>
+          <button
+            onClick={() => setActiveTab('scheduler')}
+            style={{
+              background: activeTab === 'scheduler' ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+              border: activeTab === 'scheduler' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid transparent',
+              color: activeTab === 'scheduler' ? 'white' : '#64748B',
+              padding: '8px 16px',
+              borderRadius: '10px',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            📅 Client Booking Scheduler
+          </button>
+          <button
+            onClick={() => setActiveTab('followups')}
+            style={{
+              background: activeTab === 'followups' ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+              border: activeTab === 'followups' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid transparent',
+              color: activeTab === 'followups' ? 'white' : '#64748B',
+              padding: '8px 16px',
+              borderRadius: '10px',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            🔔 Team Follow-Ups Calendar
+          </button>
+          <button
+            onClick={() => setActiveTab('marketing')}
+            style={{
+              background: activeTab === 'marketing' ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+              border: activeTab === 'marketing' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid transparent',
+              color: activeTab === 'marketing' ? 'white' : '#64748B',
+              padding: '8px 16px',
+              borderRadius: '10px',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            📣 Marketing Content Calendar
+          </button>
+        </div>
+
+        {activeTab === 'marketing' && (profile?.role === 'admin' || profile?.role === 'Napoleon') && (
+          <button
+            onClick={handleForceResetSync}
+            disabled={syncingCalendar || loadingCalendar}
+            style={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              color: '#ef4444',
+              padding: '8px 16px',
+              borderRadius: '10px',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            🔄 Reset & Sync Calendars
+          </button>
+        )}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '28px', alignItems: 'start' }}>
@@ -217,27 +459,52 @@ export default function AdminCalendar() {
                 }}
                 frameBorder="0"
               ></iframe>
-            ) : loadingCalendar ? (
-              <div style={{ height: '700px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', fontWeight: 600 }}>
-                Loading Follow-Ups Calendar...
-              </div>
-            ) : followupsCalendarId ? (
-              <iframe 
-                src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(followupsCalendarId)}&mode=WEEK&showPrint=0&showTabs=0&showCalendars=0&showTz=1`}
-                style={{ 
-                  border: 0, 
-                  width: '100%', 
-                  height: '700px', 
-                  display: 'block',
-                  background: '#ffffff',
-                  filter: 'invert(0.9) hue-rotate(180deg)'
-                }}
-                frameBorder="0"
-              ></iframe>
+            ) : activeTab === 'followups' ? (
+              loadingCalendar ? (
+                <div style={{ height: '700px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', fontWeight: 600 }}>
+                  Loading Follow-Ups Calendar...
+                </div>
+              ) : followupsCalendarId ? (
+                <iframe 
+                  src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(followupsCalendarId)}&mode=WEEK&showPrint=0&showTabs=0&showCalendars=0&showTz=1`}
+                  style={{ 
+                    border: 0, 
+                    width: '100%', 
+                    height: '700px', 
+                    display: 'block',
+                    background: '#ffffff',
+                    filter: 'invert(0.9) hue-rotate(180deg)'
+                  }}
+                  frameBorder="0"
+                ></iframe>
+              ) : (
+                <div style={{ height: '700px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f87171', fontWeight: 600, textAlign: 'center', padding: '0 24px' }}>
+                  Failed to load Follow-Ups calendar.<br />Please ensure the edge function is deployed and access token is valid.
+                </div>
+              )
             ) : (
-              <div style={{ height: '700px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f87171', fontWeight: 600, textAlign: 'center', padding: '0 24px' }}>
-                Failed to load Follow-Ups calendar.<br />Please ensure the edge function is deployed and access token is valid.
-              </div>
+              loadingCalendar ? (
+                <div style={{ height: '700px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', fontWeight: 600 }}>
+                  Loading Marketing Calendars...
+                </div>
+              ) : (tikTokCalendarId && linkedInCalendarId) ? (
+                <iframe 
+                  src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(linkedInCalendarId)}&color=%233b82f6&src=${encodeURIComponent(tikTokCalendarId)}&color=%23ec4899&mode=AGENDA&showPrint=0&showTabs=0&showCalendars=0&showTz=1`}
+                  style={{ 
+                    border: 0, 
+                    width: '100%', 
+                    height: '700px', 
+                    display: 'block',
+                    background: '#ffffff',
+                    filter: 'invert(0.9) hue-rotate(180deg)'
+                  }}
+                  frameBorder="0"
+                ></iframe>
+              ) : (
+                <div style={{ height: '700px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f87171', fontWeight: 600, textAlign: 'center', padding: '0 24px' }}>
+                  Failed to load Marketing calendars.<br />Please ensure the edge function is deployed and access token is valid.
+                </div>
+              )
             )}
           </div>
         </div>

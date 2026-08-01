@@ -129,6 +129,86 @@ async function getOrCreateFollowUpsCalendar(accessToken: string): Promise<string
   return createData.id
 }
 
+async function getOrCreateTikTokCalendar(accessToken: string): Promise<string> {
+  const listRes = await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList', {
+    headers: { 'Authorization': `Bearer ${accessToken}` }
+  })
+  
+  if (!listRes.ok) {
+    const errText = await listRes.text()
+    throw new Error(`Failed to list calendars: ${listRes.status} — ${errText}`)
+  }
+  
+  const listData = await listRes.json()
+  const calendars = listData.items || []
+  
+  const existing = calendars.find((cal: any) => cal.summary === 'AutoFlow TikTok Calendar')
+  if (existing) {
+    return existing.id
+  }
+  
+  console.log('[Calendar] Creating secondary calendar "AutoFlow TikTok Calendar"...')
+  const createRes = await fetch('https://www.googleapis.com/calendar/v3/calendars', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      summary: 'AutoFlow TikTok Calendar',
+      description: 'TikTok content postings scheduled via CRM.'
+    })
+  })
+  
+  if (!createRes.ok) {
+    const errText = await createRes.text()
+    throw new Error(`Failed to create TikTok calendar: ${createRes.status} — ${errText}`)
+  }
+  
+  const createData = await createRes.json()
+  return createData.id
+}
+
+async function getOrCreateLinkedInCalendar(accessToken: string): Promise<string> {
+  const listRes = await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList', {
+    headers: { 'Authorization': `Bearer ${accessToken}` }
+  })
+  
+  if (!listRes.ok) {
+    const errText = await listRes.text()
+    throw new Error(`Failed to list calendars: ${listRes.status} — ${errText}`)
+  }
+  
+  const listData = await listRes.json()
+  const calendars = listData.items || []
+  
+  const existing = calendars.find((cal: any) => cal.summary === 'AutoFlow LinkedIn Calendar')
+  if (existing) {
+    return existing.id
+  }
+  
+  console.log('[Calendar] Creating secondary calendar "AutoFlow LinkedIn Calendar"...')
+  const createRes = await fetch('https://www.googleapis.com/calendar/v3/calendars', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      summary: 'AutoFlow LinkedIn Calendar',
+      description: 'LinkedIn content postings scheduled via CRM.'
+    })
+  })
+  
+  if (!createRes.ok) {
+    const errText = await createRes.text()
+    throw new Error(`Failed to create LinkedIn calendar: ${createRes.status} — ${errText}`)
+  }
+  
+  const createData = await createRes.json()
+  return createData.id
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: CORS })
@@ -325,6 +405,180 @@ Deno.serve(async (req) => {
       const accessToken = await getAccessToken()
       const calendarId = await getOrCreateFollowUpsCalendar(accessToken)
       return new Response(JSON.stringify({ success: true, calendarId }), {
+        headers: { 'Content-Type': 'application/json', ...CORS }
+      })
+    }
+
+    // ── Get Marketing Calendars (Google Calendar API) ───────────────────────
+    if (type === 'get_marketing_calendars') {
+      const accessToken = await getAccessToken()
+      const tikTokCalendarId = await getOrCreateTikTokCalendar(accessToken)
+      const linkedInCalendarId = await getOrCreateLinkedInCalendar(accessToken)
+      return new Response(JSON.stringify({ success: true, tikTokCalendarId, linkedInCalendarId }), {
+        headers: { 'Content-Type': 'application/json', ...CORS }
+      })
+    }
+
+    // ── Create Marketing Event (Google Calendar API) ────────────────────────
+    if (type === 'create_marketing_event') {
+      const { platform, scheduledDate, dateLabel, dayOfWeek, account, pillar, format, hook, conceptOrTopic, captionOrDestination, cta, notes, startTime, endTime, timeZone, recurrenceRule } = body
+      const accessToken = await getAccessToken()
+      const calendarId = platform === 'tiktok'
+        ? await getOrCreateTikTokCalendar(accessToken)
+        : await getOrCreateLinkedInCalendar(accessToken)
+      
+      const summary = `[${(platform || '').toUpperCase()}] ${conceptOrTopic ? conceptOrTopic.substring(0, 60) : 'Content Post'}`
+      
+      const descriptionLines = [
+        `Platform: ${platform || ''}`,
+        `Pillar: ${pillar || ''}`,
+        `Format: ${format || ''}`,
+        account ? `Account: ${account}` : '',
+        hook ? `Hook: "${hook}"` : '',
+        captionOrDestination ? `Caption/Dest: ${captionOrDestination}` : '',
+        cta ? `CTA: ${cta}` : '',
+        notes ? `Notes: ${notes}` : '',
+        `Date Label: ${dateLabel || ''}`,
+        `Day: ${dayOfWeek || ''}`
+      ].filter(Boolean)
+
+      const eventBody: Record<string, any> = {
+        summary,
+        description: descriptionLines.join('\n')
+      }
+
+      if (startTime && endTime) {
+        eventBody.start = { dateTime: startTime, timeZone: timeZone || 'UTC' }
+        eventBody.end = { dateTime: endTime, timeZone: timeZone || 'UTC' }
+        if (recurrenceRule) {
+          eventBody.recurrence = [recurrenceRule]
+        }
+      } else if (scheduledDate) {
+        eventBody.start = { date: scheduledDate }
+        const endDate = new Date(scheduledDate)
+        endDate.setDate(endDate.getDate() + 1)
+        eventBody.end = { date: endDate.toISOString().split('T')[0] }
+      } else {
+        const todayStr = new Date().toISOString().split('T')[0]
+        eventBody.start = { date: todayStr }
+        const tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+        eventBody.end = { date: tomorrow.toISOString().split('T')[0] }
+        eventBody.summary = `[Weekly/Ongoing] ` + eventBody.summary
+      }
+
+      const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventBody)
+      })
+
+      const resData = await res.json()
+      if (!res.ok) {
+        throw new Error(`Google Calendar API error ${res.status}: ${JSON.stringify(resData)}`)
+      }
+
+      return new Response(JSON.stringify({ success: true, eventId: resData.id }), {
+        headers: { 'Content-Type': 'application/json', ...CORS }
+      })
+    }
+
+    // ── Update Marketing Event (Google Calendar API) ────────────────────────
+    if (type === 'update_marketing_event') {
+      const { eventId, platform, scheduledDate, dateLabel, dayOfWeek, account, pillar, format, hook, conceptOrTopic, captionOrDestination, cta, notes, startTime, endTime, timeZone, recurrenceRule } = body
+      if (!eventId) throw new Error('Missing eventId for update_marketing_event')
+
+      const accessToken = await getAccessToken()
+      const calendarId = platform === 'tiktok'
+        ? await getOrCreateTikTokCalendar(accessToken)
+        : await getOrCreateLinkedInCalendar(accessToken)
+      
+      const summary = `[${(platform || '').toUpperCase()}] ${conceptOrTopic ? conceptOrTopic.substring(0, 60) : 'Content Post'}`
+      
+      const descriptionLines = [
+        `Platform: ${platform || ''}`,
+        `Pillar: ${pillar || ''}`,
+        `Format: ${format || ''}`,
+        account ? `Account: ${account}` : '',
+        hook ? `Hook: "${hook}"` : '',
+        captionOrDestination ? `Caption/Dest: ${captionOrDestination}` : '',
+        cta ? `CTA: ${cta}` : '',
+        notes ? `Notes: ${notes}` : '',
+        `Date Label: ${dateLabel || ''}`,
+        `Day: ${dayOfWeek || ''}`
+      ].filter(Boolean)
+
+      const eventBody: Record<string, any> = {
+        summary,
+        description: descriptionLines.join('\n')
+      }
+
+      if (startTime && endTime) {
+        eventBody.start = { dateTime: startTime, timeZone: timeZone || 'UTC' }
+        eventBody.end = { dateTime: endTime, timeZone: timeZone || 'UTC' }
+        if (recurrenceRule) {
+          eventBody.recurrence = [recurrenceRule]
+        }
+      } else if (scheduledDate) {
+        eventBody.start = { date: scheduledDate }
+        const endDate = new Date(scheduledDate)
+        endDate.setDate(endDate.getDate() + 1)
+        eventBody.end = { date: endDate.toISOString().split('T')[0] }
+      } else {
+        const todayStr = new Date().toISOString().split('T')[0]
+        eventBody.start = { date: todayStr }
+        const tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+        eventBody.end = { date: tomorrow.toISOString().split('T')[0] }
+        eventBody.summary = `[Weekly/Ongoing] ` + eventBody.summary
+      }
+
+      const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events/${eventId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventBody)
+      })
+
+      const resData = await res.json()
+      if (!res.ok) {
+        throw new Error(`Google Calendar API error ${res.status}: ${JSON.stringify(resData)}`)
+      }
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { 'Content-Type': 'application/json', ...CORS }
+      })
+    }
+
+    // ── Delete Marketing Event (Google Calendar API) ────────────────────────
+    if (type === 'delete_marketing_event') {
+      const { eventId, platform } = body
+      if (!eventId) throw new Error('Missing eventId for delete_marketing_event')
+      if (!platform) throw new Error('Missing platform for delete_marketing_event')
+
+      const accessToken = await getAccessToken()
+      const calendarId = platform === 'tiktok'
+        ? await getOrCreateTikTokCalendar(accessToken)
+        : await getOrCreateLinkedInCalendar(accessToken)
+      
+      const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events/${eventId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      })
+
+      if (!res.ok && res.status !== 404) {
+        const errText = await res.text()
+        throw new Error(`Google Calendar API error ${res.status}: ${errText}`)
+      }
+
+      return new Response(JSON.stringify({ success: true }), {
         headers: { 'Content-Type': 'application/json', ...CORS }
       })
     }
