@@ -29,7 +29,7 @@ export async function scheduleFollowUp({ lead, leadType, scheduledAt, notesConte
         type: 'create_followup',
         leadName: lead.name || lead.email || 'Client',
         leadEmail: lead.email || '',
-        leadType: leadType.toLowerCase() === 'booking' ? 'booking' : 'contact',
+        leadType: leadType.toLowerCase() === 'booking' ? 'booking' : leadType.toLowerCase() === 'outreach' ? 'outreach' : 'contact',
         notesContent: notesContent || 'Follow up',
         scheduledAt: scheduledAt.toISOString(),
         salespersonName,
@@ -49,7 +49,7 @@ export async function scheduleFollowUp({ lead, leadType, scheduledAt, notesConte
 
   return supabase.from('reminders').insert({
     lead_id: lead.id,
-    lead_type: leadType.toLowerCase() === 'booking' ? 'booking' : 'contact',
+    lead_type: leadType.toLowerCase() === 'booking' ? 'booking' : leadType.toLowerCase() === 'outreach' ? 'outreach' : 'contact',
     lead_name: lead.name || lead.email || 'Client',
     salesperson_id: salespersonId,
     salesperson_email: salespersonEmail,

@@ -45,32 +45,59 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
   const [rescheduleTime, setRescheduleTime] = useState('')
   const [saving, setSaving] = useState(false)
   const [leadDetails, setLeadDetails] = useState(null)
+  const [tempPhone, setTempPhone] = useState('')
+  const [loggingCall, setLoggingCall] = useState(false)
+  const [callNote, setCallNote] = useState('')
+  const [isActionLoading, setIsActionLoading] = useState(false)
 
   useEffect(() => {
     fetchReminders()
   }, [assigneeFilter, isAdmin, user?.id])
 
   useEffect(() => {
+    setLoggingCall(false)
+    setCallNote('')
+    setTempPhone('')
+
     if (!detailReminder) {
       setLeadDetails(null)
       return
     }
 
     async function fetchLeadDetails() {
-      let table = 'outreach_leads'
-      if (detailReminder.lead_type === 'booking') table = 'booking_leads'
-      else if (detailReminder.lead_type === 'contact') table = 'contact_leads'
+      let primaryTable = 'outreach_leads'
+      if (detailReminder.lead_type === 'booking') primaryTable = 'booking_leads'
+      else if (detailReminder.lead_type === 'contact') primaryTable = 'contact_leads'
 
-      const { data } = await supabase
-        .from(table)
+      // 1. Try the primary matched table
+      let { data } = await supabase
+        .from(primaryTable)
         .select('phone, location')
         .eq('id', detailReminder.lead_id)
         .maybeSingle()
 
+      // 2. Fallback: if not found, scan other lead tables
+      if (!data) {
+        const fallbackTables = ['outreach_leads', 'contact_leads', 'booking_leads'].filter(t => t !== primaryTable)
+        for (const table of fallbackTables) {
+          const { data: fallbackData } = await supabase
+            .from(table)
+            .select('phone, location')
+            .eq('id', detailReminder.lead_id)
+            .maybeSingle()
+          if (fallbackData) {
+            data = fallbackData
+            break
+          }
+        }
+      }
+
       if (data) {
         setLeadDetails(data)
+        setTempPhone(data.phone || '')
       } else {
         setLeadDetails(null)
+        setTempPhone('')
       }
     }
 
@@ -127,12 +154,65 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
     return { bg: 'rgba(59,130,246,0.12)', text: '#93c5fd' }
   }
 
-  async function toggleComplete(r) {
-    const { error } = await supabase.from('reminders').update({ completed: !r.completed, updated_at: new Date().toISOString() }).eq('id', r.id)
+  async function toggleComplete(r, forceVal) {
+    const nextVal = typeof forceVal === 'boolean' ? forceVal : !r.completed
+    const { error } = await supabase.from('reminders').update({ completed: nextVal, updated_at: new Date().toISOString() }).eq('id', r.id)
     if (!error) {
-      setReminders(prev => prev.map(x => x.id === r.id ? { ...x, completed: !r.completed } : x))
-      setDetailReminder(prev => prev && prev.id === r.id ? { ...prev, completed: !r.completed } : prev)
+      setReminders(prev => prev.map(x => x.id === r.id ? { ...x, completed: nextVal } : x))
+      setDetailReminder(prev => prev && prev.id === r.id ? { ...prev, completed: nextVal } : prev)
     }
+  }
+
+  async function savePhone() {
+    if (!detailReminder) return
+    const table = detailReminder.lead_type === 'booking' ? 'booking_leads' : detailReminder.lead_type === 'contact' ? 'contact_leads' : 'outreach_leads'
+    await supabase.from(table).update({ phone: tempPhone }).eq('id', detailReminder.lead_id)
+    setLeadDetails(prev => prev ? { ...prev, phone: tempPhone } : { phone: tempPhone, location: null })
+  }
+
+  async function handleLogCall() {
+    if (!detailReminder || isActionLoading) return
+    setIsActionLoading(true)
+
+    const leadId = detailReminder.lead_id
+    const leadType = detailReminder.lead_type
+    const table = leadType === 'booking' ? 'booking_leads' : leadType === 'contact' ? 'contact_leads' : 'outreach_leads'
+
+    const { data: leadData } = await supabase
+      .from(table)
+      .select('name, email, call_attempts')
+      .eq('id', leadId)
+      .maybeSingle()
+
+    if (leadData) {
+      const newCount = (leadData.call_attempts || 0) + 1
+      const updatePayload = { call_attempts: newCount }
+      if (callNote) updatePayload.notes = callNote
+
+      const { error: updateError } = await supabase.from(table).update(updatePayload).eq('id', leadId)
+
+      if (!updateError) {
+        const finalContent = callNote
+          ? `Call attempt #${newCount}: ${callNote}`
+          : `Call attempt #${newCount} to ${leadData.name || leadData.email || detailReminder.lead_name}`
+
+        await supabase.from('lead_history').insert({
+          lead_id: leadId,
+          lead_type: leadType,
+          event_type: 'call',
+          content: finalContent,
+          admin_id: user?.id
+        })
+
+        await toggleComplete(detailReminder, true)
+        
+        setLoggingCall(false)
+        setCallNote('')
+        setDetailReminder(null)
+      }
+    }
+
+    setIsActionLoading(false)
   }
 
   async function deleteReminder(r) {
@@ -344,19 +424,6 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
               <div>
                 <h3 style={{ margin: 0, color: 'white', fontSize: '1.15rem', fontWeight: 800, textDecoration: detailReminder.completed ? 'line-through' : 'none' }}>{detailReminder.lead_name}</h3>
                 <p style={{ margin: '4px 0 0', color: '#64748B', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>{detailReminder.lead_type} · {detailReminder.source === 'manual' ? 'Manually scheduled' : 'Detected from note'}</p>
-                {leadDetails?.phone && (
-                  <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <a href={`tel:${leadDetails.phone}`} style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                      {leadDetails.phone}
-                    </a>
-                    <span style={{ color: '#475569', fontSize: '0.8rem' }}>•</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: '#a855f7', fontWeight: 700 }}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                      <span>{getLeadLocalTimeStr(leadDetails)}</span>
-                    </div>
-                  </div>
-                )}
               </div>
               <button onClick={() => setDetailReminder(null)} style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -374,11 +441,91 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
                   <button onClick={saveReschedule} disabled={saving} style={{ flex: 1, padding: '10px', background: '#fb923c', border: 'none', color: '#1a0f00', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', fontSize: '0.85rem', opacity: saving ? 0.7 : 1 }}>{saving ? 'Saving…' : 'Save'}</button>
                 </div>
               </>
+            ) : loggingCall ? (
+              <>
+                <div style={{ marginBottom: '16px' }}>
+                  <p style={{ margin: '0 0 6px', color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>Log Call Details</p>
+                  <textarea
+                    placeholder="Enter call notes/outcome (optional)..."
+                    value={callNote}
+                    onChange={e => setCallNote(e.target.value)}
+                    style={{
+                      width: '100%',
+                      height: '80px',
+                      padding: '10px',
+                      background: 'rgba(255,255,255,0.03)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '12px',
+                      color: 'white',
+                      outline: 'none',
+                      fontSize: '0.85rem',
+                      boxSizing: 'border-box',
+                      resize: 'none'
+                    }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button onClick={() => setLoggingCall(false)} style={{ flex: 1, padding: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#94A3B8', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem' }}>Cancel</button>
+                  <button onClick={handleLogCall} disabled={isActionLoading} style={{ flex: 1, padding: '10px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', fontSize: '0.85rem', opacity: isActionLoading ? 0.7 : 1 }}>
+                    {isActionLoading ? 'Logging...' : 'Confirm Call Log'}
+                  </button>
+                </div>
+              </>
             ) : (
               <>
                 <div style={{ marginBottom: '16px' }}>
                   <p style={{ margin: '0 0 4px', color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>Scheduled For</p>
                   <p style={{ margin: 0, color: '#fdba74', fontSize: '0.95rem', fontWeight: 700 }}>{formatFollowUpDate(detailReminder.scheduled_at)}</p>
+                </div>
+                <div style={{ marginBottom: '16px' }}>
+                  <p style={{ margin: '0 0 4px', color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>Phone Number</p>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="text"
+                      placeholder="No phone number logged"
+                      value={tempPhone}
+                      onChange={e => setTempPhone(e.target.value)}
+                      onBlur={savePhone}
+                      onKeyDown={e => e.key === 'Enter' && e.currentTarget.blur()}
+                      style={{
+                        flex: 1,
+                        padding: '10px',
+                        background: 'rgba(255,255,255,0.03)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '10px',
+                        color: 'white',
+                        outline: 'none',
+                        fontSize: '0.85rem'
+                      }}
+                    />
+                    {tempPhone && (
+                      <a
+                        href={`tel:${tempPhone}`}
+                        style={{
+                          background: 'rgba(59, 130, 246, 0.1)',
+                          border: '1px solid rgba(59, 130, 246, 0.3)',
+                          borderRadius: '10px',
+                          width: '38px',
+                          height: '38px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#3b82f6',
+                          cursor: 'pointer',
+                          textDecoration: 'none'
+                        }}
+                        title="Call Lead"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                      </a>
+                    )}
+                  </div>
+                  {leadDetails && (getLeadLocalTimeStr(leadDetails) !== 'N/A' || tempPhone) && (
+                    <div style={{ marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: '#a855f7', fontWeight: 700 }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      <span>Local Time: {getLeadLocalTimeStr({ ...leadDetails, phone: tempPhone })}</span>
+                    </div>
+                  )}
                 </div>
                 <div style={{ marginBottom: '20px' }}>
                   <p style={{ margin: '0 0 4px', color: '#64748B', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>Note</p>
@@ -395,8 +542,11 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
                     </button>
                   </div>
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <button onClick={() => handleViewLead(detailReminder)} style={{ flex: 1, padding: '11px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '0.8rem' }}>
+                    <button onClick={() => handleViewLead(detailReminder)} style={{ flex: 1, padding: '11px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'white', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '0.8rem' }}>
                       View Lead
+                    </button>
+                    <button onClick={() => setLoggingCall(true)} style={{ flex: 1, padding: '11px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '0.8rem', boxShadow: '0 4px 12px rgba(233, 30, 99, 0.2)' }}>
+                      Log Call
                     </button>
                     <button onClick={() => deleteReminder(detailReminder)} style={{ padding: '11px 16px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '0.8rem' }}>
                       Delete
