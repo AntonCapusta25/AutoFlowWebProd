@@ -404,6 +404,16 @@ const FlowStyles = () => (
       object-fit: cover;
       transform: scale(1.02);
     }
+    .service-stack-logo-watermark {
+      position: absolute;
+      bottom: 36px;
+      right: 36px;
+      height: 72px;
+      width: auto;
+      opacity: 0.7;
+      pointer-events: none;
+      z-index: 2;
+    }
     .service-stack-orbit {
       position: absolute;
       width: 520px;
@@ -474,6 +484,12 @@ const FlowStyles = () => (
         width: 360px;
         height: 360px;
         right: -120px;
+      }
+      .service-stack-logo-watermark {
+        bottom: 20px !important;
+        right: 20px !important;
+        height: 36px !important;
+        opacity: 0.55 !important;
       }
     }
     @media (max-width: 1200px) {
@@ -1312,16 +1328,7 @@ export default function Home({ lang = 'en' }) {
                     src="/images/logo.png"
                     alt=""
                     aria-hidden="true"
-                    style={{
-                      position: 'absolute',
-                      bottom: '36px',
-                      right: '36px',
-                      height: '72px',
-                      width: 'auto',
-                      opacity: 0.7,
-                      pointerEvents: 'none',
-                      zIndex: 2
-                    }}
+                    className="service-stack-logo-watermark"
                   />
                 </div>
               </article>
