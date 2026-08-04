@@ -318,7 +318,7 @@ export default function Hero({ lang = 'en' }) {
           {/* Top Section: Text in Night Sky */}
           <div style={{ textAlign: 'center', marginTop: '4vh' }}>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
-              <img src="/images/logo.webp" alt="AutoFlow Studio Logo" style={{ height: '64px', width: 'auto' }} />
+              <img src="/images/logo.webp" alt="AutoFlow Studio Logo" width="64" height="64" style={{ height: '64px', width: 'auto' }} />
             </div>
             <h1 className="hero-title" style={{ 
               fontFamily: "'Bebas Neue', 'Space Grotesk', 'Inter', sans-serif", 
@@ -429,7 +429,9 @@ export default function Hero({ lang = 'en' }) {
                   {l.type === 'image' ? (
                     <img 
                       src={l.src} 
-                      alt={l.name} 
+                      alt={l.name}
+                      width="70"
+                      height={l.name === 'Recraft' ? 46 : l.name === 'Oceanlove' ? 48 : 32}
                       style={{ 
                         height: l.name === 'Recraft' ? '46px' : l.name === 'Oceanlove' ? '48px' : '32px', 
                         width: 'auto', 

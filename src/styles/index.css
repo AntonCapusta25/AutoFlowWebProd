@@ -615,7 +615,7 @@ nav.navbar::after {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background: url('/images/hero-bg-dark-v2.png') no-repeat center bottom;
+    background: url('/images/hero-bg-dark-v2.webp') no-repeat center bottom;
     background-size: cover;
     background-color: #000000;
     /* Fallback */
