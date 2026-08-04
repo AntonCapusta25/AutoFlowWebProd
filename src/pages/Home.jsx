@@ -491,6 +491,9 @@ const FlowStyles = () => (
         height: 36px !important;
         opacity: 0.55 !important;
       }
+      .service-stack-theme-text {
+        display: none !important;
+      }
     }
     @media (max-width: 1200px) {
       .bento-grid {
@@ -1293,7 +1296,7 @@ export default function Home({ lang = 'en' }) {
                   }}>
                     <div className="service-stack-meta">
                       <span className="service-stack-number">{String(idx + 1).padStart(2, '0')}</span>
-                      <span>{card.theme}</span>
+                      <span className="service-stack-theme-text">{card.theme}</span>
                     </div>
 
                     <div style={{
