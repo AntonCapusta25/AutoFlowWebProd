@@ -7,7 +7,7 @@ export const PROJECTS = [
     client: 'Homemade B.V.',
     industry: 'Food Delivery Platform',
     location: 'The Netherlands',
-    heroImage: '/images/food_photography_automation.jpg',
+    heroImage: '/images/food_photography_automation.webp',
     overview: {
       client: 'Homemade B.V. - Food delivery platform connecting home chefs with customers',
       challenge: 'Inconsistent food photography quality hindering growth and professional brand image',
@@ -86,7 +86,7 @@ export const PROJECTS = [
     client: 'Confidential SME',
     industry: 'E-commerce Retail',
     location: 'The Netherlands',
-    heroImage: '/images/customer_support_ai.jpg',
+    heroImage: '/images/customer_support_ai.webp',
     overview: {
       client: 'Dutch E-commerce SME (Specialty Retail)',
       challenge: 'Overwhelming customer support volume on Telegram threatening service quality',
@@ -156,7 +156,7 @@ export const PROJECTS = [
     client: 'Confidential SME',
     industry: 'B2B Consulting',
     location: 'Multi-national Operations',
-    heroImage: '/images/lead_generation_ai.jpg',
+    heroImage: '/images/lead_generation_ai.webp',
     overview: {
       client: 'European B2B Consulting SME (Multi-national operations)',
       challenge: 'Manual lead research limiting growth to 50-80 leads per day',
