@@ -344,7 +344,7 @@ export default function Hero({ lang = 'en' }) {
                     WebkitTextFillColor: 'transparent',
                     whiteSpace: 'nowrap'
                   }}>
-                    {headlineText}
+                    {headlineText || '\u00A0'}
                   </span>
                 </span>
               </div>

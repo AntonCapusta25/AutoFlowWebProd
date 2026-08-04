@@ -1281,6 +1281,8 @@ export default function Home({ lang = 'en' }) {
                 <img
                   src={card.image}
                   alt={card.title}
+                  width="800"
+                  height="533"
                   className="service-stack-card-img"
                 />
                 <div className="service-stack-card-inner">
@@ -1333,6 +1335,8 @@ export default function Home({ lang = 'en' }) {
                   <img
                     src="/images/logo.webp"
                     alt=""
+                    width="72"
+                    height="72"
                     aria-hidden="true"
                     className="service-stack-logo-watermark"
                   />

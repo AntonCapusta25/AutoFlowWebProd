@@ -32,7 +32,8 @@ const AdminDeals        = lazy(() => import('./pages/Admin/Deals'))
 const AdminChat         = lazy(() => import('./pages/Admin/Chat'))
 const AdminCalendar     = lazy(() => import('./pages/Admin/Calendar'))
 const AdminMarketing    = lazy(() => import('./pages/Admin/Marketing/index'))
-import AuthGuard, { AdminGuard } from './components/Admin/AuthGuard'
+const AuthGuard = lazy(() => import('./components/Admin/AuthGuard'))
+const AdminGuard = lazy(() => import('./components/Admin/AuthGuard').then(m => ({ default: m.AdminGuard })))
 
 const Loading = () => <div style={{ minHeight: '100vh', background: '#0F1115' }} />
 
