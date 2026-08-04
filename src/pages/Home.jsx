@@ -248,7 +248,7 @@ const FlowStyles = () => (
     .services-stack {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 64px;
       margin-top: 64px;
     }
     .service-stack-card {
@@ -493,6 +493,9 @@ const FlowStyles = () => (
       }
       .service-stack-theme-text {
         display: none !important;
+      }
+      .services-stack {
+        gap: 20px !important;
       }
     }
     @media (max-width: 1200px) {
@@ -1271,7 +1274,7 @@ export default function Home({ lang = 'en' }) {
                 key={card.title}
                 className="service-stack-card"
                 style={{
-                  top: `${96 + idx * 18}px`,
+                  top: `${96 + idx * 64}px`,
                   background: card.tint,
                 }}
               >
