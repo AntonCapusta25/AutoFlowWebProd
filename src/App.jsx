@@ -1,45 +1,41 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useState, useEffect } from 'react'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import CookiesBanner from './components/CookiesBanner'
-import PriceCalculator from './components/PriceCalculator'
 import PromoBanner from './components/PromoBanner'
 import MultiStepBooking from './components/MultiStepBooking'
-import { useState, useEffect } from 'react'
-
-
-import Home from './pages/Home'
-import Portfolio from './pages/Portfolio'
-import Contact from './pages/Contact'
-import NotFound from './pages/NotFound'
-import PrivacyPolicy from './pages/PrivacyPolicy'
-import CookiePolicy from './pages/CookiePolicy'
 import './styles/index.css'
 
-// Lazy-loaded (blog content is large — only fetch when needed)
+// ── Public pages (lazy) ───────────────────────────────────────────────────
+const Home          = lazy(() => import('./pages/Home'))
+const Portfolio     = lazy(() => import('./pages/Portfolio'))
+const Contact       = lazy(() => import('./pages/Contact'))
+const NotFound      = lazy(() => import('./pages/NotFound'))
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
+const CookiePolicy  = lazy(() => import('./pages/CookiePolicy'))
 const Blog          = lazy(() => import('./pages/Blog'))
-const BlogPost     = lazy(() => import('./pages/BlogPost'))
+const BlogPost      = lazy(() => import('./pages/BlogPost'))
 const ProjectDetail = lazy(() => import('./pages/ProjectDetail'))
 
-// Admin (Lazy)
-import AdminLogin from './pages/Admin/Login'
-import AdminDashboard from './pages/Admin/Dashboard'
-import AdminLeads from './pages/Admin/Leads'
-import AdminOutreach from './pages/Admin/Outreach'
-import AdminSegments from './pages/Admin/Segments'
-import AdminSegmentView from './pages/Admin/SegmentView'
-import AdminCampaigns from './pages/Admin/Campaigns'
-import AdminEmailSettings from './pages/Admin/EmailSettings'
-import AdminTeam from './pages/Admin/Team'
-import AdminDeals from './pages/Admin/Deals'
-import AdminChat from './pages/Admin/Chat'
-import AdminCalendar from './pages/Admin/Calendar'
-import AdminMarketing from './pages/Admin/Marketing/index'
+// ── Admin pages (lazy — never fetched by public visitors) ─────────────────
+const AdminLogin        = lazy(() => import('./pages/Admin/Login'))
+const AdminDashboard    = lazy(() => import('./pages/Admin/Dashboard'))
+const AdminLeads        = lazy(() => import('./pages/Admin/Leads'))
+const AdminOutreach     = lazy(() => import('./pages/Admin/Outreach'))
+const AdminSegments     = lazy(() => import('./pages/Admin/Segments'))
+const AdminSegmentView  = lazy(() => import('./pages/Admin/SegmentView'))
+const AdminCampaigns    = lazy(() => import('./pages/Admin/Campaigns'))
+const AdminEmailSettings= lazy(() => import('./pages/Admin/EmailSettings'))
+const AdminTeam         = lazy(() => import('./pages/Admin/Team'))
+const AdminDeals        = lazy(() => import('./pages/Admin/Deals'))
+const AdminChat         = lazy(() => import('./pages/Admin/Chat'))
+const AdminCalendar     = lazy(() => import('./pages/Admin/Calendar'))
+const AdminMarketing    = lazy(() => import('./pages/Admin/Marketing/index'))
 import AuthGuard, { AdminGuard } from './components/Admin/AuthGuard'
 
-
 const Loading = () => <div style={{ minHeight: '100vh', background: '#0F1115' }} />
+
 
 export default function App() {
   return (
