@@ -5,25 +5,25 @@ import { getT } from '../i18n/translations'
 
 
 const LOGOS = [
-  { name: 'Gemini', src: '/images/logos/gemini_new.png', type: 'image' },
-  { name: 'Google AI Studio', src: '/images/logos/google_ai_studio_new.png', type: 'image' },
-  { name: 'Google Cloud', src: '/images/logos/gcloud_new.png', type: 'image' },
-  { name: 'Anthropic', src: '/images/logos/anthropic_new.png', type: 'image' },
-  { name: 'Claude', src: '/images/logos/flower_new.png', type: 'image' },
-  { name: 'Mistral', src: '/images/logos/mistral_new.png', type: 'image' },
-  { name: 'Llama', src: '/images/logos/llama_new.png', type: 'image' },
-  { name: 'Meta', src: '/images/logos/meta_new.png', type: 'image' },
-  { name: 'ChatGPT', src: '/images/logos/chatgpt_icon_new.png', type: 'image' },
-  { name: 'Recraft', src: '/images/logos/recraft_icon_new.png', type: 'image' },
-  { name: 'Vercel', src: '/images/logos/vercel_new.png', type: 'image' },
-  { name: 'Gmail', src: '/images/logos/gmail_new.png', type: 'image' },
-  { name: 'Google Drive', src: '/images/logos/gdrive_new.png', type: 'image' },
-  { name: 'Google Meet', src: '/images/logos/gmeet_new.png', type: 'image' },
-  { name: 'Supabase', src: '/images/logos/supabase.png', type: 'image' },
-  { name: 'Stripe', src: '/images/logos/bars_new.png', type: 'image' },
-  { name: 'SendGrid', src: '/images/logos/sendgrid.png', type: 'image' },
-  { name: 'Homemade', src: '/images/logos/homemade_new.png', type: 'image' },
-  { name: 'Oceanlove', src: '/images/logos/oceanlove_new.png', type: 'image' },
+  { name: 'Gemini', src: '/images/logos/gemini_new.webp', type: 'image' },
+  { name: 'Google AI Studio', src: '/images/logos/google_ai_studio_new.webp', type: 'image' },
+  { name: 'Google Cloud', src: '/images/logos/gcloud_new.webp', type: 'image' },
+  { name: 'Anthropic', src: '/images/logos/anthropic_new.webp', type: 'image' },
+  { name: 'Claude', src: '/images/logos/flower_new.webp', type: 'image' },
+  { name: 'Mistral', src: '/images/logos/mistral_new.webp', type: 'image' },
+  { name: 'Llama', src: '/images/logos/llama_new.webp', type: 'image' },
+  { name: 'Meta', src: '/images/logos/meta_new.webp', type: 'image' },
+  { name: 'ChatGPT', src: '/images/logos/chatgpt_icon_new.webp', type: 'image' },
+  { name: 'Recraft', src: '/images/logos/recraft_icon_new.webp', type: 'image' },
+  { name: 'Vercel', src: '/images/logos/vercel_new.webp', type: 'image' },
+  { name: 'Gmail', src: '/images/logos/gmail_new.webp', type: 'image' },
+  { name: 'Google Drive', src: '/images/logos/gdrive_new.webp', type: 'image' },
+  { name: 'Google Meet', src: '/images/logos/gmeet_new.webp', type: 'image' },
+  { name: 'Supabase', src: '/images/logos/supabase.webp', type: 'image' },
+  { name: 'Stripe', src: '/images/logos/bars_new.webp', type: 'image' },
+  { name: 'SendGrid', src: '/images/logos/sendgrid.webp', type: 'image' },
+  { name: 'Homemade', src: '/images/logos/homemade_new.webp', type: 'image' },
+  { name: 'Oceanlove', src: '/images/logos/oceanlove_new.webp', type: 'image' },
 ]
 
 const TYPEWRITER_ITEMS_EN = [
@@ -318,7 +318,7 @@ export default function Hero({ lang = 'en' }) {
           {/* Top Section: Text in Night Sky */}
           <div style={{ textAlign: 'center', marginTop: '4vh' }}>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
-              <img src="/images/logo.png" alt="AutoFlow Studio Logo" style={{ height: '64px', width: 'auto' }} />
+              <img src="/images/logo.webp" alt="AutoFlow Studio Logo" style={{ height: '64px', width: 'auto' }} />
             </div>
             <h1 className="hero-title" style={{ 
               fontFamily: "'Bebas Neue', 'Space Grotesk', 'Inter', sans-serif", 

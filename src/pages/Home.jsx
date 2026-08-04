@@ -1028,7 +1028,7 @@ export default function Home({ lang = 'en' }) {
   const startupStackCards = [
     {
       ...t.startupDreams.cards[0],
-      image: '/images/startup-stack/card-1.png',
+      image: '/images/startup-stack/card-1.webp',
       theme: lang === 'nl' ? 'rommel eruit' : 'fix the mess',
       tint: 'linear-gradient(135deg, #2d3444 0%, #151821 45%, #0d0f15 100%)',
       badges: lang === 'nl'
@@ -1037,7 +1037,7 @@ export default function Home({ lang = 'en' }) {
     },
     {
       ...t.startupDreams.cards[1],
-      image: '/images/startup-stack/card-2.png',
+      image: '/images/startup-stack/card-2.webp',
       theme: lang === 'nl' ? 'sneller live' : 'move faster',
       tint: 'linear-gradient(135deg, #4d2e28 0%, #1b1514 48%, #110e0d 100%)',
       badges: lang === 'nl'
@@ -1046,7 +1046,7 @@ export default function Home({ lang = 'en' }) {
     },
     {
       ...t.startupDreams.cards[4],
-      image: '/images/startup-stack/card-3.png',
+      image: '/images/startup-stack/card-3.webp',
       theme: lang === 'nl' ? 'meer groei' : 'more growth',
       tint: 'linear-gradient(135deg, #1e433d 0%, #111a1a 48%, #0b1010 100%)',
       badges: lang === 'nl'
@@ -1055,7 +1055,7 @@ export default function Home({ lang = 'en' }) {
     },
     {
       ...t.startupDreams.cards[5],
-      image: '/images/startup-stack/card-4.png',
+      image: '/images/startup-stack/card-4.webp',
       theme: lang === 'nl' ? 'klaar voor groei' : 'built to last',
       tint: 'linear-gradient(135deg, #36304d 0%, #17141f 46%, #0d0c12 100%)',
       badges: lang === 'nl'
@@ -1118,7 +1118,7 @@ export default function Home({ lang = 'en' }) {
               whileHover={{ y: -8, transition: { duration: 0.3 } }}
               className="bento-card card-tall"
               style={{
-                background: "url('/images/outreach-automation.png') center center / cover no-repeat",
+                background: "url('/images/outreach-automation.webp') center center / cover no-repeat",
               }}
             >
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(5,5,5,0.85) 0%, rgba(5,5,5,0.3) 50%, rgba(5,5,5,0) 100%)', zIndex: 1 }} />
@@ -1141,7 +1141,7 @@ export default function Home({ lang = 'en' }) {
               whileHover={{ y: -8 }}
               className="bento-card card-topmid"
               style={{
-                background: "url('/images/smart-reporting.png') center center / cover no-repeat",
+                background: "url('/images/smart-reporting.webp') center center / cover no-repeat",
               }}
             >
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(5,5,5,0.85) 0%, rgba(5,5,5,0.3) 50%, rgba(5,5,5,0) 100%)', zIndex: 1 }} />
@@ -1331,7 +1331,7 @@ export default function Home({ lang = 'en' }) {
 
                   {/* Logo watermark — bottom-right */}
                   <img
-                    src="/images/logo.png"
+                    src="/images/logo.webp"
                     alt=""
                     aria-hidden="true"
                     className="service-stack-logo-watermark"

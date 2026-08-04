@@ -5,7 +5,7 @@ export default function CookiePolicy() {
     <main className="main-content policy-page">
       <div className="container" style={{maxWidth:'800px',padding:'120px 20px 80px'}}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
-          <img src="/images/logo.png" alt="AutoFlow Studio Logo" style={{ height: '36px', width: 'auto' }} />
+          <img src="/images/logo.webp" alt="AutoFlow Studio Logo" style={{ height: '36px', width: 'auto' }} />
           <h1 style={{color:'#F8FAFC',margin:0}}>Cookie Policy</h1>
         </div>
         <div style={{color:'#94A3B8',lineHeight:1.8,fontSize:'0.95rem'}}>

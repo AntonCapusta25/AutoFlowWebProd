@@ -1,0 +1,25 @@
+# AutoFlow Studio
+
+AutoFlow Studio builds custom software and automation systems for businesses. We help companies automate CRMs, sales pipelines, reporting, client onboarding, and marketing funnels — delivered in under 7 days.
+
+## Services
+
+- [Automation Systems](https://autoflowstudio.net/#services) — End-to-end automation for sales, CRM, and operations
+- [Custom Web Applications](https://autoflowstudio.net/#services) — Professional CRMs and client portals built for scale
+- [Smart Reporting](https://autoflowstudio.net/#services) — Automated dashboards and real-time business intelligence
+- [AI Agent Workflows](https://autoflowstudio.net/#services) — Hyper-personalized outreach and AI-powered pipelines
+
+## About
+
+AutoFlow Studio is a software automation agency. We replace fragile, duct-tape integrations with robust custom-coded systems that scale. Our team works fast — most projects are delivered in under 7 days.
+
+## Contact
+
+- Website: [autoflowstudio.net](https://autoflowstudio.net)
+- Email: info@autoflowstudio.net
+- Booking: [Book a free audit](https://autoflowstudio.net/#booking)
+
+## Legal
+
+- [Privacy Policy](https://autoflowstudio.net/privacy)
+- [Cookie Policy](https://autoflowstudio.net/cookies)

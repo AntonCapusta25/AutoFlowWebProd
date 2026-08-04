@@ -46,7 +46,7 @@ export default function BlogPost({ lang = 'en' }) {
         'url': 'https://autoflow.studio',
         'logo': {
           '@type': 'ImageObject',
-          'url': 'https://autoflow.studio/images/logo.png'
+          'url': 'https://autoflow.studio/images/logo.webp'
         }
       },
       'mainEntityOfPage': {

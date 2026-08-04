@@ -14,7 +14,7 @@ export default function Footer() {
         <div className="footer-flex">
           <div className="footer-branding">
             <Link to={prefix || '/'} className="footer-logo" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-              <img src="/images/logo.png" alt="AutoFlow Studio Logo" style={{ height: '28px', width: 'auto' }} />
+              <img src="/images/logo.webp" alt="AutoFlow Studio Logo" style={{ height: '28px', width: 'auto' }} />
               <span>AutoFlow Studio</span>
             </Link>
             <p className="copyright">© 2026 AutoFlow Studio. {t.footer.rights}</p>
