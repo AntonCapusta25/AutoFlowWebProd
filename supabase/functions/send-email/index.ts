@@ -804,6 +804,27 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json', ...CORS } })
     }
 
+    // ── 2b. Chatbot Takeover Notifications ─────────────────────────────────────
+    if (type === 'chatbot_notification') {
+      const { recipient: to, subject: finalSubject, html: wrappedHtml } = body
+      if (!to || !finalSubject || !wrappedHtml) throw new Error('Missing required chatbot_notification fields: recipient, subject, html')
+
+      const accessToken = await getAccessToken()
+      console.log('[chatbot_notification] Sending to:', to, 'subject:', finalSubject)
+      const raw = createRawMessage(to, finalSubject, wrappedHtml)
+      const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ raw }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(`Chatbot notification email failed: ${JSON.stringify(err)}`)
+      }
+      console.log('[chatbot_notification] Sent OK')
+      return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json', ...CORS } })
+    }
+
     // ── 3. Lead form submissions (booking / contact) ─────────────────────────
     if (!email || !name) {
       throw new Error(`Missing required lead info: name=${name}, email=${email}`);

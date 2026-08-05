@@ -24,10 +24,36 @@ Deno.serve(async (req) => {
 
     // 1. Parse request body
     const body = await req.json()
-    const { message, history = [] } = body
+    const { message, chat_id, history = [] } = body
 
     if (!message) {
       throw new Error('Missing "message" in request body')
+    }
+
+    // Trigger GDPR cleanup once in a while (5% probability)
+    if (Math.random() < 0.05) {
+      console.log('[chatbot] Running GDPR cleanup...')
+      await supabase.rpc('cleanup_old_customer_chats')
+    }
+
+    // If chat_id is passed, verify that status is not 'human'
+    if (chat_id) {
+      const { data: chatData, error: chatError } = await supabase
+        .from('customer_chats')
+        .select('status')
+        .eq('id', chat_id)
+        .maybeSingle()
+
+      if (chatError) {
+        console.error('[chatbot] Error checking chat status:', chatError)
+      }
+
+      if (chatData?.status === 'human') {
+        console.log('[chatbot] Human agent has taken over. Bot will not respond.')
+        return new Response(JSON.stringify({ reply: '' }), {
+          headers: { 'Content-Type': 'application/json', ...CORS }
+        })
+      }
     }
 
     // 2. Query company knowledge base from database
@@ -105,6 +131,28 @@ Do not answer the off-topic question under any circumstances.
 
     // Extract text from Gemini response structure
     const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't generate a response."
+
+    // Save bot response to database if chat_id is provided
+    if (chat_id) {
+      console.log('[chatbot] Saving bot response to customer_messages table...')
+      const { error: msgError } = await supabase
+        .from('customer_messages')
+        .insert([{
+          chat_id,
+          sender_type: 'bot',
+          content: replyText
+        }])
+      
+      if (msgError) {
+        console.error('[chatbot] Error inserting bot reply:', msgError)
+      } else {
+        // Update updated_at on the chat session
+        await supabase
+          .from('customer_chats')
+          .update({ updated_at: new Date().toISOString() })
+          .eq('id', chat_id)
+      }
+    }
 
     return new Response(JSON.stringify({ reply: replyText }), {
       headers: { 'Content-Type': 'application/json', ...CORS }

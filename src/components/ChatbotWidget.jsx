@@ -1,58 +1,27 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
+import { supabase } from '../lib/supabase'
 
 export default function ChatbotWidget() {
   const location = useLocation()
   const isNl = location.pathname.startsWith('/nl')
   
   const [isOpen, setIsOpen] = useState(false)
-  const [messages, setMessages] = useState(() => {
-    // Starting messages
-    const welcome = isNl 
-      ? 'Hallo! Ik ben de AI-assistent van AutoFlow Studio. Hoe kan ik u vandaag helpen met automatisering?'
-      : 'Hello! I am AutoFlow Studio\'s AI assistant. How can I help you automate your business today?'
-    return [{ role: 'model', content: welcome, id: 'welcome' }]
-  })
+  const [viewMode, setViewMode] = useState('chat') // 'chat' or 'history'
+  
+  // Database Chat Session State
+  const [activeChat, setActiveChat] = useState(null)
+  const [messages, setMessages] = useState([])
+  const [chatHistoryList, setChatHistoryList] = useState([])
+  const [dbResponseTree, setDbResponseTree] = useState([])
+  
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef(null)
 
-  // Re-initialize welcome message if language changes
-  useEffect(() => {
-    setMessages(prev => {
-      if (prev.length === 1 && prev[0].id === 'welcome') {
-        const welcome = isNl 
-          ? 'Hallo! Ik ben de AI-assistent van AutoFlow Studio. Hoe kan ik u vandaag helpen met automatisering?'
-          : 'Hello! I am AutoFlow Studio\'s AI assistant. How can I help you automate your business today?'
-        return [{ role: 'model', content: welcome, id: 'welcome' }]
-      }
-      return prev
-    })
-  }, [isNl])
-
-  // Scroll to bottom
-  useEffect(() => {
-    if (isOpen) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }
-  }, [messages, loading, isOpen])
-
-  const quickChips = isNl
-    ? [
-        { label: 'Wat doen jullie?', text: 'Wat doen jullie?' },
-        { label: 'Tarieven & Prijzen', text: 'Wat zijn jullie tarieven en prijzen?' },
-        { label: 'Voorbeelden', text: 'Kun je voorbeelden geven van automatiseringen?' },
-        { label: 'Gesprek Boeken', action: 'book' }
-      ]
-    : [
-        { label: 'What do you do?', text: 'What do you do?' },
-        { label: 'Pricing & Rates', text: 'What are your rates and pricing?' },
-        { label: 'Examples', text: 'Can you show examples of automations?' },
-        { label: 'Book a Call', action: 'book' }
-      ]
-
-  const localResponseTree = {
+  // Default Fallback Response Tree (if database table is empty)
+  const fallbackResponseTree = {
     en: {
       'what do you do?': 'We build custom AI automation tools, database systems, and integrations to eliminate your manual work. From CRM syncing to AI chatbots, we automate it all. Check out our projects: [View Portfolio](action:portfolio)',
       'pricing & rates': 'Pricing is custom based on project complexity. Smaller automations start low and are delivered within 7 days. Book a strategy session for a custom quote: [Book a Call](action:book)',
@@ -67,78 +36,276 @@ export default function ChatbotWidget() {
     }
   }
 
-  const getLocalResponse = (text) => {
-    const lang = isNl ? 'nl' : 'en'
-    const normalized = text.toLowerCase().trim().replace(/[?.!]/g, '')
-    const keys = Object.keys(localResponseTree[lang])
-    const matchedKey = keys.find(key => normalized.includes(key) || key.includes(normalized))
-    if (matchedKey) {
-      return localResponseTree[lang][matchedKey]
+  // 1. Fetch DB Response Tree on mount
+  useEffect(() => {
+    async function loadDbTree() {
+      try {
+        const { data } = await supabase.from('chatbot_response_tree').select('*')
+        if (data) setDbResponseTree(data)
+      } catch (err) {
+        console.error('Failed to load db response tree:', err)
+      }
     }
+    loadDbTree()
+  }, [])
+
+  // Helper to fetch matching trigger response
+  const matchResponseTree = (text) => {
+    const normalized = text.toLowerCase().trim().replace(/[?.!]/g, '')
+    const lang = isNl ? 'nl' : 'en'
+
+    // Try DB Tree first
+    const dbMatch = dbResponseTree.find(entry => {
+      const trigger = entry.trigger_word.toLowerCase().trim()
+      return (normalized.includes(trigger) || trigger.includes(normalized)) && entry.lang === lang
+    })
+    if (dbMatch) return dbMatch.response_text
+
+    // Fallback to local hardcoded tree
+    const keys = Object.keys(fallbackResponseTree[lang])
+    const matchedKey = keys.find(key => normalized.includes(key) || key.includes(normalized))
+    if (matchedKey) return fallbackResponseTree[lang][matchedKey]
+
     return null
   }
 
-  const parseMessageButtons = (text) => {
-    const buttonRegex = /\[([^\]]+)\]\((action:[a-z]+|https?:\/\/[^\s)]+|\/[a-z0-9_-]+)\)/g
-    const buttons = []
-    let cleanText = text
-    let match
-    
-    while ((match = buttonRegex.exec(text)) !== null) {
-      buttons.push({
-        label: match[1],
-        action: match[2]
+  // 2. Load or Create Customer Chat Session
+  const initChatSession = async (existingId = null) => {
+    try {
+      let chatId = existingId
+      let storedIds = JSON.parse(localStorage.getItem('autoflow_chat_ids') || '[]')
+
+      if (!chatId) {
+        // Look up last active session from localStorage
+        chatId = storedIds[storedIds.length - 1]
+      }
+
+      let chatData = null
+
+      if (chatId) {
+        // Verify chat exists in Supabase
+        const { data } = await supabase
+          .from('customer_chats')
+          .select('*')
+          .eq('id', chatId)
+          .maybeSingle()
+        chatData = data
+      }
+
+      if (!chatData) {
+        // Create new chat session in database
+        const { data, error } = await supabase
+          .from('customer_chats')
+          .insert([{ session_id: Math.random().toString(36).substring(2), customer_name: 'Visitor' }])
+          .select()
+          .single()
+        
+        if (error) throw error
+        chatData = data
+        
+        // Save ID to storage
+        storedIds.push(data.id)
+        localStorage.setItem('autoflow_chat_ids', JSON.stringify(storedIds))
+      }
+
+      setActiveChat(chatData)
+      loadMessages(chatData.id)
+    } catch (err) {
+      console.error('[chatbot] Failed to initialize chat session:', err)
+    }
+  }
+
+  const loadMessages = async (chatId) => {
+    try {
+      const { data, error } = await supabase
+        .from('customer_messages')
+        .select('*')
+        .eq('chat_id', chatId)
+        .order('created_at', { ascending: true })
+      
+      if (!error && data) {
+        // Map data rows to local messages format
+        const mapped = data.map(msg => ({
+          role: msg.sender_type === 'customer' ? 'user' : 'model',
+          content: msg.content,
+          id: msg.id
+        }))
+
+        if (mapped.length === 0) {
+          // If empty chat history, show welcome
+          const welcome = isNl 
+            ? 'Hallo! Ik ben de AI-assistent van AutoFlow Studio. Hoe kan ik u vandaag helpen met automatisering?'
+            : 'Hello! I am AutoFlow Studio\'s AI assistant. How can I help you automate your business today?'
+          
+          setMessages([{ role: 'model', content: welcome, id: 'welcome' }])
+        } else {
+          setMessages(mapped)
+        }
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const loadChatHistoryList = async () => {
+    try {
+      const storedIds = JSON.parse(localStorage.getItem('autoflow_chat_ids') || '[]')
+      if (storedIds.length === 0) {
+        setChatHistoryList([])
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('customer_chats')
+        .select('*')
+        .in('id', storedIds)
+        .order('updated_at', { ascending: false })
+      
+      if (!error && data) {
+        setChatHistoryList(data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  // Load chat session on mount
+  useEffect(() => {
+    initChatSession()
+  }, [])
+
+  // Fetch history list when viewMode changes to history
+  useEffect(() => {
+    if (viewMode === 'history') {
+      loadChatHistoryList()
+    }
+  }, [viewMode])
+
+  // 3. Real-time subscriptions for active conversation
+  useEffect(() => {
+    if (!activeChat?.id) return
+
+    // Message insertions
+    const msgChannel = supabase
+      .channel(`customer-messages-${activeChat.id}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'customer_messages'
+      }, (payload) => {
+        if (payload.new.chat_id === activeChat.id) {
+          const role = payload.new.sender_type === 'customer' ? 'user' : 'model'
+          setMessages(prev => {
+            // Prevent duplicate insertions
+            if (prev.some(m => m.id === payload.new.id)) return prev
+            // Strip default welcome if first user message is appended
+            const cleanPrev = prev.filter(m => m.id !== 'welcome')
+            return [...cleanPrev, { role, content: payload.new.content, id: payload.new.id }]
+          })
+        }
       })
-    }
+      .subscribe()
 
-    cleanText = text.replace(buttonRegex, '').trim()
-    return { cleanText, buttons }
-  }
+    // Chat status changes (takeovers)
+    const chatChannel = supabase
+      .channel(`customer-chat-status-${activeChat.id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'customer_chats',
+        filter: `id=eq.${activeChat.id}`
+      }, (payload) => {
+        setActiveChat(payload.new)
+      })
+      .subscribe()
 
-  const handleAction = (action) => {
-    if (action === 'action:book') {
-      window.dispatchEvent(new CustomEvent('open-booking'))
-    } else if (action === 'action:whatsapp') {
-      window.open('https://wa.me/31636222681', '_blank')
-    } else if (action === 'action:portfolio') {
-      window.location.href = '/portfolio'
-    } else if (action.startsWith('http')) {
-      window.open(action, '_blank')
-    } else {
-      window.location.href = action
+    return () => {
+      supabase.removeChannel(msgChannel)
+      supabase.removeChannel(chatChannel)
     }
-  }
+  }, [activeChat?.id])
+
+  // Scroll to bottom
+  useEffect(() => {
+    if (isOpen) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [messages, loading, isOpen])
+
+  const quickChips = isNl
+    ? [
+        { label: 'Wat doen jullie?', text: 'Wat doen jullie?' },
+        { label: 'Tarieven & Prijzen', text: 'Wat zijn jullie tarieven en prijzen?' },
+        { label: 'Voorbeelden', text: 'Kun je voorbeelden geven van automatiseringen?' },
+        { label: 'Gesprek Boeken', action: 'book' },
+        { label: 'Spreek met een agent', action: 'takeover' }
+      ]
+    : [
+        { label: 'What do you do?', text: 'What do you do?' },
+        { label: 'Pricing & Rates', text: 'What are your rates and pricing?' },
+        { label: 'Examples', text: 'Can you show examples of automations?' },
+        { label: 'Book a Call', action: 'book' },
+        { label: 'Speak with Agent', action: 'takeover' }
+      ]
 
   const handleSendMessage = async (textToSend) => {
     const text = (textToSend || input).trim()
-    if (!text) return
+    if (!text || !activeChat) return
 
     if (!textToSend) setInput('')
 
-    const userMsg = { role: 'user', content: text, id: Math.random().toString() }
-    setMessages(prev => [...prev, userMsg])
+    // 1. Insert customer message into DB table
+    const { data: userMsgData } = await supabase
+      .from('customer_messages')
+      .insert([{
+        chat_id: activeChat.id,
+        sender_type: 'customer',
+        content: text
+      }])
+      .select()
+      .single()
+
+    // If local state doesn't update immediately via realtime, append it
+    const cleanWelcome = messages.filter(m => m.id !== 'welcome')
+    setMessages([...cleanWelcome, { role: 'user', content: text, id: userMsgData?.id || Math.random().toString() }])
     setLoading(true)
 
-    // Check if we have a local matching response
-    const localAnswer = getLocalResponse(text)
+    // Update updated_at for ordering
+    await supabase
+      .from('customer_chats')
+      .update({ updated_at: new Date().toISOString() })
+      .eq('id', activeChat.id)
+
+    // 2. Try to match configurable response tree offline (instantly)
+    const localAnswer = matchResponseTree(text)
     if (localAnswer) {
-      // Simulate natural typing delay (400ms)
       await new Promise(resolve => setTimeout(resolve, 400))
-      const modelMsg = { role: 'model', content: localAnswer, id: Math.random().toString() }
-      setMessages(prev => [...prev, modelMsg])
+      
+      // Save bot answer directly to database (client handles insertion)
+      const { data: botMsgData } = await supabase
+        .from('customer_messages')
+        .insert([{
+          chat_id: activeChat.id,
+          sender_type: 'bot',
+          content: localAnswer
+        }])
+        .select()
+        .single()
+
+      setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: localAnswer, id: botMsgData?.id || Math.random().toString() }])
       setLoading(false)
       return
     }
 
+    // 3. Fallback: Call Supabase Edge Function to query Gemini / context
     try {
-      // Supabase Edge Function URL
       const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`
       const headers = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
       }
 
-      // Keep only last 10 messages for context size efficiency
+      // History mapping
       const historyContext = messages
         .filter(m => m.id !== 'welcome')
         .slice(-10)
@@ -149,6 +316,7 @@ export default function ChatbotWidget() {
         headers,
         body: JSON.stringify({
           message: text,
+          chat_id: activeChat.id,
           history: historyContext
         })
       })
@@ -156,14 +324,116 @@ export default function ChatbotWidget() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to fetch reply')
 
-      const modelMsg = { role: 'model', content: data.reply, id: Math.random().toString() }
-      setMessages(prev => [...prev, modelMsg])
+      // Real-time channel will append the DB bot message automatically
     } catch (err) {
       console.error('[chatbot] Failed to chat:', err)
       const errorMsg = isNl
         ? 'Sorry, er is een fout opgetreden. Probeer het later opnieuw.'
         : 'Sorry, an error occurred. Please try again later.'
-      setMessages(prev => [...prev, { role: 'model', content: errorMsg, id: Math.random().toString() }])
+      
+      await supabase
+        .from('customer_messages')
+        .insert([{
+          chat_id: activeChat.id,
+          sender_type: 'bot',
+          content: errorMsg
+        }])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Request human takeover & auto-assign Walid
+  const handleRequestTakeover = async () => {
+    if (!activeChat) return
+    setLoading(true)
+    try {
+      // 1. Resolve Walid profile from profiles table
+      const { data: walidProfile } = await supabase
+        .from('profiles')
+        .select('id, email')
+        .or("email.ilike.%walid%,name.ilike.%walid%")
+        .maybeSingle()
+
+      const walidId = walidProfile?.id || null
+      const walidEmail = walidProfile?.email || null
+
+      // 2. Update chat session status & assignment in db
+      const { data: updatedChat } = await supabase
+        .from('customer_chats')
+        .update({
+          status: 'needs_human',
+          assigned_to: walidId,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', activeChat.id)
+        .select()
+        .single()
+
+      if (updatedChat) {
+        setActiveChat(updatedChat)
+      }
+
+      // 3. Insert system messages
+      const statusMsgText = isNl
+        ? 'Ik verbind u door met een medewerker. Een ogenblik geduld alstublieft...'
+        : 'Searching for an active specialist... An agent will take over shortly.'
+      
+      await supabase.from('customer_messages').insert([{
+        chat_id: activeChat.id,
+        sender_type: 'bot',
+        content: statusMsgText
+      }])
+
+      // 4. Send Gmail notifications using Edge Function
+      const sendEmailUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-email`
+      const emailHeaders = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+      }
+
+      const emailHtml = `
+        <div style="font-family: sans-serif; padding: 32px; background: #f8fafc; border-radius: 16px;">
+          <h2 style="color: #1e293b;">Live Chat Takeover Request</h2>
+          <p>A customer has requested to speak with a human agent on <strong>autoflowstudio.net</strong>.</p>
+          <p><strong>Customer Name:</strong> Visitor</p>
+          <p><strong>Chat Session ID:</strong> ${activeChat.id}</p>
+          <p style="margin-top: 24px;">
+            <a href="https://autoflowstudio.net/admin/chat" style="padding: 12px 24px; background: #5646e4; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+              Open Chat Takeover Panel
+            </a>
+          </p>
+        </div>
+      `
+
+      // Notification to info
+      fetch(sendEmailUrl, {
+        method: 'POST',
+        headers: emailHeaders,
+        body: JSON.stringify({
+          type: 'chatbot_notification',
+          recipient: 'info@autoflowstudio.net',
+          subject: '⚡ Customer Requesting Live Chat Takeover',
+          html: emailHtml
+        })
+      }).catch(err => console.error('Failed to notify info:', err))
+
+      // Notification to Walid
+      if (walidEmail) {
+        fetch(sendEmailUrl, {
+          method: 'POST',
+          headers: emailHeaders,
+          body: JSON.stringify({
+            type: 'chatbot_notification',
+            recipient: walidEmail,
+            subject: '⚡ Live Chat Takeover Assigned to You',
+            html: emailHtml
+          })
+        }).catch(err => console.error('Failed to notify Walid:', err))
+      }
+
+    } catch (err) {
+      console.error(err)
     } finally {
       setLoading(false)
     }
@@ -172,34 +442,72 @@ export default function ChatbotWidget() {
   const handleChipClick = (chip) => {
     if (chip.action === 'book') {
       window.dispatchEvent(new CustomEvent('open-booking'))
-      // Automatically add a helpful assistant message
-      setMessages(prev => [
-        ...prev, 
-        { 
-          role: 'model', 
-          content: isNl 
-            ? 'Ik heb het boekingsformulier voor je geopend! Vul je gegevens in en we spreken elkaar snel.'
-            : 'I\'ve opened the booking form for you! Please fill in your details and we will speak soon.', 
-          id: Math.random().toString() 
-        }
-      ])
+      
+      const contentText = isNl 
+        ? 'Ik heb het boekingsformulier voor je geopend! Vul je gegevens in en we spreken elkaar snel.'
+        : 'I\'ve opened the booking form for you! Please fill in your details and we will speak soon.'
+      
+      supabase.from('customer_messages').insert([{
+        chat_id: activeChat.id,
+        sender_type: 'bot',
+        content: contentText
+      }])
+    } else if (chip.action === 'takeover') {
+      handleRequestTakeover()
     } else {
       handleSendMessage(chip.text)
     }
   }
 
-  // Render markdown bold and bullets simply
+  // Starts a clean new chat session
+  const handleStartNewChat = async () => {
+    setLoading(true)
+    try {
+      const { data, error } = await supabase
+        .from('customer_chats')
+        .insert([{ session_id: Math.random().toString(36).substring(2), customer_name: 'Visitor' }])
+        .select()
+        .single()
+      
+      if (error) throw error
+      
+      let storedIds = JSON.parse(localStorage.getItem('autoflow_chat_ids') || '[]')
+      storedIds.push(data.id)
+      localStorage.setItem('autoflow_chat_ids', JSON.stringify(storedIds))
+
+      setActiveChat(data)
+      setMessages([])
+      setViewMode('chat')
+      loadMessages(data.id)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Switch to another previous chat session from history
+  const handleSwitchChat = (docId) => {
+    const storedIds = JSON.parse(localStorage.getItem('autoflow_chat_ids') || '[]')
+    // Move selected chat to the end of history list (latest active)
+    const filtered = storedIds.filter(id => id !== docId)
+    filtered.push(docId)
+    localStorage.setItem('autoflow_chat_ids', JSON.stringify(filtered))
+
+    setViewMode('chat')
+    initChatSession(docId)
+  }
+
+  // Parse markdown bold and list bullet styles
   const formatMsgText = (text) => {
     return text.split('\n').map((line, idx) => {
       let content = line
       
-      // Handle list bullets
       const isBullet = line.trim().startsWith('*') || line.trim().startsWith('-')
       if (isBullet) {
         content = line.trim().replace(/^[*+-]\s*/, '')
       }
 
-      // Handle simple bold parsing: **text**
       const parts = content.split('**')
       const renderedParts = parts.map((part, pIdx) => {
         if (pIdx % 2 === 1) {
@@ -250,7 +558,7 @@ export default function ChatbotWidget() {
           onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
           onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
         >
-          {/* Pulsing glow ring */}
+          {/* Pulsing ring animation */}
           <div style={{
             position: 'absolute',
             inset: '-4px',
@@ -283,7 +591,7 @@ export default function ChatbotWidget() {
         </button>
       </div>
 
-      {/* Chat Drawer Window */}
+      {/* Chat popup window */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -332,42 +640,91 @@ export default function ChatbotWidget() {
                   <img src="/images/logo.webp" alt="Logo" width="18" height="18" />
                 </div>
                 <div>
-                  <h3 style={{ margin: 0, color: '#F8FAFC', fontSize: '0.95rem', fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif" }}>AutoFlow Bot</h3>
+                  <h3 style={{ margin: 0, color: '#F8FAFC', fontSize: '0.95rem', fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif" }}>
+                    {viewMode === 'chat' ? 'AutoFlow Bot' : 'Chat History'}
+                  </h3>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                {/* WhatsApp Direct Link */}
-                <a
-                  href="https://wa.me/31636222681"
-                  target="_blank"
-                  rel="noreferrer"
-                  title="WhatsApp Support"
-                  style={{
-                    width: '30px',
-                    height: '30px',
-                    borderRadius: '8px',
-                    background: 'rgba(16, 185, 129, 0.1)',
-                    border: '1px solid rgba(16, 185, 129, 0.2)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#10B981',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'
-                    e.currentTarget.style.transform = 'scale(1.05)'
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)'
-                    e.currentTarget.style.transform = 'scale(1)'
-                  }}
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-                  </svg>
-                </a>
+
+              {/* Header Actions */}
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                {viewMode === 'chat' ? (
+                  <>
+                    {/* Direct to WhatsApp Link */}
+                    <a
+                      href="https://wa.me/31636222681"
+                      target="_blank"
+                      rel="noreferrer"
+                      title="WhatsApp Support"
+                      style={{
+                        width: '30px',
+                        height: '30px',
+                        borderRadius: '8px',
+                        background: 'rgba(16, 185, 129, 0.1)',
+                        border: '1px solid rgba(16, 185, 129, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#10B981',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'
+                        e.currentTarget.style.transform = 'scale(1.05)'
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)'
+                        e.currentTarget.style.transform = 'scale(1)'
+                      }}
+                    >
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                      </svg>
+                    </a>
+
+                    {/* View history folder/chats list */}
+                    <button
+                      onClick={() => setViewMode('history')}
+                      title="Previous Chats"
+                      style={{
+                        width: '30px',
+                        height: '30px',
+                        borderRadius: '8px',
+                        background: 'rgba(255,255,255,0.03)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#94A3B8',
+                        cursor: 'pointer',
+                        outline: 'none'
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M12 20h9M3 20v-8a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v8M3 10V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4M13 14V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v8" />
+                      </svg>
+                    </button>
+                  </>
+                ) : (
+                  /* Back to chat view button */
+                  <button
+                    onClick={() => setViewMode('chat')}
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: '8px',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: 'white',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Back
+                  </button>
+                )}
+
                 <button
                   onClick={() => setIsOpen(false)}
                   style={{
@@ -385,259 +742,371 @@ export default function ChatbotWidget() {
                   }}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                    <path d="M18 6L6 18M6 6l12 12" />
                   </svg>
                 </button>
               </div>
             </div>
 
-            {/* Messages Area */}
-            <div
-              className="chat-scroll"
-              style={{
-                flex: 1,
-                padding: '24px',
-                overflowY: 'auto',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
-                background: 'linear-gradient(180deg, transparent 0%, rgba(5, 5, 5, 0.2) 100%)'
-              }}
-            >
-              {messages.map((msg) => {
-                const isUser = msg.role === 'user';
-                const { cleanText, buttons } = isUser 
-                  ? { cleanText: msg.content, buttons: [] } 
-                  : parseMessageButtons(msg.content);
-
-                return (
-                  <div
-                    key={msg.id}
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: isUser ? 'flex-end' : 'flex-start',
-                      width: '100%'
-                    }}
-                  >
-                    <div style={{
-                      maxWidth: '85%',
-                      padding: '14px 18px',
-                      borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                      background: isUser 
-                        ? 'linear-gradient(135deg, #d1bbfb 0%, #5646e4 100%)' 
-                        : 'rgba(255, 255, 255, 0.04)',
-                      border: isUser 
-                        ? '1px solid rgba(255,255,255,0.1)' 
-                        : '1px solid rgba(255,255,255,0.06)',
-                      boxShadow: isUser
-                        ? '0 4px 12px rgba(86, 70, 228, 0.15)'
-                        : 'none',
-                      fontSize: '0.85rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '12px'
-                    }}>
-                      <div>
-                        {isUser ? (
-                          <p style={{ margin: 0, color: 'white', lineHeight: 1.5 }}>{cleanText}</p>
-                        ) : (
-                          formatMsgText(cleanText)
-                        )}
-                      </div>
-
-                      {/* Render Inline Buttons inside bubble */}
-                      {buttons.length > 0 && (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '4px' }}>
-                          {buttons.map((btn, bIdx) => (
-                            <button
-                              key={bIdx}
-                              onClick={() => handleAction(btn.action)}
-                              style={{
-                                padding: '8px 16px',
-                                background: 'linear-gradient(135deg, #d1bbfb 0%, #5646e4 100%)',
-                                border: 'none',
-                                borderRadius: '10px',
-                                color: 'white',
-                                fontSize: '0.78rem',
-                                fontWeight: 700,
-                                cursor: 'pointer',
-                                outline: 'none',
-                                boxShadow: '0 4px 12px rgba(86, 70, 228, 0.25)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                transition: 'all 0.2s'
-                              }}
-                              onMouseEnter={e => {
-                                e.currentTarget.style.transform = 'scale(1.03)'
-                                e.currentTarget.style.boxShadow = '0 6px 16px rgba(86, 70, 228, 0.35)'
-                              }}
-                              onMouseLeave={e => {
-                                e.currentTarget.style.transform = 'scale(1)'
-                                e.currentTarget.style.boxShadow = '0 4px 12px rgba(86, 70, 228, 0.25)'
-                              }}
-                            >
-                              {btn.label}
-                              {btn.action === 'action:book' && (
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                              )}
-                              {btn.action === 'action:portfolio' && (
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                              )}
-                              {btn.action === 'action:whatsapp' && (
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-
-              {/* Typing Indicator */}
-              {loading && (
-                <div style={{ display: 'flex', justifyContent: 'flex-start', width: '100%' }}>
-                  <div style={{
-                    padding: '12px 18px',
-                    borderRadius: '18px 18px 18px 4px',
-                    background: 'rgba(255, 255, 255, 0.04)',
-                    border: '1px solid rgba(255, 255, 255, 0.06)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
-                    {[0, 1, 2].map((i) => (
-                      <motion.span
-                        key={i}
-                        animate={{
-                          y: [0, -6, 0]
-                        }}
-                        transition={{
-                          duration: 0.8,
-                          repeat: Infinity,
-                          delay: i * 0.15,
-                          ease: 'easeInOut'
-                        }}
-                        style={{
-                          width: '6px',
-                          height: '6px',
-                          background: '#94A3B8',
-                          borderRadius: '50%',
-                          display: 'inline-block'
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Quick Chips & Footer Input */}
-            <div style={{
-              padding: '16px 24px 24px',
-              borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-              background: 'rgba(5, 5, 5, 0.4)'
-            }}>
-              {/* Quick Chips Ticker */}
-              <div className="chat-scroll" style={{
-                display: 'flex',
-                gap: '8px',
-                overflowX: 'auto',
-                paddingBottom: '12px',
-                marginBottom: '12px'
-              }}>
-                {quickChips.map((chip, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleChipClick(chip)}
-                    style={{
-                      whiteSpace: 'nowrap',
-                      padding: '8px 14px',
-                      borderRadius: '30px',
-                      background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(255,255,255,0.08)',
-                      color: '#94A3B8',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      outline: 'none'
-                    }}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.borderColor = 'rgba(209, 187, 251, 0.3)'
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
-                      e.currentTarget.style.color = '#F8FAFC'
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
-                      e.currentTarget.style.color = '#94A3B8'
-                    }}
-                  >
-                    {chip.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Input box */}
-              <form
-                onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  background: 'rgba(255,255,255,0.02)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: '16px',
-                  padding: '5px 5px 5px 16px',
-                  boxSizing: 'border-box'
-                }}
-              >
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={isNl ? 'Vraag iets...' : 'Ask a question...'}
+            {/* ===============================================================
+                VIEW MODE: CHAT VIEW
+                =============================================================== */}
+            {viewMode === 'chat' && (
+              <>
+                {/* Active Chat Messages area */}
+                <div
+                  className="chat-scroll"
                   style={{
                     flex: 1,
-                    background: 'transparent',
-                    border: 'none',
-                    outline: 'none',
-                    color: 'white',
-                    fontSize: '0.82rem',
-                    padding: '8px 0'
+                    padding: '24px',
+                    overflowY: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '16px',
+                    background: 'linear-gradient(180deg, transparent 0%, rgba(5, 5, 5, 0.2) 100%)'
                   }}
-                />
+                >
+                  {messages.map((msg) => {
+                    const isUser = msg.role === 'user'
+                    const { cleanText, buttons } = isUser 
+                      ? { cleanText: msg.content, buttons: [] } 
+                      : parseMessageButtons(msg.content)
+
+                    return (
+                      <div
+                        key={msg.id}
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: isUser ? 'flex-end' : 'flex-start',
+                          width: '100%'
+                        }}
+                      >
+                        <div style={{
+                          maxWidth: '85%',
+                          padding: '14px 18px',
+                          borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                          background: isUser 
+                            ? 'linear-gradient(135deg, #d1bbfb 0%, #5646e4 100%)' 
+                            : 'rgba(255, 255, 255, 0.04)',
+                          border: isUser 
+                            ? '1px solid rgba(255,255,255,0.1)' 
+                            : '1px solid rgba(255,255,255,0.06)',
+                          boxShadow: isUser
+                            ? '0 4px 12px rgba(86, 70, 228, 0.15)'
+                            : 'none',
+                          fontSize: '0.85rem',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '12px'
+                        }}>
+                          <div>
+                            {isUser ? (
+                              <p style={{ margin: 0, color: 'white', lineHeight: 1.5 }}>{cleanText}</p>
+                            ) : (
+                              formatMsgText(cleanText)
+                            )}
+                          </div>
+
+                          {/* Inline buttons parsing */}
+                          {buttons.length > 0 && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '4px' }}>
+                              {buttons.map((btn, bIdx) => (
+                                <button
+                                  key={bIdx}
+                                  onClick={() => handleAction(btn.action)}
+                                  style={{
+                                    padding: '8px 16px',
+                                    background: 'linear-gradient(135deg, #d1bbfb 0%, #5646e4 100%)',
+                                    border: 'none',
+                                    borderRadius: '10px',
+                                    color: 'white',
+                                    fontSize: '0.78rem',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    outline: 'none',
+                                    boxShadow: '0 4px 12px rgba(86, 70, 228, 0.25)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    transition: 'all 0.2s'
+                                  }}
+                                  onMouseEnter={e => {
+                                    e.currentTarget.style.transform = 'scale(1.03)'
+                                    e.currentTarget.style.boxShadow = '0 6px 16px rgba(86, 70, 228, 0.35)'
+                                  }}
+                                  onMouseLeave={e => {
+                                    e.currentTarget.style.transform = 'scale(1)'
+                                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(86, 70, 228, 0.25)'
+                                  }}
+                                >
+                                  {btn.label}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+
+                  {/* Typing Indicator */}
+                  {loading && (
+                    <div style={{ display: 'flex', justifyContent: 'flex-start', width: '100%' }}>
+                      <div style={{
+                        padding: '12px 18px',
+                        borderRadius: '18px 18px 18px 4px',
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        {[0, 1, 2].map((i) => (
+                          <motion.span
+                            key={i}
+                            animate={{
+                              y: [0, -6, 0]
+                            }}
+                            transition={{
+                              duration: 0.8,
+                              repeat: Infinity,
+                              delay: i * 0.15,
+                              ease: 'easeInOut'
+                            }}
+                            style={{
+                              width: '6px',
+                              height: '6px',
+                              background: '#94A3B8',
+                              borderRadius: '50%',
+                              display: 'inline-block'
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Status Banner when takeover is active */}
+                  {activeChat?.status === 'human' && (
+                    <div style={{
+                      margin: '8px 0',
+                      padding: '8px 16px',
+                      background: 'rgba(96, 165, 250, 0.08)',
+                      border: '1px solid rgba(96, 165, 250, 0.2)',
+                      borderRadius: '12px',
+                      color: '#60A5FA',
+                      fontSize: '0.78rem',
+                      textAlign: 'center',
+                      fontWeight: 600
+                    }}>
+                      ⚡ Agent takeover active. You are chatting with support.
+                    </div>
+                  )}
+                  {activeChat?.status === 'needs_human' && (
+                    <div style={{
+                      margin: '8px 0',
+                      padding: '8px 16px',
+                      background: 'rgba(248, 113, 113, 0.08)',
+                      border: '1px solid rgba(248, 113, 113, 0.2)',
+                      borderRadius: '12px',
+                      color: '#F87171',
+                      fontSize: '0.78rem',
+                      textAlign: 'center',
+                      fontWeight: 600
+                    }}>
+                      Searching for available support agent...
+                    </div>
+                  )}
+                  
+                  <div ref={messagesEndRef} />
+                </div>
+
+                {/* Input Panel & Quick Chips */}
+                <div style={{
+                  padding: '16px 24px 24px',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+                  background: 'rgba(5, 5, 5, 0.4)'
+                }}>
+                  {/* Quick Chips Ticker */}
+                  <div className="chat-scroll" style={{
+                    display: 'flex',
+                    gap: '8px',
+                    overflowX: 'auto',
+                    paddingBottom: '12px',
+                    marginBottom: '12px'
+                  }}>
+                    {quickChips.map((chip, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleChipClick(chip)}
+                        style={{
+                          whiteSpace: 'nowrap',
+                          padding: '8px 14px',
+                          borderRadius: '30px',
+                          background: 'rgba(255,255,255,0.03)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          color: '#94A3B8',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          outline: 'none'
+                        }}
+                      >
+                        {chip.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Input Form */}
+                  <form
+                    onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      borderRadius: '16px',
+                      padding: '5px 5px 5px 16px',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <input
+                      type="text"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      placeholder={isNl ? 'Vraag iets...' : 'Ask a question...'}
+                      style={{
+                        flex: 1,
+                        background: 'transparent',
+                        border: 'none',
+                        outline: 'none',
+                        color: 'white',
+                        fontSize: '0.82rem',
+                        padding: '8px 0'
+                      }}
+                    />
+                    <button
+                      type="submit"
+                      disabled={loading || !input.trim()}
+                      style={{
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, #d1bbfb 0%, #5646e4 100%)',
+                        border: 'none',
+                        color: 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        opacity: (!input.trim() || loading) ? 0.5 : 1,
+                        transition: 'opacity 0.2s',
+                        outline: 'none'
+                      }}
+                    >
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <line x1="22" y1="2" x2="11" y2="13" />
+                        <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                      </svg>
+                    </button>
+                  </form>
+                </div>
+              </>
+            )}
+
+            {/* ===============================================================
+                VIEW MODE: HISTORY LIST VIEW
+                =============================================================== */}
+            {viewMode === 'history' && (
+              <div
+                className="chat-scroll"
+                style={{
+                  flex: 1,
+                  padding: '24px',
+                  overflowY: 'auto',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '16px'
+                }}
+              >
+                {/* Create new chat session button */}
                 <button
-                  type="submit"
-                  disabled={loading || !input.trim()}
-                  aria-label="Send message"
+                  onClick={handleStartNewChat}
                   style={{
-                    width: '36px',
-                    height: '36px',
+                    padding: '12px',
                     borderRadius: '12px',
                     background: 'linear-gradient(135deg, #d1bbfb 0%, #5646e4 100%)',
                     border: 'none',
                     color: 'white',
+                    fontWeight: 700,
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    cursor: 'pointer',
-                    opacity: (!input.trim() || loading) ? 0.5 : 1,
-                    transition: 'opacity 0.2s',
-                    outline: 'none'
+                    gap: '8px'
                   }}
                 >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <line x1="22" y1="2" x2="11" y2="13" />
-                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
                   </svg>
+                  New Chat Session
                 </button>
-              </form>
-            </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
+                  <p style={{ margin: '0 0 8px 0', fontSize: '0.7rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Previous Chats (GDPR auto-cleaned in 30 days)
+                  </p>
+                  
+                  {chatHistoryList.length === 0 ? (
+                    <p style={{ color: '#64748B', fontSize: '0.8rem', textAlign: 'center', padding: '24px 0' }}>
+                      No previous chat sessions found.
+                    </p>
+                  ) : (
+                    chatHistoryList.map((doc) => {
+                      const isActive = activeChat && activeChat.id === doc.id
+                      const dateStr = new Date(doc.updated_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                      
+                      return (
+                        <button
+                          key={doc.id}
+                          onClick={() => handleSwitchChat(doc.id)}
+                          style={{
+                            padding: '12px 16px',
+                            background: isActive ? 'rgba(209, 187, 251, 0.1)' : 'rgba(255,255,255,0.02)',
+                            border: isActive ? '1px solid rgba(209, 187, 251, 0.3)' : '1px solid rgba(255,255,255,0.06)',
+                            borderRadius: '12px',
+                            color: 'white',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}
+                        >
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>
+                              {doc.customer_name} Session
+                            </span>
+                            <span style={{ fontSize: '0.68rem', color: '#64748B' }}>
+                              Last active: {dateStr}
+                            </span>
+                          </div>
+                          {doc.status === 'human' && (
+                            <span style={{ fontSize: '0.6rem', color: '#60A5FA', border: '1px solid #60A5FA', padding: '1px 6px', borderRadius: '8px' }}>
+                              Agent
+                            </span>
+                          )}
+                        </button>
+                      )
+                    })
+                  )}
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
