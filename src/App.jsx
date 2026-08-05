@@ -32,8 +32,10 @@ const AdminDeals        = lazy(() => import('./pages/Admin/Deals'))
 const AdminChat         = lazy(() => import('./pages/Admin/Chat'))
 const AdminCalendar     = lazy(() => import('./pages/Admin/Calendar'))
 const AdminMarketing    = lazy(() => import('./pages/Admin/Marketing/index'))
+const AdminKnowledge    = lazy(() => import('./pages/Admin/Knowledge'))
 const AuthGuard = lazy(() => import('./components/Admin/AuthGuard'))
 const AdminGuard = lazy(() => import('./components/Admin/AuthGuard').then(m => ({ default: m.AdminGuard })))
+import ChatbotWidget from './components/ChatbotWidget'
 
 const Loading = () => <div style={{ minHeight: '100vh', background: '#0F1115' }} />
 
@@ -100,6 +102,7 @@ function AppContent() {
           <Route path="/admin/deals" element={<AuthGuard><AdminDeals /></AuthGuard>} />
           <Route path="/admin/email-settings" element={<AdminGuard><AdminEmailSettings /></AdminGuard>} />
           <Route path="/admin/marketing" element={<AdminGuard><AdminMarketing /></AdminGuard>} />
+          <Route path="/admin/knowledge" element={<AdminGuard><AdminKnowledge /></AdminGuard>} />
 
           <Route path="*"                  element={<NotFound />} />
         </Routes>
@@ -115,6 +118,7 @@ function AppContent() {
           lang={isNl ? 'nl' : 'en'}
         />
       )}
+      {!isAdmin && <ChatbotWidget />}
 
       {/* {!isAdmin && <PriceCalculator />} */}
 
