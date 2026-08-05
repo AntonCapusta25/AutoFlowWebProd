@@ -52,6 +52,63 @@ export default function ChatbotWidget() {
         { label: 'Book a Call', action: 'book' }
       ]
 
+  const localResponseTree = {
+    en: {
+      'what do you do?': 'We build custom AI automation tools, database systems, and integrations to eliminate your manual work. From CRM syncing to AI chatbots, we automate it all. Check out our projects: [View Portfolio](action:portfolio)',
+      'pricing & rates': 'Pricing is custom based on project complexity. Smaller automations start low and are delivered within 7 days. Book a strategy session for a custom quote: [Book a Call](action:book)',
+      'examples': 'Some examples of what we build:\n* **AI Chatbots** with CRM integration\n* **Database Syncs** (Google Sheets, Airtable, SQL)\n* **Automatic Lead Responders** via Email/WhatsApp\n[View Portfolio](action:portfolio)',
+      'book a call': 'Opening the booking calendar for you now! Fill in your details to lock in a slot: [Book a Call](action:book)'
+    },
+    nl: {
+      'wat doen jullie?': 'Wij bouwen op maat gemaakte AI-automatiseringsoplossingen, databasekoppelingen en workflows om uw handmatige werk te elimineren. Bekijk onze projecten: [Bekijk Portfolio](action:portfolio)',
+      'tarieven & prijzen': 'Tarieven zijn op maat en afhankelijk van de complexiteit van de automatisering. Kleinere projecten worden binnen 7 dagen opgeleverd. Boek een gesprek voor een offerte: [Gesprek Boeken](action:book)',
+      'voorbeelden': 'Enkele voorbeelden van wat we bouwen:\n* **AI Chatbots** met CRM-integratie\n* **Database Koppelingen** (Google Sheets, Airtable, SQL)\n* **Automatische Lead Responders** via Email/WhatsApp\n[Bekijk Portfolio](action:portfolio)',
+      'gesprek boeken': 'Ik open het boekingsformulier nu voor u! Vul uw gegevens in om een afspraak in te plannen: [Gesprek Boeken](action:book)'
+    }
+  }
+
+  const getLocalResponse = (text) => {
+    const lang = isNl ? 'nl' : 'en'
+    const normalized = text.toLowerCase().trim().replace(/[?.!]/g, '')
+    const keys = Object.keys(localResponseTree[lang])
+    const matchedKey = keys.find(key => normalized.includes(key) || key.includes(normalized))
+    if (matchedKey) {
+      return localResponseTree[lang][matchedKey]
+    }
+    return null
+  }
+
+  const parseMessageButtons = (text) => {
+    const buttonRegex = /\[([^\]]+)\]\((action:[a-z]+|https?:\/\/[^\s)]+|\/[a-z0-9_-]+)\)/g
+    const buttons = []
+    let cleanText = text
+    let match
+    
+    while ((match = buttonRegex.exec(text)) !== null) {
+      buttons.push({
+        label: match[1],
+        action: match[2]
+      })
+    }
+
+    cleanText = text.replace(buttonRegex, '').trim()
+    return { cleanText, buttons }
+  }
+
+  const handleAction = (action) => {
+    if (action === 'action:book') {
+      window.dispatchEvent(new CustomEvent('open-booking'))
+    } else if (action === 'action:whatsapp') {
+      window.open('https://wa.me/31636222681', '_blank')
+    } else if (action === 'action:portfolio') {
+      window.location.href = '/portfolio'
+    } else if (action.startsWith('http')) {
+      window.open(action, '_blank')
+    } else {
+      window.location.href = action
+    }
+  }
+
   const handleSendMessage = async (textToSend) => {
     const text = (textToSend || input).trim()
     if (!text) return
@@ -61,6 +118,17 @@ export default function ChatbotWidget() {
     const userMsg = { role: 'user', content: text, id: Math.random().toString() }
     setMessages(prev => [...prev, userMsg])
     setLoading(true)
+
+    // Check if we have a local matching response
+    const localAnswer = getLocalResponse(text)
+    if (localAnswer) {
+      // Simulate natural typing delay (400ms)
+      await new Promise(resolve => setTimeout(resolve, 400))
+      const modelMsg = { role: 'model', content: localAnswer, id: Math.random().toString() }
+      setMessages(prev => [...prev, modelMsg])
+      setLoading(false)
+      return
+    }
 
     try {
       // Supabase Edge Function URL
@@ -265,10 +333,6 @@ export default function ChatbotWidget() {
                 </div>
                 <div>
                   <h3 style={{ margin: 0, color: '#F8FAFC', fontSize: '0.95rem', fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif" }}>AutoFlow Bot</h3>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#10B981', fontSize: '0.72rem', fontWeight: 600 }}>
-                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981', display: 'inline-block' }} />
-                    Active Support
-                  </span>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
@@ -340,60 +404,132 @@ export default function ChatbotWidget() {
                 background: 'linear-gradient(180deg, transparent 0%, rgba(5, 5, 5, 0.2) 100%)'
               }}
             >
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  style={{
-                    display: 'flex',
-                    justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                    width: '100%'
-                  }}
-                >
-                  <div style={{
-                    maxWidth: '85%',
-                    padding: '14px 18px',
-                    borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                    background: msg.role === 'user' 
-                      ? 'linear-gradient(135deg, #d1bbfb 0%, #5646e4 100%)' 
-                      : 'rgba(255, 255, 255, 0.04)',
-                    border: msg.role === 'user' 
-                      ? '1px solid rgba(255,255,255,0.1)' 
-                      : '1px solid rgba(255,255,255,0.06)',
-                    boxShadow: msg.role === 'user'
-                      ? '0 4px 12px rgba(86, 70, 228, 0.15)'
-                      : 'none',
-                    fontSize: '0.85rem'
-                  }}>
-                    {msg.role === 'user' ? (
-                      <p style={{ margin: 0, color: 'white', lineHeight: 1.5 }}>{msg.content}</p>
-                    ) : (
-                      formatMsgText(msg.content)
-                    )}
+              {messages.map((msg) => {
+                const isUser = msg.role === 'user';
+                const { cleanText, buttons } = isUser 
+                  ? { cleanText: msg.content, buttons: [] } 
+                  : parseMessageButtons(msg.content);
+
+                return (
+                  <div
+                    key={msg.id}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: isUser ? 'flex-end' : 'flex-start',
+                      width: '100%'
+                    }}
+                  >
+                    <div style={{
+                      maxWidth: '85%',
+                      padding: '14px 18px',
+                      borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                      background: isUser 
+                        ? 'linear-gradient(135deg, #d1bbfb 0%, #5646e4 100%)' 
+                        : 'rgba(255, 255, 255, 0.04)',
+                      border: isUser 
+                        ? '1px solid rgba(255,255,255,0.1)' 
+                        : '1px solid rgba(255,255,255,0.06)',
+                      boxShadow: isUser
+                        ? '0 4px 12px rgba(86, 70, 228, 0.15)'
+                        : 'none',
+                      fontSize: '0.85rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px'
+                    }}>
+                      <div>
+                        {isUser ? (
+                          <p style={{ margin: 0, color: 'white', lineHeight: 1.5 }}>{cleanText}</p>
+                        ) : (
+                          formatMsgText(cleanText)
+                        )}
+                      </div>
+
+                      {/* Render Inline Buttons inside bubble */}
+                      {buttons.length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '4px' }}>
+                          {buttons.map((btn, bIdx) => (
+                            <button
+                              key={bIdx}
+                              onClick={() => handleAction(btn.action)}
+                              style={{
+                                padding: '8px 16px',
+                                background: 'linear-gradient(135deg, #d1bbfb 0%, #5646e4 100%)',
+                                border: 'none',
+                                borderRadius: '10px',
+                                color: 'white',
+                                fontSize: '0.78rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                outline: 'none',
+                                boxShadow: '0 4px 12px rgba(86, 70, 228, 0.25)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={e => {
+                                e.currentTarget.style.transform = 'scale(1.03)'
+                                e.currentTarget.style.boxShadow = '0 6px 16px rgba(86, 70, 228, 0.35)'
+                              }}
+                              onMouseLeave={e => {
+                                e.currentTarget.style.transform = 'scale(1)'
+                                e.currentTarget.style.boxShadow = '0 4px 12px rgba(86, 70, 228, 0.25)'
+                              }}
+                            >
+                              {btn.label}
+                              {btn.action === 'action:book' && (
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                              )}
+                              {btn.action === 'action:portfolio' && (
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                              )}
+                              {btn.action === 'action:whatsapp' && (
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               {/* Typing Indicator */}
               {loading && (
                 <div style={{ display: 'flex', justifyContent: 'flex-start', width: '100%' }}>
                   <div style={{
-                    padding: '16px 20px',
+                    padding: '12px 18px',
                     borderRadius: '18px 18px 18px 4px',
                     background: 'rgba(255, 255, 255, 0.04)',
                     border: '1px solid rgba(255, 255, 255, 0.06)',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '5px'
+                    gap: '6px'
                   }}>
-                    <span className="dot" style={{ width: '6px', height: '6px', background: '#94A3B8', borderRadius: '50%', display: 'inline-block', animation: 'bounce 1.4s infinite ease-in-out both' }} />
-                    <span className="dot" style={{ width: '6px', height: '6px', background: '#94A3B8', borderRadius: '50%', display: 'inline-block', animation: 'bounce 1.4s infinite ease-in-out both', animationDelay: '0.2s' }} />
-                    <span className="dot" style={{ width: '6px', height: '6px', background: '#94A3B8', borderRadius: '50%', display: 'inline-block', animation: 'bounce 1.4s infinite ease-in-out both', animationDelay: '0.4s' }} />
-                    <style>{`
-                      @keyframes bounce {
-                        0%, 80%, 100% { transform: scale(0); }
-                        40% { transform: scale(1.0); }
-                      }
-                    `}</style>
+                    {[0, 1, 2].map((i) => (
+                      <motion.span
+                        key={i}
+                        animate={{
+                          y: [0, -6, 0]
+                        }}
+                        transition={{
+                          duration: 0.8,
+                          repeat: Infinity,
+                          delay: i * 0.15,
+                          ease: 'easeInOut'
+                        }}
+                        style={{
+                          width: '6px',
+                          height: '6px',
+                          background: '#94A3B8',
+                          borderRadius: '50%',
+                          display: 'inline-block'
+                        }}
+                      />
+                    ))}
                   </div>
                 </div>
               )}
