@@ -263,7 +263,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       else if (callFilter === 'none') query = query.or('call_attempts.is.null,call_attempts.eq.0')
 
       if (searchTerm) {
-        query = query.or(`name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,company.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%`)
+        query = query.or(`name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,company.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%`)
       }
 
       // Apply Assignee Filter
