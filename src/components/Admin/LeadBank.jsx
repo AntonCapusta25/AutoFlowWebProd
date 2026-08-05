@@ -263,7 +263,55 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       else if (callFilter === 'none') query = query.or('call_attempts.is.null,call_attempts.eq.0')
 
       if (searchTerm) {
-        query = query.or(`name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,company.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%`)
+        // Sanitize search term to prevent PostgREST syntax errors (parentheses, commas, backslashes)
+        const cleanSearch = searchTerm.replace(/[()\",\\]/g, '');
+        
+        // Build OR clauses
+        const orClauses = [
+          `name.ilike.%${cleanSearch}%`,
+          `email.ilike.%${cleanSearch}%`,
+          `company.ilike.%${cleanSearch}%`,
+          `industry.ilike.%${cleanSearch}%`
+        ];
+
+        // Process phone variations
+        const digits = searchTerm.replace(/\D/g, '');
+        if (digits.length >= 4) {
+          // Generate a wildcard pattern matching digits in sequence with any characters in between
+          const wildcardPattern = `%${digits.split('').join('%')}%`;
+          orClauses.push(`phone.ilike.${wildcardPattern}`);
+
+          // If the digits start with a local '0', also query without the '0' (for international match)
+          if (digits.startsWith('0') && digits.length > 4) {
+            const suffixDigits = digits.substring(1);
+            const suffixPattern = `%${suffixDigits.split('').join('%')}%`;
+            orClauses.push(`phone.ilike.${suffixPattern}`);
+          }
+          
+          // If the digits start with a Dutch country code '31', also query local '0' prefix
+          if (digits.startsWith('31') && digits.length > 5) {
+            const raw = digits.substring(2);
+            const localPattern = `%0%${raw.split('').join('%')}%`;
+            orClauses.push(`phone.ilike.${localPattern}`);
+            orClauses.push(`phone.ilike.%0${raw}%`);
+          }
+
+          // If the digits start with a UK country code '44', also query local '0' prefix
+          if (digits.startsWith('44') && digits.length > 5) {
+            const raw = digits.substring(2);
+            const localPattern = `%0%${raw.split('').join('%')}%`;
+            orClauses.push(`phone.ilike.${localPattern}`);
+            orClauses.push(`phone.ilike.%0${raw}%`);
+          }
+          
+          // Also check for the clean digit string directly
+          orClauses.push(`phone.ilike.%${digits}%`);
+        } else if (cleanSearch) {
+          // Fallback to literal search if search term is short
+          orClauses.push(`phone.ilike.%${cleanSearch}%`);
+        }
+
+        query = query.or(orClauses.join(','));
       }
 
       // Apply Assignee Filter
