@@ -141,8 +141,10 @@ export default function ChatbotWidget() {
 
       setActiveChat(chatData)
       loadMessages(chatData.id)
+      return chatData
     } catch (err) {
       console.error('[chatbot] Failed to initialize chat session:', err)
+      return null
     }
   }
 
@@ -385,8 +387,7 @@ export default function ChatbotWidget() {
     let currentChat = activeChat
     if (!currentChat) {
       // Try to initialize it first
-      await initChatSession()
-      currentChat = activeChat
+      currentChat = await initChatSession()
     }
     if (!currentChat) {
       // Fallback local message
