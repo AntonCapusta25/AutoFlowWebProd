@@ -5,7 +5,7 @@ import { useAdmin } from '../../components/Admin/AdminContext'
 
 export default function AdminChat() {
   const { user, profile } = useAdmin()
-  const [activeSection, setActiveSection] = useState('team') // 'team' or 'customers'
+  const [activeSection, setActiveSection] = useState('customers') // 'team' or 'customers'
   
   // ── 1. Team Messaging State ──────────────────────────────────────────────
   const [profiles, setProfiles] = useState([])
@@ -389,28 +389,11 @@ export default function AdminChat() {
       {/* Section Tabs Selector */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
         <button
-          onClick={() => setActiveSection('team')}
-          style={{
-            padding: '10px 20px',
-            borderRadius: '12px',
-            background: activeSection === 'team' ? 'linear-gradient(135deg, #d1bbfb, #5646e4)' : 'rgba(255,255,255,0.03)',
-            border: activeSection === 'team' ? 'none' : '1px solid rgba(255,255,255,0.08)',
-            color: 'white',
-            fontWeight: 700,
-            fontSize: '0.85rem',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-            outline: 'none'
-          }}
-        >
-          Team Discussion
-        </button>
-        <button
           onClick={() => setActiveSection('customers')}
           style={{
             padding: '10px 20px',
             borderRadius: '12px',
-            background: activeSection === 'customers' ? 'linear-gradient(135deg, #d1bbfb, #5646e4)' : 'rgba(255,255,255,0.03)',
+            background: activeSection === 'customers' ? 'linear-gradient(135deg, #7c3aed, #5646e4)' : 'rgba(255,255,255,0.03)',
             border: activeSection === 'customers' ? 'none' : '1px solid rgba(255,255,255,0.08)',
             color: 'white',
             fontWeight: 700,
@@ -435,6 +418,23 @@ export default function AdminChat() {
               animation: 'pulse-notif 1.5s infinite'
             }} />
           )}
+        </button>
+        <button
+          onClick={() => setActiveSection('team')}
+          style={{
+            padding: '10px 20px',
+            borderRadius: '12px',
+            background: activeSection === 'team' ? 'linear-gradient(135deg, #7c3aed, #5646e4)' : 'rgba(255,255,255,0.03)',
+            border: activeSection === 'team' ? 'none' : '1px solid rgba(255,255,255,0.08)',
+            color: 'white',
+            fontWeight: 700,
+            fontSize: '0.85rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            outline: 'none'
+          }}
+        >
+          Team Discussion
         </button>
       </div>
 
@@ -639,7 +639,7 @@ export default function AdminChat() {
                         )}
 
                         <div style={{
-                          background: isMine ? 'linear-gradient(135deg, #d1bbfb, #5646e4)' : 'rgba(255,255,255,0.04)',
+                          background: isMine ? 'linear-gradient(135deg, #7c3aed, #5646e4)' : 'rgba(255,255,255,0.04)',
                           color: 'white',
                           padding: '12px 18px',
                           borderRadius: isMine ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
@@ -959,7 +959,7 @@ export default function AdminChat() {
                                 ? 'rgba(255,255,255,0.04)' 
                                 : isBot 
                                 ? 'rgba(16, 185, 129, 0.08)' 
-                                : 'linear-gradient(135deg, #d1bbfb, #5646e4)',
+                                : 'linear-gradient(135deg, #7c3aed, #5646e4)',
                               color: 'white',
                               padding: '12px 18px',
                               borderRadius: isCustomer ? '20px 20px 20px 4px' : '20px 20px 4px 20px',
