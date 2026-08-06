@@ -69,6 +69,37 @@ export default function ChatbotWidget() {
     return null
   }
 
+  const parseMessageButtons = (text) => {
+    const buttonRegex = /\[([^\]]+)\]\((action:[a-z]+|https?:\/\/[^\s)]+|\/[a-z0-9_-]+)\)/g
+    const buttons = []
+    let cleanText = text
+    let match
+    
+    while ((match = buttonRegex.exec(text)) !== null) {
+      buttons.push({
+        label: match[1],
+        action: match[2]
+      })
+    }
+
+    cleanText = text.replace(buttonRegex, '').trim()
+    return { cleanText, buttons }
+  }
+
+  const handleAction = (action) => {
+    if (action === 'action:book') {
+      window.dispatchEvent(new CustomEvent('open-booking'))
+    } else if (action === 'action:whatsapp') {
+      window.open('https://wa.me/31636222681', '_blank')
+    } else if (action === 'action:portfolio') {
+      window.location.href = '/portfolio'
+    } else if (action.startsWith('http')) {
+      window.open(action, '_blank')
+    } else {
+      window.location.href = action
+    }
+  }
+
   // 2. Load or Create Customer Chat Session
   const initChatSession = async (existingId = null) => {
     try {
