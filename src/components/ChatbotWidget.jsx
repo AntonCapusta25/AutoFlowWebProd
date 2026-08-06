@@ -609,7 +609,7 @@ export default function ChatbotWidget() {
   return (
     <>
       {/* Floating Chat Bubble */}
-      <div style={{ position: 'fixed', bottom: '28px', right: '28px', zIndex: 9999 }}>
+      <div className="chatbot-launcher-wrapper" style={{ position: 'fixed', bottom: '28px', right: '28px', zIndex: 9999 }}>
         <button
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Open Chat"
@@ -650,6 +650,40 @@ export default function ChatbotWidget() {
             .chat-scroll::-webkit-scrollbar-track { background: transparent; }
             .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 99px; }
             .chat-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+            @media (max-width: 600px) {
+              .chatbot-popup-window {
+                bottom: 0 !important;
+                right: 0 !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                max-width: 100vw !important;
+                max-height: 100vh !important;
+                border-radius: 0 !important;
+                border: none !important;
+                z-index: 99999 !important;
+              }
+              .chatbot-mobile-close {
+                display: flex !important;
+              }
+              .chatbot-launcher-wrapper {
+                bottom: 16px !important;
+                right: 16px !important;
+              }
+              
+              /* Simplify bubble styles on mobile — no gradients or heavy shadows */
+              .chatbot-msg-user {
+                background: #5646e4 !important;
+                border: none !important;
+                box-shadow: none !important;
+              }
+              .chatbot-msg-button {
+                background: #5646e4 !important;
+                box-shadow: none !important;
+              }
+            }
           `}</style>
 
           {isOpen ? (
@@ -669,6 +703,7 @@ export default function ChatbotWidget() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            className="chatbot-popup-window"
             initial={{ opacity: 0, y: 30, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
@@ -722,6 +757,31 @@ export default function ChatbotWidget() {
 
               {/* Header Actions */}
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                {/* Mobile close button */}
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="chatbot-mobile-close"
+                  title="Close Chat"
+                  style={{
+                    display: 'none',
+                    width: '30px',
+                    height: '30px',
+                    borderRadius: '8px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#94A3B8',
+                    cursor: 'pointer',
+                    outline: 'none'
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+
                 {viewMode === 'chat' ? (
                   <>
                     {/* Direct to WhatsApp Link */}
@@ -858,10 +918,12 @@ export default function ChatbotWidget() {
                           width: '100%'
                         }}
                       >
-                        <div style={{
-                          maxWidth: '85%',
-                          padding: '14px 18px',
-                          borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                        <div 
+                          className={isUser ? "chatbot-msg-user" : "chatbot-msg-bot"}
+                          style={{
+                            maxWidth: '85%',
+                            padding: '14px 18px',
+                            borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
                           background: isUser 
                             ? 'linear-gradient(135deg, #d1bbfb 0%, #5646e4 100%)' 
                             : 'rgba(255, 255, 255, 0.04)',
@@ -890,6 +952,7 @@ export default function ChatbotWidget() {
                               {buttons.map((btn, bIdx) => (
                                 <button
                                   key={bIdx}
+                                  className="chatbot-msg-button"
                                   onClick={() => handleAction(btn.action)}
                                   style={{
                                     padding: '8px 16px',
