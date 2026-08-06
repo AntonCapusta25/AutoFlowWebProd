@@ -150,6 +150,11 @@ export default function AdminChat() {
         .order('updated_at', { ascending: false })
       if (!error && data) {
         setCustomerChats(data)
+        setActiveCustomerChat(prev => {
+          if (!prev) return null
+          const updated = data.find(c => c.id === prev.id)
+          return updated || prev
+        })
       }
     } catch (err) {
       console.error('Error loading customer chats:', err)

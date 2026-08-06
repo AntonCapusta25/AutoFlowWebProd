@@ -161,7 +161,8 @@ export default function ChatbotWidget() {
         const mapped = data.map(msg => ({
           role: msg.sender_type === 'customer' ? 'user' : 'model',
           content: msg.content,
-          id: msg.id
+          id: msg.id,
+          sender_type: msg.sender_type
         }))
 
         if (mapped.length === 0) {
@@ -290,8 +291,7 @@ export default function ChatbotWidget() {
     // Generate local random ID
     const localId = Math.random().toString()
     const cleanWelcome = messages.filter(m => m.id !== 'welcome')
-    setMessages([...cleanWelcome, { role: 'user', content: text, id: localId }])
-    setLoading(true)
+    setMessages([...cleanWelcome, { role: 'user', content: text, id: localId, sender_type: 'customer' }])
 
     // 1. Insert customer message into DB table (if activeChat is loaded)
     if (activeChat) {
@@ -308,12 +308,19 @@ export default function ChatbotWidget() {
       }).catch(err => console.error('[chatbot] Failed to save customer message to DB:', err))
     }
 
+    // If takeover is active or agent is being searched, DO NOT let the chatbot respond!
+    if (activeChat && (activeChat.status === 'human' || activeChat.status === 'needs_human')) {
+      return
+    }
+
+    setLoading(true)
+
     // 2. Try to match configurable response tree offline (instantly)
     const localAnswer = matchResponseTree(text)
     if (localAnswer) {
       await new Promise(resolve => setTimeout(resolve, 150))
       
-      setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: localAnswer, id: Math.random().toString() }])
+      setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: localAnswer, id: Math.random().toString(), sender_type: 'bot' }])
       setLoading(false)
 
       // Save bot answer directly to database if activeChat is loaded
@@ -357,15 +364,17 @@ export default function ChatbotWidget() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to fetch reply')
 
-      // Render bot response instantly in local state
-      setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: data.reply, id: Math.random().toString() }])
+      // Render bot response instantly in local state if it contains content
+      if (data.reply) {
+        setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: data.reply, id: Math.random().toString(), sender_type: 'bot' }])
+      }
     } catch (err) {
       console.error('[chatbot] Failed to chat:', err)
       const errorMsg = isNl
         ? 'Sorry, er is een fout opgetreden. Probeer het later opnieuw.'
         : 'Sorry, an error occurred. Please try again later.'
       
-      setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: errorMsg, id: Math.random().toString() }])
+      setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: errorMsg, id: Math.random().toString(), sender_type: 'bot' }])
 
       if (activeChat) {
         await supabase
@@ -947,7 +956,7 @@ export default function ChatbotWidget() {
                   )}
                   
                   {/* Status Banner when takeover is active */}
-                  {activeChat?.status === 'human' && (
+                  {activeChat?.status === 'human' && !messages.some(m => m.sender_type === 'human') && (
                     <div style={{
                       margin: '8px 0',
                       padding: '8px 16px',
