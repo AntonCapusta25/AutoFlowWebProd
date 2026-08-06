@@ -70,7 +70,7 @@ export default function ChatbotWidget() {
   }
 
   const parseMessageButtons = (text) => {
-    const buttonRegex = /\[([^\]]+)\]\((action:[a-z]+|https?:\/\/[^\s)]+|\/[a-z0-9_-]+)\)/g
+    const buttonRegex = /\[([^\]]+)\]\(([^)]+)\)/g
     const buttons = []
     let cleanText = text
     let match
@@ -281,50 +281,50 @@ export default function ChatbotWidget() {
 
   const handleSendMessage = async (textToSend) => {
     const text = (textToSend || input).trim()
-    if (!text || !activeChat) return
+    if (!text) return
 
     if (!textToSend) setInput('')
 
-    // 1. Insert customer message into DB table
-    const { data: userMsgData } = await supabase
-      .from('customer_messages')
-      .insert([{
+    // Generate local random ID
+    const localId = Math.random().toString()
+    const cleanWelcome = messages.filter(m => m.id !== 'welcome')
+    setMessages([...cleanWelcome, { role: 'user', content: text, id: localId }])
+    setLoading(true)
+
+    // 1. Insert customer message into DB table (if activeChat is loaded)
+    if (activeChat) {
+      supabase.from('customer_messages').insert([{
         chat_id: activeChat.id,
         sender_type: 'customer',
         content: text
-      }])
-      .select()
-      .single()
-
-    // If local state doesn't update immediately via realtime, append it
-    const cleanWelcome = messages.filter(m => m.id !== 'welcome')
-    setMessages([...cleanWelcome, { role: 'user', content: text, id: userMsgData?.id || Math.random().toString() }])
-    setLoading(true)
-
-    // Update updated_at for ordering
-    await supabase
-      .from('customer_chats')
-      .update({ updated_at: new Date().toISOString() })
-      .eq('id', activeChat.id)
+      }]).then(() => {
+        // Update updated_at for ordering
+        supabase
+          .from('customer_chats')
+          .update({ updated_at: new Date().toISOString() })
+          .eq('id', activeChat.id)
+      }).catch(err => console.error('[chatbot] Failed to save customer message to DB:', err))
+    }
 
     // 2. Try to match configurable response tree offline (instantly)
     const localAnswer = matchResponseTree(text)
     if (localAnswer) {
       await new Promise(resolve => setTimeout(resolve, 400))
       
-      // Save bot answer directly to database (client handles insertion)
-      const { data: botMsgData } = await supabase
-        .from('customer_messages')
-        .insert([{
-          chat_id: activeChat.id,
-          sender_type: 'bot',
-          content: localAnswer
-        }])
-        .select()
-        .single()
-
-      setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: localAnswer, id: botMsgData?.id || Math.random().toString() }])
+      setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: localAnswer, id: Math.random().toString() }])
       setLoading(false)
+
+      // Save bot answer directly to database if activeChat is loaded
+      if (activeChat) {
+        supabase
+          .from('customer_messages')
+          .insert([{
+            chat_id: activeChat.id,
+            sender_type: 'bot',
+            content: localAnswer
+          }])
+          .catch(err => console.error('[chatbot] Failed to save bot reply to DB:', err))
+      }
       return
     }
 
@@ -347,7 +347,7 @@ export default function ChatbotWidget() {
         headers,
         body: JSON.stringify({
           message: text,
-          chat_id: activeChat.id,
+          chat_id: activeChat?.id || null,
           history: historyContext
         })
       })
@@ -355,20 +355,37 @@ export default function ChatbotWidget() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to fetch reply')
 
-      // Real-time channel will append the DB bot message automatically
+      // If activeChat is null, Edge function won't write to DB, so we must render it locally
+      if (!activeChat) {
+        setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: data.reply, id: Math.random().toString() }])
+      } else {
+        // If activeChat is active, the database listener will automatically append the message,
+        // but as a fallback, we check if it is already in messages after 1.5 seconds.
+        setTimeout(() => {
+          setMessages(prev => {
+            if (prev.some(m => m.content === data.reply)) return prev
+            return [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: data.reply, id: Math.random().toString() }]
+          })
+        }, 1500)
+      }
     } catch (err) {
       console.error('[chatbot] Failed to chat:', err)
       const errorMsg = isNl
         ? 'Sorry, er is een fout opgetreden. Probeer het later opnieuw.'
         : 'Sorry, an error occurred. Please try again later.'
       
-      await supabase
-        .from('customer_messages')
-        .insert([{
-          chat_id: activeChat.id,
-          sender_type: 'bot',
-          content: errorMsg
-        }])
+      setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: errorMsg, id: Math.random().toString() }])
+
+      if (activeChat) {
+        await supabase
+          .from('customer_messages')
+          .insert([{
+            chat_id: activeChat.id,
+            sender_type: 'bot',
+            content: errorMsg
+          }])
+          .catch(dbErr => console.error('[chatbot] Failed to save error msg to DB:', dbErr))
+      }
     } finally {
       setLoading(false)
     }
@@ -376,7 +393,20 @@ export default function ChatbotWidget() {
 
   // Request human takeover & auto-assign Walid
   const handleRequestTakeover = async () => {
-    if (!activeChat) return
+    let currentChat = activeChat
+    if (!currentChat) {
+      // Try to initialize it first
+      await initChatSession()
+      currentChat = activeChat
+    }
+    if (!currentChat) {
+      // Fallback local message
+      const fallbackMsg = isNl
+        ? 'Er is geen actieve chat-sessie beschikbaar. Neem direct contact met ons op via e-mail (info@autoflowstudio.net) of WhatsApp!'
+        : 'No active chat session is currently available. Please contact us directly via email (info@autoflowstudio.net) or WhatsApp!'
+      setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: fallbackMsg, id: Math.random().toString() }])
+      return
+    }
     setLoading(true)
     try {
       // 1. Resolve Walid profile from profiles table
@@ -478,11 +508,16 @@ export default function ChatbotWidget() {
         ? 'Ik heb het boekingsformulier voor je geopend! Vul je gegevens in en we spreken elkaar snel.'
         : 'I\'ve opened the booking form for you! Please fill in your details and we will speak soon.'
       
-      supabase.from('customer_messages').insert([{
-        chat_id: activeChat.id,
-        sender_type: 'bot',
-        content: contentText
-      }])
+      const cleanWelcome = messages.filter(m => m.id !== 'welcome')
+      setMessages([...cleanWelcome, { role: 'model', content: contentText, id: Math.random().toString() }])
+
+      if (activeChat) {
+        supabase.from('customer_messages').insert([{
+          chat_id: activeChat.id,
+          sender_type: 'bot',
+          content: contentText
+        }]).catch(err => console.error('[chatbot] Failed to save bot message to DB:', err))
+      }
     } else if (chip.action === 'takeover') {
       handleRequestTakeover()
     } else {
