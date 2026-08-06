@@ -21,7 +21,7 @@ export default function PromoBanner({ onCTA }) {
   if (!isVisible) return null
 
   return (
-    <div style={bannerContainerStyle}>
+    <div className="promo-banner-container" style={bannerContainerStyle}>
       <div className="promo-content" style={contentStyle}>
         {/* Pulsing Badge */}
         <div className="promo-badge-container" style={badgeContainerStyle}>
@@ -56,19 +56,7 @@ export default function PromoBanner({ onCTA }) {
           100% { transform: scale(2.5); opacity: 0; }
         }
         @media (max-width: 768px) {
-          .promo-msg { display: none; }
-          .promo-badge-text { display: none; }
-          .promo-content { 
-            padding: 6px 8px !important; 
-            gap: 8px !important; 
-            flex-wrap: nowrap !important; 
-            flex-direction: row !important;
-          }
-          .promo-timer { font-size: 0.9rem !important; padding: 4px 10px !important; }
-          .promo-cta { padding: 8px 16px !important; font-size: 0.8rem !important; }
-          .promo-badge-container { gap: 0 !important; }
-          .promo-actions { gap: 8px !important; }
-          .promo-close { padding: 6px !important; }
+          .promo-banner-container { display: none !important; }
         }
       `}</style>
     </div>

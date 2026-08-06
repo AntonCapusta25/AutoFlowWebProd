@@ -672,17 +672,6 @@ export default function ChatbotWidget() {
                 bottom: 16px !important;
                 right: 16px !important;
               }
-              
-              /* Simplify bubble styles on mobile — no gradients or heavy shadows */
-              .chatbot-msg-user {
-                background: #5646e4 !important;
-                border: none !important;
-                box-shadow: none !important;
-              }
-              .chatbot-msg-button {
-                background: #5646e4 !important;
-                box-shadow: none !important;
-              }
             }
           `}</style>
 

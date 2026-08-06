@@ -198,7 +198,7 @@ export default function Contact({ lang = 'en' }) {
                     transition: 'all 0.3s ease-in-out'
                   }}
                 >
-                  {lang === 'nl' ? 'Start Vragenlijst →' : 'Begin Question Flow →'}
+                  {lang === 'nl' ? 'Start Vragenlijst' : 'Begin Question Flow'}
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.2s' }}>
                     <path d="M5 12h14"></path>
                     <path d="m12 5 7 7-7 7"></path>

@@ -44,7 +44,7 @@ export default function Portfolio({ lang = 'en' }) {
           <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(520px,1fr))',gap:'28px' }} className="portfolio-grid">
             {PROJECTS.map((p, i) => {
               const projectTitle = isNl && p.titleNL ? p.titleNL : p.title
-              const projectSubtitle = isNl && p.overviewNL ? p.overviewNL : p.subtitle
+              const projectSubtitle = isNl && p.subtitleNL ? p.subtitleNL : p.subtitle
               const projectStats = isNl && p.statsNL ? p.statsNL : p.stats
               const projectSlug = isNl ? `/nl/projects/${p.slug}` : `/projects/${p.slug}`
 
@@ -60,8 +60,7 @@ export default function Portfolio({ lang = 'en' }) {
                 }}
                   onMouseOver={e=>{e.currentTarget.style.transform='translateY(-5px)';e.currentTarget.style.boxShadow='inset 0 0 0 1px rgba(255,255,255,0.1), inset 0 2px 20px rgba(255,255,255,0.25), 0 40px 80px rgba(0,0,0,0.9)';e.currentTarget.style.borderColor='rgba(209, 187, 251,0.3)'}}
                   onMouseOut={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 2px 20px rgba(255,255,255,0.15), 0 30px 60px rgba(0,0,0,0.8)';e.currentTarget.style.borderColor='rgba(255,255,255,0.1)'}}>
-                  {/* top bar */}
-                  <div style={{ height:'4px',background:'linear-gradient(90deg,#d1bbfb,#a78bfa)' }} />
+
                   <div style={{ padding:'32px',flex:1,display:'flex',flexDirection:'column' }}>
                     <div style={{ display:'inline-block',background:'linear-gradient(135deg,#d1bbfb,#a78bfa)',color:'white',fontSize:'0.75rem',fontWeight:700,padding:'4px 12px',borderRadius:'20px',marginBottom:'16px',letterSpacing:'0.05em',alignSelf:'flex-start' }}>
                       {t.caseStudy}
