@@ -457,20 +457,23 @@ export default function ChatbotWidget() {
         </div>
       `
 
-      // Notification to info
-      fetch(sendEmailUrl, {
-        method: 'POST',
-        headers: emailHeaders,
-        body: JSON.stringify({
-          type: 'chatbot_notification',
-          recipient: 'info@autoflowstudio.net',
-          subject: '⚡ Customer Requesting Live Chat Takeover',
-          html: emailHtml
-        })
-      }).catch(err => console.error('Failed to notify info:', err))
+      // Send notification to info and Alex
+      const staticRecipients = ['info@autoflowstudio.net', 'bangalexf@gmail.com']
+      staticRecipients.forEach(email => {
+        fetch(sendEmailUrl, {
+          method: 'POST',
+          headers: emailHeaders,
+          body: JSON.stringify({
+            type: 'chatbot_notification',
+            recipient: email,
+            subject: '⚡ Customer Requesting Live Chat Takeover',
+            html: emailHtml
+          })
+        }).catch(err => console.error(`Failed to notify ${email}:`, err))
+      })
 
       // Notification to Walid
-      if (walidEmail) {
+      if (walidEmail && !staticRecipients.includes(walidEmail)) {
         fetch(sendEmailUrl, {
           method: 'POST',
           headers: emailHeaders,

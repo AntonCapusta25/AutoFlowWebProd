@@ -213,6 +213,20 @@ export default function AdminChat() {
           if (payload.new.chat_id === activeCustomerChat.id) {
             setCustomerMessages(prev => {
               if (prev.some(m => m.id === payload.new.id)) return prev
+              
+              // Deduplicate temporary local messages
+              const tempMatchIdx = prev.findIndex(m => 
+                m.content === payload.new.content && 
+                m.sender_type === payload.new.sender_type && 
+                m.id.startsWith('0.')
+              )
+              
+              if (tempMatchIdx !== -1) {
+                const updated = [...prev]
+                updated[tempMatchIdx] = payload.new
+                return updated
+              }
+              
               return [...prev, payload.new]
             })
           }
@@ -240,16 +254,37 @@ export default function AdminChat() {
       const text = inputCustomerText.trim()
       setInputCustomerText('')
 
-      const { error } = await supabase.from('customer_messages').insert({
+      // 1. Append locally instantly to prevent any visual delay or lock!
+      const tempId = Math.random().toString()
+      const tempMsg = {
+        id: tempId,
         chat_id: activeCustomerChat.id,
         sender_type: 'human',
         sender_id: user.id,
-        content: text
-      })
+        content: text,
+        created_at: new Date().toISOString()
+      }
+      setCustomerMessages(prev => [...prev, tempMsg])
+
+      const { data, error } = await supabase
+        .from('customer_messages')
+        .insert({
+          chat_id: activeCustomerChat.id,
+          sender_type: 'human',
+          sender_id: user.id,
+          content: text
+        })
+        .select()
+        .single()
 
       if (error) {
+        // If error, remove the temporary message and alert
+        setCustomerMessages(prev => prev.filter(m => m.id !== tempId))
         alert('Failed to send: ' + error.message)
       } else {
+        // Replace tempId with the real database ID in state
+        setCustomerMessages(prev => prev.map(m => m.id === tempId ? data : m))
+
         // If chat status was not 'human' or not assigned to current user, auto take over
         if (activeCustomerChat.status !== 'human' || activeCustomerChat.assigned_to !== user.id) {
           await supabase
