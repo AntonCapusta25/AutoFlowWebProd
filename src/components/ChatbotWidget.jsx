@@ -225,13 +225,13 @@ export default function ChatbotWidget() {
         table: 'customer_messages'
       }, (payload) => {
         if (payload.new.chat_id === activeChat.id) {
-          const role = payload.new.sender_type === 'customer' ? 'user' : 'model'
+          // Ignore bot and customer insertions since they are rendered instantly locally
+          if (payload.new.sender_type !== 'human') return
+
           setMessages(prev => {
-            // Prevent duplicate insertions
             if (prev.some(m => m.id === payload.new.id)) return prev
-            // Strip default welcome if first user message is appended
             const cleanPrev = prev.filter(m => m.id !== 'welcome')
-            return [...cleanPrev, { role, content: payload.new.content, id: payload.new.id }]
+            return [...cleanPrev, { role: 'model', content: payload.new.content, id: payload.new.id }]
           })
         }
       })
@@ -309,7 +309,7 @@ export default function ChatbotWidget() {
     // 2. Try to match configurable response tree offline (instantly)
     const localAnswer = matchResponseTree(text)
     if (localAnswer) {
-      await new Promise(resolve => setTimeout(resolve, 400))
+      await new Promise(resolve => setTimeout(resolve, 150))
       
       setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: localAnswer, id: Math.random().toString() }])
       setLoading(false)
@@ -355,19 +355,8 @@ export default function ChatbotWidget() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to fetch reply')
 
-      // If activeChat is null, Edge function won't write to DB, so we must render it locally
-      if (!activeChat) {
-        setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: data.reply, id: Math.random().toString() }])
-      } else {
-        // If activeChat is active, the database listener will automatically append the message,
-        // but as a fallback, we check if it is already in messages after 1.5 seconds.
-        setTimeout(() => {
-          setMessages(prev => {
-            if (prev.some(m => m.content === data.reply)) return prev
-            return [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: data.reply, id: Math.random().toString() }]
-          })
-        }, 1500)
-      }
+      // Render bot response instantly in local state
+      setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: data.reply, id: Math.random().toString() }])
     } catch (err) {
       console.error('[chatbot] Failed to chat:', err)
       const errorMsg = isNl
