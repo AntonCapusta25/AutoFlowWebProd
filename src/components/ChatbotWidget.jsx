@@ -332,7 +332,9 @@ export default function ChatbotWidget() {
             sender_type: 'bot',
             content: localAnswer
           }])
-          .catch(err => console.error('[chatbot] Failed to save bot reply to DB:', err))
+          .then(({ error }) => {
+            if (error) console.error('[chatbot] Failed to save bot reply to DB:', error.message)
+          })
       }
       return
     }
@@ -377,14 +379,16 @@ export default function ChatbotWidget() {
       setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: errorMsg, id: Math.random().toString(), sender_type: 'bot' }])
 
       if (activeChat) {
-        await supabase
+        supabase
           .from('customer_messages')
           .insert([{
             chat_id: activeChat.id,
             sender_type: 'bot',
             content: errorMsg
           }])
-          .catch(dbErr => console.error('[chatbot] Failed to save error msg to DB:', dbErr))
+          .then(({ error }) => {
+            if (error) console.error('[chatbot] Failed to save error msg to DB:', error.message)
+          })
       }
     } finally {
       setLoading(false)
@@ -518,7 +522,9 @@ export default function ChatbotWidget() {
           chat_id: activeChat.id,
           sender_type: 'bot',
           content: contentText
-        }]).catch(err => console.error('[chatbot] Failed to save bot message to DB:', err))
+        }]).then(({ error }) => {
+          if (error) console.error('[chatbot] Failed to save bot message to DB:', error.message)
+        })
       }
     } else if (chip.action === 'takeover') {
       handleRequestTakeover()
