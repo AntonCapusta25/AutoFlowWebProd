@@ -35,7 +35,10 @@ export default function AdminLayout({ children }) {
       }
 
       try {
-        const registration = await navigator.serviceWorker.ready
+        // Register the service worker dynamically (scoped to admin side only)
+        const registration = await navigator.serviceWorker.register('/sw.js')
+        console.log('[PWA] Service Worker registered for Admin Layout:', registration.scope)
+
         let subscription = await registration.pushManager.getSubscription()
 
         if (Notification.permission === 'default') {

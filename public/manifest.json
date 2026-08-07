@@ -2,7 +2,7 @@
   "name": "AutoFlow Studio Admin",
   "short_name": "AutoFlow Admin",
   "description": "Admin Dashboard for AutoFlow Studio customer support and chat management.",
-  "start_url": "/admin",
+  "start_url": "/admin/dashboard",
   "display": "standalone",
   "background_color": "#050505",
   "theme_color": "#5646e4",
