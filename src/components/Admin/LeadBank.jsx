@@ -1341,9 +1341,57 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           max-height: calc(100vh - 80px);
           overflow-y: auto;
         }
+        .leadbank-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 20px;
+        }
+        .leadbank-header-actions {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+          flex-wrap: wrap;
+        }
+        .leadbank-filters {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 24px;
+          flex-wrap: wrap;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          padding: 16px 24px;
+          border-radius: 16px;
+        }
         @media (max-width: 768px) {
           .leadbank-grid.has-selection { grid-template-columns: 1fr !important; }
           .lead-detail-panel { position: fixed; top: 70px; left: 0; width: 100vw; height: calc(100vh - 70px); z-index: 10000; border-radius: 0; overflow-y: auto; }
+          
+          .leadbank-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 16px;
+          }
+          .leadbank-header-actions {
+            width: 100%;
+          }
+          .leadbank-header-actions > * {
+            flex: 1 1 calc(50% - 6px);
+          }
+          .leadbank-header-actions input {
+            width: 100% !important;
+            flex: 1 1 100%;
+          }
+          .leadbank-filters {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+            padding: 16px;
+          }
+          .leadbank-divider {
+            display: none !important;
+          }
         }
       `}</style>
       {emailSentFor && (
@@ -1360,12 +1408,12 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           Email sent to lead
         </div>
       )}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isAdmin && salespeople.length > 0 ? '16px' : '40px' }}>
+      <div className="leadbank-header" style={{ marginBottom: isAdmin && salespeople.length > 0 ? '16px' : '40px' }}>
         <div>
           <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '2rem', fontWeight: 800, marginBottom: '8px' }}>{title}</h1>
           <p style={{ color: '#94A3B8' }}>{subtitle}</p>
         </div>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div className="leadbank-header-actions">
           <div style={{ position: 'relative' }}>
             <svg style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748B' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <input
@@ -1473,7 +1521,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           ))}
         </select>
 
-        <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.08)' }} />
+        <div className="leadbank-divider" style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.08)' }} />
         <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Phone:</p>
         {[{ id: 'all', label: 'All' }, { id: 'nl', label: '🇳🇱 NL' }, { id: 'uk', label: '🇬🇧 UK' }, { id: 'us', label: '🇺🇸 US' }].map(opt => (
           <button
