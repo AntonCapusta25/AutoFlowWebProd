@@ -1616,7 +1616,14 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                     </td>
                     <td style={{ padding: '20px', minWidth: '160px', width: '160px', whiteSpace: 'nowrap' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#CBD5E1', fontSize: '0.85rem', fontWeight: 600 }}>
-                        <span>{lead.phone || 'N/A'}</span>
+                        {lead.phone ? (
+                          <a href={`tel:${lead.phone}`} onClick={e => e.stopPropagation()} style={{ color: '#d1bbfb', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                            {lead.phone}
+                          </a>
+                        ) : (
+                          <span style={{ color: '#475569' }}>N/A</span>
+                        )}
                       </div>
                     </td>
                     <td style={{ padding: '20px', minWidth: '120px', width: '120px', whiteSpace: 'nowrap' }}>
@@ -1815,9 +1822,9 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                 <h3 style={{ margin: '0 0 4px', color: 'white', fontSize: '1.4rem', fontWeight: 800, display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap' }}>
                   <span>{activeLead.name || 'Unnamed'}</span>
                   {activeLead.phone && (
-                    <span style={{ fontSize: '0.95rem', color: '#94A3B8', fontWeight: 500 }}>
+                    <a href={`tel:${activeLead.phone}`} style={{ fontSize: '0.95rem', color: '#d1bbfb', fontWeight: 500, textDecoration: 'none' }}>
                       ({activeLead.phone})
-                    </span>
+                    </a>
                   )}
                 </h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: '#a855f7', fontWeight: 700, marginBottom: '8px' }}>

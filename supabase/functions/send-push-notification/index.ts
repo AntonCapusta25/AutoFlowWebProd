@@ -24,10 +24,10 @@ Deno.serve(async (req) => {
 
     // Parse request body
     const body = await req.json()
-    const { chat_id, message, sender_name } = body
+    const { chat_id, message, sender_name, user_id, title, url } = body
 
-    if (!chat_id) {
-      throw new Error('Missing "chat_id" in request payload')
+    if (!chat_id && !user_id) {
+      throw new Error('Missing "chat_id" or "user_id" in request payload')
     }
 
     // Configure VAPID details
@@ -37,17 +37,23 @@ Deno.serve(async (req) => {
       'xdj4AnKDskK9hI6BzMKZLXj4P0t_76hSiGH_nmPE_Wg'
     )
 
-    // Fetch all active push subscriptions
-    const { data: subscriptions, error: fetchError } = await supabase
+    // Fetch active push subscriptions (optionally filtering by user_id)
+    let query = supabase
       .from('admin_push_subscriptions')
       .select('id, user_id, subscription')
+
+    if (user_id) {
+      query = query.eq('user_id', user_id)
+    }
+
+    const { data: subscriptions, error: fetchError } = await query
 
     if (fetchError) {
       throw new Error(`Failed to fetch push subscriptions from database: ${fetchError.message}`)
     }
 
     if (!subscriptions || subscriptions.length === 0) {
-      console.log('[send-push-notification] No active admin push subscriptions registered. Skipping dispatch.')
+      console.log(`[send-push-notification] No active push subscriptions registered${user_id ? ' for user ' + user_id : ''}. Skipping dispatch.`)
       return new Response(JSON.stringify({ success: true, count: 0 }), {
         headers: { ...CORS, 'Content-Type': 'application/json' },
         status: 200
@@ -57,9 +63,9 @@ Deno.serve(async (req) => {
     console.log(`[send-push-notification] Dispatching web push notification to ${subscriptions.length} subscribers...`)
 
     const notificationPayload = JSON.stringify({
-      title: `${sender_name || 'Customer'} needs support`,
+      title: title || `${sender_name || 'Customer'} needs support`,
       body: message || 'New support message received.',
-      url: `/admin/chat?chat_id=${chat_id}`
+      url: url || (chat_id ? `/admin/chat?chat_id=${chat_id}` : '/admin/dashboard')
     })
 
     const results = await Promise.all(
