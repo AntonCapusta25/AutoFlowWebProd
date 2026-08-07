@@ -11,7 +11,73 @@ export default function AdminLayout({ children }) {
   const [segments, setSegments] = useState([])
   const [isNotifOpen, setIsNotifOpen] = useState(false)
   const [toasts, setToasts] = useState([])
-  const { profile, isAdmin, isImpersonating, stopImpersonating, notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification } = useAdmin()
+  const { user, profile, isAdmin, isImpersonating, stopImpersonating, notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification } = useAdmin()
+
+  // Base64 helper to register push subscription VAPID keys
+  const urlBase64ToUint8Array = (base64String) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4)
+    const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/')
+    const rawData = window.atob(base64)
+    const outputArray = new Uint8Array(rawData.length)
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i)
+    }
+    return outputArray
+  }
+
+  useEffect(() => {
+    if (!user?.id) return
+
+    async function setupPushNotifications() {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        console.log('[PWA] Push messaging not supported in this browser.')
+        return
+      }
+
+      try {
+        const registration = await navigator.serviceWorker.ready
+        let subscription = await registration.pushManager.getSubscription()
+
+        if (Notification.permission === 'default') {
+          const permission = await Notification.requestPermission()
+          if (permission !== 'granted') {
+            console.log('[PWA] Push notification permission was denied.')
+            return
+          }
+        }
+
+        if (Notification.permission === 'granted' && !subscription) {
+          const vapidPublicKey = 'BMRGPuIAhWNgBJBQ9ujr68axC3x5WRJ4r7d3NshX805pve5v5YE4tpyjzJSn3eBKPv1JpxH7WroyrVN83Gb5rkc'
+          const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey)
+
+          subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: convertedVapidKey
+          })
+          console.log('[PWA] Subscribed to push notifications successfully:', subscription)
+        }
+
+        if (subscription) {
+          const { error } = await supabase
+            .from('admin_push_subscriptions')
+            .upsert({
+              user_id: user.id,
+              subscription: subscription.toJSON()
+            }, { onConflict: 'user_id' })
+
+          if (error) {
+            console.error('[PWA] Failed to upsert push subscription to database:', error.message)
+          } else {
+            console.log('[PWA] Registered push subscription on database successfully.')
+          }
+        }
+      } catch (err) {
+        console.error('[PWA] Error setting up web push notifications:', err)
+      }
+    }
+
+    setupPushNotifications()
+  }, [user?.id])
 
   useEffect(() => {
     async function fetchSegments() {
