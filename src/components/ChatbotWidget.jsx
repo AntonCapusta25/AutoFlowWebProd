@@ -100,7 +100,37 @@ export default function ChatbotWidget() {
     }
   }
 
-  // 2. Load or Create Customer Chat Session
+  // 2. Load or Create Customer Chat Session Lazily
+  const ensureChatSessionExists = async () => {
+    if (activeChat) return activeChat
+
+    try {
+      const shortId = Math.random().toString(36).substring(2, 6).toUpperCase()
+      const customerName = `Visitor #${shortId}`
+
+      const { data, error } = await supabase
+        .from('customer_chats')
+        .insert([{ 
+          session_id: Math.random().toString(36).substring(2), 
+          customer_name: customerName 
+        }])
+        .select()
+        .single()
+      
+      if (error) throw error
+
+      let storedIds = JSON.parse(localStorage.getItem('autoflow_chat_ids') || '[]')
+      storedIds.push(data.id)
+      localStorage.setItem('autoflow_chat_ids', JSON.stringify(storedIds))
+
+      setActiveChat(data)
+      return data
+    } catch (err) {
+      console.error('[chatbot] Failed to create chat session on demand:', err)
+      return null
+    }
+  }
+
   const initChatSession = async (existingId = null) => {
     try {
       let chatId = existingId
@@ -123,24 +153,15 @@ export default function ChatbotWidget() {
         chatData = data
       }
 
-      if (!chatData) {
-        // Create new chat session in database
-        const { data, error } = await supabase
-          .from('customer_chats')
-          .insert([{ session_id: Math.random().toString(36).substring(2), customer_name: 'Visitor' }])
-          .select()
-          .single()
-        
-        if (error) throw error
-        chatData = data
-        
-        // Save ID to storage
-        storedIds.push(data.id)
-        localStorage.setItem('autoflow_chat_ids', JSON.stringify(storedIds))
+      if (chatData) {
+        setActiveChat(chatData)
+        loadMessages(chatData.id)
+      } else {
+        const welcome = isNl 
+          ? 'Hallo! Ik ben de AI-assistent van AutoFlow Studio. Hoe kan ik u vandaag helpen met automatisering?'
+          : 'Hello! I am AutoFlow Studio\'s AI assistant. How can I help you automate your business today?'
+        setMessages([{ role: 'model', content: welcome, id: 'welcome' }])
       }
-
-      setActiveChat(chatData)
-      loadMessages(chatData.id)
       return chatData
     } catch (err) {
       console.error('[chatbot] Failed to initialize chat session:', err)
@@ -293,10 +314,13 @@ export default function ChatbotWidget() {
     const cleanWelcome = messages.filter(m => m.id !== 'welcome')
     setMessages([...cleanWelcome, { role: 'user', content: text, id: localId, sender_type: 'customer' }])
 
-    // 1. Insert customer message into DB table (if activeChat is loaded)
-    if (activeChat) {
+    // Ensure chat session is created in DB
+    const currentChat = await ensureChatSessionExists()
+
+    // 1. Insert customer message into DB table (if activeChat/currentChat is loaded)
+    if (currentChat) {
       supabase.from('customer_messages').insert([{
-        chat_id: activeChat.id,
+        chat_id: currentChat.id,
         sender_type: 'customer',
         content: text
       }]).then(() => {
@@ -304,12 +328,12 @@ export default function ChatbotWidget() {
         supabase
           .from('customer_chats')
           .update({ updated_at: new Date().toISOString() })
-          .eq('id', activeChat.id)
+          .eq('id', currentChat.id)
       }).catch(err => console.error('[chatbot] Failed to save customer message to DB:', err))
     }
 
     // If takeover is active or agent is being searched, DO NOT let the chatbot respond!
-    if (activeChat && (activeChat.status === 'human' || activeChat.status === 'needs_human')) {
+    if (currentChat && (currentChat.status === 'human' || currentChat.status === 'needs_human')) {
       return
     }
 
@@ -323,12 +347,12 @@ export default function ChatbotWidget() {
       setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: localAnswer, id: Math.random().toString(), sender_type: 'bot' }])
       setLoading(false)
 
-      // Save bot answer directly to database if activeChat is loaded
-      if (activeChat) {
+      // Save bot answer directly to database if currentChat is loaded
+      if (currentChat) {
         supabase
           .from('customer_messages')
           .insert([{
-            chat_id: activeChat.id,
+            chat_id: currentChat.id,
             sender_type: 'bot',
             content: localAnswer
           }])
@@ -358,7 +382,7 @@ export default function ChatbotWidget() {
         headers,
         body: JSON.stringify({
           message: text,
-          chat_id: activeChat?.id || null,
+          chat_id: currentChat?.id || null,
           history: historyContext
         })
       })
@@ -378,11 +402,11 @@ export default function ChatbotWidget() {
       
       setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: errorMsg, id: Math.random().toString(), sender_type: 'bot' }])
 
-      if (activeChat) {
+      if (currentChat) {
         supabase
           .from('customer_messages')
           .insert([{
-            chat_id: activeChat.id,
+            chat_id: currentChat.id,
             sender_type: 'bot',
             content: errorMsg
           }])
@@ -400,7 +424,7 @@ export default function ChatbotWidget() {
     let currentChat = activeChat
     if (!currentChat) {
       // Try to initialize it first
-      currentChat = await initChatSession()
+      currentChat = await ensureChatSessionExists()
     }
     if (!currentChat) {
       // Fallback local message
@@ -535,29 +559,14 @@ export default function ChatbotWidget() {
 
   // Starts a clean new chat session
   const handleStartNewChat = async () => {
-    setLoading(true)
-    try {
-      const { data, error } = await supabase
-        .from('customer_chats')
-        .insert([{ session_id: Math.random().toString(36).substring(2), customer_name: 'Visitor' }])
-        .select()
-        .single()
-      
-      if (error) throw error
-      
-      let storedIds = JSON.parse(localStorage.getItem('autoflow_chat_ids') || '[]')
-      storedIds.push(data.id)
-      localStorage.setItem('autoflow_chat_ids', JSON.stringify(storedIds))
+    setActiveChat(null)
+    setMessages([])
+    setViewMode('chat')
 
-      setActiveChat(data)
-      setMessages([])
-      setViewMode('chat')
-      loadMessages(data.id)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
+    const welcome = isNl 
+      ? 'Hallo! Ik ben de AI-assistent van AutoFlow Studio. Hoe kan ik u vandaag helpen met automatisering?'
+      : 'Hello! I am AutoFlow Studio\'s AI assistant. How can I help you automate your business today?'
+    setMessages([{ role: 'model', content: welcome, id: 'welcome' }])
   }
 
   // Switch to another previous chat session from history
