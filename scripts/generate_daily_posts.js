@@ -73,15 +73,16 @@ async function generate() {
     // Generate a simple slug from the topic name
     const slug = t.topic.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     return !existingSlugs.includes(slug);
-  }) || TOPIC_QUEUE[0];
-
-  const slug = selectTopic.topic.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  console.log(`\nSelected Topic: "${selectTopic.topic}" | Slug: "${slug}"`);
+  });
 
   // Build existing slugs catalog for internal linking reference
   const linksCatalog = existingSlugs.slice(0, 5).map(s => `/blog/${s}`).join(', ');
 
-  const prompt = `
+  let prompt = '';
+  if (selectTopic) {
+    const slug = selectTopic.topic.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    console.log(`\nSelected Queue Topic: "${selectTopic.topic}" | Slug: "${slug}"`);
+    prompt = `
 You are a software engineer and content writer for AutoFlow Studio (a custom software development and automation agency in the Netherlands).
 Generate a blog post in BOTH English and Dutch for the topic: "${selectTopic.topic}".
 Focus keyword (English): "${selectTopic.keywordEn}"
@@ -118,6 +119,61 @@ Output your response ONLY in JSON format matching the schema:
   ]
 }
 `;
+  } else {
+    console.log('\nAll predefined queue topics are covered. Falling back to dynamic B2B software/automation topic generation...');
+    prompt = `
+You are a software engineer and content writer for AutoFlow Studio (a custom software development and automation agency in the Netherlands).
+We need a new blog post on B2B custom software development or operational business automation.
+You must choose a new high-intent B2B custom software / business automation topic that is completely different from the following existing slugs (do NOT choose any of these topics or generate these slugs):
+${existingSlugs.join(', ')}
+
+Suggested areas to explore for new topics:
+- Custom API integrations for Dutch platforms (e.g. Mollie, Moneybird, Exact Online, AFAS)
+- Automating warehouse, logistics, or inventory workflows
+- Custom recruitment/ATS tools or onboarding automation for Dutch SMEs
+- AI-driven customer support or custom lead generation systems
+- Security compliance, GDPR hosting, or multi-tenant database designs
+
+For the new topic you choose, define:
+- An English focus keyword
+- A Dutch focus keyword
+- A unique URL-friendly slug (must not be in the existing slugs list)
+- An engaging concept
+
+Then generate a blog post in BOTH English and Dutch for this topic.
+
+Requirements for the generated copy:
+1. **Tone and Voice**:
+   - Write in a natural, conversational, human-written style, like a smart 11th grader or first-year university student.
+   - Do NOT use typical robotic AI words, transition words, or corporate marketing slop (avoid: "Furthermore", "Moreover", "In this comprehensive guide", "In conclusion", "It is important to note", "In today's fast-paced digital world").
+   - Shift the tone dynamically: sometimes sound enthusiastic and marketing-minded like Neil Patel (simple, punchy, engaging, story-driven), and sometimes sound like a sharp, slightly cynical junior engineer who is tired of manual corporate BS.
+   - Keep sentences and paragraphs short and varied in length. Use casual phrasing like "Look," "Honestly," "Here is the thing," "Let's be real."
+2. **Length**: The text body (bodyEn and bodyNl) MUST be strictly greater than 8,500 characters. Go deep into real setups, examples, and technical details.
+3. **Layout**: Format the body as HTML wrapped inside a '<div class="article-content">' element. Use proper headers (h2, h3), lists (ul, ol), and highlight blocks ('<div class="results-box">...</div>' or '<div class="highlight-box">...</div>'). Include a hero image block at the top: '<div class="hero-image"><img src="/images/blog_[YOUR_CHOSEN_SLUG].png" alt="Descriptive Alt Text" /></div>' (replace [YOUR_CHOSEN_SLUG] with the unique slug you chose).
+4. **Keyword Placement**: Place the main keyword in the H1 title, and naturally place related keywords inside H2 and H3 elements.
+5. **Interlinking**: Integrate 2-3 links to existing blog posts. Use exactly these URLs in your links if relevant: ${linksCatalog}. Format: <a href="/blog/slug-name">Anchor Text</a> (for English) and <a href="/nl/blog/slug-name">Anchor Text</a> (for Dutch).
+6. **Brand Placement**: Highlight "AutoFlow Studio" naturally in the body text twice, as the expert implementation agency for custom integrations.
+7. **FAQs**: Provide 3 relevant FAQ Q&As for both languages.
+
+Output your response ONLY in JSON format matching the schema:
+{
+  "slug": "unique-slug-you-chose",
+  "titleEn": "English Title",
+  "descEn": "English summary / meta description",
+  "bodyEn": "HTML body content (must be >8500 chars)",
+  "faqsEn": [
+    { "q": "Question?", "a": "Answer." }
+  ],
+  "titleNl": "Dutch Title",
+  "descNl": "Dutch summary / meta description",
+  "bodyNl": "HTML body content (must be >8500 chars)",
+  "faqsNl": [
+    { "q": "Question?", "a": "Answer." }
+  ]
+}
+`;
+  }
+
 
   console.log('Sending request to Gemini API...');
   const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
