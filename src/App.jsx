@@ -18,6 +18,9 @@ const Blog          = lazy(() => import('./pages/Blog'))
 const BlogPost      = lazy(() => import('./pages/BlogPost'))
 const ProjectDetail = lazy(() => import('./pages/ProjectDetail'))
 
+// ── Landing / Targeted Solutions pages (lazy) ──────────────────────────────
+const B2BAutomation = lazy(() => import('./pages/Landing/B2BAutomation'))
+
 // ── Admin pages (lazy — never fetched by public visitors) ─────────────────
 const AdminLogin        = lazy(() => import('./pages/Admin/Login'))
 const AdminDashboard    = lazy(() => import('./pages/Admin/Dashboard'))
@@ -51,6 +54,9 @@ export default function App() {
 function AppContent() {
   const location = useLocation()
   const isAdmin = location.pathname.startsWith('/admin')
+  const isLandingPage = location.pathname.includes('/solutions/')
+  const hideGlobalLayout = isAdmin || isLandingPage
+
   const [isBookingOpen, setIsBookingOpen] = useState(false)
   const [initialQuery, setInitialQuery] = useState('')
   const isNl = location.pathname.startsWith('/nl')
@@ -67,7 +73,7 @@ function AppContent() {
 
   return (
     <>
-      {!isAdmin && <Navbar />}
+      {!hideGlobalLayout && <Navbar />}
       <Suspense fallback={<Loading />}>
         <Routes>
           {/* ── English routes ── */}
@@ -79,6 +85,10 @@ function AppContent() {
           <Route path="/contact"           element={<Contact lang="en" />} />
           <Route path="/privacy-policy"    element={<PrivacyPolicy />} />
           <Route path="/cookie-policy"     element={<CookiePolicy />} />
+
+          {/* ── Landing / Targeted Solutions routes ── */}
+          <Route path="/solutions/b2b-automation" element={<B2BAutomation lang="en" />} />
+          <Route path="/nl/solutions/b2b-automation" element={<B2BAutomation lang="nl" />} />
 
           {/* ── Dutch routes (/nl/) ── */}
           <Route path="/nl"                element={<Home lang="nl" />} />
@@ -108,9 +118,9 @@ function AppContent() {
           <Route path="*"                  element={<NotFound />} />
         </Routes>
       </Suspense>
-      {!isAdmin && <Footer />}
+      {!hideGlobalLayout && <Footer />}
       {!isAdmin && <CookiesBanner />}
-      {!isAdmin && <PromoBanner onCTA={() => window.dispatchEvent(new CustomEvent('open-booking'))} />}
+      {!hideGlobalLayout && <PromoBanner onCTA={() => window.dispatchEvent(new CustomEvent('open-booking'))} />}
       {!isAdmin && (
         <MultiStepBooking 
           isOpen={isBookingOpen} 
