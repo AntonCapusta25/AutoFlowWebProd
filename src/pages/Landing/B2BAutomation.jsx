@@ -35,7 +35,7 @@ const TRANSLATIONS = {
       },
       card3: {
         title: "Client Support Friction",
-        desc: "Verdrinken in status update requests. Clients expect immediate self-service document access and live status progress, not delayed email attachments."
+        desc: "Drowning in status update requests. Clients expect immediate self-service document access and live status progress, not delayed email attachments."
       }
     },
     solutions: {
@@ -200,7 +200,6 @@ export default function B2BAutomation({ lang }) {
   const [savings, setSavings] = useState(0)
 
   useEffect(() => {
-    // E * H * C * 52 weeks
     const annualWasted = employees * hours * labor * 52
     setWastedCost(annualWasted)
     setSavings(Math.round(annualWasted * 0.85))
@@ -294,14 +293,21 @@ export default function B2BAutomation({ lang }) {
       </nav>
 
       {/* ── Hero Section ── */}
-      <header className="b2b-section">
+      <header className="b2b-section" style={{ paddingBottom: '0' }}>
         <div className="b2b-container b2b-hero-grid">
           <div className="b2b-hero-left">
             <span className="b2b-tag">{t.hero.eyebrow}</span>
-            <h1>
-              {t.hero.heading}
-              <span className="highlight">{t.hero.headingHighlight}</span>
-            </h1>
+            {lang === 'nl' ? (
+              <h1>
+                Schaal B2B-operaties <span className="fancy-serif">zonder de</span> <br />
+                <span className="highlight">personeelstax</span> <span className="fancy-handwriting">automatisch</span>
+              </h1>
+            ) : (
+              <h1>
+                Scale B2B Operations <span className="fancy-serif">without the</span> <br />
+                <span className="highlight">headcount tax</span> <span className="fancy-handwriting">on autopilot</span>
+              </h1>
+            )}
             <p>{t.hero.desc}</p>
             <div className="b2b-hero-actions">
               <button className="b2b-btn-primary" onClick={openBooking}>
@@ -316,8 +322,14 @@ export default function B2BAutomation({ lang }) {
               </button>
             </div>
           </div>
-          <div className="b2b-hero-right">
-            <MockCRM lang={lang} />
+        </div>
+
+        {/* ── Centered Interactive Demo Section ── */}
+        <div className="b2b-hero-demo">
+          <div className="b2b-double-bezel">
+            <div className="b2b-bezel-inner">
+              <MockCRM lang={lang} />
+            </div>
           </div>
         </div>
       </header>
@@ -551,42 +563,87 @@ export default function B2BAutomation({ lang }) {
 }
 
 function MockCRM({ lang }) {
-  const [theme, setTheme] = useState('blue')
-  const [activeTab, setActiveTab] = useState('workflows')
-  
-  // Workflows Tab States
-  const [activeNode, setActiveNode] = useState(1)
+  const [theme, setTheme] = useState('indigo')
+  const [activeTab, setActiveTab] = useState('dashboard')
 
-  // Invoices Tab States
-  const [selectedInvoice, setSelectedInvoice] = useState(null)
+  // Leads Bank Simulated Data
+  const [selectedLead, setSelectedLead] = useState(null)
   
-  // Integrations Tab States
-  const [integrations, setIntegrations] = useState({
-    mollie: true,
-    stripe: false,
-    slack: true,
-    moneybird: false
+  // Simulated Lead Takeover Statuses
+  const [takeoverStates, setTakeoverStates] = useState({
+    'lead-1': 'AI Chatting',
+    'lead-2': 'Needs Human',
+    'lead-3': 'Handled'
   })
+
+  // Email outreach campaign checklist
+  const [campaigns, setCampaigns] = useState({
+    mollieRetail: true,
+    exactConsultants: false,
+    moneybirdService: true
+  })
+
   const [loadingInt, setLoadingInt] = useState(null)
 
-  const toggleIntegration = (key) => {
+  const toggleCampaign = (key) => {
     if (loadingInt) return
     setLoadingInt(key)
     setTimeout(() => {
-      setIntegrations(prev => ({ ...prev, [key]: !prev[key] }))
+      setCampaigns(prev => ({ ...prev, [key]: !prev[key] }))
       setLoadingInt(null)
+    }, 600)
+  }
+
+  const triggerTakeover = (leadId) => {
+    setTakeoverStates(prev => ({ ...prev, [leadId]: 'Taking Over...' }))
+    setTimeout(() => {
+      setTakeoverStates(prev => ({ ...prev, [leadId]: 'Human Active' }))
     }, 800)
   }
 
-  const invoices = [
-    { id: 'INV-042', name: 'Acme Corp', amount: '€1,450', status: 'Paid', date: '08-08-2026' },
-    { id: 'INV-043', name: 'TechStart Ltd', amount: '€2,890', status: 'Pending', date: '09-08-2026' },
-    { id: 'INV-044', name: 'Milo & Co', amount: '€850', status: 'Paid', date: '07-08-2026' }
+  const leads = [
+    { 
+      id: 'lead-1', 
+      name: 'Walid G. (Retail Corp)', 
+      email: 'walid@retailcorp.nl', 
+      source: 'Booking Form',
+      score: '98%',
+      date: 'Today, 18:12',
+      chat: [
+        { sender: 'visitor', text: 'Hey, do you integrate with Moneybird and Mollie automatically?' },
+        { sender: 'bot', text: 'Yes! We construct custom API pipelines for Mollie payments and automate billing synchronization directly to Moneybird ledger accounts. Would you like to check out a live demo?' },
+        { sender: 'visitor', text: 'Awesome. I just booked an audit session for next Tuesday.' }
+      ]
+    },
+    { 
+      id: 'lead-2', 
+      name: 'Jane Smith (LegalNL)', 
+      email: 'jsmith@legalnl.nl', 
+      source: 'Contact Form',
+      score: '84%',
+      date: 'Today, 17:34',
+      chat: [
+        { sender: 'visitor', text: 'Do you offer custom document generation software for transport agreements?' },
+        { sender: 'bot', text: 'Absolutely. We design serverless HTML-to-PDF generators processing up to thousands of agreements in seconds. Let me transfer you to an operator for customized pricing...' }
+      ]
+    },
+    { 
+      id: 'lead-3', 
+      name: 'Mark De Jong (DutchTech)', 
+      email: 'm.dejong@dutchtech.io', 
+      source: 'Newsletter',
+      score: '72%',
+      date: 'Yesterday',
+      chat: [
+        { sender: 'visitor', text: 'Subscribed to your scaling newsletter!' },
+        { sender: 'bot', text: 'Welcome! We dispatch weekly operational automation blueprints every Friday.' }
+      ]
+    }
   ]
 
   return (
     <div className={`b2b-mock-crm theme-${theme}`}>
-      {/* ── Chrome Header ── */}
+      {/* ── Chrome Header Bar ── */}
       <div className="b2b-crm-header">
         <div className="b2b-crm-dots">
           <span className="b2b-crm-dot red"></span>
@@ -595,7 +652,7 @@ function MockCRM({ lang }) {
         </div>
         <div className="b2b-crm-title-bar">
           <span>🔒</span>
-          <span>autoflow-dashboard.net/b2b</span>
+          <span>autoflow.studio/admin/dashboard</span>
         </div>
         <div className="b2b-crm-theme-selector">
           <span 
@@ -611,153 +668,231 @@ function MockCRM({ lang }) {
           <span 
             className={`b2b-crm-theme-dot indigo ${theme === 'indigo' ? 'active' : ''}`}
             onClick={() => setTheme('indigo')}
-            title="Royal Indigo"
+            title="AutoFlow Purple"
           ></span>
         </div>
       </div>
 
       {/* ── Body ── */}
       <div className="b2b-crm-body">
-        {/* Sidebar */}
+        {/* Sidebar Navigation */}
         <div className="b2b-crm-sidebar">
           <button 
-            className={`b2b-crm-nav-item ${activeTab === 'workflows' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('workflows'); setSelectedInvoice(null); }}
+            className={`b2b-crm-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('dashboard'); setSelectedLead(null); }}
           >
-            <span>🔄</span>
-            Workflows
+            <span>📊</span>
+            Dashboard
           </button>
           <button 
-            className={`b2b-crm-nav-item ${activeTab === 'invoices' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('invoices'); setSelectedInvoice(null); }}
+            className={`b2b-crm-nav-item ${activeTab === 'leads' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('leads'); setSelectedLead(null); }}
           >
-            <span>📄</span>
-            {lang === 'nl' ? 'Facturen' : 'Invoices'}
+            <span>👥</span>
+            Leads Bank
+          </button>
+          <button 
+            className={`b2b-crm-nav-item ${activeTab === 'campaigns' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('campaigns'); setSelectedLead(null); }}
+          >
+            <span>✉️</span>
+            Campaigns
           </button>
           <button 
             className={`b2b-crm-nav-item ${activeTab === 'analytics' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('analytics'); setSelectedInvoice(null); }}
+            onClick={() => { setActiveTab('analytics'); setSelectedLead(null); }}
           >
             <span>📈</span>
-            {lang === 'nl' ? 'Rapporten' : 'Analytics'}
-          </button>
-          <button 
-            className={`b2b-crm-nav-item ${activeTab === 'integrations' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('integrations'); setSelectedInvoice(null); }}
-          >
-            <span>🔌</span>
-            {lang === 'nl' ? 'Koppelingen' : 'Integrations'}
+            Outreach Stats
           </button>
         </div>
 
         {/* Content Panel */}
         <div className="b2b-crm-main">
-          {/* 1. Workflows Tab */}
-          {activeTab === 'workflows' && (
-            <div className="b2b-crm-flow">
-              <svg className="b2b-crm-connector">
-                <path 
-                  className={`b2b-crm-path ${activeNode >= 1 ? 'active' : ''}`}
-                  d="M 50,150 H 130" 
-                />
-                <path 
-                  className={`b2b-crm-path ${activeNode >= 2 ? 'active' : ''}`}
-                  d="M 155,150 H 240" 
-                />
-              </svg>
-              
-              <div 
-                className={`b2b-crm-node ${activeNode === 1 ? 'active' : ''}`}
-                onClick={() => setActiveNode(1)}
-              >
-                <span className="b2b-crm-node-icon">📥</span>
-                <span className="b2b-crm-node-label">Onboarding</span>
-                <span className="b2b-crm-node-status active">Active</span>
+          {/* 1. Dashboard View */}
+          {activeTab === 'dashboard' && (
+            <div>
+              <div className="b2b-crm-stats-grid">
+                <div className="b2b-crm-stat-card">
+                  <span className="label">Total Leads</span>
+                  <div className="value" style={{ color: 'var(--crm-accent)' }}>154</div>
+                </div>
+                <div className="b2b-crm-stat-card">
+                  <span className="label">Needs Takeover</span>
+                  <div className="value" style={{ color: '#fbbf24' }}>2</div>
+                </div>
+                <div className="b2b-crm-stat-card">
+                  <span className="label">Conversion Rate</span>
+                  <div className="value" style={{ color: '#34d399' }}>12.8%</div>
+                </div>
               </div>
 
-              <div 
-                className={`b2b-crm-node ${activeNode === 2 ? 'active' : ''}`}
-                onClick={() => setActiveNode(2)}
-              >
-                <span className="b2b-crm-node-icon">🔍</span>
-                <span className="b2b-crm-node-label">Enrich Data</span>
-                <span className="b2b-crm-node-status active">Active</span>
-              </div>
-
-              <div 
-                className={`b2b-crm-node ${activeNode === 3 ? 'active' : ''}`}
-                onClick={() => setActiveNode(3)}
-              >
-                <span className="b2b-crm-node-icon">🚀</span>
-                <span className="b2b-crm-node-label">Sync CRM</span>
-                <span className={`b2b-crm-node-status ${activeNode === 3 ? 'active' : 'pending'}`}>
-                  {activeNode === 3 ? 'Done' : 'Pending'}
+              <div style={{ marginTop: '16px' }}>
+                <span className="label" style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--crm-text-muted)', display: 'block', marginBottom: '8px' }}>
+                  Live System Logs (Real-time events)
                 </span>
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--crm-border)', borderRadius: '10px', padding: '12px', fontFamily: 'monospace', fontSize: '9.5px', color: '#cbd5e1', lineHeight: '1.6' }}>
+                  <div><span style={{ color: 'var(--crm-accent)' }}>[18:40:02]</span> Lead "Walid G." status changed to <span style={{ color: '#34d399' }}>needs_takeover</span></div>
+                  <div><span style={{ color: 'var(--crm-accent)' }}>[18:35:10]</span> Dispatched PWA Push notification to admin user browser</div>
+                  <div><span style={{ color: 'var(--crm-accent)' }}>[18:12:00]</span> Generated serverless document proposal_INV-2026.pdf (1.2s)</div>
+                  <div><span style={{ color: 'var(--crm-accent)' }}>[18:05:45]</span> Automated sync completed: Mollie payout synced to Moneybird ledger</div>
+                </div>
               </div>
             </div>
           )}
 
-          {/* 2. Invoices Tab */}
-          {activeTab === 'invoices' && (
+          {/* 2. Leads Bank View */}
+          {activeTab === 'leads' && (
             <div className="b2b-crm-table-container">
-              {invoices.map((inv) => (
+              {leads.map((lead) => (
                 <div 
-                  key={inv.id} 
-                  className={`b2b-crm-row ${selectedInvoice?.id === inv.id ? 'selected' : ''}`}
-                  onClick={() => setSelectedInvoice(inv)}
+                  key={lead.id} 
+                  className={`b2b-crm-row ${selectedLead?.id === lead.id ? 'selected' : ''}`}
+                  onClick={() => setSelectedLead(lead)}
                 >
-                  <span style={{ fontWeight: 600 }}>{inv.name}</span>
-                  <span style={{ color: 'var(--crm-text-muted)' }}>{inv.id}</span>
-                  <span className={`b2b-crm-badge ${inv.status.toLowerCase()}`}>
-                    {inv.status}
+                  <span style={{ fontWeight: 600 }}>{lead.name}</span>
+                  <span style={{ color: 'var(--crm-text-muted)' }}>{lead.source}</span>
+                  <span className={`b2b-crm-badge ${takeoverStates[lead.id] === 'Human Active' ? 'paid' : 'pending'}`}>
+                    {takeoverStates[lead.id]}
                   </span>
                 </div>
               ))}
 
-              {/* Side Drawer Panel */}
-              {selectedInvoice && (
-                <div className="b2b-crm-drawer">
+              {/* Side Drawer Lead details sheet */}
+              {selectedLead && (
+                <div className="b2b-crm-drawer" style={{ width: '230px' }}>
                   <div className="b2b-crm-drawer-header">
-                    <span className="b2b-crm-drawer-title">{selectedInvoice.id}</span>
-                    <button 
-                      className="b2b-crm-drawer-close"
-                      onClick={() => setSelectedInvoice(null)}
-                    >
-                      ✕
-                    </button>
+                    <span className="b2b-crm-drawer-title">{selectedLead.name}</span>
+                    <button className="b2b-crm-drawer-close" onClick={() => setSelectedLead(null)}>✕</button>
                   </div>
-                  <div className="b2b-crm-receipt">
-                    <p style={{ fontWeight: 700 }}>AutoFlow Studio BV</p>
-                    <p>Date: {selectedInvoice.date}</p>
-                    <hr style={{ border: 'none', borderTop: '1px dashed var(--crm-border)', margin: '4px 0' }} />
-                    <p>Client: {selectedInvoice.name}</p>
-                    <p>Service: Custom Portal Dev</p>
-                    <p style={{ fontWeight: 700, fontSize: '10px', marginTop: '4px' }}>Total: {selectedInvoice.amount}</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '10px' }}>
+                    <div style={{ color: 'var(--crm-text-muted)' }}>Conversion Score: <strong style={{ color: 'var(--crm-accent)' }}>{selectedLead.score}</strong></div>
+                    <div style={{ color: 'var(--crm-text-muted)' }}>Time: {selectedLead.date}</div>
+                    
+                    {/* Simulated Chat Transcript */}
+                    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--crm-border)', borderRadius: '8px', padding: '10px', height: '140px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
+                      {selectedLead.chat.map((msg, i) => (
+                        <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: msg.sender === 'visitor' ? 'flex-start' : 'flex-end' }}>
+                          <span style={{ fontSize: '8px', color: 'var(--crm-text-muted)', marginBottom: '2px' }}>
+                            {msg.sender === 'visitor' ? 'Visitor' : 'AI Assistant'}
+                          </span>
+                          <span style={{ 
+                            background: msg.sender === 'visitor' ? 'rgba(255,255,255,0.08)' : 'var(--crm-accent-light)',
+                            color: msg.sender === 'visitor' ? '#cbd5e1' : 'var(--crm-accent)',
+                            padding: '6px 8px',
+                            borderRadius: '8px',
+                            lineHeight: '1.3',
+                            fontSize: '9px',
+                            maxWidth: '90%'
+                          }}>
+                            {msg.text}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <button 
+                      className="b2b-btn-primary" 
+                      style={{ padding: '6px 12px', fontSize: '10px', marginTop: '6px', width: '100%', justifyContent: 'center' }}
+                      onClick={() => triggerTakeover(selectedLead.id)}
+                    >
+                      {takeoverStates[selectedLead.id] === 'Human Active' ? 'Connected' : 'Take Over Chat'}
+                    </button>
                   </div>
                 </div>
               )}
             </div>
           )}
 
-          {/* 3. Analytics Tab */}
+          {/* 3. Email Campaigns View */}
+          {activeTab === 'campaigns' && (
+            <div className="b2b-crm-integrations-grid">
+              <div className="b2b-crm-int-card">
+                <div className="b2b-crm-int-info">
+                  <span className="b2b-crm-int-icon">🎯</span>
+                  <div>
+                    <span className="b2b-crm-int-name">Q3 Retail Automation</span>
+                    <p className="b2b-crm-int-status">Active Outreach</p>
+                  </div>
+                </div>
+                {loadingInt === 'mollieRetail' ? (
+                  <div className="b2b-crm-spinner"></div>
+                ) : (
+                  <label className="b2b-crm-switch">
+                    <input 
+                      type="checkbox" 
+                      checked={campaigns.mollieRetail} 
+                      onChange={() => toggleCampaign('mollieRetail')}
+                    />
+                    <span className="b2b-crm-slider"></span>
+                  </label>
+                )}
+              </div>
+
+              <div className="b2b-crm-int-card">
+                <div className="b2b-crm-int-info">
+                  <span className="b2b-crm-int-icon">💼</span>
+                  <div>
+                    <span className="b2b-crm-int-name">Consultants Outreach</span>
+                    <p className="b2b-crm-int-status">Inactive</p>
+                  </div>
+                </div>
+                {loadingInt === 'exactConsultants' ? (
+                  <div className="b2b-crm-spinner"></div>
+                ) : (
+                  <label className="b2b-crm-switch">
+                    <input 
+                      type="checkbox" 
+                      checked={campaigns.exactConsultants} 
+                      onChange={() => toggleCampaign('exactConsultants')}
+                    />
+                    <span className="b2b-crm-slider"></span>
+                  </label>
+                )}
+              </div>
+
+              <div className="b2b-crm-int-card">
+                <div className="b2b-crm-int-info">
+                  <span className="b2b-crm-int-icon">⚡</span>
+                  <div>
+                    <span className="b2b-crm-int-name">Moneybird Service Segment</span>
+                    <p className="b2b-crm-int-status">Active Outreach</p>
+                  </div>
+                </div>
+                {loadingInt === 'moneybirdService' ? (
+                  <div className="b2b-crm-spinner"></div>
+                ) : (
+                  <label className="b2b-crm-switch">
+                    <input 
+                      type="checkbox" 
+                      checked={campaigns.moneybirdService} 
+                      onChange={() => toggleCampaign('moneybirdService')}
+                    />
+                    <span className="b2b-crm-slider"></span>
+                  </label>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* 4. Outreach Stats View */}
           {activeTab === 'analytics' && (
             <div>
               <div className="b2b-crm-stats-grid">
                 <div className="b2b-crm-stat-card">
-                  <span className="label">Efficiency</span>
-                  <div className="value">+94.2%</div>
+                  <span className="label">Outreach Sent</span>
+                  <div className="value">3,420</div>
                 </div>
                 <div className="b2b-crm-stat-card">
-                  <span className="label">Automations</span>
-                  <div className="value">2,450</div>
+                  <span className="label">Delivered Rate</span>
+                  <div className="value">99.8%</div>
                 </div>
                 <div className="b2b-crm-stat-card">
-                  <span className="label">Uptime</span>
-                  <div className="value">99.9%</div>
+                  <span className="label">Open Rate</span>
+                  <div className="value">76.4%</div>
                 </div>
               </div>
 
-              {/* Animated SVG Chart */}
               <svg viewBox="0 0 340 100" style={{ width: '100%', height: '80px', display: 'block' }}>
                 <path
                   className="b2b-crm-chart-path"
@@ -770,110 +905,8 @@ function MockCRM({ lang }) {
               </svg>
             </div>
           )}
-
-          {/* 4. Integrations Tab */}
-          {activeTab === 'integrations' && (
-            <div className="b2b-crm-integrations-grid">
-              <div className="b2b-crm-int-card">
-                <div className="b2b-crm-int-info">
-                  <span className="b2b-crm-int-icon">💳</span>
-                  <div>
-                    <span className="b2b-crm-int-name">Mollie</span>
-                    <p className="b2b-crm-int-status">
-                      {integrations.mollie ? (lang === 'nl' ? 'Gekoppeld' : 'Connected') : (lang === 'nl' ? 'Niet gekoppeld' : 'Disconnected')}
-                    </p>
-                  </div>
-                </div>
-                {loadingInt === 'mollie' ? (
-                  <div className="b2b-crm-spinner"></div>
-                ) : (
-                  <label className="b2b-crm-switch">
-                    <input 
-                      type="checkbox" 
-                      checked={integrations.mollie} 
-                      onChange={() => toggleIntegration('mollie')}
-                    />
-                    <span className="b2b-crm-slider"></span>
-                  </label>
-                )}
-              </div>
-
-              <div className="b2b-crm-int-card">
-                <div className="b2b-crm-int-info">
-                  <span className="b2b-crm-int-icon">🦅</span>
-                  <div>
-                    <span className="b2b-crm-int-name">Moneybird</span>
-                    <p className="b2b-crm-int-status">
-                      {integrations.moneybird ? (lang === 'nl' ? 'Gekoppeld' : 'Connected') : (lang === 'nl' ? 'Niet gekoppeld' : 'Disconnected')}
-                    </p>
-                  </div>
-                </div>
-                {loadingInt === 'moneybird' ? (
-                  <div className="b2b-crm-spinner"></div>
-                ) : (
-                  <label className="b2b-crm-switch">
-                    <input 
-                      type="checkbox" 
-                      checked={integrations.moneybird} 
-                      onChange={() => toggleIntegration('moneybird')}
-                    />
-                    <span className="b2b-crm-slider"></span>
-                  </label>
-                )}
-              </div>
-
-              <div className="b2b-crm-int-card">
-                <div className="b2b-crm-int-info">
-                  <span className="b2b-crm-int-icon">💬</span>
-                  <div>
-                    <span className="b2b-crm-int-name">Slack</span>
-                    <p className="b2b-crm-int-status">
-                      {integrations.slack ? (lang === 'nl' ? 'Gekoppeld' : 'Connected') : (lang === 'nl' ? 'Niet gekoppeld' : 'Disconnected')}
-                    </p>
-                  </div>
-                </div>
-                {loadingInt === 'slack' ? (
-                  <div className="b2b-crm-spinner"></div>
-                ) : (
-                  <label className="b2b-crm-switch">
-                    <input 
-                      type="checkbox" 
-                      checked={integrations.slack} 
-                      onChange={() => toggleIntegration('slack')}
-                    />
-                    <span className="b2b-crm-slider"></span>
-                  </label>
-                )}
-              </div>
-
-              <div className="b2b-crm-int-card">
-                <div className="b2b-crm-int-info">
-                  <span className="b2b-crm-int-icon">💳</span>
-                  <div>
-                    <span className="b2b-crm-int-name">Stripe</span>
-                    <p className="b2b-crm-int-status">
-                      {integrations.stripe ? (lang === 'nl' ? 'Gekoppeld' : 'Connected') : (lang === 'nl' ? 'Niet gekoppeld' : 'Disconnected')}
-                    </p>
-                  </div>
-                </div>
-                {loadingInt === 'stripe' ? (
-                  <div className="b2b-crm-spinner"></div>
-                ) : (
-                  <label className="b2b-crm-switch">
-                    <input 
-                      type="checkbox" 
-                      checked={integrations.stripe} 
-                      onChange={() => toggleIntegration('stripe')}
-                    />
-                    <span className="b2b-crm-slider"></span>
-                  </label>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
   )
 }
-
