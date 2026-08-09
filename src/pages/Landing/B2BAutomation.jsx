@@ -317,14 +317,7 @@ export default function B2BAutomation({ lang }) {
             </div>
           </div>
           <div className="b2b-hero-right">
-            <div className="b2b-double-bezel">
-              <div className="b2b-bezel-inner">
-                <img 
-                  src="/images/b2b_hero_dashboard.png" 
-                  alt="AutoFlow Studio B2B Automation Dashboard Concept" 
-                />
-              </div>
-            </div>
+            <MockCRM lang={lang} />
           </div>
         </div>
       </header>
@@ -556,3 +549,331 @@ export default function B2BAutomation({ lang }) {
     </div>
   )
 }
+
+function MockCRM({ lang }) {
+  const [theme, setTheme] = useState('blue')
+  const [activeTab, setActiveTab] = useState('workflows')
+  
+  // Workflows Tab States
+  const [activeNode, setActiveNode] = useState(1)
+
+  // Invoices Tab States
+  const [selectedInvoice, setSelectedInvoice] = useState(null)
+  
+  // Integrations Tab States
+  const [integrations, setIntegrations] = useState({
+    mollie: true,
+    stripe: false,
+    slack: true,
+    moneybird: false
+  })
+  const [loadingInt, setLoadingInt] = useState(null)
+
+  const toggleIntegration = (key) => {
+    if (loadingInt) return
+    setLoadingInt(key)
+    setTimeout(() => {
+      setIntegrations(prev => ({ ...prev, [key]: !prev[key] }))
+      setLoadingInt(null)
+    }, 800)
+  }
+
+  const invoices = [
+    { id: 'INV-042', name: 'Acme Corp', amount: '€1,450', status: 'Paid', date: '08-08-2026' },
+    { id: 'INV-043', name: 'TechStart Ltd', amount: '€2,890', status: 'Pending', date: '09-08-2026' },
+    { id: 'INV-044', name: 'Milo & Co', amount: '€850', status: 'Paid', date: '07-08-2026' }
+  ]
+
+  return (
+    <div className={`b2b-mock-crm theme-${theme}`}>
+      {/* ── Chrome Header ── */}
+      <div className="b2b-crm-header">
+        <div className="b2b-crm-dots">
+          <span className="b2b-crm-dot red"></span>
+          <span className="b2b-crm-dot yellow"></span>
+          <span className="b2b-crm-dot green"></span>
+        </div>
+        <div className="b2b-crm-title-bar">
+          <span>🔒</span>
+          <span>autoflow-dashboard.net/b2b</span>
+        </div>
+        <div className="b2b-crm-theme-selector">
+          <span 
+            className={`b2b-crm-theme-dot blue ${theme === 'blue' ? 'active' : ''}`}
+            onClick={() => setTheme('blue')}
+            title="Cobalt Blue"
+          ></span>
+          <span 
+            className={`b2b-crm-theme-dot emerald ${theme === 'emerald' ? 'active' : ''}`}
+            onClick={() => setTheme('emerald')}
+            title="Emerald Green"
+          ></span>
+          <span 
+            className={`b2b-crm-theme-dot indigo ${theme === 'indigo' ? 'active' : ''}`}
+            onClick={() => setTheme('indigo')}
+            title="Royal Indigo"
+          ></span>
+        </div>
+      </div>
+
+      {/* ── Body ── */}
+      <div className="b2b-crm-body">
+        {/* Sidebar */}
+        <div className="b2b-crm-sidebar">
+          <button 
+            className={`b2b-crm-nav-item ${activeTab === 'workflows' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('workflows'); setSelectedInvoice(null); }}
+          >
+            <span>🔄</span>
+            Workflows
+          </button>
+          <button 
+            className={`b2b-crm-nav-item ${activeTab === 'invoices' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('invoices'); setSelectedInvoice(null); }}
+          >
+            <span>📄</span>
+            {lang === 'nl' ? 'Facturen' : 'Invoices'}
+          </button>
+          <button 
+            className={`b2b-crm-nav-item ${activeTab === 'analytics' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('analytics'); setSelectedInvoice(null); }}
+          >
+            <span>📈</span>
+            {lang === 'nl' ? 'Rapporten' : 'Analytics'}
+          </button>
+          <button 
+            className={`b2b-crm-nav-item ${activeTab === 'integrations' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('integrations'); setSelectedInvoice(null); }}
+          >
+            <span>🔌</span>
+            {lang === 'nl' ? 'Koppelingen' : 'Integrations'}
+          </button>
+        </div>
+
+        {/* Content Panel */}
+        <div className="b2b-crm-main">
+          {/* 1. Workflows Tab */}
+          {activeTab === 'workflows' && (
+            <div className="b2b-crm-flow">
+              <svg className="b2b-crm-connector">
+                <path 
+                  className={`b2b-crm-path ${activeNode >= 1 ? 'active' : ''}`}
+                  d="M 50,150 H 130" 
+                />
+                <path 
+                  className={`b2b-crm-path ${activeNode >= 2 ? 'active' : ''}`}
+                  d="M 155,150 H 240" 
+                />
+              </svg>
+              
+              <div 
+                className={`b2b-crm-node ${activeNode === 1 ? 'active' : ''}`}
+                onClick={() => setActiveNode(1)}
+              >
+                <span className="b2b-crm-node-icon">📥</span>
+                <span className="b2b-crm-node-label">Onboarding</span>
+                <span className="b2b-crm-node-status active">Active</span>
+              </div>
+
+              <div 
+                className={`b2b-crm-node ${activeNode === 2 ? 'active' : ''}`}
+                onClick={() => setActiveNode(2)}
+              >
+                <span className="b2b-crm-node-icon">🔍</span>
+                <span className="b2b-crm-node-label">Enrich Data</span>
+                <span className="b2b-crm-node-status active">Active</span>
+              </div>
+
+              <div 
+                className={`b2b-crm-node ${activeNode === 3 ? 'active' : ''}`}
+                onClick={() => setActiveNode(3)}
+              >
+                <span className="b2b-crm-node-icon">🚀</span>
+                <span className="b2b-crm-node-label">Sync CRM</span>
+                <span className={`b2b-crm-node-status ${activeNode === 3 ? 'active' : 'pending'}`}>
+                  {activeNode === 3 ? 'Done' : 'Pending'}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* 2. Invoices Tab */}
+          {activeTab === 'invoices' && (
+            <div className="b2b-crm-table-container">
+              {invoices.map((inv) => (
+                <div 
+                  key={inv.id} 
+                  className={`b2b-crm-row ${selectedInvoice?.id === inv.id ? 'selected' : ''}`}
+                  onClick={() => setSelectedInvoice(inv)}
+                >
+                  <span style={{ fontWeight: 600 }}>{inv.name}</span>
+                  <span style={{ color: 'var(--crm-text-muted)' }}>{inv.id}</span>
+                  <span className={`b2b-crm-badge ${inv.status.toLowerCase()}`}>
+                    {inv.status}
+                  </span>
+                </div>
+              ))}
+
+              {/* Side Drawer Panel */}
+              {selectedInvoice && (
+                <div className="b2b-crm-drawer">
+                  <div className="b2b-crm-drawer-header">
+                    <span className="b2b-crm-drawer-title">{selectedInvoice.id}</span>
+                    <button 
+                      className="b2b-crm-drawer-close"
+                      onClick={() => setSelectedInvoice(null)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="b2b-crm-receipt">
+                    <p style={{ fontWeight: 700 }}>AutoFlow Studio BV</p>
+                    <p>Date: {selectedInvoice.date}</p>
+                    <hr style={{ border: 'none', borderTop: '1px dashed var(--crm-border)', margin: '4px 0' }} />
+                    <p>Client: {selectedInvoice.name}</p>
+                    <p>Service: Custom Portal Dev</p>
+                    <p style={{ fontWeight: 700, fontSize: '10px', marginTop: '4px' }}>Total: {selectedInvoice.amount}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 3. Analytics Tab */}
+          {activeTab === 'analytics' && (
+            <div>
+              <div className="b2b-crm-stats-grid">
+                <div className="b2b-crm-stat-card">
+                  <span className="label">Efficiency</span>
+                  <div className="value">+94.2%</div>
+                </div>
+                <div className="b2b-crm-stat-card">
+                  <span className="label">Automations</span>
+                  <div className="value">2,450</div>
+                </div>
+                <div className="b2b-crm-stat-card">
+                  <span className="label">Uptime</span>
+                  <div className="value">99.9%</div>
+                </div>
+              </div>
+
+              {/* Animated SVG Chart */}
+              <svg viewBox="0 0 340 100" style={{ width: '100%', height: '80px', display: 'block' }}>
+                <path
+                  className="b2b-crm-chart-path"
+                  d="M0,80 Q30,40 60,60 T120,30 T180,50 T240,20 T300,40 T340,10"
+                  fill="none"
+                  stroke="var(--crm-accent)"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
+          )}
+
+          {/* 4. Integrations Tab */}
+          {activeTab === 'integrations' && (
+            <div className="b2b-crm-integrations-grid">
+              <div className="b2b-crm-int-card">
+                <div className="b2b-crm-int-info">
+                  <span className="b2b-crm-int-icon">💳</span>
+                  <div>
+                    <span className="b2b-crm-int-name">Mollie</span>
+                    <p className="b2b-crm-int-status">
+                      {integrations.mollie ? (lang === 'nl' ? 'Gekoppeld' : 'Connected') : (lang === 'nl' ? 'Niet gekoppeld' : 'Disconnected')}
+                    </p>
+                  </div>
+                </div>
+                {loadingInt === 'mollie' ? (
+                  <div className="b2b-crm-spinner"></div>
+                ) : (
+                  <label className="b2b-crm-switch">
+                    <input 
+                      type="checkbox" 
+                      checked={integrations.mollie} 
+                      onChange={() => toggleIntegration('mollie')}
+                    />
+                    <span className="b2b-crm-slider"></span>
+                  </label>
+                )}
+              </div>
+
+              <div className="b2b-crm-int-card">
+                <div className="b2b-crm-int-info">
+                  <span className="b2b-crm-int-icon">🦅</span>
+                  <div>
+                    <span className="b2b-crm-int-name">Moneybird</span>
+                    <p className="b2b-crm-int-status">
+                      {integrations.moneybird ? (lang === 'nl' ? 'Gekoppeld' : 'Connected') : (lang === 'nl' ? 'Niet gekoppeld' : 'Disconnected')}
+                    </p>
+                  </div>
+                </div>
+                {loadingInt === 'moneybird' ? (
+                  <div className="b2b-crm-spinner"></div>
+                ) : (
+                  <label className="b2b-crm-switch">
+                    <input 
+                      type="checkbox" 
+                      checked={integrations.moneybird} 
+                      onChange={() => toggleIntegration('moneybird')}
+                    />
+                    <span className="b2b-crm-slider"></span>
+                  </label>
+                )}
+              </div>
+
+              <div className="b2b-crm-int-card">
+                <div className="b2b-crm-int-info">
+                  <span className="b2b-crm-int-icon">💬</span>
+                  <div>
+                    <span className="b2b-crm-int-name">Slack</span>
+                    <p className="b2b-crm-int-status">
+                      {integrations.slack ? (lang === 'nl' ? 'Gekoppeld' : 'Connected') : (lang === 'nl' ? 'Niet gekoppeld' : 'Disconnected')}
+                    </p>
+                  </div>
+                </div>
+                {loadingInt === 'slack' ? (
+                  <div className="b2b-crm-spinner"></div>
+                ) : (
+                  <label className="b2b-crm-switch">
+                    <input 
+                      type="checkbox" 
+                      checked={integrations.slack} 
+                      onChange={() => toggleIntegration('slack')}
+                    />
+                    <span className="b2b-crm-slider"></span>
+                  </label>
+                )}
+              </div>
+
+              <div className="b2b-crm-int-card">
+                <div className="b2b-crm-int-info">
+                  <span className="b2b-crm-int-icon">💳</span>
+                  <div>
+                    <span className="b2b-crm-int-name">Stripe</span>
+                    <p className="b2b-crm-int-status">
+                      {integrations.stripe ? (lang === 'nl' ? 'Gekoppeld' : 'Connected') : (lang === 'nl' ? 'Niet gekoppeld' : 'Disconnected')}
+                    </p>
+                  </div>
+                </div>
+                {loadingInt === 'stripe' ? (
+                  <div className="b2b-crm-spinner"></div>
+                ) : (
+                  <label className="b2b-crm-switch">
+                    <input 
+                      type="checkbox" 
+                      checked={integrations.stripe} 
+                      onChange={() => toggleIntegration('stripe')}
+                    />
+                    <span className="b2b-crm-slider"></span>
+                  </label>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
