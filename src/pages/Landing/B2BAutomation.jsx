@@ -566,39 +566,49 @@ function MockCRM({ lang }) {
   const [theme, setTheme] = useState('indigo')
   const [activeTab, setActiveTab] = useState('dashboard')
 
+  // Search & Filter state
+  const [searchQuery, setSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+
   // Leads Bank Simulated Data
   const [selectedLead, setSelectedLead] = useState(null)
   
   // Simulated Lead Takeover Statuses
   const [takeoverStates, setTakeoverStates] = useState({
-    'lead-1': 'AI Chatting',
-    'lead-2': 'Needs Human',
-    'lead-3': 'Handled'
+    'lead-1': 'needs_human',
+    'lead-2': 'bot_chatting',
+    'lead-3': 'converted',
+    'lead-4': 'needs_human',
+    'lead-5': 'human_active',
+    'lead-6': 'bot_chatting',
+    'lead-7': 'converted',
+    'lead-8': 'bot_chatting'
   })
 
   // Email outreach campaign checklist
-  const [campaigns, setCampaigns] = useState({
-    mollieRetail: true,
-    exactConsultants: false,
-    moneybirdService: true
-  })
+  const [campaigns, setCampaigns] = useState([
+    { id: 'camp-1', name: 'Q3 Retail Outreach Segment', status: 'Running', sent: 1420, open: '76.4%', reply: '18.2%', active: true },
+    { id: 'camp-2', name: 'Mollie API Integrations Pitch', status: 'Running', sent: 1150, open: '81.0%', reply: '22.8%', active: true },
+    { id: 'camp-3', name: 'Bespoke CRM Catch-up', status: 'Paused', sent: 850, open: '68.5%', reply: '12.4%', active: false },
+    { id: 'camp-4', name: 'SME Logistics Cold Reach', status: 'Completed', sent: 3200, open: '64.2%', reply: '9.6%', active: true }
+  ])
 
   const [loadingInt, setLoadingInt] = useState(null)
 
-  const toggleCampaign = (key) => {
+  const toggleCampaign = (id) => {
     if (loadingInt) return
-    setLoadingInt(key)
+    setLoadingInt(id)
     setTimeout(() => {
-      setCampaigns(prev => ({ ...prev, [key]: !prev[key] }))
+      setCampaigns(prev => prev.map(c => c.id === id ? { ...c, active: !c.active, status: c.active ? 'Paused' : 'Running' } : c))
       setLoadingInt(null)
-    }, 600)
+    }, 500)
   }
 
   const triggerTakeover = (leadId) => {
-    setTakeoverStates(prev => ({ ...prev, [leadId]: 'Taking Over...' }))
+    setTakeoverStates(prev => ({ ...prev, [leadId]: 'taking_over' }))
     setTimeout(() => {
-      setTakeoverStates(prev => ({ ...prev, [leadId]: 'Human Active' }))
-    }, 800)
+      setTakeoverStates(prev => ({ ...prev, [leadId]: 'human_active' }))
+    }, 700)
   }
 
   const leads = [
@@ -606,9 +616,12 @@ function MockCRM({ lang }) {
       id: 'lead-1', 
       name: 'Walid G. (Retail Corp)', 
       email: 'walid@retailcorp.nl', 
-      source: 'Booking Form',
+      source: 'LinkedIn Reach',
       score: '98%',
       date: 'Today, 18:12',
+      location: 'Amsterdam, NL',
+      device: 'Chrome 126 (macOS)',
+      interest: 'Mollie/Moneybird Custom Sync',
       chat: [
         { sender: 'visitor', text: 'Hey, do you integrate with Moneybird and Mollie automatically?' },
         { sender: 'bot', text: 'Yes! We construct custom API pipelines for Mollie payments and automate billing synchronization directly to Moneybird ledger accounts. Would you like to check out a live demo?' },
@@ -619,9 +632,12 @@ function MockCRM({ lang }) {
       id: 'lead-2', 
       name: 'Jane Smith (LegalNL)', 
       email: 'jsmith@legalnl.nl', 
-      source: 'Contact Form',
+      source: 'AdWords Search',
       score: '84%',
       date: 'Today, 17:34',
+      location: 'Utrecht, NL',
+      device: 'Safari Mobile (iOS)',
+      interest: 'Serverless Contract Automation',
       chat: [
         { sender: 'visitor', text: 'Do you offer custom document generation software for transport agreements?' },
         { sender: 'bot', text: 'Absolutely. We design serverless HTML-to-PDF generators processing up to thousands of agreements in seconds. Let me transfer you to an operator for customized pricing...' }
@@ -631,15 +647,107 @@ function MockCRM({ lang }) {
       id: 'lead-3', 
       name: 'Mark De Jong (DutchTech)', 
       email: 'm.dejong@dutchtech.io', 
-      source: 'Newsletter',
+      source: 'Organic / Blog',
       score: '72%',
-      date: 'Yesterday',
+      date: 'Yesterday, 14:20',
+      location: 'Eindhoven, NL',
+      device: 'Firefox (Linux)',
+      interest: 'Klantenportaal Bouwen',
       chat: [
         { sender: 'visitor', text: 'Subscribed to your scaling newsletter!' },
-        { sender: 'bot', text: 'Welcome! We dispatch weekly operational automation blueprints every Friday.' }
+        { sender: 'bot', text: 'Welcome! We dispatch weekly B2B operational automation blueprints every Friday.' }
+      ]
+    },
+    {
+      id: 'lead-4',
+      name: 'Alex F. (Velo Logistics)',
+      email: 'alex@velo.nl',
+      source: 'Cold Outreach',
+      score: '96%',
+      date: 'Yesterday, 10:15',
+      location: 'Rotterdam, NL',
+      device: 'Chrome (Windows)',
+      interest: 'Real-time Lead Tracking',
+      chat: [
+        { sender: 'visitor', text: 'I saw your custom CRM build with push alerts. Can it sync with Exact Online?' },
+        { sender: 'bot', text: 'Yes! We link Exact Online via custom webhooks so your sales status triggers accounting entries in real-time. I can get an engineer to demo this.' },
+        { sender: 'visitor', text: 'Please do, that is exactly what we need.' }
+      ]
+    },
+    {
+      id: 'lead-5',
+      name: 'Sarah Connor (Cyberdyne)',
+      email: 'sconnor@cyberdyne.com',
+      source: 'LinkedIn Reach',
+      score: '91%',
+      date: '2 Days Ago',
+      location: 'Groningen, NL',
+      device: 'Edge (Windows)',
+      interest: 'AI Agent Call Routing',
+      chat: [
+        { sender: 'visitor', text: 'We get 100+ inbound leads daily. Can your AI filter out spam?' },
+        { sender: 'bot', text: 'Yes, our agent uses GPT classification models to analyze company domains and score leads before routing them to your salespeople. Let me connect you to Sarah\'s handler Walid...' }
+      ]
+    },
+    {
+      id: 'lead-6',
+      name: 'Bruce Wayne (Wayne Ent)',
+      email: 'bruce@wayne.corp',
+      source: 'Referral',
+      score: '68%',
+      date: '3 Days Ago',
+      location: 'Gotham, US',
+      device: 'Encrypted Browser',
+      interest: 'Custom CRM Infrastructure',
+      chat: [
+        { sender: 'visitor', text: 'Looking for a secure, isolated database setup.' },
+        { sender: 'bot', text: 'We host dedicated PostgreSQL setups behind SSL tunnels, keeping your data entirely isolated. No third-party SaaS caching.' }
+      ]
+    },
+    {
+      id: 'lead-7',
+      name: 'Tony Stark (Stark Ind)',
+      email: 'tony@stark.com',
+      source: 'AdWords Search',
+      score: '95%',
+      date: '4 Days Ago',
+      location: 'Malibu, US',
+      device: 'Jarvis OS',
+      interest: 'High-Fidelity Dashboards',
+      chat: [
+        { sender: 'visitor', text: 'I need a fast front-end that loads in under 1 second.' },
+        { sender: 'bot', text: 'We build statically compiled React architectures deployed via CDN edges, achieving sub-400ms TTFB times.' }
+      ]
+    },
+    {
+      id: 'lead-8',
+      name: 'Elon M. (X-Corp)',
+      email: 'elon@x.com',
+      source: 'Organic / Blog',
+      score: '54%',
+      date: '5 Days Ago',
+      location: 'Texas, US',
+      device: 'X-App Webview',
+      interest: 'Newsletter Blueprint',
+      chat: [
+        { sender: 'visitor', text: 'Interesting workflows.' },
+        { sender: 'bot', text: 'Thanks! Let me know if you would like to test our Stripe/Mollie triggers.' }
       ]
     }
   ]
+
+  // Filter logic
+  const filteredLeads = leads.filter(l => {
+    const matchesSearch = l.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          l.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          l.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          l.interest.toLowerCase().includes(searchQuery.toLowerCase())
+    
+    const leadStatus = takeoverStates[l.id]
+    const matchesStatus = statusFilter === 'all' || leadStatus === statusFilter
+    
+    return matchesSearch && matchesStatus
+  })
 
   return (
     <div className={`b2b-mock-crm theme-${theme}`}>
@@ -714,28 +822,90 @@ function MockCRM({ lang }) {
             <div>
               <div className="b2b-crm-stats-grid">
                 <div className="b2b-crm-stat-card">
-                  <span className="label">Total Leads</span>
-                  <div className="value" style={{ color: 'var(--crm-accent)' }}>154</div>
+                  <div className="label-row">
+                    <span className="label">Total Leads</span>
+                    <span className="growth-tag">+14.3%</span>
+                  </div>
+                  <div className="value-row">
+                    <div className="value">154</div>
+                    <div className="sparkline-container">
+                      <svg viewBox="0 0 50 20" width="100%" height="100%">
+                        <path d="M0,15 L10,12 L20,16 L30,8 L40,11 L50,3" fill="none" stroke="var(--crm-accent)" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
                 <div className="b2b-crm-stat-card">
-                  <span className="label">Needs Takeover</span>
-                  <div className="value" style={{ color: '#fbbf24' }}>2</div>
+                  <div className="label-row">
+                    <span className="label">In Takeover</span>
+                    <span className="growth-tag" style={{ color: '#fbbf24' }}>Active</span>
+                  </div>
+                  <div className="value-row">
+                    <div className="value">2</div>
+                    <div className="sparkline-container">
+                      <svg viewBox="0 0 50 20" width="100%" height="100%">
+                        <path d="M0,10 L10,8 L20,12 L30,6 L40,14 L50,9" fill="none" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
                 <div className="b2b-crm-stat-card">
-                  <span className="label">Conversion Rate</span>
-                  <div className="value" style={{ color: '#34d399' }}>12.8%</div>
+                  <div className="label-row">
+                    <span className="label">Conv. Rate</span>
+                    <span className="growth-tag">+2.8%</span>
+                  </div>
+                  <div className="value-row">
+                    <div className="value">12.8%</div>
+                    <div className="sparkline-container">
+                      <svg viewBox="0 0 50 20" width="100%" height="100%">
+                        <path d="M0,18 L10,14 L20,15 L30,10 L40,8 L50,4" fill="none" stroke="#34d399" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div style={{ marginTop: '16px' }}>
-                <span className="label" style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--crm-text-muted)', display: 'block', marginBottom: '8px' }}>
-                  Live System Logs (Real-time events)
-                </span>
-                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--crm-border)', borderRadius: '10px', padding: '12px', fontFamily: 'monospace', fontSize: '9.5px', color: '#cbd5e1', lineHeight: '1.6' }}>
-                  <div><span style={{ color: 'var(--crm-accent)' }}>[18:40:02]</span> Lead "Walid G." status changed to <span style={{ color: '#34d399' }}>needs_takeover</span></div>
-                  <div><span style={{ color: 'var(--crm-accent)' }}>[18:35:10]</span> Dispatched PWA Push notification to admin user browser</div>
-                  <div><span style={{ color: 'var(--crm-accent)' }}>[18:12:00]</span> Generated serverless document proposal_INV-2026.pdf (1.2s)</div>
-                  <div><span style={{ color: 'var(--crm-accent)' }}>[18:05:45]</span> Automated sync completed: Mollie payout synced to Moneybird ledger</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '16px', marginTop: '16px' }}>
+                <div>
+                  <span className="label" style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--crm-text-muted)', display: 'block', marginBottom: '8px' }}>
+                    Live Automation Logs
+                  </span>
+                  <div style={{ background: 'rgba(255,255,255,0.015)', border: '1px solid var(--crm-border)', borderRadius: '10px', padding: '12px', fontFamily: 'monospace', fontSize: '9px', color: '#cbd5e1', lineHeight: '1.6', height: '140px', overflowY: 'auto' }}>
+                    <div><span style={{ color: 'var(--crm-accent)' }}>[19:12:02]</span> Lead "Walid G." triggered score alert: <span style={{ color: '#34d399' }}>98% high intent</span></div>
+                    <div><span style={{ color: 'var(--crm-accent)' }}>[19:08:45]</span> Generated PDF invoice_INV-2026-904.pdf (1.4s)</div>
+                    <div><span style={{ color: 'var(--crm-accent)' }}>[19:05:12]</span> Sync webhook dispatched to Moneybird (resolved 200 OK)</div>
+                    <div><span style={{ color: 'var(--crm-accent)' }}>[19:01:00]</span> AI chatbot updated status to needs_human for "Alex F."</div>
+                    <div><span style={{ color: 'var(--crm-accent)' }}>[18:45:30]</span> mollie_payout hook processed: Synced €4,500 ledger entry</div>
+                  </div>
+                </div>
+                
+                <div>
+                  <span className="label" style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--crm-text-muted)', display: 'block', marginBottom: '8px' }}>
+                    Active Operators
+                  </span>
+                  <div className="b2b-crm-leaderboard" style={{ margin: 0, padding: '12px' }}>
+                    <div className="b2b-crm-leader-row">
+                      <div className="b2b-crm-leader-info">
+                        <span className="b2b-crm-leader-avatar">🤖</span>
+                        <span className="b2b-crm-leader-name">AI Agent 2.1</span>
+                      </div>
+                      <span className="b2b-crm-leader-value">74 Leads</span>
+                    </div>
+                    <div className="b2b-crm-leader-row">
+                      <div className="b2b-crm-leader-info">
+                        <span className="b2b-crm-leader-avatar" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.3)' }}>W</span>
+                        <span className="b2b-crm-leader-name">Walid G.</span>
+                      </div>
+                      <span className="b2b-crm-leader-value">48 Leads</span>
+                    </div>
+                    <div className="b2b-crm-leader-row">
+                      <div className="b2b-crm-leader-info">
+                        <span className="b2b-crm-leader-avatar" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.3)' }}>A</span>
+                        <span className="b2b-crm-leader-name">Admin</span>
+                      </div>
+                      <span className="b2b-crm-leader-value">32 Leads</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -743,48 +913,90 @@ function MockCRM({ lang }) {
 
           {/* 2. Leads Bank View */}
           {activeTab === 'leads' && (
-            <div className="b2b-crm-table-container">
-              {leads.map((lead) => (
-                <div 
-                  key={lead.id} 
-                  className={`b2b-crm-row ${selectedLead?.id === lead.id ? 'selected' : ''}`}
-                  onClick={() => setSelectedLead(lead)}
+            <div>
+              {/* Search and Filters */}
+              <div className="b2b-crm-table-controls">
+                <input 
+                  type="text" 
+                  className="b2b-crm-search-input"
+                  placeholder="Search leads name, source, interest..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <select 
+                  className="b2b-crm-select-filter"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
                 >
-                  <span style={{ fontWeight: 600 }}>{lead.name}</span>
-                  <span style={{ color: 'var(--crm-text-muted)' }}>{lead.source}</span>
-                  <span className={`b2b-crm-badge ${takeoverStates[lead.id] === 'Human Active' ? 'paid' : 'pending'}`}>
-                    {takeoverStates[lead.id]}
-                  </span>
+                  <option value="all">All Statuses</option>
+                  <option value="needs_human">Needs Human</option>
+                  <option value="bot_chatting">AI Chatting</option>
+                  <option value="human_active">Human Active</option>
+                  <option value="converted">Converted</option>
+                </select>
+              </div>
+
+              {/* Grid Table */}
+              <div className="b2b-crm-grid-table">
+                <div className="b2b-crm-grid-header">
+                  <span>Lead Contact</span>
+                  <span>Source</span>
+                  <span>Score</span>
+                  <span>Status</span>
                 </div>
-              ))}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '220px', overflowY: 'auto', paddingRight: '4px' }}>
+                  {filteredLeads.map((lead) => (
+                    <div 
+                      key={lead.id} 
+                      className={`b2b-crm-grid-row ${selectedLead?.id === lead.id ? 'selected' : ''}`}
+                      onClick={() => setSelectedLead(lead)}
+                    >
+                      <div>
+                        <div style={{ fontWeight: 600 }}>{lead.name}</div>
+                        <div style={{ fontSize: '9px', color: 'var(--crm-text-muted)' }}>{lead.email}</div>
+                      </div>
+                      <span style={{ color: 'var(--crm-text-muted)' }}>{lead.source}</span>
+                      <span style={{ fontWeight: 700, color: 'var(--crm-accent)' }}>{lead.score}</span>
+                      <span className={`b2b-crm-badge ${takeoverStates[lead.id]}`}>
+                        {takeoverStates[lead.id] === 'needs_human' ? 'Needs Human' : 
+                         takeoverStates[lead.id] === 'bot_chatting' ? 'AI Chatting' : 
+                         takeoverStates[lead.id] === 'taking_over' ? 'Connecting...' :
+                         takeoverStates[lead.id] === 'human_active' ? 'Human Active' : 'Converted'}
+                      </span>
+                    </div>
+                  ))}
+                  {filteredLeads.length === 0 && (
+                    <div style={{ padding: '24px', textAlign: 'center', color: 'var(--crm-text-muted)', fontSize: '11px' }}>
+                      No matching leads found.
+                    </div>
+                  )}
+                </div>
+              </div>
 
               {/* Side Drawer Lead details sheet */}
               {selectedLead && (
-                <div className="b2b-crm-drawer" style={{ width: '230px' }}>
+                <div className="b2b-crm-drawer">
                   <div className="b2b-crm-drawer-header">
                     <span className="b2b-crm-drawer-title">{selectedLead.name}</span>
                     <button className="b2b-crm-drawer-close" onClick={() => setSelectedLead(null)}>✕</button>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '10px' }}>
-                    <div style={{ color: 'var(--crm-text-muted)' }}>Conversion Score: <strong style={{ color: 'var(--crm-accent)' }}>{selectedLead.score}</strong></div>
-                    <div style={{ color: 'var(--crm-text-muted)' }}>Time: {selectedLead.date}</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '10px', height: 'calc(100% - 30px)', overflowY: 'auto' }}>
+                    <div className="b2b-crm-metadata-row">Location: <strong>{selectedLead.location}</strong></div>
+                    <div className="b2b-crm-metadata-row">Device: <strong>{selectedLead.device}</strong></div>
+                    <div className="b2b-crm-metadata-row">Interest: <strong style={{ color: 'var(--crm-accent)' }}>{selectedLead.interest}</strong></div>
+                    <div className="b2b-crm-metadata-row">Intent Score: <strong style={{ color: '#34d399' }}>{selectedLead.score}</strong></div>
                     
                     {/* Simulated Chat Transcript */}
-                    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--crm-border)', borderRadius: '8px', padding: '10px', height: '140px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
+                    <span className="label" style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.02em', display: 'block', marginTop: '6px', color: 'var(--crm-text-muted)' }}>
+                      Conversation Transcript
+                    </span>
+                    <div className="b2b-crm-chat-box">
                       {selectedLead.chat.map((msg, i) => (
-                        <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: msg.sender === 'visitor' ? 'flex-start' : 'flex-end' }}>
-                          <span style={{ fontSize: '8px', color: 'var(--crm-text-muted)', marginBottom: '2px' }}>
+                        <div key={i} className={`b2b-crm-chat-bubble ${msg.sender === 'visitor' ? 'visitor' : 'bot'}`}>
+                          <span className="b2b-crm-chat-label">
                             {msg.sender === 'visitor' ? 'Visitor' : 'AI Assistant'}
                           </span>
-                          <span style={{ 
-                            background: msg.sender === 'visitor' ? 'rgba(255,255,255,0.08)' : 'var(--crm-accent-light)',
-                            color: msg.sender === 'visitor' ? '#cbd5e1' : 'var(--crm-accent)',
-                            padding: '6px 8px',
-                            borderRadius: '8px',
-                            lineHeight: '1.3',
-                            fontSize: '9px',
-                            maxWidth: '90%'
-                          }}>
+                          <span className="b2b-crm-chat-text">
                             {msg.text}
                           </span>
                         </div>
@@ -793,10 +1005,12 @@ function MockCRM({ lang }) {
 
                     <button 
                       className="b2b-btn-primary" 
-                      style={{ padding: '6px 12px', fontSize: '10px', marginTop: '6px', width: '100%', justifyContent: 'center' }}
+                      style={{ padding: '8px 12px', fontSize: '10.5px', marginTop: 'auto', width: '100%', justifyContent: 'center' }}
+                      disabled={takeoverStates[selectedLead.id] === 'human_active' || takeoverStates[selectedLead.id] === 'taking_over'}
                       onClick={() => triggerTakeover(selectedLead.id)}
                     >
-                      {takeoverStates[selectedLead.id] === 'Human Active' ? 'Connected' : 'Take Over Chat'}
+                      {takeoverStates[selectedLead.id] === 'human_active' ? 'Connected' : 
+                       takeoverStates[selectedLead.id] === 'taking_over' ? 'Connecting...' : 'Take Over Chat'}
                     </button>
                   </div>
                 </div>
@@ -806,103 +1020,84 @@ function MockCRM({ lang }) {
 
           {/* 3. Email Campaigns View */}
           {activeTab === 'campaigns' && (
-            <div className="b2b-crm-integrations-grid">
-              <div className="b2b-crm-int-card">
-                <div className="b2b-crm-int-info">
-                  <span className="b2b-crm-int-icon">🎯</span>
+            <div className="b2b-crm-campaigns-list">
+              {campaigns.map((camp) => (
+                <div key={camp.id} className="b2b-crm-camp-card">
+                  <div className="b2b-crm-camp-left">
+                    <div className="b2b-crm-camp-icon">🎯</div>
+                    <div className="b2b-crm-camp-details">
+                      <h4>{camp.name}</h4>
+                      <div className="b2b-crm-camp-stats">
+                        <span>Sent: <strong>{camp.sent}</strong></span>
+                        <span>Opens: <strong>{camp.open}</strong></span>
+                        <span>Replies: <strong style={{ color: 'var(--crm-accent)' }}>{camp.reply}</strong></span>
+                      </div>
+                    </div>
+                  </div>
                   <div>
-                    <span className="b2b-crm-int-name">Q3 Retail Automation</span>
-                    <p className="b2b-crm-int-status">Active Outreach</p>
+                    {loadingInt === camp.id ? (
+                      <div className="b2b-crm-spinner"></div>
+                    ) : (
+                      <label className="b2b-crm-switch" title={camp.active ? 'Pause Campaign' : 'Resume Campaign'}>
+                        <input 
+                          type="checkbox" 
+                          checked={camp.active} 
+                          onChange={() => toggleCampaign(camp.id)}
+                        />
+                        <span className="b2b-crm-slider"></span>
+                      </label>
+                    )}
                   </div>
                 </div>
-                {loadingInt === 'mollieRetail' ? (
-                  <div className="b2b-crm-spinner"></div>
-                ) : (
-                  <label className="b2b-crm-switch">
-                    <input 
-                      type="checkbox" 
-                      checked={campaigns.mollieRetail} 
-                      onChange={() => toggleCampaign('mollieRetail')}
-                    />
-                    <span className="b2b-crm-slider"></span>
-                  </label>
-                )}
-              </div>
-
-              <div className="b2b-crm-int-card">
-                <div className="b2b-crm-int-info">
-                  <span className="b2b-crm-int-icon">💼</span>
-                  <div>
-                    <span className="b2b-crm-int-name">Consultants Outreach</span>
-                    <p className="b2b-crm-int-status">Inactive</p>
-                  </div>
-                </div>
-                {loadingInt === 'exactConsultants' ? (
-                  <div className="b2b-crm-spinner"></div>
-                ) : (
-                  <label className="b2b-crm-switch">
-                    <input 
-                      type="checkbox" 
-                      checked={campaigns.exactConsultants} 
-                      onChange={() => toggleCampaign('exactConsultants')}
-                    />
-                    <span className="b2b-crm-slider"></span>
-                  </label>
-                )}
-              </div>
-
-              <div className="b2b-crm-int-card">
-                <div className="b2b-crm-int-info">
-                  <span className="b2b-crm-int-icon">⚡</span>
-                  <div>
-                    <span className="b2b-crm-int-name">Moneybird Service Segment</span>
-                    <p className="b2b-crm-int-status">Active Outreach</p>
-                  </div>
-                </div>
-                {loadingInt === 'moneybirdService' ? (
-                  <div className="b2b-crm-spinner"></div>
-                ) : (
-                  <label className="b2b-crm-switch">
-                    <input 
-                      type="checkbox" 
-                      checked={campaigns.moneybirdService} 
-                      onChange={() => toggleCampaign('moneybirdService')}
-                    />
-                    <span className="b2b-crm-slider"></span>
-                  </label>
-                )}
-              </div>
+              ))}
             </div>
           )}
 
           {/* 4. Outreach Stats View */}
           {activeTab === 'analytics' && (
             <div>
-              <div className="b2b-crm-stats-grid">
-                <div className="b2b-crm-stat-card">
-                  <span className="label">Outreach Sent</span>
-                  <div className="value">3,420</div>
-                </div>
-                <div className="b2b-crm-stat-card">
-                  <span className="label">Delivered Rate</span>
-                  <div className="value">99.8%</div>
-                </div>
-                <div className="b2b-crm-stat-card">
-                  <span className="label">Open Rate</span>
-                  <div className="value">76.4%</div>
-                </div>
+              <div className="b2b-crm-chart-card">
+                <span className="b2b-crm-chart-title">Outreach Conversion Curve (7 Days)</span>
+                <svg viewBox="0 0 340 90" style={{ width: '100%', height: '70px', display: 'block', overflow: 'visible' }}>
+                  <path
+                    className="b2b-crm-chart-path"
+                    d="M0,80 Q30,40 60,60 T120,30 T180,55 T240,25 T300,45 T340,10"
+                    fill="none"
+                    stroke="var(--crm-accent)"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    className="b2b-crm-chart-path"
+                    d="M0,85 Q30,65 60,75 T120,50 T180,68 T240,45 T300,60 T340,30"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.06)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeDasharray="4 2"
+                  />
+                </svg>
               </div>
 
-              <svg viewBox="0 0 340 100" style={{ width: '100%', height: '80px', display: 'block' }}>
-                <path
-                  className="b2b-crm-chart-path"
-                  d="M0,80 Q30,40 60,60 T120,30 T180,50 T240,20 T300,40 T340,10"
-                  fill="none"
-                  stroke="var(--crm-accent)"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <div>
+                <span className="label" style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--crm-text-muted)', display: 'block', marginBottom: '8px' }}>
+                  Email Delivery Domain Health
+                </span>
+                <div className="b2b-crm-domain-list">
+                  <div className="b2b-crm-domain-row">
+                    <span style={{ fontWeight: 600 }}>@gmail.com</span>
+                    <span style={{ color: '#34d399', fontWeight: 700 }}>99.8% Inbox Rate</span>
+                  </div>
+                  <div className="b2b-crm-domain-row">
+                    <span style={{ fontWeight: 600 }}>@outlook.com</span>
+                    <span style={{ color: '#34d399', fontWeight: 700 }}>99.4% Inbox Rate</span>
+                  </div>
+                  <div className="b2b-crm-domain-row">
+                    <span style={{ fontWeight: 600 }}>Custom Business Domains</span>
+                    <span style={{ color: 'var(--crm-accent)', fontWeight: 700 }}>98.7% Inbox Rate</span>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
