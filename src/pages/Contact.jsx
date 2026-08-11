@@ -231,7 +231,7 @@ export default function Contact({ lang = 'en' }) {
               <h3 style={{ color:'#F8FAFC', fontSize:'1rem', fontWeight:700, marginBottom:'8px' }}>{t.socialTitle}</h3>
               <p style={{ color:'#94A3B8', fontSize:'0.875rem', marginBottom:'16px' }}>{t.socialSub}</p>
               <div style={{ display:'flex', gap:'12px' }}>
-                <a href="https://www.instagram.com/auto.flow25" target="_blank" rel="noreferrer" title="Instagram" style={socialBtn}
+                <a href="https://www.instagram.com/autoflow_studio_/" target="_blank" rel="noreferrer" title="Instagram" style={socialBtn}
                   onMouseOver={e=>{e.currentTarget.style.transform='translateY(-3px)';e.currentTarget.style.boxShadow='0 8px 20px rgba(191, 163, 255,0.4)'}}
                   onMouseOut={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 4px 15px rgba(191, 163, 255,0.25)'}}>
                   <IgIcon />

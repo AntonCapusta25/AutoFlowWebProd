@@ -37,7 +37,7 @@ export default function Footer() {
           <div className="footer-col">
             <p className="footer-label">{t.footer.follow}</p>
             <div style={{display:'flex',gap:'12px',marginTop:'8px'}}>
-              <a href="https://www.instagram.com/auto.flow25" target="_blank" rel="noreferrer" aria-label="Instagram"
+              <a href="https://www.instagram.com/autoflow_studio_/" target="_blank" rel="noreferrer" aria-label="Instagram"
                 style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:'36px',height:'36px',borderRadius:'50%',background:'linear-gradient(135deg,#d1bbfb,#a78bfa)',color:'white',transition:'transform 0.2s'}}
                 onMouseOver={e=>e.currentTarget.style.transform='translateY(-2px)'}
                 onMouseOut={e=>e.currentTarget.style.transform='translateY(0)'}>
