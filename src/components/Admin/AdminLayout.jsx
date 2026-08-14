@@ -128,6 +128,7 @@ export default function AdminLayout({ children }) {
     if (path === '/admin/segments') return 'Lead Segments Manager'
     if (path === '/admin/campaigns') return 'Outbound Campaigns'
     if (path === '/admin/marketing') return 'Marketing KPI Tracker'
+    if (path === '/admin/blog') return 'Blog Posts CMS'
     return 'Admin Console'
   }
 
@@ -163,6 +164,7 @@ export default function AdminLayout({ children }) {
       { to: '/admin/email-settings', label: 'Email Settings', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"><circle cx="18" cy="18" r="3" fill="currentColor" stroke="none"></circle></polyline><line x1="21" y1="18" x2="23" y2="18" stroke="currentColor"></line><line x1="15" y1="18" x2="13" y2="18" stroke="currentColor"></line><line x1="18" y1="21" x2="18" y2="23" stroke="currentColor"></line><line x1="18" y1="15" x2="18" y2="13" stroke="currentColor"></line></svg> },
       { to: '/admin/marketing', label: 'Marketing', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 2L11 13" /><path d="M22 2L15 22 11 13 2 9l20-7z" /></svg> },
       { to: '/admin/knowledge', label: 'Chatbot KB', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg> },
+      { to: '/admin/blog', label: 'Blog CMS', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg> },
     ] : []),
   ]
 

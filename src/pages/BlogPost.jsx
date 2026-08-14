@@ -1,17 +1,62 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, Link, Navigate } from 'react-router-dom'
 import { BLOG_POSTS, getBlogBySlug } from '../data/blogPosts'
 import { NL_BLOG_POSTS, getNlBlogBySlug } from '../data/blogPostsNl'
 import { getT } from '../i18n/translations'
 import CTASection from '../components/CTASection'
+import { supabase } from '../lib/supabase'
 
 export default function BlogPost({ lang = 'en' }) {
   const { slug } = useParams()
   const t = getT(lang)
   const isNl = lang === 'nl'
-  const post = isNl ? getNlBlogBySlug(slug) : getBlogBySlug(slug)
-  const posts = isNl ? NL_BLOG_POSTS : BLOG_POSTS
   const base = isNl ? '/nl/blog' : '/blog'
+
+  const [posts, setPosts] = useState([])
+  const [post, setPost] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true)
+      try {
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .select('*')
+          .eq('lang', lang)
+          .order('created_at', { ascending: false })
+
+        if (error) throw error
+
+        const staticPosts = isNl ? NL_BLOG_POSTS : BLOG_POSTS
+        const supabaseSlugs = new Set((data || []).map(p => p.slug))
+        const filteredStatic = staticPosts.filter(p => !supabaseSlugs.has(p.slug))
+
+        const formattedSupabase = (data || []).map(p => ({
+          slug: p.slug,
+          title: p.title,
+          desc: p.desc_text,
+          date: p.publish_date,
+          body: p.body,
+          faqs: p.faqs || []
+        }))
+
+        const combined = [...formattedSupabase, ...filteredStatic]
+        setPosts(combined)
+        
+        const current = combined.find(p => p.slug === slug)
+        setPost(current || null)
+      } catch (err) {
+        console.error('Error loading blog post:', err)
+        const staticPosts = isNl ? NL_BLOG_POSTS : BLOG_POSTS
+        setPosts(staticPosts)
+        setPost(staticPosts.find(p => p.slug === slug) || null)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [slug, lang])
 
   useEffect(() => {
     if (!post) return
@@ -78,6 +123,8 @@ export default function BlogPost({ lang = 'en' }) {
       if (el) el.remove()
     }
   }, [slug, post, lang])
+
+  if (loading) return <div style={{ minHeight: '100vh', background: '#050505' }} />
 
   if (!post) return <Navigate to={base} replace />
 

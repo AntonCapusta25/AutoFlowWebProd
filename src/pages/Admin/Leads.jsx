@@ -820,7 +820,7 @@ export default function AdminLeads() {
       )} */}
 
       <div className={`leads-grid ${selectedLead ? 'has-selection' : ''}`}>
-        <div className="lead-table-container" style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', overflowX: 'auto', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
+        <div className="lead-table-container" style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', overflow: 'auto', maxHeight: 'calc(100vh - 240px)', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', background: 'rgba(255,255,255,0.02)' }}>
@@ -1554,7 +1554,15 @@ export default function AdminLeads() {
           
           const slots = []
           const startHour = 9
-          const endHour = 18 // up to 6:00 PM
+          
+          const tz = bookingDisplayTZ === 'calendar' ? calendarTimeZone : bookingDisplayTZ
+          const isDutch = tz && (
+            tz.toLowerCase().includes('amsterdam') || 
+            tz.toLowerCase().includes('europe') || 
+            tz.toLowerCase().includes('cet') || 
+            tz.toLowerCase().includes('cest')
+          )
+          const endHour = isDutch ? 24 : 18 // Dutch times work till 24:00 (midnight)
           
           for (let hour = startHour; hour < endHour; hour++) {
             for (let min of [0, 30]) {

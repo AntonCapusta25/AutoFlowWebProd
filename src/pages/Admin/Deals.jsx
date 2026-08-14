@@ -259,7 +259,7 @@ export default function AdminDeals() {
 
       {/* ── Deals Table + Detail Panel ── */}
       <div className={`deals-grid ${selectedDeal ? 'has-selection' : ''}`}>
-        <div className="deal-table-container" style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', overflowX: 'auto', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
+        <div className="deal-table-container" style={{ background: '#0a0a0a', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', overflow: 'auto', maxHeight: 'calc(100vh - 240px)', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
           {loading ? (
             <div style={{ padding: '32px', display: 'grid', gap: '12px' }}>
               {[1,2,3,4].map(i => <div key={i} className="deal-skeleton" style={{ height: '56px' }} />)}
