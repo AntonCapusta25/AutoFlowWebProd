@@ -858,6 +858,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       case 'Converted': return { bg: 'rgba(16, 185, 129, 0.1)', text: '#6ee7b7', border: '1px solid rgba(16, 185, 129, 0.2)' }
       case 'Lost': return { bg: 'rgba(239, 68, 68, 0.1)', text: '#fca5a5', border: '1px solid rgba(239, 68, 68, 0.2)' }
       case 'Follow Up Needed': return { bg: 'rgba(251, 146, 60, 0.1)', text: '#fdba74', border: '1px solid rgba(251, 146, 60, 0.2)' }
+      case 'No Response': return { bg: 'rgba(100, 116, 139, 0.1)', text: '#94a3b8', border: '1px solid rgba(100, 116, 139, 0.2)' }
       // legacy support
       case 'Scraped': return { bg: 'rgba(148, 163, 184, 0.1)', text: '#94A3B8', border: '1px solid rgba(148, 163, 184, 0.2)' }
       case 'Interested': return { bg: 'rgba(16, 185, 129, 0.1)', text: '#6ee7b7', border: '1px solid rgba(16, 185, 129, 0.2)' }
