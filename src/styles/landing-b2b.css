@@ -1416,3 +1416,12 @@
 @keyframes crm-spin {
     to { transform: rotate(360deg); }
 }
+
+/* Red Theme Scoped Overrides */
+.red-landing {
+    --b2b-primary: #e11d48 !important;       /* Premium red (Rose-600) */
+    --b2b-primary-hover: #be123c !important; /* Darker red (Rose-700) */
+    --b2b-primary-light: #fff1f2 !important; /* Light rose background */
+    --b2b-primary-border: #fecdd3 !important; /* Rose border */
+    --b2b-ring: rgba(225, 29, 72, 0.1) !important;
+}

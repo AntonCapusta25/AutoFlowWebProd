@@ -1,6 +1,5 @@
-// Supabase Edge Function — sends emails via Gmail API
-// Deploy: supabase functions deploy send-email
-// Secrets: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.8'
+
 
 const CLIENT_ID     = Deno.env.get('GOOGLE_CLIENT_ID')     ?? ''
 const CLIENT_SECRET = Deno.env.get('GOOGLE_CLIENT_SECRET') ?? ''
@@ -214,9 +213,53 @@ Deno.serve(async (req) => {
     return new Response('ok', { headers: CORS })
   }
 
+  const urlObj = new URL(req.url)
+  
+  // ── GET Request: Open Tracking Pixel ──────────────────────────────────────
+  if (req.method === 'GET' && urlObj.searchParams.has('track_id')) {
+    const trackId = urlObj.searchParams.get('track_id')
+    if (trackId) {
+      try {
+        const supabase = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        )
+        const { error } = await supabase
+          .from('outreach_emails')
+          .update({ status: 'Opened', opened_at: new Date().toISOString() })
+          .eq('id', trackId)
+          .eq('status', 'Sent')
+        if (error) {
+          console.error('[track-open] DB error:', error)
+        } else {
+          console.log(`[track-open] Marked ${trackId} as Opened`)
+        }
+      } catch (err) {
+        console.error('[track-open] Error updating open:', err)
+      }
+    }
+
+    const pixel = new Uint8Array([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+      0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+      0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89, 0x00, 0x00, 0x00,
+      0x0a, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00,
+      0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49,
+      0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
+    ])
+    return new Response(pixel, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'image/png',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'Pragma': 'no-cache'
+      }
+    })
+  }
+
   try {
     const body = await req.json()
-    const { type, name, email, company, message, service, size, platform, recipient, subject: customSubject } = body
+    const { type, name, email, company, message, service, size, platform, recipient, subject: customSubject, emailLogId } = body
     console.log(`[send-email] type=${type} recipient=${recipient || email}`)
 
     // ── get_busy_times (Google Calendar API) ───────────────────────────────
@@ -747,7 +790,12 @@ Deno.serve(async (req) => {
     if (type === 'campaign') {
       const accessToken = await getAccessToken()
       console.log('[campaign] Sending to:', recipient)
-      const raw = createRawMessage(recipient, customSubject || 'Update from AutoFlow Studio', message)
+      let finalMessage = message
+      if (emailLogId) {
+        const trackingUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/send-email?track_id=${emailLogId}`
+        finalMessage += `<img src="${trackingUrl}" width="1" height="1" style="display:none !important;" alt="" />`
+      }
+      const raw = createRawMessage(recipient, customSubject || 'Update from AutoFlow Studio', finalMessage)
       const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
@@ -759,6 +807,119 @@ Deno.serve(async (req) => {
       }
       console.log('[campaign] Sent OK')
       return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json', ...CORS } })
+    }
+
+    // ── 1.1 Sync Replies (Gmail Inbox Polling) ─────────────────────────────────
+    if (type === 'sync_replies') {
+      const accessToken = await getAccessToken()
+      console.log('[sync_replies] Starting Gmail Sync')
+      
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      )
+
+      // Fetch primary category list of messages
+      const gmailUrl = 'https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=50&q=label:INBOX'
+      const listRes = await fetch(gmailUrl, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      })
+      if (!listRes.ok) {
+        throw new Error(`Gmail list failed: ${await listRes.text()}`)
+      }
+      const listData = await listRes.json()
+      const messages = listData.messages || []
+      console.log(`[sync_replies] Scanning ${messages.length} recent messages`)
+
+      let syncedCount = 0
+
+      for (const msgSummary of messages) {
+        const msgId = msgSummary.id
+        const msgRes = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msgId}`, {
+          headers: { 'Authorization': `Bearer ${accessToken}` }
+        })
+        if (!msgRes.ok) continue
+        const msg = await msgRes.json()
+
+        const headers = msg.payload?.headers || []
+        const fromHeader = headers.find((h: any) => h.name.toLowerCase() === 'from')?.value || ''
+        const subjectHeader = headers.find((h: any) => h.name.toLowerCase() === 'subject')?.value || ''
+        const dateHeader = headers.find((h: any) => h.name.toLowerCase() === 'date')?.value || ''
+
+        const emailMatch = fromHeader.match(/<([^>]+)>/) || fromHeader.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/)
+        const senderEmail = emailMatch ? emailMatch[1].trim().toLowerCase() : ''
+        if (!senderEmail) continue
+
+        // Skip outbound or system messages
+        if (senderEmail === 'info@autoflowstudio.net' || senderEmail.includes('autoflowstudio')) continue
+
+        // Search leads
+        const { data: outreachLead } = await supabase.from('outreach_leads').select('id, name').eq('email', senderEmail).maybeSingle()
+        let matchedLead = outreachLead ? { ...outreachLead, type: 'outreach' } : null
+
+        if (!matchedLead) {
+          const { data: bookingLead } = await supabase.from('booking_leads').select('id, name').eq('email', senderEmail).maybeSingle()
+          matchedLead = bookingLead ? { ...bookingLead, type: 'booking' } : null
+        }
+
+        if (!matchedLead) {
+          const { data: contactLead } = await supabase.from('contact_leads').select('id, name').eq('email', senderEmail).maybeSingle()
+          matchedLead = contactLead ? { ...contactLead, type: 'contact' } : null
+        }
+
+        if (!matchedLead) continue // No match found in CRM
+
+        // Prevent duplicate logs
+        const syncTag = `[Gmail Sync ID: ${msgId}]`
+        const { data: existingHist } = await supabase
+          .from('lead_history')
+          .select('id')
+          .eq('lead_id', matchedLead.id)
+          .ilike('content', `%${syncTag}%`)
+          .maybeSingle()
+
+        if (existingHist) continue // Already synced
+
+        // Log reply
+        const snippet = msg.snippet || ''
+        const contentLog = `${syncTag}\nSubject: ${subjectHeader}\nDate: ${dateHeader}\n\n${snippet}`
+        await supabase.from('lead_history').insert([{
+          lead_id: matchedLead.id,
+          lead_type: matchedLead.type,
+          event_type: 'note',
+          content: contentLog
+        }])
+
+        // Update lead status to In Progress
+        const targetTable = matchedLead.type === 'booking' ? 'booking_leads' : (matchedLead.type === 'contact' ? 'contact_leads' : 'outreach_leads')
+        await supabase
+          .from(targetTable)
+          .update({ status: 'In Progress' })
+          .eq('id', matchedLead.id)
+
+        // Mark associated outreach email as Replied
+        const { data: latestEmail } = await supabase
+          .from('outreach_emails')
+          .select('id')
+          .eq('lead_id', matchedLead.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+
+        if (latestEmail) {
+          await supabase
+            .from('outreach_emails')
+            .update({ status: 'Replied' })
+            .eq('id', latestEmail.id)
+        }
+
+        syncedCount++
+      }
+
+      console.log(`[sync_replies] Successfully synced ${syncedCount} replies`)
+      return new Response(JSON.stringify({ success: true, synced: syncedCount }), {
+        headers: { 'Content-Type': 'application/json', ...CORS }
+      })
     }
 
     // ── 2. Status-Change Notifications ──────────────────────────────────────
