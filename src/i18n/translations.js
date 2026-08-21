@@ -8,6 +8,7 @@ export const translations = {
       blog: 'Blog',
       portfolio: 'Portfolio',
       contact: 'Contact',
+      solutions: 'Solutions',
     },
     hero: {
       headlinePrefix: 'Automate your ',
@@ -221,6 +222,7 @@ export const translations = {
       blog: 'Blog',
       portfolio: 'Portfolio',
       contact: 'Contact',
+      solutions: 'Oplossingen',
     },
     hero: {
       headlinePrefix: 'Automatiseer je ',
