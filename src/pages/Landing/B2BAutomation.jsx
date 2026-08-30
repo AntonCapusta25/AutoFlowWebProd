@@ -577,7 +577,7 @@ export default function B2BAutomation({ lang }) {
       <footer className="b2b-footer">
         <div className="b2b-container b2b-footer-content">
           <div className="b2b-footer-logo">
-            <img src="/images/logo.webp" alt="AutoFlow Studio" />
+            <img src="/images/logo_blue.png" alt="AutoFlow Studio" style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }} />
           </div>
           <ul className="b2b-footer-links">
             <li><Link to={lang === 'nl' ? '/nl' : '/'}>Home</Link></li>
