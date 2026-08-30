@@ -347,19 +347,42 @@ export default function HorecaAutomation({ lang }) {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="b2b-section" style={{ paddingTop: '180px', paddingBottom: '100px' }}>
+      <section className="b2b-section" style={{ paddingTop: '160px', paddingBottom: '100px' }}>
         <div className="b2b-container">
-          <div style={{ textAlign: 'center', maxWidth: '850px', margin: '0 auto' }}>
-            <h1 style={{ fontSize: '3.4rem', lineHeight: '1.15', marginBottom: '24px', letterSpacing: '-0.03em', fontFamily: "'Space Grotesk', sans-serif" }}>
-              {t.hero.heading}
-              <span style={{ color: 'var(--b2b-primary)', fontStyle: 'italic', display: 'block' }}>{t.hero.headingHighlight}</span>
-            </h1>
-            <p style={{ fontSize: '1.15rem', color: 'var(--b2b-text-muted)', marginBottom: '40px', lineHeight: '1.6' }}>
-              {t.hero.desc}
-            </p>
-            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button onClick={openBooking} className="b2b-btn-primary">{t.hero.ctaPrimary}</button>
-              <a href="#roi" className="b2b-btn-secondary">{t.hero.ctaSecondary}</a>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', alignItems: 'center' }}>
+            {/* Left Content */}
+            <div>
+              <span style={{ display: 'inline-block', padding: '6px 16px', borderRadius: '50px', background: 'rgba(244,63,94,0.1)', color: '#be123c', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '20px' }}>
+                {t.hero.eyebrow}
+              </span>
+              <h1 style={{ fontSize: '3.2rem', lineHeight: '1.15', marginBottom: '24px', letterSpacing: '-0.03em', fontFamily: "'Space Grotesk', sans-serif" }}>
+                {t.hero.heading}
+                <span style={{ color: 'var(--b2b-primary)', fontStyle: 'italic', display: 'block' }}>{t.hero.headingHighlight}</span>
+              </h1>
+              <p style={{ fontSize: '1.15rem', color: 'var(--b2b-text-muted)', marginBottom: '40px', lineHeight: '1.6' }}>
+                {t.hero.desc}
+              </p>
+              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                <button onClick={openBooking} className="b2b-btn-primary">{t.hero.ctaPrimary}</button>
+                <a href="#roi" className="b2b-btn-secondary">{t.hero.ctaSecondary}</a>
+              </div>
+            </div>
+
+            {/* Right Visual Image Frame */}
+            <div style={{ background: '#f1f5f9', borderRadius: '28px', padding: '10px', border: '1px solid rgba(15,23,42,0.08)', position: 'relative' }}>
+              <div style={{ background: '#ffffff', borderRadius: '20px', padding: '16px', overflow: 'hidden', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8), 0 20px 40px rgba(0,0,0,0.06)' }}>
+                <img 
+                  src="/images/crm_dashboard_ui_1778858853633.png" 
+                  alt="Horeca Operational Dashboard UI" 
+                  style={{ width: '100%', height: 'auto', borderRadius: '14px', display: 'block' }}
+                />
+              </div>
+
+              {/* Floating Live Badges */}
+              <div style={{ position: 'absolute', bottom: '-15px', left: '25px', background: '#0f172a', color: 'white', padding: '10px 18px', borderRadius: '50px', fontSize: '0.82rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }}></span>
+                0% Commission Direct Engine Active
+              </div>
             </div>
           </div>
         </div>
@@ -412,7 +435,7 @@ export default function HorecaAutomation({ lang }) {
         </div>
       </section>
 
-      {/* ── Asymmetrical Bento Solutions Section ── */}
+      {/* ── Asymmetrical Bento Solutions Section with Dedicated Images ── */}
       <section className="b2b-section alt-bg" id="solutions">
         <div className="b2b-container">
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
@@ -439,9 +462,16 @@ export default function HorecaAutomation({ lang }) {
                   <h3 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', marginBottom: '14px', lineHeight: 1.3 }}>
                     {t.solutions.portal.title}
                   </h3>
-                  <p style={{ color: '#64748b', fontSize: '0.98rem', lineHeight: 1.6, marginBottom: '32px' }}>
+                  <p style={{ color: '#64748b', fontSize: '0.98rem', lineHeight: 1.6, marginBottom: '24px' }}>
                     {t.solutions.portal.desc}
                   </p>
+
+                  {/* Dedicated High-Res Image Showcase */}
+                  <img 
+                    src="/images/website_integrations_ui_1778858900750.png" 
+                    alt="Direct Web Reservation Portal" 
+                    style={{ width: '100%', borderRadius: '14px', border: '1px solid rgba(15,23,42,0.08)', marginBottom: '24px', display: 'block' }} 
+                  />
                 </div>
 
                 {/* Interactive Live Micro-Widget: Direct Reservation Preview */}
@@ -479,7 +509,7 @@ export default function HorecaAutomation({ lang }) {
               </div>
             </div>
 
-            {/* Right Column: Stacked Bento Cards */}
+            {/* Right Column: Stacked Bento Cards with Images */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
               {/* Card 2: WhatsApp & SMS No-Show Prevention */}
               <div style={{ background: '#f1f5f9', borderRadius: '28px', padding: '10px', border: '1px solid rgba(15,23,42,0.08)' }}>
@@ -490,9 +520,15 @@ export default function HorecaAutomation({ lang }) {
                   <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0f172a', marginBottom: '10px' }}>
                     {t.solutions.integrations.title}
                   </h3>
-                  <p style={{ color: '#64748b', fontSize: '0.92rem', lineHeight: 1.5, marginBottom: '20px' }}>
+                  <p style={{ color: '#64748b', fontSize: '0.92rem', lineHeight: 1.5, marginBottom: '16px' }}>
                     {t.solutions.integrations.desc}
                   </p>
+
+                  <img 
+                    src="/images/ai_chatbot_ui_1778858881732.png" 
+                    alt="WhatsApp Guest Reminders Interface" 
+                    style={{ width: '100%', height: '150px', borderRadius: '12px', objectFit: 'cover', marginBottom: '16px', border: '1px solid rgba(15,23,42,0.08)' }} 
+                  />
 
                   {/* Micro WhatsApp Live Simulator */}
                   <div style={{ background: '#f8fafc', border: '1px solid rgba(15,23,42,0.08)', padding: '14px 18px', borderRadius: '14px', display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -516,9 +552,15 @@ export default function HorecaAutomation({ lang }) {
                   <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0f172a', marginBottom: '10px' }}>
                     {t.solutions.docs.title}
                   </h3>
-                  <p style={{ color: '#64748b', fontSize: '0.92rem', lineHeight: 1.5, marginBottom: '20px' }}>
+                  <p style={{ color: '#64748b', fontSize: '0.92rem', lineHeight: 1.5, marginBottom: '16px' }}>
                     {t.solutions.docs.desc}
                   </p>
+
+                  <img 
+                    src="/images/performance_analytics_ui_1778858930653.png" 
+                    alt="POS Real-Time Sync Analytics" 
+                    style={{ width: '100%', height: '150px', borderRadius: '12px', objectFit: 'cover', marginBottom: '16px', border: '1px solid rgba(15,23,42,0.08)' }} 
+                  />
 
                   {/* Micro POS Sync Ticker */}
                   <div style={{ background: '#0f172a', padding: '12px 16px', borderRadius: '12px', color: '#38bdf8', fontFamily: 'monospace', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -532,7 +574,7 @@ export default function HorecaAutomation({ lang }) {
         </div>
       </section>
 
-      {/* ── Double-Bezel Operational Partner Section ── */}
+      {/* ── Editorial Split Operational Partner Section ── */}
       <section className="b2b-section" style={{ background: '#ffffff', padding: '96px 0', borderTop: '1px solid rgba(15,23,42,0.06)' }}>
         <div className="b2b-container">
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
@@ -547,41 +589,57 @@ export default function HorecaAutomation({ lang }) {
             </p>
           </div>
 
-          {/* Double-Bezel Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
-            <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '24px', border: '1px solid rgba(15,23,42,0.08)' }}>
-              <div style={{ background: '#ffffff', padding: '28px 20px', borderRadius: '18px', height: '100%', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8)' }}>
-                <div style={{ fontSize: '2rem', marginBottom: '14px' }}>🏰</div>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '10px' }}>{t.partner.p1Title}</h3>
-                <p style={{ fontSize: '0.88rem', color: '#64748b', lineHeight: 1.5, margin: 0 }}>{t.partner.p1Desc}</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '0.9fr 1.1fr', gap: '40px', alignItems: 'center' }}>
+            {/* Left Image Showcase */}
+            <div style={{ background: '#f1f5f9', borderRadius: '28px', padding: '10px', border: '1px solid rgba(15,23,42,0.08)', position: 'relative' }}>
+              <div style={{ background: '#ffffff', borderRadius: '20px', overflow: 'hidden', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8), 0 20px 40px rgba(0,0,0,0.05)' }}>
+                <img 
+                  src="/images/built-for-long-run.webp" 
+                  alt="AutoFlow Studio Horeca Partnership" 
+                  style={{ width: '100%', height: '420px', objectFit: 'cover', display: 'block' }} 
+                />
+              </div>
+              <div style={{ position: 'absolute', bottom: '-15px', right: '20px', background: '#0f172a', color: 'white', padding: '10px 18px', borderRadius: '50px', fontSize: '0.82rem', fontWeight: 700, boxShadow: '0 10px 25px rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                🛡️ 24/7 SLA Monitored Infrastructure
               </div>
             </div>
-            <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '24px', border: '1px solid rgba(15,23,42,0.08)' }}>
-              <div style={{ background: '#ffffff', padding: '28px 20px', borderRadius: '18px', height: '100%', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8)' }}>
-                <div style={{ fontSize: '2rem', marginBottom: '14px' }}>⚡</div>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '10px' }}>{t.partner.p2Title}</h3>
-                <p style={{ fontSize: '0.88rem', color: '#64748b', lineHeight: 1.5, margin: 0 }}>{t.partner.p2Desc}</p>
+
+            {/* Right 2x2 Pillar Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '24px', border: '1px solid rgba(15,23,42,0.08)' }}>
+                <div style={{ background: '#ffffff', padding: '24px 20px', borderRadius: '18px', height: '100%', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8)' }}>
+                  <div style={{ fontSize: '1.8rem', marginBottom: '12px' }}>🏰</div>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>{t.partner.p1Title}</h3>
+                  <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, margin: 0 }}>{t.partner.p1Desc}</p>
+                </div>
               </div>
-            </div>
-            <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '24px', border: '1px solid rgba(15,23,42,0.08)' }}>
-              <div style={{ background: '#ffffff', padding: '28px 20px', borderRadius: '18px', height: '100%', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8)' }}>
-                <div style={{ fontSize: '2rem', marginBottom: '14px' }}>🛡️</div>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '10px' }}>{t.partner.p3Title}</h3>
-                <p style={{ fontSize: '0.88rem', color: '#64748b', lineHeight: 1.5, margin: 0 }}>{t.partner.p3Desc}</p>
+              <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '24px', border: '1px solid rgba(15,23,42,0.08)' }}>
+                <div style={{ background: '#ffffff', padding: '24px 20px', borderRadius: '18px', height: '100%', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8)' }}>
+                  <div style={{ fontSize: '1.8rem', marginBottom: '12px' }}>⚡</div>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>{t.partner.p2Title}</h3>
+                  <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, margin: 0 }}>{t.partner.p2Desc}</p>
+                </div>
               </div>
-            </div>
-            <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '24px', border: '1px solid rgba(15,23,42,0.08)' }}>
-              <div style={{ background: '#ffffff', padding: '28px 20px', borderRadius: '18px', height: '100%', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8)' }}>
-                <div style={{ fontSize: '2rem', marginBottom: '14px' }}>📈</div>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '10px' }}>{t.partner.p4Title}</h3>
-                <p style={{ fontSize: '0.88rem', color: '#64748b', lineHeight: 1.5, margin: 0 }}>{t.partner.p4Desc}</p>
+              <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '24px', border: '1px solid rgba(15,23,42,0.08)' }}>
+                <div style={{ background: '#ffffff', padding: '24px 20px', borderRadius: '18px', height: '100%', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8)' }}>
+                  <div style={{ fontSize: '1.8rem', marginBottom: '12px' }}>🛡️</div>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>{t.partner.p3Title}</h3>
+                  <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, margin: 0 }}>{t.partner.p3Desc}</p>
+                </div>
+              </div>
+              <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '24px', border: '1px solid rgba(15,23,42,0.08)' }}>
+                <div style={{ background: '#ffffff', padding: '24px 20px', borderRadius: '18px', height: '100%', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8)' }}>
+                  <div style={{ fontSize: '1.8rem', marginBottom: '12px' }}>📈</div>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>{t.partner.p4Title}</h3>
+                  <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, margin: 0 }}>{t.partner.p4Desc}</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Portfolio Case Studies Spotlight ── */}
+      {/* ── Portfolio Case Studies Spotlight with High-Res Images ── */}
       <section className="b2b-section alt-bg" style={{ padding: '96px 0', borderTop: '1px solid rgba(15,23,42,0.06)' }}>
         <div className="b2b-container">
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
@@ -601,7 +659,13 @@ export default function HorecaAutomation({ lang }) {
             <div style={{ background: '#f1f5f9', borderRadius: '28px', padding: '8px', border: '1px solid rgba(15,23,42,0.08)' }}>
               <div style={{ background: '#ffffff', borderRadius: '20px', padding: '36px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8), 0 10px 30px rgba(0,0,0,0.03)' }}>
                 <div>
-                  <span style={{ display: 'inline-block', padding: '6px 14px', borderRadius: '50px', background: 'rgba(244,63,94,0.1)', color: '#be123c', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '20px' }}>
+                  <img 
+                    src="/images/food_photography_automation.webp" 
+                    alt="Homemade B.V. Food Photography Automation" 
+                    style={{ width: '100%', height: '220px', borderRadius: '14px', objectFit: 'cover', marginBottom: '24px', border: '1px solid rgba(15,23,42,0.08)' }} 
+                  />
+
+                  <span style={{ display: 'inline-block', padding: '6px 14px', borderRadius: '50px', background: 'rgba(244,63,94,0.1)', color: '#be123c', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '16px' }}>
                     {t.caseStudies.case1Tag}
                   </span>
                   <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', marginBottom: '14px', lineHeight: 1.3 }}>
@@ -641,7 +705,13 @@ export default function HorecaAutomation({ lang }) {
             <div style={{ background: '#f1f5f9', borderRadius: '28px', padding: '8px', border: '1px solid rgba(15,23,42,0.08)' }}>
               <div style={{ background: '#ffffff', borderRadius: '20px', padding: '36px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8), 0 10px 30px rgba(0,0,0,0.03)' }}>
                 <div>
-                  <span style={{ display: 'inline-block', padding: '6px 14px', borderRadius: '50px', background: 'rgba(244,63,94,0.1)', color: '#be123c', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '20px' }}>
+                  <img 
+                    src="/images/customer_support_ai.webp" 
+                    alt="AI Guest Receptionist & Customer Support" 
+                    style={{ width: '100%', height: '220px', borderRadius: '14px', objectFit: 'cover', marginBottom: '24px', border: '1px solid rgba(15,23,42,0.08)' }} 
+                  />
+
+                  <span style={{ display: 'inline-block', padding: '6px 14px', borderRadius: '50px', background: 'rgba(244,63,94,0.1)', color: '#be123c', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '16px' }}>
                     {t.caseStudies.case2Tag}
                   </span>
                   <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', marginBottom: '14px', lineHeight: 1.3 }}>
