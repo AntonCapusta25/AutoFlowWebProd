@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import '../../styles/landing-b2b.css'
+import Navbar from '../../components/Navbar'
+import PartnersStrip from '../../components/PartnersStrip'
 
 const TRANSLATIONS = {
   en: {
@@ -205,11 +207,19 @@ export default function B2BAutomation({ lang }) {
     setSavings(Math.round(annualWasted * 0.85))
   }, [employees, hours, labor])
 
+  const employeesPercent = ((employees - 5) / (150 - 5)) * 100
+  const hoursPercent = ((hours - 1) / (20 - 1)) * 100
+  const laborPercent = ((labor - 20) / (120 - 20)) * 100
+
   useEffect(() => {
     document.title = t.meta.title
     const metaDesc = document.querySelector('meta[name="description"]')
     if (metaDesc) {
       metaDesc.setAttribute('content', t.meta.desc)
+    }
+    const favicon = document.querySelector('link[rel="icon"]')
+    if (favicon) {
+      favicon.setAttribute('href', '/images/logo_blue.png')
     }
   }, [lang])
 
@@ -244,59 +254,13 @@ export default function B2BAutomation({ lang }) {
 
   return (
     <div className="b2b-landing">
-      {/* ── Standalone Navigation ── */}
-      <nav className="b2b-nav">
-        <div className="b2b-nav-logo">
-          <Link to={lang === 'nl' ? '/nl' : '/'} aria-label="AutoFlow Studio Home">
-            <img src="/images/logo.webp" alt="AutoFlow Studio Logo" />
-          </Link>
-        </div>
-
-        <ul className="b2b-nav-links">
-          <li>
-            <a href="#problems" onClick={(e) => { e.preventDefault(); scrollToSection('problems'); }}>
-              {t.nav.painPoints}
-            </a>
-          </li>
-          <li>
-            <a href="#solutions" onClick={(e) => { e.preventDefault(); scrollToSection('solutions'); }}>
-              {t.nav.solutions}
-            </a>
-          </li>
-          <li>
-            <a href="#roi" onClick={(e) => { e.preventDefault(); scrollToSection('roi'); }}>
-              {t.nav.roi}
-            </a>
-          </li>
-        </ul>
-
-        <div className="b2b-nav-right">
-          <div className="b2b-lang-switch">
-            <button
-              className={`b2b-lang-btn ${lang === 'en' ? 'active' : ''}`}
-              onClick={() => switchLang('en')}
-            >
-              EN
-            </button>
-            <button
-              className={`b2b-lang-btn ${lang === 'nl' ? 'active' : ''}`}
-              onClick={() => switchLang('nl')}
-            >
-              NL
-            </button>
-          </div>
-          <button className="b2b-btn-primary desktop-only" onClick={openBooking}>
-            {t.nav.contact}
-            <span className="b2b-btn-icon-wrapper">↗</span>
-          </button>
-        </div>
-      </nav>
+      {/* Standardized Navbar */}
+      <Navbar />
 
       {/* ── Hero Section ── */}
       <header className="b2b-section" style={{ paddingBottom: '0' }}>
         <div className="b2b-container b2b-hero-grid">
           <div className="b2b-hero-left">
-            <span className="b2b-tag">{t.hero.eyebrow}</span>
             {lang === 'nl' ? (
               <h1>
                 Schaal B2B-operaties <span className="fancy-serif">zonder de</span> <br />
@@ -334,11 +298,13 @@ export default function B2BAutomation({ lang }) {
         </div>
       </header>
 
+      {/* ── Partners & APIs Strip ── */}
+      <PartnersStrip lang={lang} darkBg={false} />
+
       {/* ── Pain Points Section ── */}
       <section id="problems" className="b2b-section alt-bg">
         <div className="b2b-container">
           <div className="b2b-section-header">
-            <span className="b2b-tag">{lang === 'nl' ? 'Knelpunten' : 'Bottlenecks'}</span>
             <h2>{t.pains.title}</h2>
             <p>{t.pains.subtitle}</p>
           </div>
@@ -367,7 +333,6 @@ export default function B2BAutomation({ lang }) {
       <section id="solutions" className="b2b-section">
         <div className="b2b-container">
           <div className="b2b-section-header">
-            <span className="b2b-tag">{lang === 'nl' ? 'De Oplossing' : 'Capabilities'}</span>
             <h2>{t.solutions.title}</h2>
             <p>{t.solutions.subtitle}</p>
           </div>
@@ -418,78 +383,145 @@ export default function B2BAutomation({ lang }) {
       </section>
 
       {/* ── ROI Calculator Section ── */}
-      <section id="roi" className="b2b-section alt-bg">
-        <div className="b2b-container">
-          <div className="b2b-section-header">
-            <span className="b2b-tag">{lang === 'nl' ? 'Rendement' : 'Business Value'}</span>
-            <h2>{t.roi.title}</h2>
-            <p>{t.roi.subtitle}</p>
+      <section id="roi" className="b2b-section">
+        <div className="calc-container">
+          <div className="calc-header">
+            <h2 className="calc-title">{t.roi.title}</h2>
           </div>
 
-          <div className="b2b-roi-layout">
-            <div className="b2b-roi-controls">
-              <div className="b2b-roi-slider-group">
-                <div className="b2b-roi-slider-header">
+          <div className="calc-grid">
+            {/* Left Column: Configuration */}
+            <div className="calc-card">
+              <h3 className="calc-card-title">{lang === 'nl' ? 'Configureer je organisatie' : 'Configure your organization'}</h3>
+
+              <div className="calc-field-group">
+                <div className="calc-slider-header">
                   <label>{t.roi.employees}</label>
-                  <span className="b2b-roi-slider-value">{employees}</span>
+                  <span className="value">{employees}</span>
                 </div>
                 <input 
                   type="range" 
                   min="5" 
                   max="150" 
+                  step="1"
                   value={employees} 
-                  onChange={(e) => setEmployees(parseInt(e.target.value))} 
+                  onChange={e => setEmployees(parseInt(e.target.value))} 
+                  className="calc-slider"
+                  style={{
+                    background: `linear-gradient(to right, var(--b2b-primary) 0%, var(--b2b-primary) ${employeesPercent}%, #cbd5e1 ${employeesPercent}%, #cbd5e1 100%)`
+                  }}
                 />
+                <div className="calc-slider-footer">
+                  <span>5</span>
+                  <span>150</span>
+                </div>
               </div>
 
-              <div className="b2b-roi-slider-group">
-                <div className="b2b-roi-slider-header">
+              <div className="calc-field-group">
+                <div className="calc-slider-header">
                   <label>{t.roi.hours}</label>
-                  <span className="b2b-roi-slider-value">{hours}h</span>
+                  <span className="value">{hours}h</span>
                 </div>
                 <input 
                   type="range" 
                   min="1" 
                   max="20" 
+                  step="1"
                   value={hours} 
-                  onChange={(e) => setHours(parseInt(e.target.value))} 
+                  onChange={e => setHours(parseInt(e.target.value))} 
+                  className="calc-slider"
+                  style={{
+                    background: `linear-gradient(to right, var(--b2b-primary) 0%, var(--b2b-primary) ${hoursPercent}%, #cbd5e1 ${hoursPercent}%, #cbd5e1 100%)`
+                  }}
                 />
+                <div className="calc-slider-footer">
+                  <span>1h</span>
+                  <span>20h / week</span>
+                </div>
               </div>
 
-              <div className="b2b-roi-slider-group">
-                <div className="b2b-roi-slider-header">
+              <div className="calc-field-group">
+                <div className="calc-slider-header">
                   <label>{t.roi.labor}</label>
-                  <span className="b2b-roi-slider-value">€{labor}/h</span>
+                  <span className="value">€{labor}/h</span>
                 </div>
                 <input 
                   type="range" 
                   min="20" 
                   max="120" 
+                  step="5"
                   value={labor} 
-                  onChange={(e) => setLabor(parseInt(e.target.value))} 
+                  onChange={e => setLabor(parseInt(e.target.value))} 
+                  className="calc-slider"
+                  style={{
+                    background: `linear-gradient(to right, var(--b2b-primary) 0%, var(--b2b-primary) ${laborPercent}%, #cbd5e1 ${laborPercent}%, #cbd5e1 100%)`
+                  }}
                 />
+                <div className="calc-slider-footer">
+                  <span>€20/h</span>
+                  <span>€120/h</span>
+                </div>
+              </div>
+
+              <div className="calc-info-note">
+                <p>{t.roi.savingSub}</p>
               </div>
             </div>
 
-            <div className="b2b-roi-results">
-              <span className="b2b-roi-title">{t.roi.wastedCost}</span>
-              <div className="b2b-roi-big-value">
-                <span className="currency">€</span>
-                {formatCurrency(wastedCost)}
+            {/* Right Column: Savings & Breakdown */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* Summary Card */}
+              <div className="calc-summary-card">
+                <p className="label">{t.roi.savingTitle}</p>
+                <div className="calc-summary-value">€{savings.toLocaleString()}</div>
+                <p className="calc-summary-sub">{lang === 'nl' ? 'per jaar · 85% besparing op handmatig werk' : 'per year · 85% savings on manual tasks'}</p>
+                <div className="calc-divider"></div>
+                <div className="calc-submetrics">
+                  <div>
+                    <p className="calc-submetric-label">{lang === 'nl' ? 'Per maand' : 'Per month'}</p>
+                    <p className="calc-submetric-value">€{Math.round(savings / 12).toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="calc-submetric-label">{lang === 'nl' ? 'Over 5 jaar' : 'Over 5 years'}</p>
+                    <p className="calc-submetric-value">€{(savings * 5).toLocaleString()}</p>
+                  </div>
+                </div>
               </div>
-              <p className="b2b-roi-subtext">{lang === 'nl' ? 'per jaar verspild aan repeterend handmatig werk' : 'wasted annually on repetitive manual tasks'}</p>
-              
-              <span className="b2b-roi-title" style={{ color: 'var(--b2b-primary)' }}>{t.roi.savingTitle}</span>
-              <div className="b2b-roi-big-value" style={{ color: 'var(--b2b-primary)', fontSize: '56px' }}>
-                <span className="currency">€</span>
-                {formatCurrency(savings)}
-              </div>
-              <p className="b2b-roi-subtext" style={{ marginBottom: '40px' }}>{t.roi.savingSub}</p>
 
-              <button className="b2b-btn-primary" onClick={openBooking}>
-                {t.roi.cta}
-                <span className="b2b-btn-icon-wrapper">↗</span>
-              </button>
+              {/* Breakdown Card */}
+              <div className="calc-breakdown-card">
+                <h4 className="calc-breakdown-title">{lang === 'nl' ? 'Jaarlijks kostenoverzicht' : 'Annual cost breakdown'}</h4>
+                <div className="calc-progress-group">
+                  <div className="calc-progress-header">
+                    <span className="calc-progress-label">{t.roi.wastedCost}</span>
+                    <span className="calc-progress-value">€{wastedCost.toLocaleString()}</span>
+                  </div>
+                  <div className="calc-progress-bar-bg">
+                    <div className="calc-progress-bar" style={{ width: '100%' }}></div>
+                  </div>
+                </div>
+
+                <div className="calc-progress-group">
+                  <div className="calc-progress-header">
+                    <span className="calc-progress-label">{lang === 'nl' ? 'Kosten met AutoFlow' : 'Cost with AutoFlow'}</span>
+                    <span className="calc-progress-value highlight">€{Math.round(wastedCost - savings).toLocaleString()}</span>
+                  </div>
+                  <div className="calc-progress-bar-bg">
+                    <div 
+                      className="calc-progress-bar highlight" 
+                      style={{ 
+                        width: `${wastedCost > 0 ? Math.round(((wastedCost - savings) / wastedCost) * 100) : 0}%`,
+                      }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="calc-btn-container">
+                  <button className="calc-cta-btn" onClick={openBooking}>
+                    {t.roi.cta} →
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -499,7 +531,6 @@ export default function B2BAutomation({ lang }) {
       <section className="b2b-section">
         <div className="b2b-container">
           <div className="b2b-section-header">
-            <span className="b2b-tag">{lang === 'nl' ? 'Het Proces' : 'Delivery Workflow'}</span>
             <h2>{t.steps.title}</h2>
           </div>
 

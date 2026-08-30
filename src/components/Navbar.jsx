@@ -45,10 +45,23 @@ export default function Navbar() {
 
   const solutionsList = [
     { to: prefix + '/solutions/b2b-automation', label: isNl ? 'B2B Automatisering' : 'B2B Operations' },
-    { to: prefix + '/solutions/hvac-field-services', label: isNl ? 'Veldservice & Installatie' : 'HVAC & Field Services' },
     { to: prefix + '/solutions/horeca-hospitality', label: isNl ? 'Horeca & Hospitality' : 'Horeca & Hospitality' },
     { to: prefix + '/solutions/marketing-agency', label: isNl ? 'Digital Marketing Bureau' : 'Digital Marketing Agency' },
   ]
+
+  const isSolutionsPage = location.pathname.includes('/solutions')
+  const isB2bPage = location.pathname.includes('/solutions/b2b-automation')
+  const isHorecaOrMarketing = location.pathname.includes('/solutions/horeca-hospitality') || location.pathname.includes('/solutions/marketing-agency')
+
+  let logoSrc = '/images/logo.webp'
+  if (isB2bPage) {
+    logoSrc = '/images/logo_blue.png'
+  } else if (isHorecaOrMarketing) {
+    logoSrc = '/images/logo_red.png'
+  }
+
+  const activeColor = isB2bPage ? '#1d4ed8' : (isHorecaOrMarketing ? '#be123c' : 'var(--primary-color)')
+  const activeBg = isB2bPage ? 'rgba(59, 130, 246, 0.12)' : (isHorecaOrMarketing ? 'rgba(244, 63, 94, 0.12)' : 'rgba(255, 255, 255, 0.2)')
 
   return (
     <>
@@ -57,7 +70,7 @@ export default function Navbar() {
             position: relative;
         }
         .dropdown-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: ${isSolutionsPage ? 'rgba(15, 23, 42, 0.06)' : 'rgba(255, 255, 255, 0.2)'} !important;
             transform: translateY(-2px);
         }
         .dropdown-arrow {
@@ -72,22 +85,31 @@ export default function Navbar() {
             top: calc(100% + 12px);
             left: 50%;
             transform: translateX(-50%) translateY(10px);
-            background: rgba(10, 10, 15, 0.95);
+            background: ${isSolutionsPage ? 'rgba(255, 255, 255, 0.98)' : 'rgba(10, 10, 15, 0.95)'};
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid ${isSolutionsPage ? 'rgba(15, 23, 42, 0.12)' : 'rgba(255, 255, 255, 0.08)'};
             border-radius: 18px;
             padding: 10px;
             min-width: 260px;
             display: flex;
             flex-direction: column;
             gap: 4px;
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+            box-shadow: ${isSolutionsPage ? '0 20px 40px -15px rgba(0, 0, 0, 0.12)' : '0 20px 40px -15px rgba(0, 0, 0, 0.6)'};
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
             transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
             z-index: 10000;
+        }
+        .nav-dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -16px;
+            left: 0;
+            right: 0;
+            height: 16px;
+            background: transparent;
         }
         .nav-dropdown-menu.show {
             opacity: 1;
@@ -98,7 +120,7 @@ export default function Navbar() {
         .dropdown-sub-link {
             padding: 12px 16px;
             border-radius: 10px;
-            color: #cbd5e1;
+            color: ${isSolutionsPage ? '#475569' : '#cbd5e1'};
             text-decoration: none;
             font-size: 0.9rem;
             font-weight: 500;
@@ -108,14 +130,68 @@ export default function Navbar() {
             display: block;
         }
         .dropdown-sub-link:hover {
-            background: rgba(255, 255, 255, 0.06);
-            color: white;
+            background: ${isSolutionsPage ? 'rgba(15, 23, 42, 0.05)' : 'rgba(255, 255, 255, 0.06)'};
+            color: ${isSolutionsPage ? '#0f172a' : 'white'};
             padding-left: 20px;
         }
         .dropdown-sub-link.sub-active {
-            background: rgba(255, 255, 255, 0.12);
-            color: white;
+            background: ${activeBg};
+            color: ${activeColor};
+            font-weight: 700;
         }
+
+        /* Solutions light page overrides */
+        ${isSolutionsPage ? `
+          nav.navbar {
+            background: rgba(255, 255, 255, 0.88) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(15, 23, 42, 0.1) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+          }
+          nav.navbar.scrolled {
+            background: rgba(255, 255, 255, 0.96) !important;
+            border-color: rgba(15, 23, 42, 0.15) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+          }
+          .nav-links a {
+            color: #0f172a !important;
+            text-shadow: none !important;
+          }
+          .nav-links a:hover,
+          .nav-links a.active {
+            background: ${activeBg} !important;
+            color: ${activeColor} !important;
+          }
+          .dropdown-toggle-btn {
+            color: #0f172a !important;
+            text-shadow: none !important;
+          }
+          .dropdown-toggle-btn.active {
+            background: ${activeBg} !important;
+            color: ${activeColor} !important;
+          }
+          .language-switch {
+            background: rgba(15, 23, 42, 0.06) !important;
+            border: 1px solid rgba(15, 23, 42, 0.1) !important;
+          }
+          .lang-btn {
+            color: #475569 !important;
+          }
+          .lang-btn:hover {
+            color: #0f172a !important;
+            background: rgba(15, 23, 42, 0.05) !important;
+          }
+          .lang-btn.active {
+            background: ${activeColor} !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px ${isB2bPage ? 'rgba(59, 130, 246, 0.3)' : 'rgba(244, 63, 94, 0.3)'} !important;
+          }
+          .mobile-menu-btn {
+            color: #0f172a !important;
+          }
+        ` : ''}
+
         @media (max-width: 768px) {
             .desktop-nav {
                 display: none !important;
@@ -126,7 +202,7 @@ export default function Navbar() {
       <nav className={`navbar${scrolled ? ' scrolled' : ''}${menuOpen ? ' menu-open' : ''}`}>
         <div className="nav-container">
           <Link to={prefix || '/'} className="logo" aria-label="AutoFlow Studio Home">
-            <img src="/images/logo.webp" alt="AutoFlow Studio" width="36" height="36" style={{ height: '36px', width: 'auto', display: 'block' }} />
+            <img src={logoSrc} alt="AutoFlow Studio" width="36" height="36" style={{ height: '36px', width: 'auto', display: 'block', borderRadius: isSolutionsPage ? '50%' : '0' }} />
           </Link>
 
           {/* Desktop Nav Links */}

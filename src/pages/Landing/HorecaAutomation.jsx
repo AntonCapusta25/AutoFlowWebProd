@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import '../../styles/landing-b2b.css'
+import Navbar from '../../components/Navbar'
+import PartnersStrip from '../../components/PartnersStrip'
 
 const TRANSLATIONS = {
   en: {
@@ -59,15 +61,22 @@ const TRANSLATIONS = {
       }
     },
     roi: {
-      title: "Calculate Your Annual Seat Leak",
-      subtitle: "Adjust the sliders below to see how much capital your business is wasting on no-shows and third-party fees every single year.",
-      employees: "Average Covers/Week",
-      hours: "Average No-Show Rate (%)",
-      labor: "Average Bill Per Cover (Euro)",
-      wastedCost: "Annual Cost of Lost Seating",
-      savingTitle: "Expected Savings With AutoFlow",
-      savingSub: "By implementing custom booking alerts and automated text confirmations, you typically recapture 85% of this lost capital.",
-      cta: "Recapture This Waste Now"
+      eyebrow: "Savings Calculator",
+      heading: "See how much you",
+      headingHighlight: "could save",
+      subtitle: "Configure your restaurant setup to see how much revenue lost to no-shows, manual reservations, and phone bookings you can recover.",
+      configureTitle: "Configure your setup",
+      serviceType: "Establishment Type",
+      employees: "Average Weekly Covers",
+      hours: "No-Show / Cancellation Rate (%)",
+      savingTitle: "You could save",
+      savingSub: "per year · 85% recaptured no-show losses",
+      perMonth: "Per month saving",
+      overFive: "Over 5 years",
+      breakdown: "Annual cost breakdown",
+      manualCost: "Lost to manual bookings / no-shows",
+      autoCost: "AutoFlow Automation",
+      infoNote: "💡 Based on average Benelux hospitality no-show rates and table spends vs. AutoFlow's smart confirmations. Actual savings may vary."
     },
     steps: {
       title: "The Path to Automated Operations",
@@ -150,15 +159,22 @@ const TRANSLATIONS = {
       }
     },
     roi: {
-      title: "Bereken je Jaarlijkse Stoel Lek",
-      subtitle: "Verschuif de regelaars hieronder om te zien hoeveel omzet er jaarlijks verloren gaat aan no-shows en commissies.",
+      eyebrow: "Besparingscalculator",
+      heading: "Zie hoeveel je kunt",
+      headingHighlight: "besparen",
+      subtitle: "Configureer je horecazaak om te zien hoeveel omzetverlies door no-shows en handmatige boekingen je kunt voorkomen.",
+      configureTitle: "Configureer je zaak",
+      serviceType: "Type Horecagelegenheid",
       employees: "Gemiddeld Aantal Gasten/Week",
-      hours: "Gemiddeld No-Show Percentage (%)",
-      labor: "Gemiddelde Besteding Per Gast",
-      wastedCost: "Jaarlijkse Kosten Lege Stoelen",
-      savingTitle: "Verwachte Besparing Met AutoFlow",
-      savingSub: "Door het invoeren van automatische sms-bevestigingen en herinneringen win je doorgaans 85% van dit verloren kapitaal terug.",
-      cta: "Win Deze Verspilling Nu Terug"
+      hours: "No-Show Percentage (%)",
+      savingTitle: "Je zou kunnen besparen",
+      savingSub: "per jaar · 85% minder no-show verlies",
+      perMonth: "Besparing per maand",
+      overFive: "Over 5 jaar",
+      breakdown: "Jaarlijkse kostenverdeling",
+      manualCost: "Verlies door no-shows & administratie",
+      autoCost: "AutoFlow Horeca",
+      infoNote: "💡 Gebaseerd op gemiddelde Benelux horeca no-show percentages en gastbestedingen vs. AutoFlow's slimme bevestigingen. Werkelijke besparingen kunnen variëren."
     },
     steps: {
       title: "De Route Naar Geautomatiseerde Groei",
@@ -192,25 +208,53 @@ export default function HorecaAutomation({ lang }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.en
 
   // ROI Calculator States
+  const [establishmentType, setEstablishmentType] = useState('fine')
   const [covers, setCovers] = useState(400)
-  const [noShowRate, setNoShowRate] = useState(10)
-  const [avgBill, setAvgBill] = useState(45)
+  const [noShowRate, setNoShowRate] = useState(8)
+  const [avgBill, setAvgBill] = useState(85)
 
   const [wastedCost, setWastedCost] = useState(0)
   const [savings, setSavings] = useState(0)
 
+  const handleEstablishmentTypeChange = (type) => {
+    setEstablishmentType(type)
+    if (type === 'fine') {
+      setCovers(400)
+      setNoShowRate(8)
+      setAvgBill(85)
+    } else if (type === 'bistro') {
+      setCovers(600)
+      setNoShowRate(6)
+      setAvgBill(45)
+    } else if (type === 'hotel') {
+      setCovers(200)
+      setNoShowRate(4)
+      setAvgBill(120)
+    } else if (type === 'events') {
+      setCovers(100)
+      setNoShowRate(3)
+      setAvgBill(150)
+    }
+  }
+
   useEffect(() => {
-    // covers * weeks(52) * noShowRate% * avgBill
     const annualWasted = covers * 52 * (noShowRate / 100) * avgBill
     setWastedCost(annualWasted)
     setSavings(Math.round(annualWasted * 0.85))
   }, [covers, noShowRate, avgBill])
+
+  const coversPercent = ((covers - 50) / (2000 - 50)) * 100
+  const noShowPercent = ((noShowRate - 2) / (20 - 2)) * 100
 
   useEffect(() => {
     document.title = t.meta.title
     const metaDesc = document.querySelector('meta[name="description"]')
     if (metaDesc) {
       metaDesc.setAttribute('content', t.meta.desc)
+    }
+    const favicon = document.querySelector('link[rel="icon"]')
+    if (favicon) {
+      favicon.setAttribute('href', '/images/logo_red.png')
     }
   }, [lang])
 
@@ -232,32 +276,12 @@ export default function HorecaAutomation({ lang }) {
 
   return (
     <div className="b2b-landing red-landing">
-      {/* Standalone Glass Navigation */}
-      <nav className="b2b-nav">
-        <Link to={lang === 'nl' ? '/nl' : '/'} className="b2b-nav-logo">
-          <img src="/images/logo.png" alt="AutoFlow Studio Logo" />
-        </Link>
-        <ul className="b2b-nav-links">
-          <li><a href="#solutions">{t.nav.solutions}</a></li>
-          <li><a href="#problem">{t.nav.painPoints}</a></li>
-          <li><a href="#roi">{t.nav.roi}</a></li>
-          <li><button onClick={openBooking} className="b2b-nav-cta">{t.nav.contact}</button></li>
-          <li>
-            <button 
-              onClick={() => switchLang(lang === 'en' ? 'nl' : 'en')}
-              className="b2b-lang-switch"
-            >
-              {lang === 'en' ? 'NL' : 'EN'}
-            </button>
-          </li>
-        </ul>
-      </nav>
+      <Navbar />
 
       {/* Hero Section */}
       <section className="b2b-section" style={{ paddingTop: '180px', paddingBottom: '100px' }}>
         <div className="b2b-container">
           <div style={{ textAlign: 'center', maxWidth: '850px', margin: '0 auto' }}>
-            <span className="b2b-tag">{t.hero.eyebrow}</span>
             <h1 style={{ fontSize: '3.4rem', lineHeight: '1.15', marginBottom: '24px', letterSpacing: '-0.03em', fontFamily: "'Space Grotesk', sans-serif" }}>
               {t.hero.heading}
               <span style={{ color: 'var(--b2b-primary)', fontStyle: 'italic', display: 'block' }}>{t.hero.headingHighlight}</span>
@@ -273,11 +297,13 @@ export default function HorecaAutomation({ lang }) {
         </div>
       </section>
 
+      {/* Partners & APIs Strip */}
+      <PartnersStrip lang={lang} darkBg={false} />
+
       {/* Interactive CRM Demo */}
       <section className="b2b-section alt-bg" id="solutions" style={{ padding: '80px 0' }}>
         <div className="b2b-container">
           <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-            <span className="b2b-tag">Live Interface Demo</span>
             <h2 style={{ fontSize: '2rem', marginBottom: '16px' }}>See Your Booking Engine In Action</h2>
             <p style={{ color: 'var(--b2b-text-muted)', maxWidth: '650px', margin: '0 auto' }}>
               We build custom guest planners and POS status checkers. Toggle tabs below to preview the interface.
@@ -292,7 +318,6 @@ export default function HorecaAutomation({ lang }) {
       <section className="b2b-section" id="problem">
         <div className="b2b-container">
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <span className="b2b-tag" style={{ background: '#fef2f2', border: '1px solid #fecdd3', color: '#dc2626' }}>The Friction</span>
             <h2 style={{ fontSize: '2.5rem', marginBottom: '16px' }}>{t.pains.title}</h2>
             <p style={{ color: 'var(--b2b-text-muted)', maxWidth: '750px', margin: '0 auto' }}>
               {t.pains.subtitle}
@@ -323,7 +348,6 @@ export default function HorecaAutomation({ lang }) {
       <section className="b2b-section alt-bg">
         <div className="b2b-container">
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <span className="b2b-tag">The Architecture</span>
             <h2 style={{ fontSize: '2.5rem', marginBottom: '16px' }}>{t.solutions.title}</h2>
             <p style={{ color: 'var(--b2b-text-muted)', maxWidth: '700px', margin: '0 auto' }}>
               {t.solutions.subtitle}
@@ -353,56 +377,152 @@ export default function HorecaAutomation({ lang }) {
 
       {/* Interactive ROI Calculator */}
       <section className="b2b-section" id="roi">
-        <div className="b2b-container">
-          <div className="b2b-roi-box">
-            <div className="b2b-roi-inputs">
-              <span className="b2b-tag" style={{ background: '#fef2f2', border: '1px solid #fecdd3', color: '#dc2626' }}>Calculations</span>
-              <h2 style={{ fontSize: '2rem', marginBottom: '16px', color: '#0f172a' }}>{t.roi.title}</h2>
-              <p style={{ color: 'var(--b2b-text-muted)', fontSize: '0.95rem', marginBottom: '32px' }}>
-                {t.roi.subtitle}
-              </p>
+        <div className="calc-container">
+          <div className="calc-header">
+            <h2 className="calc-title">{t.roi.heading}<br /><span>{t.roi.headingHighlight}</span></h2>
+          </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#334155', fontWeight: 600, fontSize: '0.9rem', marginBottom: '8px' }}>
-                    <span>{t.roi.employees}</span>
-                    <span>{covers} Covers</span>
-                  </div>
-                  <input type="range" min="50" max="2000" step="50" value={covers} onChange={e => setCovers(parseInt(e.target.value))} style={{ width: '100%' }} />
-                </div>
+          <div className="calc-grid">
+            {/* Left Column: Configuration */}
+            <div className="calc-card">
+              <h3 className="calc-card-title">{t.roi.configureTitle}</h3>
 
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#334155', fontWeight: 600, fontSize: '0.9rem', marginBottom: '8px' }}>
-                    <span>{t.roi.hours}</span>
-                    <span>{noShowRate}%</span>
-                  </div>
-                  <input type="range" min="1" max="40" value={noShowRate} onChange={e => setNoShowRate(parseInt(e.target.value))} style={{ width: '100%' }} />
+              <div className="calc-field-group">
+                <label className="calc-field-label">{t.roi.serviceType}</label>
+                <div className="calc-btn-grid">
+                  <button 
+                    onClick={() => handleEstablishmentTypeChange('fine')} 
+                    className={`calc-select-btn ${establishmentType === 'fine' ? 'active' : ''}`}
+                  >
+                    Fine Dining
+                  </button>
+                  <button 
+                    onClick={() => handleEstablishmentTypeChange('bistro')} 
+                    className={`calc-select-btn ${establishmentType === 'bistro' ? 'active' : ''}`}
+                  >
+                    Casual Bistro
+                  </button>
+                  <button 
+                    onClick={() => handleEstablishmentTypeChange('hotel')} 
+                    className={`calc-select-btn ${establishmentType === 'hotel' ? 'active' : ''}`}
+                  >
+                    Boutique Hotel
+                  </button>
+                  <button 
+                    onClick={() => handleEstablishmentTypeChange('events')} 
+                    className={`calc-select-btn ${establishmentType === 'events' ? 'active' : ''}`}
+                  >
+                    Event Venue
+                  </button>
                 </div>
+              </div>
 
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#334155', fontWeight: 600, fontSize: '0.9rem', marginBottom: '8px' }}>
-                    <span>{t.roi.labor}</span>
-                    <span>€{avgBill}/cover</span>
-                  </div>
-                  <input type="range" min="10" max="150" value={avgBill} onChange={e => setAvgBill(parseInt(e.target.value))} style={{ width: '100%' }} />
+              <div className="calc-field-group">
+                <div className="calc-slider-header">
+                  <label>{t.roi.employees}</label>
+                  <span className="value">{covers}</span>
                 </div>
+                <input 
+                  type="range" 
+                  min="50" 
+                  max="2000" 
+                  step="50"
+                  value={covers} 
+                  onChange={e => setCovers(parseInt(e.target.value))} 
+                  className="calc-slider"
+                  style={{
+                    background: `linear-gradient(to right, var(--b2b-primary) 0%, var(--b2b-primary) ${coversPercent}%, #cbd5e1 ${coversPercent}%, #cbd5e1 100%)`
+                  }}
+                />
+                <div className="calc-slider-footer">
+                  <span>50 guests</span>
+                  <span>2000 guests</span>
+                </div>
+              </div>
+
+              <div className="calc-field-group">
+                <div className="calc-slider-header">
+                  <label>{t.roi.hours}</label>
+                  <span className="value">{noShowRate}%</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="2" 
+                  max="20" 
+                  step="1"
+                  value={noShowRate} 
+                  onChange={e => setNoShowRate(parseInt(e.target.value))} 
+                  className="calc-slider"
+                  style={{
+                    background: `linear-gradient(to right, var(--b2b-primary) 0%, var(--b2b-primary) ${noShowPercent}%, #cbd5e1 ${noShowPercent}%, #cbd5e1 100%)`
+                  }}
+                />
+                <div className="calc-slider-footer">
+                  <span>2%</span>
+                  <span>20%</span>
+                </div>
+              </div>
+
+              <div className="calc-info-note">
+                <p>{t.roi.infoNote}</p>
               </div>
             </div>
 
-            <div className="b2b-roi-outputs">
-              <span className="label" style={{ color: '#cbd5e1', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.roi.wastedCost}</span>
-              <div className="value w-cost" style={{ fontSize: '3rem', fontWeight: 800, margin: '8px 0 24px', color: '#fca5a5' }}>
-                €{wastedCost.toLocaleString()}
+            {/* Right Column: Savings & Breakdown */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* Summary Card */}
+              <div className="calc-summary-card">
+                <p className="label">{t.roi.savingTitle}</p>
+                <div className="calc-summary-value">€{savings.toLocaleString()}</div>
+                <p className="calc-summary-sub">{t.roi.savingSub}</p>
+                <div className="calc-divider"></div>
+                <div className="calc-submetrics">
+                  <div>
+                    <p className="calc-submetric-label">{t.roi.perMonth}</p>
+                    <p className="calc-submetric-value">€{Math.round(savings / 12).toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="calc-submetric-label">{t.roi.overFive}</p>
+                    <p className="calc-submetric-value">€{(savings * 5).toLocaleString()}</p>
+                  </div>
+                </div>
               </div>
 
-              <span className="label" style={{ color: '#34d399', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>{t.roi.savingTitle}</span>
-              <div className="value s-cost" style={{ fontSize: '3.6rem', fontWeight: 800, margin: '8px 0 16px', color: '#34d399' }}>
-                €{savings.toLocaleString()}
+              {/* Breakdown Card */}
+              <div className="calc-breakdown-card">
+                <h4 className="calc-breakdown-title">{t.roi.breakdown}</h4>
+                <div className="calc-progress-group">
+                  <div className="calc-progress-header">
+                    <span className="calc-progress-label">{t.roi.manualCost}</span>
+                    <span className="calc-progress-value">€{wastedCost.toLocaleString()}</span>
+                  </div>
+                  <div className="calc-progress-bar-bg">
+                    <div className="calc-progress-bar" style={{ width: '100%' }}></div>
+                  </div>
+                </div>
+
+                <div className="calc-progress-group">
+                  <div className="calc-progress-header">
+                    <span className="calc-progress-label">{t.roi.autoCost}</span>
+                    <span className="calc-progress-value highlight">€{Math.round(wastedCost - savings).toLocaleString()}</span>
+                  </div>
+                  <div className="calc-progress-bar-bg">
+                    <div 
+                      className="calc-progress-bar highlight" 
+                      style={{ 
+                        width: `${Math.round(((wastedCost - savings) / wastedCost) * 100)}%`,
+                        transition: 'width 0.15s ease-out'
+                      }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="calc-btn-container">
+                  <button onClick={openBooking} className="calc-cta-btn">
+                    {t.cta.button}
+                  </button>
+                </div>
               </div>
-              <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: '1.5', marginBottom: '32px' }}>
-                {t.roi.savingSub}
-              </p>
-              <button onClick={openBooking} className="b2b-roi-cta">{t.roi.cta}</button>
             </div>
           </div>
         </div>
@@ -412,7 +532,6 @@ export default function HorecaAutomation({ lang }) {
       <section className="b2b-section alt-bg">
         <div className="b2b-container">
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <span className="b2b-tag">The Deployment</span>
             <h2 style={{ fontSize: '2.5rem', marginBottom: '16px' }}>{t.steps.title}</h2>
           </div>
 
@@ -444,7 +563,6 @@ export default function HorecaAutomation({ lang }) {
       {/* Final Call to Action */}
       <section className="b2b-section" style={{ padding: '140px 0', background: 'radial-gradient(circle at center, #1e1b4b, #030712)' }}>
         <div className="b2b-container" style={{ textAlign: 'center', maxWidth: '800px' }}>
-          <span className="b2b-tag" style={{ background: '#e11d48', color: 'white', border: 'none' }}>Get Autopilot</span>
           <h2 style={{ fontSize: '2.8rem', color: 'white', marginBottom: '24px', letterSpacing: '-0.02em' }}>{t.cta.title}</h2>
           <p style={{ color: '#94A3B8', fontSize: '1.1rem', marginBottom: '40px', lineHeight: '1.6' }}>
             {t.cta.desc}

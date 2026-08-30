@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import '../../styles/landing-b2b.css'
+import Navbar from '../../components/Navbar'
+import PartnersStrip from '../../components/PartnersStrip'
 
 const TRANSLATIONS = {
   en: {
@@ -59,15 +61,22 @@ const TRANSLATIONS = {
       }
     },
     roi: {
-      title: "Calculate Your Annual Reporting Leak",
-      subtitle: "Adjust the sliders below to see how much capital your agency is wasting on manual reporting and client updates every single year.",
-      employees: "Number of Clients",
-      hours: "Hours Spent/Client/Month (Reporting & Admin)",
-      labor: "Average Manager Hourly Cost (Internal)",
-      wastedCost: "Annual Cost of Manual Overhead",
-      savingTitle: "Expected Savings With AutoFlow",
-      savingSub: "By automating ad reporting dashboards, onboarding forms, and invoice compilations, you typically recapture 85% of this lost capital.",
-      cta: "Recapture This Waste Now"
+      eyebrow: "Savings Calculator",
+      heading: "See how much you",
+      headingHighlight: "could save",
+      subtitle: "Configure your agency parameters to see how much client communication, onboarding, and reporting hours you can automate.",
+      configureTitle: "Configure your agency",
+      serviceType: "Agency Type",
+      employees: "Active Client Accounts",
+      hours: "Reporting hours / client / month",
+      savingTitle: "You could save",
+      savingSub: "per year · 85% less administrative churn",
+      perMonth: "Per month saving",
+      overFive: "Over 5 years",
+      breakdown: "Annual cost breakdown",
+      manualCost: "Lost to reporting / onboarding overhead",
+      autoCost: "AutoFlow Automation",
+      infoNote: "💡 Based on average Benelux digital agency metrics and account management rates vs. AutoFlow client portal automation. Actual savings may vary."
     },
     steps: {
       title: "The Path to Automated Operations",
@@ -150,15 +159,22 @@ const TRANSLATIONS = {
       }
     },
     roi: {
-      title: "Bereken je Jaarlijkse Rapportage Lek",
-      subtitle: "Verschuif de regelaars hieronder om te zien hoeveel uren en budget er jaarlijks verloren gaan aan handmatige rapportages en administratie.",
-      employees: "Aantal Actieve Klanten",
-      hours: "Uren Besteed/Klant/Maand (Rapportage & Admin)",
-      labor: "Gemiddeld Intern Uurtarief Bureau",
-      wastedCost: "Jaarlijkse Kosten handmatige Overhead",
-      savingTitle: "Verwachte Besparing Met AutoFlow",
-      savingSub: "Door het automatiseren van dashboard rapportages, onboarding formulieren en urenkoppelingen bespaar je doorgaans 85% van dit verloren kapitaal.",
-      cta: "Win Deze Verspilling Nu Terug"
+      eyebrow: "Besparingscalculator",
+      heading: "Zie hoeveel je kunt",
+      headingHighlight: "besparen",
+      subtitle: "Configureer je agency om te zien hoeveel uren aan rapportages, klantcommunicatie en onboarding je kunt automatiseren.",
+      configureTitle: "Configureer je bureau",
+      serviceType: "Type Bureau",
+      employees: "Actieve Klantaccounts",
+      hours: "Rapportage-uren / klant / maand",
+      savingTitle: "Je zou kunnen besparen",
+      savingSub: "per jaar · 85% minder administratieve uren",
+      perMonth: "Besparing per maand",
+      overFive: "Over 5 jaar",
+      breakdown: "Jaarlijkse kostenverdeling",
+      manualCost: "Handmatige rapportage overhead",
+      autoCost: "AutoFlow Agency",
+      infoNote: "💡 Gebaseerd op gemiddelde Benelux agency tarieven en accountmanagement uren vs. AutoFlow's automatische client portals. Werkelijke besparingen kunnen variëren."
     },
     steps: {
       title: "De Route Naar Geautomatiseerde Groei",
@@ -192,25 +208,53 @@ export default function MarketingAutomation({ lang }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.en
 
   // ROI Calculator States
+  const [agencyType, setAgencyType] = useState('full')
   const [clients, setClients] = useState(15)
   const [hours, setHours] = useState(8)
-  const [labor, setLabor] = useState(50)
+  const [labor, setLabor] = useState(85)
 
   const [wastedCost, setWastedCost] = useState(0)
   const [savings, setSavings] = useState(0)
 
+  const handleAgencyTypeChange = (type) => {
+    setAgencyType(type)
+    if (type === 'full') {
+      setClients(15)
+      setHours(8)
+      setLabor(85)
+    } else if (type === 'performance') {
+      setClients(20)
+      setHours(10)
+      setLabor(75)
+    } else if (type === 'creative') {
+      setClients(10)
+      setHours(6)
+      setLabor(90)
+    } else if (type === 'seo') {
+      setClients(25)
+      setHours(6)
+      setLabor(65)
+    }
+  }
+
   useEffect(() => {
-    // clients * hours * 12 months * labor
     const annualWasted = clients * hours * 12 * labor
     setWastedCost(annualWasted)
     setSavings(Math.round(annualWasted * 0.85))
   }, [clients, hours, labor])
+
+  const clientsPercent = ((clients - 5) / (100 - 5)) * 100
+  const hoursPercent = ((hours - 2) / (20 - 2)) * 100
 
   useEffect(() => {
     document.title = t.meta.title
     const metaDesc = document.querySelector('meta[name="description"]')
     if (metaDesc) {
       metaDesc.setAttribute('content', t.meta.desc)
+    }
+    const favicon = document.querySelector('link[rel="icon"]')
+    if (favicon) {
+      favicon.setAttribute('href', '/images/logo_red.png')
     }
   }, [lang])
 
@@ -232,32 +276,12 @@ export default function MarketingAutomation({ lang }) {
 
   return (
     <div className="b2b-landing red-landing">
-      {/* Standalone Glass Navigation */}
-      <nav className="b2b-nav">
-        <Link to={lang === 'nl' ? '/nl' : '/'} className="b2b-nav-logo">
-          <img src="/images/logo.png" alt="AutoFlow Studio Logo" />
-        </Link>
-        <ul className="b2b-nav-links">
-          <li><a href="#solutions">{t.nav.solutions}</a></li>
-          <li><a href="#problem">{t.nav.painPoints}</a></li>
-          <li><a href="#roi">{t.nav.roi}</a></li>
-          <li><button onClick={openBooking} className="b2b-nav-cta">{t.nav.contact}</button></li>
-          <li>
-            <button 
-              onClick={() => switchLang(lang === 'en' ? 'nl' : 'en')}
-              className="b2b-lang-switch"
-            >
-              {lang === 'en' ? 'NL' : 'EN'}
-            </button>
-          </li>
-        </ul>
-      </nav>
+      <Navbar />
 
       {/* Hero Section */}
       <section className="b2b-section" style={{ paddingTop: '180px', paddingBottom: '100px' }}>
         <div className="b2b-container">
           <div style={{ textAlign: 'center', maxWidth: '850px', margin: '0 auto' }}>
-            <span className="b2b-tag">{t.hero.eyebrow}</span>
             <h1 style={{ fontSize: '3.4rem', lineHeight: '1.15', marginBottom: '24px', letterSpacing: '-0.03em', fontFamily: "'Space Grotesk', sans-serif" }}>
               {t.hero.heading}
               <span style={{ color: 'var(--b2b-primary)', fontStyle: 'italic', display: 'block' }}>{t.hero.headingHighlight}</span>
@@ -273,11 +297,13 @@ export default function MarketingAutomation({ lang }) {
         </div>
       </section>
 
+      {/* Partners & APIs Strip */}
+      <PartnersStrip lang={lang} darkBg={false} />
+
       {/* Interactive CRM Demo */}
       <section className="b2b-section alt-bg" id="solutions" style={{ padding: '80px 0' }}>
         <div className="b2b-container">
           <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-            <span className="b2b-tag">Live Interface Demo</span>
             <h2 style={{ fontSize: '2rem', marginBottom: '16px' }}>See Your Custom Reporting Portal In Action</h2>
             <p style={{ color: 'var(--b2b-text-muted)', maxWidth: '650px', margin: '0 auto' }}>
               We build custom reporting boards and onboarding trackers. Toggle tabs below to preview the interface.
@@ -292,7 +318,6 @@ export default function MarketingAutomation({ lang }) {
       <section className="b2b-section" id="problem">
         <div className="b2b-container">
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <span className="b2b-tag" style={{ background: '#fef2f2', border: '1px solid #fecdd3', color: '#dc2626' }}>The Friction</span>
             <h2 style={{ fontSize: '2.5rem', marginBottom: '16px' }}>{t.pains.title}</h2>
             <p style={{ color: 'var(--b2b-text-muted)', maxWidth: '750px', margin: '0 auto' }}>
               {t.pains.subtitle}
@@ -323,7 +348,6 @@ export default function MarketingAutomation({ lang }) {
       <section className="b2b-section alt-bg">
         <div className="b2b-container">
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <span className="b2b-tag">The Architecture</span>
             <h2 style={{ fontSize: '2.5rem', marginBottom: '16px' }}>{t.solutions.title}</h2>
             <p style={{ color: 'var(--b2b-text-muted)', maxWidth: '700px', margin: '0 auto' }}>
               {t.solutions.subtitle}
@@ -353,56 +377,152 @@ export default function MarketingAutomation({ lang }) {
 
       {/* Interactive ROI Calculator */}
       <section className="b2b-section" id="roi">
-        <div className="b2b-container">
-          <div className="b2b-roi-box">
-            <div className="b2b-roi-inputs">
-              <span className="b2b-tag" style={{ background: '#fef2f2', border: '1px solid #fecdd3', color: '#dc2626' }}>Calculations</span>
-              <h2 style={{ fontSize: '2rem', marginBottom: '16px', color: '#0f172a' }}>{t.roi.title}</h2>
-              <p style={{ color: 'var(--b2b-text-muted)', fontSize: '0.95rem', marginBottom: '32px' }}>
-                {t.roi.subtitle}
-              </p>
+        <div className="calc-container">
+          <div className="calc-header">
+            <h2 className="calc-title">{t.roi.heading}<br /><span>{t.roi.headingHighlight}</span></h2>
+          </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#334155', fontWeight: 600, fontSize: '0.9rem', marginBottom: '8px' }}>
-                    <span>{t.roi.employees}</span>
-                    <span>{clients} Accounts</span>
-                  </div>
-                  <input type="range" min="2" max="100" value={clients} onChange={e => setClients(parseInt(e.target.value))} style={{ width: '100%' }} />
-                </div>
+          <div className="calc-grid">
+            {/* Left Column: Configuration */}
+            <div className="calc-card">
+              <h3 className="calc-card-title">{t.roi.configureTitle}</h3>
 
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#334155', fontWeight: 600, fontSize: '0.9rem', marginBottom: '8px' }}>
-                    <span>{t.roi.hours}</span>
-                    <span>{hours}h/client</span>
-                  </div>
-                  <input type="range" min="1" max="25" value={hours} onChange={e => setHours(parseInt(e.target.value))} style={{ width: '100%' }} />
+              <div className="calc-field-group">
+                <label className="calc-field-label">{t.roi.serviceType}</label>
+                <div className="calc-btn-grid">
+                  <button 
+                    onClick={() => handleAgencyTypeChange('full')} 
+                    className={`calc-select-btn ${agencyType === 'full' ? 'active' : ''}`}
+                  >
+                    Full-Service Agency
+                  </button>
+                  <button 
+                    onClick={() => handleAgencyTypeChange('performance')} 
+                    className={`calc-select-btn ${agencyType === 'performance' ? 'active' : ''}`}
+                  >
+                    Performance Marketing
+                  </button>
+                  <button 
+                    onClick={() => handleAgencyTypeChange('creative')} 
+                    className={`calc-select-btn ${agencyType === 'creative' ? 'active' : ''}`}
+                  >
+                    Creative Studio
+                  </button>
+                  <button 
+                    onClick={() => handleAgencyTypeChange('seo')} 
+                    className={`calc-select-btn ${agencyType === 'seo' ? 'active' : ''}`}
+                  >
+                    SEO & Content
+                  </button>
                 </div>
+              </div>
 
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#334155', fontWeight: 600, fontSize: '0.9rem', marginBottom: '8px' }}>
-                    <span>{t.roi.labor}</span>
-                    <span>€{labor}/h</span>
-                  </div>
-                  <input type="range" min="20" max="150" value={labor} onChange={e => setLabor(parseInt(e.target.value))} style={{ width: '100%' }} />
+              <div className="calc-field-group">
+                <div className="calc-slider-header">
+                  <label>{t.roi.employees}</label>
+                  <span className="value">{clients}</span>
                 </div>
+                <input 
+                  type="range" 
+                  min="5" 
+                  max="100" 
+                  step="5"
+                  value={clients} 
+                  onChange={e => setClients(parseInt(e.target.value))} 
+                  className="calc-slider"
+                  style={{
+                    background: `linear-gradient(to right, var(--b2b-primary) 0%, var(--b2b-primary) ${clientsPercent}%, #cbd5e1 ${clientsPercent}%, #cbd5e1 100%)`
+                  }}
+                />
+                <div className="calc-slider-footer">
+                  <span>5 clients</span>
+                  <span>100 clients</span>
+                </div>
+              </div>
+
+              <div className="calc-field-group">
+                <div className="calc-slider-header">
+                  <label>{t.roi.hours}</label>
+                  <span className="value">{hours}h</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="2" 
+                  max="20" 
+                  step="1"
+                  value={hours} 
+                  onChange={e => setHours(parseInt(e.target.value))} 
+                  className="calc-slider"
+                  style={{
+                    background: `linear-gradient(to right, var(--b2b-primary) 0%, var(--b2b-primary) ${hoursPercent}%, #cbd5e1 ${hoursPercent}%, #cbd5e1 100%)`
+                  }}
+                />
+                <div className="calc-slider-footer">
+                  <span>2h</span>
+                  <span>20h / month</span>
+                </div>
+              </div>
+
+              <div className="calc-info-note">
+                <p>{t.roi.infoNote}</p>
               </div>
             </div>
 
-            <div className="b2b-roi-outputs">
-              <span className="label" style={{ color: '#cbd5e1', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.roi.wastedCost}</span>
-              <div className="value w-cost" style={{ fontSize: '3rem', fontWeight: 800, margin: '8px 0 24px', color: '#fca5a5' }}>
-                €{wastedCost.toLocaleString()}
+            {/* Right Column: Savings & Breakdown */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* Summary Card */}
+              <div className="calc-summary-card">
+                <p className="label">{t.roi.savingTitle}</p>
+                <div className="calc-summary-value">€{savings.toLocaleString()}</div>
+                <p className="calc-summary-sub">{t.roi.savingSub}</p>
+                <div className="calc-divider"></div>
+                <div className="calc-submetrics">
+                  <div>
+                    <p className="calc-submetric-label">{t.roi.perMonth}</p>
+                    <p className="calc-submetric-value">€{Math.round(savings / 12).toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="calc-submetric-label">{t.roi.overFive}</p>
+                    <p className="calc-submetric-value">€{(savings * 5).toLocaleString()}</p>
+                  </div>
+                </div>
               </div>
 
-              <span className="label" style={{ color: '#34d399', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>{t.roi.savingTitle}</span>
-              <div className="value s-cost" style={{ fontSize: '3.6rem', fontWeight: 800, margin: '8px 0 16px', color: '#34d399' }}>
-                €{savings.toLocaleString()}
+              {/* Breakdown Card */}
+              <div className="calc-breakdown-card">
+                <h4 className="calc-breakdown-title">{t.roi.breakdown}</h4>
+                <div className="calc-progress-group">
+                  <div className="calc-progress-header">
+                    <span className="calc-progress-label">{t.roi.manualCost}</span>
+                    <span className="calc-progress-value">€{wastedCost.toLocaleString()}</span>
+                  </div>
+                  <div className="calc-progress-bar-bg">
+                    <div className="calc-progress-bar" style={{ width: '100%' }}></div>
+                  </div>
+                </div>
+
+                <div className="calc-progress-group">
+                  <div className="calc-progress-header">
+                    <span className="calc-progress-label">{t.roi.autoCost}</span>
+                    <span className="calc-progress-value highlight">€{Math.round(wastedCost - savings).toLocaleString()}</span>
+                  </div>
+                  <div className="calc-progress-bar-bg">
+                    <div 
+                      className="calc-progress-bar highlight" 
+                      style={{ 
+                        width: `${Math.round(((wastedCost - savings) / wastedCost) * 100)}%`,
+                        transition: 'width 0.15s ease-out'
+                      }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="calc-btn-container">
+                  <button onClick={openBooking} className="calc-cta-btn">
+                    {t.cta.button}
+                  </button>
+                </div>
               </div>
-              <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: '1.5', marginBottom: '32px' }}>
-                {t.roi.savingSub}
-              </p>
-              <button onClick={openBooking} className="b2b-roi-cta">{t.roi.cta}</button>
             </div>
           </div>
         </div>
@@ -412,7 +532,6 @@ export default function MarketingAutomation({ lang }) {
       <section className="b2b-section alt-bg">
         <div className="b2b-container">
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <span className="b2b-tag">The Deployment</span>
             <h2 style={{ fontSize: '2.5rem', marginBottom: '16px' }}>{t.steps.title}</h2>
           </div>
 
@@ -444,7 +563,6 @@ export default function MarketingAutomation({ lang }) {
       {/* Final Call to Action */}
       <section className="b2b-section" style={{ padding: '140px 0', background: 'radial-gradient(circle at center, #1e1b4b, #030712)' }}>
         <div className="b2b-container" style={{ textAlign: 'center', maxWidth: '800px' }}>
-          <span className="b2b-tag" style={{ background: '#e11d48', color: 'white', border: 'none' }}>Get Autopilot</span>
           <h2 style={{ fontSize: '2.8rem', color: 'white', marginBottom: '24px', letterSpacing: '-0.02em' }}>{t.cta.title}</h2>
           <p style={{ color: '#94A3B8', fontSize: '1.1rem', marginBottom: '40px', lineHeight: '1.6' }}>
             {t.cta.desc}

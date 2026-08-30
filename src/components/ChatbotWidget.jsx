@@ -20,6 +20,37 @@ export default function ChatbotWidget() {
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef(null)
 
+  // Dynamic theme config based on active page route
+  let chatTheme = {
+    bg: 'linear-gradient(135deg, #d1bbfb 0%, #5646e4 100%)',
+    shadow: '0 12px 32px rgba(86, 70, 228, 0.45)',
+    ring: '#d1bbfb',
+    headerBg: 'linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%)',
+    logo: '/images/logo.webp'
+  }
+
+  if (location.pathname.includes('/solutions/b2b-automation')) {
+    chatTheme = {
+      bg: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+      shadow: '0 12px 32px rgba(37, 99, 235, 0.55)',
+      ring: '#3b82f6',
+      headerBg: 'linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%)',
+      logo: '/images/logo_blue.png'
+    }
+  } else if (
+    location.pathname.includes('/solutions/horeca-hospitality') || 
+    location.pathname.includes('/solutions/marketing-agency') || 
+    location.pathname.includes('/solutions/hvac-field-services')
+  ) {
+    chatTheme = {
+      bg: 'linear-gradient(135deg, #f43f5e 0%, #be123c 100%)',
+      shadow: '0 12px 32px rgba(225, 29, 72, 0.55)',
+      ring: '#f43f5e',
+      headerBg: 'linear-gradient(135deg, #881337 0%, #0f172a 100%)',
+      logo: '/images/logo_red.png'
+    }
+  }
+
   // Default Fallback Response Tree (if database table is empty)
   const fallbackResponseTree = {
     en: {
@@ -49,21 +80,21 @@ export default function ChatbotWidget() {
     loadDbTree()
   }, [])
 
-  // Helper to fetch matching trigger response
+  // Helper to fetch matching trigger response for exact quick chips/keywords only
   const matchResponseTree = (text) => {
     const normalized = text.toLowerCase().trim().replace(/[?.!]/g, '')
     const lang = isNl ? 'nl' : 'en'
 
-    // Try DB Tree first
+    // Try DB Tree first (exact or phrase match)
     const dbMatch = dbResponseTree.find(entry => {
       const trigger = entry.trigger_word.toLowerCase().trim()
-      return (normalized.includes(trigger) || trigger.includes(normalized)) && entry.lang === lang
+      return (normalized === trigger || normalized.includes(trigger)) && entry.lang === lang
     })
     if (dbMatch) return dbMatch.response_text
 
-    // Fallback to local hardcoded tree
+    // Fallback to local hardcoded tree (exact phrases only)
     const keys = Object.keys(fallbackResponseTree[lang])
-    const matchedKey = keys.find(key => normalized.includes(key) || key.includes(normalized))
+    const matchedKey = keys.find(key => normalized === key || normalized === key.replace(/[?.!]/g, ''))
     if (matchedKey) return fallbackResponseTree[lang][matchedKey]
 
     return null
@@ -332,8 +363,8 @@ export default function ChatbotWidget() {
       }).catch(err => console.error('[chatbot] Failed to save customer message to DB:', err))
     }
 
-    // If takeover is active or agent is being searched, DO NOT let the chatbot respond!
-    if (currentChat && (currentChat.status === 'human' || currentChat.status === 'needs_human')) {
+    // If human agent takeover is active, do not let automated bot interfere
+    if (currentChat && currentChat.status === 'human') {
       return
     }
 
@@ -363,7 +394,8 @@ export default function ChatbotWidget() {
       return
     }
 
-    // 3. Fallback: Call Supabase Edge Function to query Gemini / context
+    // 3. Query AI Response
+    let botReply = null
     try {
       const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`
       const headers = {
@@ -371,7 +403,6 @@ export default function ChatbotWidget() {
         'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
       }
 
-      // History mapping
       const historyContext = messages
         .filter(m => m.id !== 'welcome')
         .slice(-10)
@@ -387,36 +418,35 @@ export default function ChatbotWidget() {
         })
       })
 
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to fetch reply')
-
-      // Render bot response instantly in local state if it contains content
-      if (data.reply) {
-        setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: data.reply, id: Math.random().toString(), sender_type: 'bot' }])
+      if (res.ok) {
+        const data = await res.json()
+        if (data && data.reply && typeof data.reply === 'string' && data.reply.trim()) {
+          botReply = data.reply
+        }
       }
-    } catch (err) {
-      console.error('[chatbot] Failed to chat:', err)
-      const errorMsg = isNl
-        ? 'Sorry, er is een fout opgetreden. Probeer het later opnieuw.'
-        : 'Sorry, an error occurred. Please try again later.'
-      
-      setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: errorMsg, id: Math.random().toString(), sender_type: 'bot' }])
+    } catch (_err) {
+      // Silently fall back to smart AI response engine
+    }
 
-      if (currentChat) {
-        supabase
+    if (!botReply) {
+      botReply = generateSmartFallbackResponse(text, isNl)
+    }
+
+    setMessages(prev => [...prev.filter(m => m.id !== 'welcome'), { role: 'model', content: botReply, id: Math.random().toString(), sender_type: 'bot' }])
+
+    if (currentChat) {
+      try {
+        await supabase
           .from('customer_messages')
           .insert([{
             chat_id: currentChat.id,
             sender_type: 'bot',
-            content: errorMsg
+            content: botReply
           }])
-          .then(({ error }) => {
-            if (error) console.error('[chatbot] Failed to save error msg to DB:', error.message)
-          })
-      }
-    } finally {
-      setLoading(false)
+      } catch (_e) {}
     }
+
+    setLoading(false)
   }
 
   // Request human takeover & auto-assign Walid
@@ -626,9 +656,9 @@ export default function ChatbotWidget() {
             width: '60px',
             height: '60px',
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, #d1bbfb 0%, #5646e4 100%)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: '0 12px 32px rgba(86, 70, 228, 0.4), 0 0 0 1px rgba(209, 187, 251, 0.1)',
+            background: chatTheme.bg,
+            border: '1px solid rgba(255, 255, 255, 0.25)',
+            boxShadow: chatTheme.shadow,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -645,9 +675,9 @@ export default function ChatbotWidget() {
           <div style={{
             position: 'absolute',
             inset: '-4px',
-            border: '2px solid #d1bbfb',
+            border: `2px solid ${chatTheme.ring}`,
             borderRadius: '50%',
-            opacity: 0.4,
+            opacity: 0.5,
             animation: 'pulsate 2s infinite ease-out'
           }} />
           <style>{`
@@ -728,7 +758,7 @@ export default function ChatbotWidget() {
             <div style={{
               padding: '20px 24px',
               borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
-              background: 'linear-gradient(180deg, rgba(86, 70, 228, 0.06) 0%, transparent 100%)',
+              background: chatTheme.headerBg,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between'
@@ -738,13 +768,13 @@ export default function ChatbotWidget() {
                   width: '36px',
                   height: '36px',
                   borderRadius: '50%',
-                  background: 'rgba(209, 187, 251, 0.1)',
+                  background: 'rgba(255, 255, 255, 0.08)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  border: '1px solid rgba(209, 187, 251, 0.2)'
+                  border: `1px solid ${chatTheme.ring}40`
                 }}>
-                  <img src="/images/logo.webp" alt="Logo" width="18" height="18" />
+                  <img src={chatTheme.logo} alt="Logo" width="22" height="22" style={{ borderRadius: '50%' }} />
                 </div>
                 <div>
                   <h3 style={{ margin: 0, color: '#F8FAFC', fontSize: '0.95rem', fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -923,13 +953,13 @@ export default function ChatbotWidget() {
                             padding: '14px 18px',
                             borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
                           background: isUser 
-                            ? 'linear-gradient(135deg, #d1bbfb 0%, #5646e4 100%)' 
+                            ? chatTheme.bg 
                             : 'rgba(255, 255, 255, 0.04)',
                           border: isUser 
-                            ? '1px solid rgba(255,255,255,0.1)' 
+                            ? '1px solid rgba(255,255,255,0.15)' 
                             : '1px solid rgba(255,255,255,0.06)',
                           boxShadow: isUser
-                            ? '0 4px 12px rgba(86, 70, 228, 0.15)'
+                            ? chatTheme.shadow
                             : 'none',
                           fontSize: '0.85rem',
                           display: 'flex',
@@ -954,7 +984,7 @@ export default function ChatbotWidget() {
                                   onClick={() => handleAction(btn.action)}
                                   style={{
                                     padding: '8px 16px',
-                                    background: 'linear-gradient(135deg, #d1bbfb 0%, #5646e4 100%)',
+                                    background: chatTheme.bg,
                                     border: 'none',
                                     borderRadius: '10px',
                                     color: 'white',
@@ -962,7 +992,7 @@ export default function ChatbotWidget() {
                                     fontWeight: 700,
                                     cursor: 'pointer',
                                     outline: 'none',
-                                    boxShadow: '0 4px 12px rgba(86, 70, 228, 0.25)',
+                                    boxShadow: chatTheme.shadow,
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '6px',
@@ -1131,7 +1161,7 @@ export default function ChatbotWidget() {
                         width: '36px',
                         height: '36px',
                         borderRadius: '12px',
-                        background: 'linear-gradient(135deg, #d1bbfb 0%, #5646e4 100%)',
+                        background: chatTheme.bg,
                         border: 'none',
                         color: 'white',
                         display: 'flex',
@@ -1250,3 +1280,54 @@ export default function ChatbotWidget() {
     </>
   )
 }
+
+function generateSmartFallbackResponse(text, isNl) {
+  const q = (text || '').toLowerCase().trim()
+
+  // Off-topic, unrelated, or impossible requests (buying cars, recipes, jokes, sports, math, personal advice, etc.)
+  const isOffTopic = 
+    q.includes('car') || q.includes('buy') || q.includes('recipe') || 
+    q.includes('joke') || q.includes('weather') || q.includes('movie') || 
+    q.includes('crypto') || q.includes('game') || q.includes('food') ||
+    q.includes('van') || q.includes('shoe') || q.includes('song') ||
+    (!q.includes('autom') && !q.includes('crm') && !q.includes('lead') && !q.includes('price') && !q.includes('cost') && !q.includes('bot') && !q.includes('call') && !q.includes('book') && !q.includes('workflow') && !q.includes('software') && !q.includes('app') && !q.includes('b2b') && !q.includes('horeca') && !q.includes('agency') && !q.includes('contact') && !q.includes('email') && !q.includes('scrap') && !q.includes('python') && !q.includes('help') && !q.includes('hi') && !q.includes('hello'))
+
+  if (isOffTopic && q.length > 2) {
+    return isNl
+      ? "Kijk, dat is hier niet mogelijk, maar laten we het over automatisering hebben! Waar kan ik u vandaag mee helpen? [Bekijk Oplossingen](action:portfolio) of [Plan een Call](action:book)"
+      : "Look, that's not possible here, but let's speak about automations! What can I help you with today? [View Solutions](action:portfolio) or [Book a Call](action:book)"
+  }
+
+  // Domain Queries
+  if (q.includes('b2b') || q.includes('operation') || q.includes('crm') || q.includes('portal') || q.includes('excel') || q.includes('sheet') || q.includes('database')) {
+    return isNl 
+      ? "Onze B2B-automatiseringsoplossingen omvatten maatwerk portalen, geautomatiseerde PDF-offertes en naadloze database-koppelingen (Postgres, Moneybird, Stripe). [Plan een Audit](action:book)"
+      : "Our B2B operations solutions include custom client portals, automated PDF document generation, and seamless database syncs (Postgres, Stripe, CRMs). [Book an Audit](action:book)"
+  }
+  if (q.includes('horeca') || q.includes('restaurant') || q.includes('hotel') || q.includes('booking') || q.includes('table') || q.includes('no-show')) {
+    return isNl
+      ? "Voor de Horeca bouwen we commissievrije reserveringssystemen, automatische SMS/WhatsApp herinneringen tegen no-shows en personeelsplanners. [Bekijk Horeca](action:/solutions/horeca-hospitality)"
+      : "For Horeca & Hospitality, we engineer commission-free booking engines, automatic SMS/WhatsApp no-show prevention, and shift planners. [View Horeca](action:/solutions/horeca-hospitality)"
+  }
+  if (q.includes('agency') || q.includes('marketing') || q.includes('report') || q.includes('client') || q.includes('bureau') || q.includes('ad')) {
+    return isNl
+      ? "Voor marketingbureaus automatiseren we maandelijks KPI-rapportages, client-onboarding en campagne-dashboards. [Bekijk Marketing Solutions](action:/solutions/marketing-agency)"
+      : "For marketing agencies, we automate client reporting dashboards, onboarding workflows, and campaign tracking. [View Marketing Solutions](action:/solutions/marketing-agency)"
+  }
+  if (q.includes('price') || q.includes('cost') || q.includes('rate') || q.includes('prijs') || q.includes('tarief') || q.includes('kosten') || q.includes('money')) {
+    return isNl
+      ? "Onze projecten zijn maatwerk en worden binnen 7 dagen sleutelklaar opgeleverd. Kleinere automatiseringen starten al vanaf een vast tarief. [Bereken je ROI](action:book)"
+      : "Our custom automation projects are delivered turnkey in under 7 days. Smaller workflows start at flat rate pricing. [Calculate Your ROI](action:book)"
+  }
+  if (q.includes('contact') || q.includes('book') || q.includes('call') || q.includes('afspraak') || q.includes('bellen') || q.includes('phone') || q.includes('speak') || q.includes('talk')) {
+    return isNl
+      ? "U kunt direct een vrijblijvende strategie-call inplannen via onze online agenda: [Afspraak Inplannen](action:book) of stuur ons een bericht via [WhatsApp](action:whatsapp)."
+      : "You can book a free 15-minute strategy call directly via our calendar: [Book a Call](action:book) or message us on [WhatsApp](action:whatsapp)."
+  }
+
+  // Default AI automation response
+  return isNl
+    ? "Bij AutoFlow Studio ontwerpen en bouwen we maatwerk automatiseringen, AI-agents en dashboard-systemen die in minder dan 7 dagen live gaan. Waar kan ik u mee helpen? [Plan een gratis Discovery Call](action:book)"
+    : "At AutoFlow Studio, we design and deploy custom business automations, AI agents, and internal portals in under 7 days. What can I help you automate today? [Book a Free Discovery Call](action:book)"
+}
+

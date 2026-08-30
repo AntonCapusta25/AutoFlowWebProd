@@ -20,7 +20,6 @@ const ProjectDetail = lazy(() => import('./pages/ProjectDetail'))
 
 // ── Landing / Targeted Solutions pages (lazy) ──────────────────────────────
 const B2BAutomation = lazy(() => import('./pages/Landing/B2BAutomation'))
-const HVACAutomation = lazy(() => import('./pages/Landing/HVACAutomation'))
 const HorecaAutomation = lazy(() => import('./pages/Landing/HorecaAutomation'))
 const MarketingAutomation = lazy(() => import('./pages/Landing/MarketingAutomation'))
 
@@ -93,8 +92,8 @@ function AppContent() {
           {/* ── Landing / Targeted Solutions routes ── */}
           <Route path="/solutions/b2b-automation" element={<B2BAutomation lang="en" />} />
           <Route path="/nl/solutions/b2b-automation" element={<B2BAutomation lang="nl" />} />
-          <Route path="/solutions/hvac-field-services" element={<HVACAutomation lang="en" />} />
-          <Route path="/nl/solutions/hvac-field-services" element={<HVACAutomation lang="nl" />} />
+          <Route path="/solutions/hvac-field-services" element={<Navigate to="/solutions/b2b-automation" replace />} />
+          <Route path="/nl/solutions/hvac-field-services" element={<Navigate to="/nl/solutions/b2b-automation" replace />} />
           <Route path="/solutions/horeca-hospitality" element={<HorecaAutomation lang="en" />} />
           <Route path="/nl/solutions/horeca-hospitality" element={<HorecaAutomation lang="nl" />} />
           <Route path="/solutions/marketing-agency" element={<MarketingAutomation lang="en" />} />

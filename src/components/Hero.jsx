@@ -367,9 +367,10 @@ export default function Hero({ lang = 'en' }) {
         </div>
 
         {/* Bottom Section: Typewriter on Desk */}
-        <div style={{ paddingBottom: '40px', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ paddingTop: '48px', paddingBottom: '40px', display: 'flex', justifyContent: 'center' }}>
           {/* Typewriter Input Box */}
           <div className="hero-search-box" style={{
+            marginTop: '32px',
             background: 'rgba(20,22,28,0.7)',
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '12px',

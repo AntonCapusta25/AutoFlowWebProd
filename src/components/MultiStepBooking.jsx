@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase, sendEmailNotification } from '../lib/supabase'
 
@@ -61,6 +62,36 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const location = useLocation()
+  const path = location.pathname
+
+  // Determine accent theme color based on current landing page route
+  let themeConfig = {
+    primary: '#d1bbfb',
+    gradient: 'linear-gradient(135deg, #d1bbfb, #5646e4)',
+    shadow: '0 10px 25px rgba(209, 187, 251, 0.4)',
+    focusBorder: '#d1bbfb'
+  }
+
+  if (path.includes('/solutions/b2b-automation')) {
+    themeConfig = {
+      primary: '#3b82f6',
+      gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+      shadow: '0 10px 25px rgba(37, 99, 235, 0.45)',
+      focusBorder: '#3b82f6'
+    }
+  } else if (
+    path.includes('/solutions/horeca-hospitality') || 
+    path.includes('/solutions/marketing-agency') || 
+    path.includes('/solutions/hvac-field-services')
+  ) {
+    themeConfig = {
+      primary: '#f43f5e',
+      gradient: 'linear-gradient(135deg, #f43f5e, #be123c)',
+      shadow: '0 10px 25px rgba(225, 29, 72, 0.45)',
+      focusBorder: '#e11d48'
+    }
+  }
 
   useEffect(() => {
     if (initialQuery) setForm(f => ({ ...f, message: initialQuery }))
@@ -139,7 +170,7 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
       }}>
         <div style={{
           height: '100%', width: `${progress}%`,
-          background: 'linear-gradient(90deg, #d1bbfb, #5646e4)',
+          background: themeConfig.gradient,
           transition: 'width 0.3s ease'
         }} />
       </div>
@@ -191,7 +222,7 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
                     placeholder={step.id === 'phone' ? (lang === 'nl' ? 'Typ uw telefoonnummer hier...' : 'Type your phone number here...') : 'Type your answer here...'}
                     style={{
                       width: '100%', background: 'transparent', border: 'none',
-                      borderBottom: '2px solid rgba(209, 187, 251, 0.3)',
+                      borderBottom: `2px solid ${themeConfig.focusBorder}60`,
                       color: 'white', fontSize: '1.5rem', padding: '10px 0',
                       outline: 'none', transition: 'border-color 0.3s'
                     }}
@@ -219,7 +250,7 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
                       }}
                       style={{
                         padding: '16px 32px', borderRadius: '50px',
-                        background: form[step.field] === opt.id ? '#d1bbfb' : 'rgba(255,255,255,0.05)',
+                        background: form[step.field] === opt.id ? themeConfig.gradient : 'rgba(255,255,255,0.05)',
                         border: '1px solid rgba(255,255,255,0.1)',
                         color: 'white', cursor: 'pointer', fontSize: '1.1rem',
                         transition: 'all 0.2s ease', fontFamily: "'Space Grotesk', sans-serif"
@@ -263,10 +294,10 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
                   onClick={next}
                   className="typeform-btn"
                   style={{
-                    background: 'linear-gradient(135deg, #d1bbfb, #5646e4)',
+                    background: themeConfig.gradient,
                     color: 'white', border: 'none', padding: '16px 40px',
                     borderRadius: '12px', cursor: 'pointer', fontWeight: 700,
-                    fontSize: '1.1rem', boxShadow: '0 10px 20px rgba(209, 187, 251, 0.3)'
+                    fontSize: '1.1rem', boxShadow: themeConfig.shadow
                   }}
                 >
                   {currentStep === STEPS.length - 1 ? (isSubmitting ? 'Sending...' : 'Complete') : 'Next'}
@@ -301,11 +332,11 @@ export default function MultiStepBooking({ isOpen, onClose, initialQuery = '', l
 
       <style>{`
         .typeform-input:focus {
-          border-bottom-color: #d1bbfb !important;
+          border-bottom-color: ${themeConfig.focusBorder} !important;
         }
         .typeform-btn:hover {
           transform: translateY(-2px);
-          filter: brightness(1.1);
+          filter: brightness(1.15);
         }
         @media (max-width: 600px) {
           .typeform-input { font-size: 1.2rem !important; }
