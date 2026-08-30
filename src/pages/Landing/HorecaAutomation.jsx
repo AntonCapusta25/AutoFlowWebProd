@@ -97,6 +97,40 @@ const TRANSLATIONS = {
         desc: "Your custom booking engine goes live, Twilio/SMS triggers sync, and your seats fill on autopilot."
       }
     },
+    partner: {
+      title: "Your Long-Term Operational Partner",
+      subtitle: "Generic SaaS vendors sell monthly seats and walk away. AutoFlow Studio embeds with your hospitality management team to design, build, and continuously optimize your operational backbone.",
+      p1Title: "100% Asset Ownership",
+      p1Desc: "Zero monthly per-cover taxes or seat limits. You own your reservation engine, guest database, and shift system outright.",
+      p2Title: "7-Day Turnkey Deployment",
+      p2Desc: "We engineer, integrate your POS/Kassa (Lightspeed, Untill), and train your team in under 7 days.",
+      p3Title: "Proactive 24/7 Operations",
+      p3Desc: "We monitor SMS/WhatsApp webhooks, table syncs, and booking databases continuously so peak shifts run flawlessly.",
+      p4Title: "Continuous Scaling & Upgrades",
+      p4Desc: "As you open new venues or expand seating, we scale your shift planners and guest workflows automatically."
+    },
+    caseStudies: {
+      title: "Proven Operational Impact",
+      subtitle: "Real case studies from our portfolio demonstrating measurable operational savings and growth for food & hospitality brands.",
+      case1Tag: "Food Tech & Platform",
+      case1Title: "Homemade B.V. – €45,000+ Annual Savings & 5x Growth",
+      case1Desc: "A Dutch food platform connecting 30+ home chefs faced inconsistent dish photos that hurt conversions and required €45,000+ in photographer fees. We built a custom AI photo enhancement tool integrated directly into chef dashboards.",
+      case1Stat1Val: "€45,000+",
+      case1Stat1Lbl: "Annual Savings",
+      case1Stat2Val: "5x",
+      case1Stat2Lbl: "Faster Chef Scaling",
+      case1Stat3Val: "1,000+",
+      case1Stat3Lbl: "Hours Reclaimed",
+      case2Tag: "Hospitality & Guest Support",
+      case2Title: "AI Guest Receptionist – 70% Support Workload Reduction",
+      case2Desc: "A high-volume Dutch hospitality brand faced 200-300 daily guest inquiries on WhatsApp/Telegram. We deployed a 24/7 AI Receptionist connected to their live reservation database.",
+      case2Stat1Val: "70%",
+      case2Stat1Lbl: "Workload Reduction",
+      case2Stat2Val: "Instant",
+      case2Stat2Lbl: "24/7 Guest Response",
+      case2Stat3Val: "€40,000+",
+      case2Stat3Lbl: "Annual Cost Saved"
+    },
     cta: {
       title: "Ready to Automate Your Booking System?",
       desc: "Stop paying commissions per guest to reservation giants. Let's design and build a custom system that fits your brand perfectly.",
@@ -194,6 +228,40 @@ const TRANSLATIONS = {
         title: "Autonome Lancering",
         desc: "Je boekingssysteem gaat live, sms-triggers synchroniseren en je zaak vult zich automatisch."
       }
+    },
+    partner: {
+      title: "Jouw Langetermijn Operationele Partner",
+      subtitle: "Generieke SaaS-leveranciers verkopen je een maandelijks abonnement en verdwijnen. AutoFlow Studio werkt direct samen met jouw horecateam om je gehele digitale infrastructuur te bouwen en continu te optimaliseren.",
+      p1Title: "100% Eigen Infrastructuur",
+      p1Desc: "Geen maandelijkse commissies per gast of limieten. Je bezit je reserveringssysteem, gastendatabase en roosters voor altijd.",
+      p2Title: "Sleutelklaar in 7 Dagen",
+      p2Desc: "Wij bouwen, koppelen je kassasysteem (Lightspeed, Untill) en trainen je team binnen 7 dagen.",
+      p3Title: "Proactieve 24/7 Ondersteuning",
+      p3Desc: "Wij monitoren WhatsApp-triggers, database-koppelingen en reserveringen continu zodat piekmomenten vlekkeloos verlopen.",
+      p4Title: "Continue Schaling & Updates",
+      p4Desc: "Wanneer je een nieuwe vestiging opent of je capaciteit uitbreidt, schalen wij je planners en systemen direct mee."
+    },
+    caseStudies: {
+      title: "Bewezen Operationele Impact",
+      subtitle: "Echte case studies uit ons portfolio die meetbare besparingen en snelle groei aantonen voor horeca- en foodbedrijven.",
+      case1Tag: "Food Tech & Platform",
+      case1Title: "Homemade B.V. – €45.000+ Jaarlijkse Besparing & 5x Groei",
+      case1Desc: "Een Nederlands maaltijdplatform met 30+ thuischefs kampte met wisselende fotokwaliteit wat conversie kostte en €45.000+ per jaar aan fotografen vergde. Wij bouwden een AI-fotoverbeteringstool direct in hun chef-dashboard.",
+      case1Stat1Val: "€45.000+",
+      case1Stat1Lbl: "Jaarlijkse Besparing",
+      case1Stat2Val: "5x",
+      case1Stat2Lbl: "Sneller Schalen",
+      case1Stat3Val: "1.000+",
+      case1Stat3Lbl: "Uren Bespaard",
+      case2Tag: "Horeca & Gastenservice",
+      case2Title: "AI Horeca Receptie – 70% Minder Support Werkdruk",
+      case2Desc: "Een drukbezochte Nederlandse horecazaak verwerkte dagelijks 200-300 vragen via WhatsApp/Telegram. Wij lanceerden een 24/7 AI Receptie gekoppeld aan hun live reserveringssysteem.",
+      case2Stat1Val: "70%",
+      case2Stat1Lbl: "Minder Werkdruk",
+      case2Stat2Val: "Direct",
+      case2Stat2Lbl: "24/7 Antwoord",
+      case2Stat3Val: "€40.000+",
+      case2Stat3Lbl: "Jaarlijkse Besparing"
     },
     cta: {
       title: "Klaar Om Commissievrij te Werken?",
@@ -344,32 +412,269 @@ export default function HorecaAutomation({ lang }) {
         </div>
       </section>
 
-      {/* Grid Solutions Section */}
-      <section className="b2b-section alt-bg">
+      {/* ── Asymmetrical Bento Solutions Section ── */}
+      <section className="b2b-section alt-bg" id="solutions">
         <div className="b2b-container">
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <h2 style={{ fontSize: '2.5rem', marginBottom: '16px' }}>{t.solutions.title}</h2>
-            <p style={{ color: 'var(--b2b-text-muted)', maxWidth: '700px', margin: '0 auto' }}>
+            <span style={{ display: 'inline-block', padding: '6px 16px', borderRadius: '50px', background: 'rgba(244,63,94,0.1)', color: '#be123c', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '16px' }}>
+              {lang === 'nl' ? 'Operationele Infrastructuur' : 'Operational Infrastructure'}
+            </span>
+            <h2 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '16px', letterSpacing: '-0.02em' }}>
+              {t.solutions.title}
+            </h2>
+            <p style={{ color: '#64748b', fontSize: '1.1rem', maxWidth: '720px', margin: '0 auto', lineHeight: 1.6 }}>
               {t.solutions.subtitle}
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
-            <div className="b2b-solution-card">
-              <h3>{t.solutions.portal.title}</h3>
-              <p>{t.solutions.portal.desc}</p>
+          {/* Bento Grid Layout */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '32px' }}>
+            {/* Left Hero Bento Card: Direct Reservation Engine */}
+            <div style={{ background: '#f1f5f9', borderRadius: '28px', padding: '10px', border: '1px solid rgba(15,23,42,0.08)' }}>
+              <div style={{ background: '#ffffff', borderRadius: '20px', padding: '40px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8), 0 10px 30px rgba(0,0,0,0.03)' }}>
+                <div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#be123c', display: 'block', marginBottom: '12px' }}>
+                    0% COMMISSION DIRECT ENGINE
+                  </span>
+                  <h3 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', marginBottom: '14px', lineHeight: 1.3 }}>
+                    {t.solutions.portal.title}
+                  </h3>
+                  <p style={{ color: '#64748b', fontSize: '0.98rem', lineHeight: 1.6, marginBottom: '32px' }}>
+                    {t.solutions.portal.desc}
+                  </p>
+                </div>
+
+                {/* Interactive Live Micro-Widget: Direct Reservation Preview */}
+                <div style={{ background: '#0f172a', borderRadius: '18px', padding: '24px', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '14px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }}></div>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif" }}>LIVE TABLE RESERVATION</span>
+                    </div>
+                    <span style={{ fontSize: '0.75rem', padding: '4px 10px', borderRadius: '50px', background: 'rgba(16,185,129,0.2)', color: '#34d399', fontWeight: 700 }}>
+                      0% Commission Fee
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.06)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginBottom: '4px' }}>Date & Time</div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>Tonight, 19:30</div>
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.06)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginBottom: '4px' }}>Guests</div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>4 Guests</div>
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.06)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginBottom: '4px' }}>Deposit status</div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34d399' }}>€50.00 Paid</div>
+                    </div>
+                  </div>
+
+                  <div style={{ background: 'rgba(244,63,94,0.15)', border: '1px solid rgba(244,63,94,0.3)', padding: '10px 14px', borderRadius: '10px', fontSize: '0.8rem', color: '#fda4af', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span>Savings vs. Third-Party Portals:</span>
+                    <strong>+€14.50 Saved On This Table</strong>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="b2b-solution-card">
-              <h3>{t.solutions.crm.title}</h3>
-              <p>{t.solutions.crm.desc}</p>
+
+            {/* Right Column: Stacked Bento Cards */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+              {/* Card 2: WhatsApp & SMS No-Show Prevention */}
+              <div style={{ background: '#f1f5f9', borderRadius: '28px', padding: '10px', border: '1px solid rgba(15,23,42,0.08)' }}>
+                <div style={{ background: '#ffffff', borderRadius: '20px', padding: '32px', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8), 0 10px 30px rgba(0,0,0,0.03)' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#be123c', display: 'block', marginBottom: '10px' }}>
+                    AUTOMATED GUEST ALERTS
+                  </span>
+                  <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0f172a', marginBottom: '10px' }}>
+                    {t.solutions.integrations.title}
+                  </h3>
+                  <p style={{ color: '#64748b', fontSize: '0.92rem', lineHeight: 1.5, marginBottom: '20px' }}>
+                    {t.solutions.integrations.desc}
+                  </p>
+
+                  {/* Micro WhatsApp Live Simulator */}
+                  <div style={{ background: '#f8fafc', border: '1px solid rgba(15,23,42,0.08)', padding: '14px 18px', borderRadius: '14px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#25d366', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: '1.1rem', flexShrink: 0 }}>
+                      ✓
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0f172a' }}>WhatsApp Auto-Confirmation Sent</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>Guest confirmed table #4 · No-show risk reduced by 85%</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3: POS & Shift Automation */}
+              <div style={{ background: '#f1f5f9', borderRadius: '28px', padding: '10px', border: '1px solid rgba(15,23,42,0.08)' }}>
+                <div style={{ background: '#ffffff', borderRadius: '20px', padding: '32px', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8), 0 10px 30px rgba(0,0,0,0.03)' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#be123c', display: 'block', marginBottom: '10px' }}>
+                    KASSA & SHIFT ECOSYSTEM
+                  </span>
+                  <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0f172a', marginBottom: '10px' }}>
+                    {t.solutions.docs.title}
+                  </h3>
+                  <p style={{ color: '#64748b', fontSize: '0.92rem', lineHeight: 1.5, marginBottom: '20px' }}>
+                    {t.solutions.docs.desc}
+                  </p>
+
+                  {/* Micro POS Sync Ticker */}
+                  <div style={{ background: '#0f172a', padding: '12px 16px', borderRadius: '12px', color: '#38bdf8', fontFamily: 'monospace', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ color: '#10b981' }}>▶</span>
+                    <span>Lightspeed POS → Table #12 Closed → Exact Online Invoice Dispatched</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="b2b-solution-card">
-              <h3>{t.solutions.integrations.title}</h3>
-              <p>{t.solutions.integrations.desc}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Double-Bezel Operational Partner Section ── */}
+      <section className="b2b-section" style={{ background: '#ffffff', padding: '96px 0', borderTop: '1px solid rgba(15,23,42,0.06)' }}>
+        <div className="b2b-container">
+          <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+            <span style={{ display: 'inline-block', padding: '6px 16px', borderRadius: '50px', background: 'rgba(244,63,94,0.1)', color: '#be123c', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '16px' }}>
+              OPERATIONAL PARTNERSHIP
+            </span>
+            <h2 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '16px', letterSpacing: '-0.02em' }}>
+              {t.partner.title}
+            </h2>
+            <p style={{ color: '#64748b', fontSize: '1.1rem', maxWidth: '780px', margin: '0 auto', lineHeight: 1.6 }}>
+              {t.partner.subtitle}
+            </p>
+          </div>
+
+          {/* Double-Bezel Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
+            <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '24px', border: '1px solid rgba(15,23,42,0.08)' }}>
+              <div style={{ background: '#ffffff', padding: '28px 20px', borderRadius: '18px', height: '100%', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8)' }}>
+                <div style={{ fontSize: '2rem', marginBottom: '14px' }}>🏰</div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '10px' }}>{t.partner.p1Title}</h3>
+                <p style={{ fontSize: '0.88rem', color: '#64748b', lineHeight: 1.5, margin: 0 }}>{t.partner.p1Desc}</p>
+              </div>
             </div>
-            <div className="b2b-solution-card">
-              <h3>{t.solutions.docs.title}</h3>
-              <p>{t.solutions.docs.desc}</p>
+            <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '24px', border: '1px solid rgba(15,23,42,0.08)' }}>
+              <div style={{ background: '#ffffff', padding: '28px 20px', borderRadius: '18px', height: '100%', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8)' }}>
+                <div style={{ fontSize: '2rem', marginBottom: '14px' }}>⚡</div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '10px' }}>{t.partner.p2Title}</h3>
+                <p style={{ fontSize: '0.88rem', color: '#64748b', lineHeight: 1.5, margin: 0 }}>{t.partner.p2Desc}</p>
+              </div>
+            </div>
+            <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '24px', border: '1px solid rgba(15,23,42,0.08)' }}>
+              <div style={{ background: '#ffffff', padding: '28px 20px', borderRadius: '18px', height: '100%', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8)' }}>
+                <div style={{ fontSize: '2rem', marginBottom: '14px' }}>🛡️</div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '10px' }}>{t.partner.p3Title}</h3>
+                <p style={{ fontSize: '0.88rem', color: '#64748b', lineHeight: 1.5, margin: 0 }}>{t.partner.p3Desc}</p>
+              </div>
+            </div>
+            <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '24px', border: '1px solid rgba(15,23,42,0.08)' }}>
+              <div style={{ background: '#ffffff', padding: '28px 20px', borderRadius: '18px', height: '100%', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8)' }}>
+                <div style={{ fontSize: '2rem', marginBottom: '14px' }}>📈</div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '10px' }}>{t.partner.p4Title}</h3>
+                <p style={{ fontSize: '0.88rem', color: '#64748b', lineHeight: 1.5, margin: 0 }}>{t.partner.p4Desc}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Portfolio Case Studies Spotlight ── */}
+      <section className="b2b-section alt-bg" style={{ padding: '96px 0', borderTop: '1px solid rgba(15,23,42,0.06)' }}>
+        <div className="b2b-container">
+          <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+            <span style={{ display: 'inline-block', padding: '6px 16px', borderRadius: '50px', background: 'rgba(244,63,94,0.1)', color: '#be123c', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '16px' }}>
+              PROVEN RESULTS
+            </span>
+            <h2 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '16px', letterSpacing: '-0.02em' }}>
+              {t.caseStudies.title}
+            </h2>
+            <p style={{ color: '#64748b', fontSize: '1.1rem', maxWidth: '760px', margin: '0 auto', lineHeight: 1.6 }}>
+              {t.caseStudies.subtitle}
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+            {/* Case 1: Homemade B.V. */}
+            <div style={{ background: '#f1f5f9', borderRadius: '28px', padding: '8px', border: '1px solid rgba(15,23,42,0.08)' }}>
+              <div style={{ background: '#ffffff', borderRadius: '20px', padding: '36px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8), 0 10px 30px rgba(0,0,0,0.03)' }}>
+                <div>
+                  <span style={{ display: 'inline-block', padding: '6px 14px', borderRadius: '50px', background: 'rgba(244,63,94,0.1)', color: '#be123c', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '20px' }}>
+                    {t.caseStudies.case1Tag}
+                  </span>
+                  <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', marginBottom: '14px', lineHeight: 1.3 }}>
+                    {t.caseStudies.case1Title}
+                  </h3>
+                  <p style={{ fontSize: '0.95rem', color: '#64748b', lineHeight: 1.6, marginBottom: '28px' }}>
+                    {t.caseStudies.case1Desc}
+                  </p>
+                </div>
+
+                <div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', paddingTop: '24px', borderTop: '1px solid rgba(15,23,42,0.08)' }}>
+                    <div>
+                      <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#be123c' }}>{t.caseStudies.case1Stat1Val}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case1Stat1Lbl}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#be123c' }}>{t.caseStudies.case1Stat2Val}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case1Stat2Lbl}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#be123c' }}>{t.caseStudies.case1Stat3Val}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case1Stat3Lbl}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: '24px' }}>
+                    <Link to="/portfolio/project-1" style={{ color: '#be123c', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      {lang === 'nl' ? 'Lees Volledige Case Study →' : 'Read Full Case Study →'}
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Case 2: AI Guest Receptionist */}
+            <div style={{ background: '#f1f5f9', borderRadius: '28px', padding: '8px', border: '1px solid rgba(15,23,42,0.08)' }}>
+              <div style={{ background: '#ffffff', borderRadius: '20px', padding: '36px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8), 0 10px 30px rgba(0,0,0,0.03)' }}>
+                <div>
+                  <span style={{ display: 'inline-block', padding: '6px 14px', borderRadius: '50px', background: 'rgba(244,63,94,0.1)', color: '#be123c', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '20px' }}>
+                    {t.caseStudies.case2Tag}
+                  </span>
+                  <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', marginBottom: '14px', lineHeight: 1.3 }}>
+                    {t.caseStudies.case2Title}
+                  </h3>
+                  <p style={{ fontSize: '0.95rem', color: '#64748b', lineHeight: 1.6, marginBottom: '28px' }}>
+                    {t.caseStudies.case2Desc}
+                  </p>
+                </div>
+
+                <div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', paddingTop: '24px', borderTop: '1px solid rgba(15,23,42,0.08)' }}>
+                    <div>
+                      <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#be123c' }}>{t.caseStudies.case2Stat1Val}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case2Stat1Lbl}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#be123c' }}>{t.caseStudies.case2Stat2Val}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case2Stat2Lbl}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#be123c' }}>{t.caseStudies.case2Stat3Val}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case2Stat3Lbl}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: '24px' }}>
+                    <Link to="/portfolio/project-2" style={{ color: '#be123c', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      {lang === 'nl' ? 'Lees Volledige Case Study →' : 'Read Full Case Study →'}
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
