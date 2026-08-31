@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom'
 import '../../styles/landing-b2b.css'
 import Navbar from '../../components/Navbar'
 import PartnersStrip from '../../components/PartnersStrip'
+import HorecaYieldSimulator from '../../components/HorecaYieldSimulator'
+import HorecaGuestJourney from '../../components/HorecaGuestJourney'
 
 const TRANSLATIONS = {
   en: {
@@ -343,43 +345,43 @@ export default function HorecaAutomation({ lang }) {
   }
 
   return (
-    <div className="b2b-landing red-landing">
+    <div className="b2b-landing red-landing" style={{ background: '#f7f5f0', color: '#1c1917' }}>
       <Navbar />
 
       {/* Hero Section */}
-      <section className="b2b-section" style={{ paddingTop: '160px', paddingBottom: '100px' }}>
+      <section className="b2b-section" style={{ paddingTop: '170px', paddingBottom: '110px', background: '#f7f5f0' }}>
         <div className="b2b-container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', alignItems: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.05fr 0.95fr', gap: '56px', alignItems: 'center' }}>
             {/* Left Content */}
             <div>
-              <span style={{ display: 'inline-block', padding: '6px 16px', borderRadius: '50px', background: 'rgba(244,63,94,0.1)', color: '#be123c', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '20px' }}>
-                {t.hero.eyebrow}
+              <span style={{ display: 'inline-block', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#991b1b', marginBottom: '20px' }}>
+                01 / {t.hero.eyebrow}
               </span>
-              <h1 style={{ fontSize: '3.2rem', lineHeight: '1.15', marginBottom: '24px', letterSpacing: '-0.03em', fontFamily: "'Space Grotesk', sans-serif" }}>
+              <h1 style={{ fontSize: '3.6rem', lineHeight: '1.1', marginBottom: '24px', letterSpacing: '-0.03em', fontFamily: "'Space Grotesk', sans-serif", color: '#1c1917', fontWeight: 400 }}>
                 {t.hero.heading}
-                <span style={{ color: 'var(--b2b-primary)', fontStyle: 'italic', display: 'block' }}>{t.hero.headingHighlight}</span>
+                <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400, color: '#991b1b', display: 'block', marginTop: '6px' }}>{t.hero.headingHighlight}</span>
               </h1>
-              <p style={{ fontSize: '1.15rem', color: 'var(--b2b-text-muted)', marginBottom: '40px', lineHeight: '1.6' }}>
+              <p style={{ fontSize: '1.15rem', color: '#57534e', marginBottom: '40px', lineHeight: '1.65' }}>
                 {t.hero.desc}
               </p>
               <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                <button onClick={openBooking} className="b2b-btn-primary">{t.hero.ctaPrimary}</button>
-                <a href="#roi" className="b2b-btn-secondary">{t.hero.ctaSecondary}</a>
+                <button onClick={openBooking} className="b2b-btn-primary" style={{ background: '#1c1917', borderColor: '#1c1917', color: '#faf8f5', borderRadius: '50px', padding: '14px 32px', fontWeight: 600 }}>{t.hero.ctaPrimary}</button>
+                <a href="#roi" className="b2b-btn-secondary" style={{ borderRadius: '50px', padding: '14px 28px', border: '1px solid rgba(28,25,23,0.2)', color: '#1c1917' }}>{t.hero.ctaSecondary}</a>
               </div>
             </div>
 
             {/* Right Visual Image Frame */}
-            <div style={{ background: '#f1f5f9', borderRadius: '28px', padding: '10px', border: '1px solid rgba(15,23,42,0.08)', position: 'relative' }}>
-              <div style={{ background: '#ffffff', borderRadius: '20px', padding: '16px', overflow: 'hidden', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8), 0 20px 40px rgba(0,0,0,0.06)' }}>
+            <div style={{ background: '#eae6df', borderRadius: '32px', padding: '12px', border: '1px solid rgba(28,25,23,0.1)', position: 'relative' }}>
+              <div style={{ background: '#ffffff', borderRadius: '24px', padding: '16px', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(28,25,23,0.08)' }}>
                 <img 
                   src="/images/crm_dashboard_ui_1778858853633.png" 
                   alt="Horeca Operational Dashboard UI" 
-                  style={{ width: '100%', height: 'auto', borderRadius: '14px', display: 'block' }}
+                  style={{ width: '100%', height: 'auto', borderRadius: '16px', display: 'block' }}
                 />
               </div>
 
               {/* Floating Live Badges */}
-              <div style={{ position: 'absolute', bottom: '-15px', left: '25px', background: '#0f172a', color: 'white', padding: '10px 18px', borderRadius: '50px', fontSize: '0.82rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ position: 'absolute', bottom: '-15px', left: '30px', background: '#1c1917', color: '#faf8f5', padding: '10px 20px', borderRadius: '50px', fontSize: '0.82rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 15px 35px rgba(0,0,0,0.15)', border: '1px solid rgba(255,255,255,0.15)' }}>
                 <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }}></span>
                 0% Commission Direct Engine Active
               </div>
@@ -392,11 +394,14 @@ export default function HorecaAutomation({ lang }) {
       <PartnersStrip lang={lang} darkBg={false} />
 
       {/* Interactive CRM Demo */}
-      <section className="b2b-section alt-bg" id="solutions" style={{ padding: '80px 0' }}>
+      <section className="b2b-section" id="solutions" style={{ padding: '96px 0', background: '#faf8f5', borderTop: '1px solid rgba(28,25,23,0.08)' }}>
         <div className="b2b-container">
           <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '2rem', marginBottom: '16px' }}>See Your Booking Engine In Action</h2>
-            <p style={{ color: 'var(--b2b-text-muted)', maxWidth: '650px', margin: '0 auto' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#991b1b', display: 'block', marginBottom: '8px' }}>
+              INTERACTIVE DEMO
+            </span>
+            <h2 style={{ fontSize: '2.4rem', fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400, color: '#1c1917', marginBottom: '16px' }}>See Your Booking Engine In Action</h2>
+            <p style={{ color: '#57534e', maxWidth: '650px', margin: '0 auto', fontSize: '1.05rem' }}>
               We build custom guest planners and POS status checkers. Toggle tabs below to preview the interface.
             </p>
           </div>
@@ -406,46 +411,52 @@ export default function HorecaAutomation({ lang }) {
       </section>
 
       {/* Pain Points Section */}
-      <section className="b2b-section" id="problem">
+      <section className="b2b-section" id="problem" style={{ padding: '96px 0', background: '#f7f5f0', borderTop: '1px solid rgba(28,25,23,0.08)' }}>
         <div className="b2b-container">
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <h2 style={{ fontSize: '2.5rem', marginBottom: '16px' }}>{t.pains.title}</h2>
-            <p style={{ color: 'var(--b2b-text-muted)', maxWidth: '750px', margin: '0 auto' }}>
+            <h2 style={{ fontSize: '2.6rem', fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400, color: '#1c1917', marginBottom: '16px' }}>{t.pains.title}</h2>
+            <p style={{ color: '#57534e', maxWidth: '750px', margin: '0 auto', fontSize: '1.05rem' }}>
               {t.pains.subtitle}
             </p>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px' }}>
-            <div className="b2b-pain-card">
-              <span className="b2b-pain-icon">🎫</span>
-              <h3>{t.pains.card1.title}</h3>
-              <p>{t.pains.card1.desc}</p>
+            <div style={{ background: '#eae6df', padding: '10px', borderRadius: '28px', border: '1px solid rgba(28,25,23,0.08)' }}>
+              <div style={{ background: '#ffffff', padding: '32px 24px', borderRadius: '20px', height: '100%' }}>
+                <span style={{ fontSize: '2rem', display: 'block', marginBottom: '16px' }}>🎫</span>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: '#1c1917', marginBottom: '10px' }}>{t.pains.card1.title}</h3>
+                <p style={{ color: '#57534e', fontSize: '0.92rem', lineHeight: 1.6, margin: 0 }}>{t.pains.card1.desc}</p>
+              </div>
             </div>
-            <div className="b2b-pain-card">
-              <span className="b2b-pain-icon">⏳</span>
-              <h3>{t.pains.card2.title}</h3>
-              <p>{t.pains.card2.desc}</p>
+            <div style={{ background: '#eae6df', padding: '10px', borderRadius: '28px', border: '1px solid rgba(28,25,23,0.08)' }}>
+              <div style={{ background: '#ffffff', padding: '32px 24px', borderRadius: '20px', height: '100%' }}>
+                <span style={{ fontSize: '2rem', display: 'block', marginBottom: '16px' }}>⏳</span>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: '#1c1917', marginBottom: '10px' }}>{t.pains.card2.title}</h3>
+                <p style={{ color: '#57534e', fontSize: '0.92rem', lineHeight: 1.6, margin: 0 }}>{t.pains.card2.desc}</p>
+              </div>
             </div>
-            <div className="b2b-pain-card">
-              <span className="b2b-pain-icon">📅</span>
-              <h3>{t.pains.card3.title}</h3>
-              <p>{t.pains.card3.desc}</p>
+            <div style={{ background: '#eae6df', padding: '10px', borderRadius: '28px', border: '1px solid rgba(28,25,23,0.08)' }}>
+              <div style={{ background: '#ffffff', padding: '32px 24px', borderRadius: '20px', height: '100%' }}>
+                <span style={{ fontSize: '2rem', display: 'block', marginBottom: '16px' }}>📅</span>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: '#1c1917', marginBottom: '10px' }}>{t.pains.card3.title}</h3>
+                <p style={{ color: '#57534e', fontSize: '0.92rem', lineHeight: 1.6, margin: 0 }}>{t.pains.card3.desc}</p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* ── Asymmetrical Bento Solutions Section with Dedicated Images ── */}
-      <section className="b2b-section alt-bg" id="solutions">
+      <section className="b2b-section" id="solutions" style={{ padding: '96px 0', background: '#faf8f5', borderTop: '1px solid rgba(28,25,23,0.08)' }}>
         <div className="b2b-container">
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <span style={{ display: 'inline-block', padding: '6px 16px', borderRadius: '50px', background: 'rgba(244,63,94,0.1)', color: '#be123c', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '16px' }}>
-              {lang === 'nl' ? 'Operationele Infrastructuur' : 'Operational Infrastructure'}
+            <span style={{ display: 'inline-block', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#991b1b', marginBottom: '16px' }}>
+              02 / {lang === 'nl' ? 'OPERATIONELE INFRASTRUCTUUR' : 'OPERATIONAL INFRASTRUCTURE'}
             </span>
-            <h2 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '16px', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: '2.6rem', fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400, color: '#1c1917', marginBottom: '16px' }}>
               {t.solutions.title}
             </h2>
-            <p style={{ color: '#64748b', fontSize: '1.1rem', maxWidth: '720px', margin: '0 auto', lineHeight: 1.6 }}>
+            <p style={{ color: '#57534e', fontSize: '1.1rem', maxWidth: '720px', margin: '0 auto', lineHeight: 1.6 }}>
               {t.solutions.subtitle}
             </p>
           </div>
@@ -574,64 +585,78 @@ export default function HorecaAutomation({ lang }) {
         </div>
       </section>
 
+      {/* ── Interactive Yield & Floor Plan Simulator ── */}
+      <section className="b2b-section" style={{ background: '#f7f5f0', padding: '96px 0', borderTop: '1px solid rgba(28,25,23,0.08)' }}>
+        <div className="b2b-container">
+          <HorecaYieldSimulator lang={lang} />
+        </div>
+      </section>
+
+      {/* ── 3-Phase Guest Journey Lifecycle ── */}
+      <section className="b2b-section" style={{ padding: '96px 0', background: '#faf8f5', borderTop: '1px solid rgba(28,25,23,0.08)' }}>
+        <div className="b2b-container">
+          <HorecaGuestJourney lang={lang} />
+        </div>
+      </section>
+
       {/* ── Editorial Split Operational Partner Section ── */}
-      <section className="b2b-section" style={{ background: '#ffffff', padding: '96px 0', borderTop: '1px solid rgba(15,23,42,0.06)' }}>
+      <section className="b2b-section" style={{ background: '#f7f5f0', padding: '96px 0', borderTop: '1px solid rgba(28,25,23,0.08)' }}>
         <div className="b2b-container">
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <span style={{ display: 'inline-block', padding: '6px 16px', borderRadius: '50px', background: 'rgba(244,63,94,0.1)', color: '#be123c', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '16px' }}>
-              OPERATIONAL PARTNERSHIP
+            <span style={{ display: 'inline-block', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#991b1b', marginBottom: '16px' }}>
+              04 / OPERATIONAL PARTNERSHIP
             </span>
-            <h2 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '16px', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: '2.6rem', fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400, color: '#1c1917', marginBottom: '16px' }}>
               {t.partner.title}
             </h2>
-            <p style={{ color: '#64748b', fontSize: '1.1rem', maxWidth: '780px', margin: '0 auto', lineHeight: 1.6 }}>
+            <p style={{ color: '#57534e', fontSize: '1.1rem', maxWidth: '780px', margin: '0 auto', lineHeight: 1.6 }}>
               {t.partner.subtitle}
             </p>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '0.9fr 1.1fr', gap: '40px', alignItems: 'center' }}>
             {/* Left Image Showcase */}
-            <div style={{ background: '#f1f5f9', borderRadius: '28px', padding: '10px', border: '1px solid rgba(15,23,42,0.08)', position: 'relative' }}>
-              <div style={{ background: '#ffffff', borderRadius: '20px', overflow: 'hidden', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8), 0 20px 40px rgba(0,0,0,0.05)' }}>
+            <div style={{ background: '#eae6df', borderRadius: '32px', padding: '12px', border: '1px solid rgba(28,25,23,0.1)', position: 'relative' }}>
+              <div style={{ background: '#ffffff', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 40px -15px rgba(28,25,23,0.08)' }}>
                 <img 
                   src="/images/built-for-long-run.webp" 
                   alt="AutoFlow Studio Horeca Partnership" 
                   style={{ width: '100%', height: '420px', objectFit: 'cover', display: 'block' }} 
                 />
               </div>
-              <div style={{ position: 'absolute', bottom: '-15px', right: '20px', background: '#0f172a', color: 'white', padding: '10px 18px', borderRadius: '50px', fontSize: '0.82rem', fontWeight: 700, boxShadow: '0 10px 25px rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ position: 'absolute', bottom: '-15px', right: '25px', background: '#1c1917', color: '#faf8f5', padding: '10px 20px', borderRadius: '50px', fontSize: '0.82rem', fontWeight: 600, boxShadow: '0 15px 35px rgba(0,0,0,0.15)', border: '1px solid rgba(255,255,255,0.15)' }}>
                 🛡️ 24/7 SLA Monitored Infrastructure
               </div>
             </div>
 
             {/* Right 2x2 Pillar Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-              <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '24px', border: '1px solid rgba(15,23,42,0.08)' }}>
-                <div style={{ background: '#ffffff', padding: '24px 20px', borderRadius: '18px', height: '100%', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8)' }}>
+              <div style={{ background: '#eae6df', padding: '10px', borderRadius: '28px', border: '1px solid rgba(28,25,23,0.08)' }}>
+                <div style={{ background: '#ffffff', padding: '24px 20px', borderRadius: '20px', height: '100%' }}>
                   <div style={{ fontSize: '1.8rem', marginBottom: '12px' }}>🏰</div>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>{t.partner.p1Title}</h3>
-                  <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, margin: 0 }}>{t.partner.p1Desc}</p>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: '#1c1917', marginBottom: '8px' }}>{t.partner.p1Title}</h3>
+                  <p style={{ fontSize: '0.85rem', color: '#57534e', lineHeight: 1.5, margin: 0 }}>{t.partner.p1Desc}</p>
                 </div>
               </div>
-              <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '24px', border: '1px solid rgba(15,23,42,0.08)' }}>
-                <div style={{ background: '#ffffff', padding: '24px 20px', borderRadius: '18px', height: '100%', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8)' }}>
+              <div style={{ background: '#eae6df', padding: '10px', borderRadius: '28px', border: '1px solid rgba(28,25,23,0.08)' }}>
+                <div style={{ background: '#ffffff', padding: '24px 20px', borderRadius: '20px', height: '100%' }}>
                   <div style={{ fontSize: '1.8rem', marginBottom: '12px' }}>⚡</div>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>{t.partner.p2Title}</h3>
-                  <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, margin: 0 }}>{t.partner.p2Desc}</p>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: '#1c1917', marginBottom: '8px' }}>{t.partner.p2Title}</h3>
+                  <p style={{ fontSize: '0.85rem', color: '#57534e', lineHeight: 1.5, margin: 0 }}>{t.partner.p2Desc}</p>
                 </div>
               </div>
-              <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '24px', border: '1px solid rgba(15,23,42,0.08)' }}>
-                <div style={{ background: '#ffffff', padding: '24px 20px', borderRadius: '18px', height: '100%', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8)' }}>
+              <div style={{ background: '#eae6df', padding: '10px', borderRadius: '28px', border: '1px solid rgba(28,25,23,0.08)' }}>
+                <div style={{ background: '#ffffff', padding: '24px 20px', borderRadius: '20px', height: '100%' }}>
                   <div style={{ fontSize: '1.8rem', marginBottom: '12px' }}>🛡️</div>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>{t.partner.p3Title}</h3>
-                  <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, margin: 0 }}>{t.partner.p3Desc}</p>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: '#1c1917', marginBottom: '8px' }}>{t.partner.p3Title}</h3>
+                  <p style={{ fontSize: '0.85rem', color: '#57534e', lineHeight: 1.5, margin: 0 }}>{t.partner.p3Desc}</p>
                 </div>
               </div>
-              <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '24px', border: '1px solid rgba(15,23,42,0.08)' }}>
-                <div style={{ background: '#ffffff', padding: '24px 20px', borderRadius: '18px', height: '100%', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8)' }}>
+              <div style={{ background: '#eae6df', padding: '10px', borderRadius: '28px', border: '1px solid rgba(28,25,23,0.08)' }}>
+                <div style={{ background: '#ffffff', padding: '24px 20px', borderRadius: '20px', height: '100%' }}>
                   <div style={{ fontSize: '1.8rem', marginBottom: '12px' }}>📈</div>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>{t.partner.p4Title}</h3>
-                  <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, margin: 0 }}>{t.partner.p4Desc}</p>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: '#1c1917', marginBottom: '8px' }}>{t.partner.p4Title}</h3>
+                  <p style={{ fontSize: '0.85rem', color: '#57534e', lineHeight: 1.5, margin: 0 }}>{t.partner.p4Desc}</p>
                 </div>
               </div>
             </div>
@@ -640,60 +665,60 @@ export default function HorecaAutomation({ lang }) {
       </section>
 
       {/* ── Portfolio Case Studies Spotlight with High-Res Images ── */}
-      <section className="b2b-section alt-bg" style={{ padding: '96px 0', borderTop: '1px solid rgba(15,23,42,0.06)' }}>
+      <section className="b2b-section" style={{ padding: '96px 0', background: '#faf8f5', borderTop: '1px solid rgba(28,25,23,0.08)' }}>
         <div className="b2b-container">
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <span style={{ display: 'inline-block', padding: '6px 16px', borderRadius: '50px', background: 'rgba(244,63,94,0.1)', color: '#be123c', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '16px' }}>
-              PROVEN RESULTS
+            <span style={{ display: 'inline-block', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#991b1b', marginBottom: '16px' }}>
+              05 / PROVEN RESULTS
             </span>
-            <h2 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '16px', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: '2.6rem', fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400, color: '#1c1917', marginBottom: '16px' }}>
               {t.caseStudies.title}
             </h2>
-            <p style={{ color: '#64748b', fontSize: '1.1rem', maxWidth: '760px', margin: '0 auto', lineHeight: 1.6 }}>
+            <p style={{ color: '#57534e', fontSize: '1.1rem', maxWidth: '760px', margin: '0 auto', lineHeight: 1.6 }}>
               {t.caseStudies.subtitle}
             </p>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
             {/* Case 1: Homemade B.V. */}
-            <div style={{ background: '#f1f5f9', borderRadius: '28px', padding: '8px', border: '1px solid rgba(15,23,42,0.08)' }}>
-              <div style={{ background: '#ffffff', borderRadius: '20px', padding: '36px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8), 0 10px 30px rgba(0,0,0,0.03)' }}>
+            <div style={{ background: '#eae6df', borderRadius: '32px', padding: '10px', border: '1px solid rgba(28,25,23,0.08)' }}>
+              <div style={{ background: '#ffffff', borderRadius: '24px', padding: '36px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <div>
                   <img 
                     src="/images/food_photography_automation.webp" 
                     alt="Homemade B.V. Food Photography Automation" 
-                    style={{ width: '100%', height: '220px', borderRadius: '14px', objectFit: 'cover', marginBottom: '24px', border: '1px solid rgba(15,23,42,0.08)' }} 
+                    style={{ width: '100%', height: '220px', borderRadius: '16px', objectFit: 'cover', marginBottom: '24px', border: '1px solid rgba(28,25,23,0.08)' }} 
                   />
 
-                  <span style={{ display: 'inline-block', padding: '6px 14px', borderRadius: '50px', background: 'rgba(244,63,94,0.1)', color: '#be123c', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '16px' }}>
+                  <span style={{ display: 'inline-block', padding: '6px 14px', borderRadius: '50px', background: 'rgba(153,27,27,0.1)', color: '#991b1b', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '16px' }}>
                     {t.caseStudies.case1Tag}
                   </span>
-                  <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', marginBottom: '14px', lineHeight: 1.3 }}>
+                  <h3 style={{ fontSize: '1.4rem', fontWeight: 600, color: '#1c1917', marginBottom: '14px', lineHeight: 1.3 }}>
                     {t.caseStudies.case1Title}
                   </h3>
-                  <p style={{ fontSize: '0.95rem', color: '#64748b', lineHeight: 1.6, marginBottom: '28px' }}>
+                  <p style={{ fontSize: '0.95rem', color: '#57534e', lineHeight: 1.6, marginBottom: '28px' }}>
                     {t.caseStudies.case1Desc}
                   </p>
                 </div>
 
                 <div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', paddingTop: '24px', borderTop: '1px solid rgba(15,23,42,0.08)' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', paddingTop: '24px', borderTop: '1px solid rgba(28,25,23,0.08)' }}>
                     <div>
-                      <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#be123c' }}>{t.caseStudies.case1Stat1Val}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case1Stat1Lbl}</div>
+                      <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#991b1b' }}>{t.caseStudies.case1Stat1Val}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#57534e', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case1Stat1Lbl}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#be123c' }}>{t.caseStudies.case1Stat2Val}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case1Stat2Lbl}</div>
+                      <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#991b1b' }}>{t.caseStudies.case1Stat2Val}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#57534e', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case1Stat2Lbl}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#be123c' }}>{t.caseStudies.case1Stat3Val}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case1Stat3Lbl}</div>
+                      <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#991b1b' }}>{t.caseStudies.case1Stat3Val}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#57534e', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case1Stat3Lbl}</div>
                     </div>
                   </div>
 
                   <div style={{ marginTop: '24px' }}>
-                    <Link to="/portfolio/project-1" style={{ color: '#be123c', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <Link to="/portfolio/project-1" style={{ color: '#991b1b', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                       {lang === 'nl' ? 'Lees Volledige Case Study →' : 'Read Full Case Study →'}
                     </Link>
                   </div>
@@ -702,44 +727,44 @@ export default function HorecaAutomation({ lang }) {
             </div>
 
             {/* Case 2: AI Guest Receptionist */}
-            <div style={{ background: '#f1f5f9', borderRadius: '28px', padding: '8px', border: '1px solid rgba(15,23,42,0.08)' }}>
-              <div style={{ background: '#ffffff', borderRadius: '20px', padding: '36px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.8), 0 10px 30px rgba(0,0,0,0.03)' }}>
+            <div style={{ background: '#eae6df', borderRadius: '32px', padding: '10px', border: '1px solid rgba(28,25,23,0.08)' }}>
+              <div style={{ background: '#ffffff', borderRadius: '24px', padding: '36px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <div>
                   <img 
                     src="/images/customer_support_ai.webp" 
                     alt="AI Guest Receptionist & Customer Support" 
-                    style={{ width: '100%', height: '220px', borderRadius: '14px', objectFit: 'cover', marginBottom: '24px', border: '1px solid rgba(15,23,42,0.08)' }} 
+                    style={{ width: '100%', height: '220px', borderRadius: '16px', objectFit: 'cover', marginBottom: '24px', border: '1px solid rgba(28,25,23,0.08)' }} 
                   />
 
-                  <span style={{ display: 'inline-block', padding: '6px 14px', borderRadius: '50px', background: 'rgba(244,63,94,0.1)', color: '#be123c', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '16px' }}>
+                  <span style={{ display: 'inline-block', padding: '6px 14px', borderRadius: '50px', background: 'rgba(153,27,27,0.1)', color: '#991b1b', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '16px' }}>
                     {t.caseStudies.case2Tag}
                   </span>
-                  <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', marginBottom: '14px', lineHeight: 1.3 }}>
+                  <h3 style={{ fontSize: '1.4rem', fontWeight: 600, color: '#1c1917', marginBottom: '14px', lineHeight: 1.3 }}>
                     {t.caseStudies.case2Title}
                   </h3>
-                  <p style={{ fontSize: '0.95rem', color: '#64748b', lineHeight: 1.6, marginBottom: '28px' }}>
+                  <p style={{ fontSize: '0.95rem', color: '#57534e', lineHeight: 1.6, marginBottom: '28px' }}>
                     {t.caseStudies.case2Desc}
                   </p>
                 </div>
 
                 <div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', paddingTop: '24px', borderTop: '1px solid rgba(15,23,42,0.08)' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', paddingTop: '24px', borderTop: '1px solid rgba(28,25,23,0.08)' }}>
                     <div>
-                      <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#be123c' }}>{t.caseStudies.case2Stat1Val}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case2Stat1Lbl}</div>
+                      <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#991b1b' }}>{t.caseStudies.case2Stat1Val}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#57534e', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case2Stat1Lbl}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#be123c' }}>{t.caseStudies.case2Stat2Val}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case2Stat2Lbl}</div>
+                      <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#991b1b' }}>{t.caseStudies.case2Stat2Val}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#57534e', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case2Stat2Lbl}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#be123c' }}>{t.caseStudies.case2Stat3Val}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case2Stat3Lbl}</div>
+                      <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#991b1b' }}>{t.caseStudies.case2Stat3Val}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#57534e', fontWeight: 600, marginTop: '4px' }}>{t.caseStudies.case2Stat3Lbl}</div>
                     </div>
                   </div>
 
                   <div style={{ marginTop: '24px' }}>
-                    <Link to="/portfolio/project-2" style={{ color: '#be123c', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <Link to="/portfolio/project-2" style={{ color: '#991b1b', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                       {lang === 'nl' ? 'Lees Volledige Case Study →' : 'Read Full Case Study →'}
                     </Link>
                   </div>
