@@ -1554,15 +1554,7 @@ export default function AdminLeads() {
           
           const slots = []
           const startHour = 9
-          
-          const tz = bookingDisplayTZ === 'calendar' ? calendarTimeZone : bookingDisplayTZ
-          const isDutch = tz && (
-            tz.toLowerCase().includes('amsterdam') || 
-            tz.toLowerCase().includes('europe') || 
-            tz.toLowerCase().includes('cet') || 
-            tz.toLowerCase().includes('cest')
-          )
-          const endHour = isDutch ? 24 : 18 // Dutch times work till 24:00 (midnight)
+          const endHour = 24 // Salesperson works until 24:00 (midnight) Dutch local time, allowing US timezone slots to extend through local US business hours
           
           for (let hour = startHour; hour < endHour; hour++) {
             for (let min of [0, 30]) {
