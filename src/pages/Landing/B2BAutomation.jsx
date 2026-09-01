@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import '../../styles/landing-b2b.css'
 import Navbar from '../../components/Navbar'
 import SolutionHero from '../../components/SolutionHero'
+import PartnersStrip from '../../components/PartnersStrip'
 
 const TRANSLATIONS = {
   en: {
