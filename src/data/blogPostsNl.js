@@ -4823,5 +4823,151 @@ Content-Type: application/json
 ],
     body: `<div class="article-content"><div class="hero-image"><img src="/images/blog_stripe-exact-online-reconciliation-automation.png" alt="Stripe naar Exact Online reconciliatie automatisering flow diagram" /></div><h1>Stripe en Exact Online Koppeling Automatiseren: Geen Boekhoudkundige Hel Meer</h1><p>Laten we eerlijk zijn: als je een snelgroeiend B2B-platform, een SaaS-bedrijf of een e-commerce onderneming in Nederland runt, is de kans groot dat je financiële team aan het einde van elke maand met de handen in het haar zit. Waarom? Omdat het afstemmen en reconciliëren van Stripe-uitbetalingen met je Exact Online administratie een absolute, tijdrovende nachtmerrie is. Op papier klinkt het zo simpel: een klant betaalt, Stripe ontvangt het geld, je maakt een factuur en het bedrag wordt op je Rabobank- of ING-rekening gestort. Kind kan de was doen, toch?</p><p>Helaas werkt de werkelijkheid heel anders. Stripe en traditionele Nederlandse dubbele boekhoudsystemen zoals Exact Online spreken simpelweg niet dezelfde taal. Je krijgt van Stripe namelijk geen strakke, individuele bankafschriften. Wat je krijgt is een verzamelde uitbetaling (payout) om de paar dagen. Dit bedrag is een optelsom van je omzet minus transactiekosten, minus eventuele terugbetalingen (refunds) en soms inclusief valutaomrekeningen. Als je boekhouder die ene verzamelbetaling handmatig moet matchen met dertig verschillende facturen in Exact Online, is de frustratie compleet. Als je deze administratieve hoofdpijn herkent, dan zijn dat duidelijke <a href="/nl/blog/5-signs">signalen dat je huidige softwareoplossingen ontgroeid bent</a>.</p><h2>Waarom Standaard Koppelingen Je Grootboekrekeningen Verzieken</h2><p>Laten we de feiten onder ogen zien. Misschien heb je al gekeken naar goedkope, kant-en-klare plug-ins in de Exact App Store of geprobeerd om met Zapier-koppelingen iets in elkaar te zetten. Eerlijk gezegd werken die tools prima voor een kleine webshop, maar ze schieten hopeloos tekort zodra je volumes gaan groeien. Ze doen meestal één van de volgende twee dingen, en beide zijn funest voor je boekhouding. Ten eerste boeken ze elke Stripe-transactie los in als een verkoopboeking. Dat lijkt handig, tot je ontdekt dat je bankrekening een uitbetaling van €9.800 toont, terwijl je verkoopboekingen samen €10.000 bedragen. Die €200 aan Stripe-transactiekosten zweeft ergens in het luchtledige. Je boekhouder moet vervolgens handmatig gaan rekenen en deze kosten handmatig op een aparte grootboekrekening voor bankkosten boeken.</p><p>De tweede fout is nog veel hardnekkiger: het niet correct verwerken van de Nederlandse en Europese BTW-regels. Stripe weet uit zichzelf niet of een transactie belast moet worden met 21% BTW, 9% BTW of dat de BTW verlegd moet worden (intracommunautaire prestatie) voor een B2B-klant in Duitsland of Frankrijk. Als een standaard koppeling blind data overzet zonder de juiste fiscale logica, loop je direct risico op flinke correcties bij een BTW-controle. Dit soort foutgevoelige processen creëren serieuze <a href="/nl/blog/bottlenecks-guide">operationele knelpunten</a> die de groei van je organisatie ernstig kunnen belemmeren.</p><h2>De Oplossing: Een Structuur met Kruisposten</h2><p>Hoe lossen ervaren software developers en finance-specialisten dit structureel op? Door een op maat gemaakte middleware te bouwen die Stripe niet alleen als betaalmethode ziet, maar als een actieve virtuele bankrekening. Hierbij maken we gebruik van een slimme boekhoudkundige methode: de tussenrekening "Kruisposten Stripe". Hier is de exacte flow die de engineers van AutoFlow Studio implementeren om dit proces vlekkeloos te laten verlopen:</p><div class="highlight-box"><h3>De Geautomatiseerde Reconciliatie Flow</h3><ol><li><strong>De Transactie:</strong> Een klant rekent een B2B-factuur af van €1.000 + €210 BTW via Stripe. Stripe triggert direct een webhook.</li><li><strong>De Tijdelijke Boeking:</strong> Onze middleware vangt dit op en maakt een verkoopboeking aan in Exact Online. In plaats van de fysieke bankrekening, debiteert de software de tussenrekening "Kruisposten - Stripe" voor het volledige bedrag van €1.210.</li><li><strong>De Transactiekosten:</strong> De middleware haalt via de Stripe API de exacte transactiekosten op (bijvoorbeeld €15). Er wordt direct een boeking gemaakt in Exact Online: debet "Verkoopkosten / Stripe Fees" (€15) en credit "Kruisposten - Stripe" (€15).</li><li><strong>De Uitbetaling:</strong> Zodra Stripe een payout van €1.195 overboekt naar je Nederlandse bankrekening, registreren we de payout-ID. Wanneer het echte bankafschrift in Exact Online binnenkomt, matcht het systeem de €1.195 automatisch met de openstaande post op "Kruisposten - Stripe". De tussenrekening loopt hiermee perfect glad tot exact €0.</li></ol></div><p>Deze opzet is schoon, foutloos en scheelt je finance-afdeling zeeën van tijd. Het kan duizenden transacties per dag verwerken zonder dat er één handmatige handeling aan te pas komt. Als je definitief wilt stoppen met het verspillen van uren aan <a href="/nl/blog/10-repetitive-tasks">repetitieve handmatige taken</a>, is deze integratie de meest rendabele investering die je kunt doen.</p><h2>Technische Diepgang: De Architectuur Achter de Schermen</h2><p>Laten we kijken naar de techniek. Om dit robuust neer te zetten, kun je niet vertrouwen op simpele scripts. Je hebt een betrouwbare, event-driven architectuur nodig. Wij bouwen deze middleware bij voorkeur in Node.js of Python, gehost op beveiligde, GDPR-compliant servers binnen Europa. De middleware luistert continu naar Stripe Webhooks. De belangrijkste events die we opvangen zijn:</p><ul><li><code>charge.succeeded</code>: Om direct de verkoopboeking en de reservering op de tussenrekening aan te maken.</li><li><code>payout.created</code>: Om te weten wanneer Stripe een verzamelbetaling start en welke transacties hier precies in zitten.</li><li><code>charge.refunded</code>: Om retouren en terugbetalingen direct en foutloos in te boeken in Exact, zonder handmatig uitzoekwerk.</li></ul><p>Beveiliging is hierbij cruciaal. De webhook-endpoints moeten elke binnenkomende Stripe-signature cryptografisch valideren. Doe je dit niet, dan kan een kwaadwillende partij neptransacties naar je server sturen en je Exact Online administratie vervuilen met spookfacturen. Bij AutoFlow Studio bouwen we altijd strenge API-beveiliging en token-validatie in.</p><p>Bovendien heeft Exact Online strikte rate-limits. Als je op een drukke dag honderden betalingen tegelijk verwerkt en je middleware probeert deze allemaal tegelijk in Exact te schieten, krijg je gegarandeerd <code>429 Too Many Requests</code> foutmeldingen. Onze op maat gemaakte software maakt daarom gebruik van een geavanceerd wachtrijsysteem (zoals Redis met BullMQ). Mislukt een API-call door een tijdelijke storing of limiet? Dan zorgt de queue ervoor dat de transactie automatisch en met een slimme vertraging (exponential backoff) opnieuw wordt aangeboden. Zo gaat er nooit data verloren.</p><div class="results-box"><h3>Praktijkvoorbeeld: Succesvolle B2B Automatisering</h3><p>Voor een snelgroeiend Nederlands B2B-platform hebben we deze specifieke Stripe-naar-Exact koppeling gebouwd. Vóór de automatisering was de financieel controller elke maand ruim 4 volledige werkdagen bezig met het importeren van CSV-bestanden, het uitzoeken van transactie-ID's en het corrigeren van BTW-fouten. Na de livegang van onze maatwerk middleware is de maandafsluiting gereduceerd tot minder dan 15 minuten. Dit bespaart de organisatie ruim €2.500 per maand aan administratieve kosten én elimineert menselijke fouten volledig.</p></div><h2>Fiscale Uitdagingen: BTW en ICP Verleggen</h2><p>Nederlandse ondernemers hebben te maken met de strenge regels van de Belastingdienst. Verkoop je software of diensten aan zakelijke klanten binnen de EU? Dan moet de BTW vaak worden verlegd (communautaire levering). Onze maatwerk koppeling controleert via de VIES-database direct het BTW-nummer van de zakelijke klant zodra de Stripe-betaling binnenkomt. Vervolgens boekt de software de factuur in Exact Online automatisch met de juiste BTW-code (bijvoorbeeld 'BTW verlegd binnen de EU'), zodat je ICP-aangifte aan het einde van het kwartaal direct klaarstaat.</p><p>Met een op maat gemaakte integratie van AutoFlow Studio kies je voor een schaalbare oplossing die perfect aansluit op jouw specifieke financiële processen, zonder dat je vastzit aan dure, beperkte SaaS-plug-ins. Neem vandaag nog contact met ons op om jouw finance-reconciliatie volledig te automatiseren!</p></div>`,
   },
+  {
+    slug: 'custom-edi-integration-retail-wholesale',
+    title: `Custom EDI Integratie: Stop de Handmatige Orderverwerking voor Retail en Groothandel`,
+    desc: `Ben je klaar met het handmatig overtikken van orders? Ontdek hoe een custom EDI integratie Albert Heijn, Jumbo en Bol.com direct koppelt aan je ERP zonder hoge transactiekosten.`,
+    date: 'Juli 2026',
+    faqs: [
+      {
+            "q": "Wat is het verschil tussen een custom EDI middleware en een traditionele EDI-broker?",
+            "a": "Traditionele brokers sturen je bestanden via hun eigen platform en rekenen kosten per transactie (per order of factuur). Een custom middleware van AutoFlow Studio draait volledig op jouw eigen cloud-omgeving. Hierdoor betaal je geen transactiekosten, hoe hard je volume ook groeit."
+      },
+      {
+            "q": "Kan een custom EDI-koppeling ook met oudere ERP-systemen worden verbonden?",
+            "a": "Jazeker. Zelfs als je ERP geen moderne REST API heeft, kunnen we verbinding maken via directe database-koppelingen (zoals MS SQL of PostgreSQL), beveiligde FTP-bestandsuitwisselingen of maatwerk XML-imports. We maken het onmogelijke mogelijk."
+      },
+      {
+            "q": "Hoe lang duurt het om een nieuwe retailer zoals Albert Heijn of Jumbo aan te sluiten?",
+            "a": "Omdat onze middleware modulair is opgebouwd, hoeven we bij een nieuwe retailer niet vanaf nul te beginnen. Het aansluiten en testen van een nieuwe retailpartner duurt daardoor meestal slechts 1 tot 2 weken, in plaats van de maanden die legacy partijen hiervoor rekenen."
+      }
+],
+    body: `<div class="article-content">
+<div class="hero-image">
+  <img src="/images/blog_custom-edi-integration-retail-wholesale.png" alt="Custom EDI Integratie en Middleware voor Retailers en Groothandels" />
+</div>
+
+<p>Laten we heel eerlijk zijn. Als je een B2B-groothandel, fabrikant of merk bent dat levert aan retailreuzen zoals Albert Heijn, Jumbo, Kruidvat of Bol.com, dan heb je waarschijnlijk wel eens naar een onleesbaar EDI-bestand gestaard en je afgevraagd waar het misging. Het ziet eruit als een gecorrumpeerd tekstbestand uit de jaren 80. En toch eisen deze miljardenconcerns dat je er exact volgens hun regels mee werkt. Geen uitzonderingen, geen excuses.</p>
+
+<p>Dus, wat doet het gemiddelde groeiende bedrijf in Nederland? Ze zetten een waardevolle medewerker de hele dag achter een scherm om handmatig gegevens over te typen van een onhandig EDI-portaal naar een ERP-systeem zoals Exact Online, AFAS of Moneybird. Dat is geestdodend werk, ontzettend traag en een garantie voor dure fouten. Eén typefout in een artikelnummer of aantal, en je krijgt direct een boete of een geweigerde zending aan de poort van het distributiecentrum.</p>
+
+<p>Kijk, je hoeft niet te blijven bloeden door dit handmatige werk. Als je de <a href="/nl/blog/5-signs">signalen herkent dat je handmatig werk bent ontgroeid</a>, dan is het hoog tijd om een custom EDI integratie te bouwen die fungeert als een slimme, geautomatiseerde brug tussen de retailwereld en je eigen bedrijfssoftware.</p>
+
+<h2>Wat is EDI Nu Eigenlijk? (En Waarom Doet Het Zo'n Pijn?)</h2>
+
+<p>EDI staat voor Electronic Data Interchange. Het is decennia geleden ontworpen om verschillende computersystemen met elkaar te laten communiceren via strikt gestandaardiseerde tekstbestanden. In Europa is de meest gebruikte variant EDIFACT. In plaats van een nette, moderne JSON- of XML-structuur, ziet een EDIFACT-order (een zogeheten ORDERS-bericht) er ongeveer zo uit:</p>
+
+<pre><code>UNB+UNOA:2+SENDERID:14+RECEIVERID:14+231025:1012+1'
+UNH+1+ORDERS:D:96A:UN'
+BGM+220+ORD12345+9'
+DTM+137:20231025:102'
+NAD+BY+BUYER_GLN::9'
+LIN+1++8712345678901:EN'
+QTY+21:150:PCE'
+CNT+2:1'
+UNT+9+1'
+UNZ+1+1'</code></pre>
+
+<p>Voor een software engineer is dit een cryptische puzzel. Voor je operationele team is het een dagelijkse bron van stress. Als je geen systeem hebt dat dit automatisch vertaalt naar een verkooporder in je ERP, verlies je elke week tientallen uren. Handmatige data-invoer is dan ook een van de meest klassieke <a href="/nl/blog/10-repetitive-tasks">repetitieve taken die de tijd van je team verdoen</a>.</p>
+
+<p>En het blijft niet bij de inkomende orders. Retailers verwachten dat je gedurende het hele logistieke proces verschillende EDI-documenten terugstuurt:</p>
+<ul>
+  <li><strong>ORDRSP (Order Response):</strong> De bevestiging dat je de gevraagde voorraad daadwerkelijk kunt leveren.</li>
+  <li><strong>DESADV (Despatch Advice / Advanced Shipping Notice):</strong> Waarmee je hun distributiecentrum laat weten welke pallet er op welke vrachtwagen en op welk exact tijdstip aankomt.</li>
+  <li><strong>INVOIC (Invoice):</strong> De uiteindelijke digitale factuur. Als deze niet tot op de cent nauwkeurig overeenkomt met de inkooporder, wordt de betaling simpelweg geblokkeerd.</li>
+</ul>
+
+<div class="highlight-box">
+  <h3>De Valkuil van Traditionele EDI-Brokers</h3>
+  <p>Veel Nederlandse mkb-bedrijven trappen in de val van traditionele EDI-tussenpartijen (brokers). Deze legacy partijen rekenen torenhoge opstartkosten, hebben maanden nodig om een simpele koppeling met een retailer op te zetten, en belasten je vervolgens met een <strong>tarief per transactie</strong>. Als je groeit en duizenden orders verwerkt, betaal je maandelijks kapitalen alleen om simpele tekstbestanden door te sturen. Dat is geen schaalbaar businessmodel.</p>
+</div>
+
+<h2>Waarom Standaard SaaS-Koppelingen Vaak Falen</h2>
+
+<p>Misschien denk je: "Kan ik niet gewoon een goedkope Shopify- of WooCommerce-plugin installeren om dit op te lossen?" Of een standaard Exact Online EDI-koppeling uit de app store?</p>
+
+<p>Eerlijk gezegd? Nee. En wel hierom:</p>
+
+<h3>1. Het Probleem met "Dialecten"</h3>
+<p>Iedere retailer heeft zijn eigen specifieke "dialect" binnen de EDI-standaard. Hoewel Albert Heijn en Jumbo allebei EDIFACT gebruiken, zijn hun interne datavelden compleet verschillend. Albert Heijn eist bijvoorbeeld een specifieke Global Location Number (GLN) opbouw in het NAD-segment, terwijl Jumbo de hele file weigert als je de promotiecode in het BGM-segment vergeet. Standaard SaaS-tools zijn gebouwd voor algemene scenario's en lopen direct vast op deze specifieke, lokale retail-eisen.</p>
+
+<h3>2. Complexe Voorraad- en Allocatieregels</h3>
+<p>Wat gebeurt er als een retailer 500 stuks van een product bestelt, maar je hebt er nog maar 300 op voorraad? Een standaard plugin crasht, schiet een foutmelding in je ERP, of accepteert de order blind, waardoor je handmatig de boze inkoper moet gaan bellen. </p>
+<p>Met een custom middleware gebouwd door <strong>AutoFlow Studio</strong> richten we slimme allocatielogica in. Bijvoorbeeld: bij schaarste krijgt Albert Heijn prioriteit boven kleinere afnemers, wordt de ORDRSP (orderbevestiging) automatisch aangepast naar deellevering en krijgt je inkoopteam direct een seintje om nieuwe voorraad te bestellen.</p>
+
+<h3>3. Geen Flexibiliteit bij Foutafhandeling</h3>
+<p>Wanneer een standaard plugin een EDI-bestand niet kan verwerken, stopt het proces stilzwijgend. Je krijgt geen waarschuwing. Je weet niet wat er mis is. Je merkt het pas na drie dagen als de retailer gefrustreerd opbelt waar hun levering blijft. Een custom oplossing biedt een overzichtelijk dashboard met duidelijke, begrijpelijke foutmeldingen en directe notificaties via Slack of e-mail als er echt iets misgaat.</p>
+
+<h2>De Blauwdruk: Hoe Wij Een Moderne EDI Middleware Bouwen</h2>
+
+<p>Bij <strong>AutoFlow Studio</strong> geloven we niet in dure, gesloten softwarelicenties. In plaats daarvan ontwerpen en bouwen we een schone, cloud-native custom middleware die volledig jouw eigendom is. Dit is de technische architectuur die we meestal inzetten om dit probleem definitief op te lossen.</p>
+
+<div class="results-box">
+  <h3>De Moderne EDI-Pipeline in 5 Stappen</h3>
+  <ol>
+    <li><strong>Ingestielaag:</strong> Beveiligde verbinding via AS2 of SFTP. Zodra Albert Heijn een order klaarzet, wordt deze direct veilig binnengehaald in onze cloud-omgeving.</li>
+    <li><strong>Parsing & Validatie Engine:</strong> Een supersnelle microservice (gebouwd in Node.js of Python) vertaalt het cryptische EDIFACT-bestand direct naar een overzichtelijke JSON-structuur.</li>
+    <li><strong>Business Logic Hub:</strong> Het brein van de applicatie. Hier koppelen we de EAN-codes van de retailer aan jouw interne SKU's, controleren we de actuele voorraad en passen we jouw specifieke bedrijfsregels toe.</li>
+    <li><strong>ERP API Connector:</strong> De schone verkooporder wordt via de API direct ingeschoten in Exact Online, AFAS of je eigen database.</li>
+    <li><strong>Fulfillment Synchronisatie:</strong> Zodra je magazijn de order inpakt en op 'verzonden' zet, pikt onze middleware de zendingsdata op, genereert een perfect DESADV-bestand en stuurt dit direct terug naar de retailer.</li>
+  </ol>
+</div>
+
+<p>Dit hele proces verloopt in milliseconden. Geen handmatig overtikwerk. Geen typefouten. Geen stress. Je team hoeft alleen nog in actie te komen als er fysiek een voorraadtekort is, waardoor ze zich eindelijk kunnen richten op groei in plaats van administratieve rompslomp. Wil je meer weten over hoe je zulke processen structureel aanpakt? Lees dan onze <a href="/nl/blog/automation-intro">introductie tot procesautomatisering</a>.</p>
+
+<h2>De ROI van een Custom EDI Integratie</h2>
+
+<p>Laten we naar de cijfers kijken, want software moet onder de streep simpelweg geld opleveren. We vergelijken een traditionele EDI-broker met een custom middleware gebouwd door ons team.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Kostenpost</th>
+      <th>Traditionele EDI-Broker (SaaS)</th>
+      <th>Custom Middleware (AutoFlow Studio)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Opstartkosten</strong></td>
+      <td>Hoge consultancykosten per aangesloten retailer</td>
+      <td>Eenmalige ontwikkelingsinvestering, op maat gemaakt</td>
+    </tr>
+    <tr>
+      <td><strong>Maandelijkse licentie</strong></td>
+      <td>€150 tot €500 per maand</td>
+      <td>Minimale cloud-hostingkosten (€15 tot €50/maand)</td>
+    </tr>
+    <tr>
+      <td><strong>Transactiekosten</strong></td>
+      <td>€0,05 tot €0,25 per document (loopt snel op)</td>
+      <td><strong>€0,00</strong> (onbeperkt aantal documenten)</td>
+    </tr>
+    <tr>
+      <td><strong>Maatwerk logica</strong></td>
+      <td>Vrijwel onmogelijk of extreem duur</td>
+      <td>Volledig aanpasbaar aan jouw logistieke proces</td>
+    </tr>
+    <tr>
+      <td><strong>Eigendom</strong></td>
+      <td>Je zit voor altijd aan hun platform vast</td>
+      <td>De code en intellectuele eigendom zijn van jou</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Als je maandelijks zo'n 2.000 documenten (orders, pakbonnen, facturen) verwerkt, ben je bij een traditionele broker al snel honderden euro's per maand kwijt aan pure transactiekosten. Tel daarbij de uren op die je team kwijt is aan het oplossen van fouten, en een custom oplossing verdient zichzelf in no-time terug. Bovendien bouw je aan een waardevol eigen software-as-een-asset binnen je onderneming.</p>
+
+<h2>Geruisloos Overstappen Zonder Logistieke Downtime</h2>
+
+<p>We begrijpen de angst om je orderverwerking aan te passen. Je kunt het je simpelweg niet veroorloven dat de leveringen aan grote supermarktketens of webshops ook maar één dag stilvallen. </p>
+
+<p>Daarom werken we met een 'zero-downtime' integratiestrategie. We bouwen en testen de custom middleware volledig in een afgeschermde staging-omgeving. We simuleren het proces met testbestanden van je retailers om te garanderen dat elk dataveld perfect wordt vertaald. Pas als we honderden succesvolle testruns hebben gedraaid, zetten we de koppeling om – vaak in het weekend of buiten kantoortijden. Je operationele team merkt er niks van, behalve dat hun ERP maandagochtend ineens gevuld is met foutloze, geautomatiseerde verkooporders.</p>
+
+<p>Laat verouderde systemen niet langer bepalen hoe snel jouw groothandel kan groeien. Als je klaar bent om handmatige data-entry te elimineren, dure retailboetes te voorkomen en je volume op te schalen zonder extra personeel aan te nemen, laten we dan om tafel gaan.</p>
+
+<p>Neem vandaag nog contact op met <strong>AutoFlow Studio</strong> voor een gratis technisch adviesgesprek. We bekijken je huidige ERP-systeem, mappen de eisen van je retailers en laten je exact zien hoe een custom EDI integratie jouw bedrijf naar het volgende niveau tilt.</p>
+</div>`,
+  },
 ]
 export const getNlBlogBySlug = (slug) => NL_BLOG_POSTS.find(p => p.slug === slug)
