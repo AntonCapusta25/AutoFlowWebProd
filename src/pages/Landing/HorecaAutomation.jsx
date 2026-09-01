@@ -4,6 +4,7 @@ import '../../styles/landing-b2b.css'
 import Navbar from '../../components/Navbar'
 import PartnersStrip from '../../components/PartnersStrip'
 import HorecaYieldSimulator from '../../components/HorecaYieldSimulator'
+import HorecaGuestJourney from '../../components/HorecaGuestJourney'
 import SolutionHero from '../../components/SolutionHero'
 
 const TRANSLATIONS = {
