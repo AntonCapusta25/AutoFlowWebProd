@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import '../../styles/landing-b2b.css'
 import Navbar from '../../components/Navbar'
-import PartnersStrip from '../../components/PartnersStrip'
+import SolutionHero from '../../components/SolutionHero'
 
 const TRANSLATIONS = {
   en: {
@@ -257,46 +257,37 @@ export default function B2BAutomation({ lang }) {
       {/* Standardized Navbar */}
       <Navbar />
 
-      {/* ── Hero Section ── */}
-      <header className="b2b-section" style={{ paddingBottom: '0' }}>
-        <div className="b2b-container b2b-hero-grid">
-          <div className="b2b-hero-left">
-            {lang === 'nl' ? (
-              <h1>
-                Schaal B2B-operaties <span className="fancy-serif">zonder de</span> <br />
-                <span className="highlight">personeelstax</span> <span className="fancy-handwriting">automatisch</span>
-              </h1>
-            ) : (
-              <h1>
-                Scale B2B Operations <span className="fancy-serif">without the</span> <br />
-                <span className="highlight">headcount tax</span> <span className="fancy-handwriting">on autopilot</span>
-              </h1>
-            )}
-            <p>{t.hero.desc}</p>
-            <div className="b2b-hero-actions">
-              <button className="b2b-btn-primary" onClick={openBooking}>
-                {t.hero.ctaPrimary}
-                <span className="b2b-btn-icon-wrapper">↗</span>
-              </button>
-              <button 
-                className="b2b-btn-secondary" 
-                onClick={() => scrollToSection('roi')}
-              >
-                {t.hero.ctaSecondary}
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* Hero Section featuring 0831 (2).mov Red Video Loop & Interactive Typewriter */}
+      <SolutionHero
+        lang={lang}
+        eyebrow={lang === 'nl' ? '01 / B2B OPERATIES' : '01 / B2B OPERATIONS'}
+        headlinePrefix={lang === 'nl' ? 'SCHAAL B2B OPERATIES' : 'SCALE B2B OPERATIONS'}
+        headlineHighlight={lang === 'nl' ? 'ZONDER PERSONEELSTAX' : 'WITHOUT HEADCOUNT TAX'}
+        subText={t.hero.desc}
+        ctaText={t.hero.ctaPrimary}
+        ctaSecondaryText={t.hero.ctaSecondary}
+        typewriterItems={lang === 'nl' ? [
+          'facturen en herinneringen automatisch versturen...',
+          'data synchroniseren tussen CRM & boekhouding...',
+          'elke lead direct kwalificeren via AI...',
+          'handmatig knippen en plakken uitsluiten...'
+        ] : [
+          'sending invoices and payment reminders...',
+          'syncing data between CRM & ERP systems...',
+          'qualifying B2B leads instantly with AI...',
+          'eliminating manual copy-pasting forever...'
+        ]}
+        onOpenBooking={(query) => openBooking(query)}
+      />
 
         {/* ── Centered Interactive Demo Section ── */}
-        <div className="b2b-hero-demo">
+        <div className="b2b-hero-demo" style={{ marginTop: '-40px', position: 'relative', zIndex: 10 }}>
           <div className="b2b-double-bezel">
             <div className="b2b-bezel-inner">
               <MockCRM lang={lang} />
             </div>
           </div>
         </div>
-      </header>
 
       {/* ── Partners & APIs Strip ── */}
       <PartnersStrip lang={lang} darkBg={false} />

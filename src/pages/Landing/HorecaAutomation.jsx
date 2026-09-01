@@ -4,7 +4,7 @@ import '../../styles/landing-b2b.css'
 import Navbar from '../../components/Navbar'
 import PartnersStrip from '../../components/PartnersStrip'
 import HorecaYieldSimulator from '../../components/HorecaYieldSimulator'
-import HorecaGuestJourney from '../../components/HorecaGuestJourney'
+import SolutionHero from '../../components/SolutionHero'
 
 const TRANSLATIONS = {
   en: {
@@ -348,50 +348,28 @@ export default function HorecaAutomation({ lang }) {
     <div className="b2b-landing red-landing" style={{ background: '#f7f5f0', color: '#1c1917' }}>
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="b2b-section" style={{ paddingTop: '170px', paddingBottom: '110px', background: '#f7f5f0' }}>
-        <div className="b2b-container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1.05fr 0.95fr', gap: '56px', alignItems: 'center' }}>
-            {/* Left Content */}
-            <div>
-              <span style={{ display: 'inline-block', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#991b1b', marginBottom: '20px' }}>
-                01 / {t.hero.eyebrow}
-              </span>
-              <h1 style={{ fontSize: '3.6rem', lineHeight: '1.1', marginBottom: '24px', letterSpacing: '-0.03em', fontFamily: "'Space Grotesk', sans-serif", color: '#1c1917', fontWeight: 400 }}>
-                {t.hero.heading}
-                <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400, color: '#991b1b', display: 'block', marginTop: '6px' }}>{t.hero.headingHighlight}</span>
-              </h1>
-              <p style={{ fontSize: '1.15rem', color: '#57534e', marginBottom: '40px', lineHeight: '1.65' }}>
-                {t.hero.desc}
-              </p>
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                <button onClick={openBooking} className="b2b-btn-primary" style={{ background: '#1c1917', borderColor: '#1c1917', color: '#faf8f5', borderRadius: '50px', padding: '14px 32px', fontWeight: 600 }}>{t.hero.ctaPrimary}</button>
-                <a href="#roi" className="b2b-btn-secondary" style={{ borderRadius: '50px', padding: '14px 28px', border: '1px solid rgba(28,25,23,0.2)', color: '#1c1917' }}>{t.hero.ctaSecondary}</a>
-              </div>
-            </div>
-
-            {/* Right Visual Image Frame */}
-            <div style={{ background: '#eae6df', borderRadius: '32px', padding: '12px', border: '1px solid rgba(28,25,23,0.1)', position: 'relative' }}>
-              <div style={{ background: '#ffffff', borderRadius: '24px', padding: '16px', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(28,25,23,0.08)' }}>
-                <img 
-                  src="/images/crm_dashboard_ui_1778858853633.png" 
-                  alt="Horeca Operational Dashboard UI" 
-                  style={{ width: '100%', height: 'auto', borderRadius: '16px', display: 'block' }}
-                />
-              </div>
-
-              {/* Floating Live Badges */}
-              <div style={{ position: 'absolute', bottom: '-15px', left: '30px', background: '#1c1917', color: '#faf8f5', padding: '10px 20px', borderRadius: '50px', fontSize: '0.82rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 15px 35px rgba(0,0,0,0.15)', border: '1px solid rgba(255,255,255,0.15)' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }}></span>
-                0% Commission Direct Engine Active
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Partners & APIs Strip */}
-      <PartnersStrip lang={lang} darkBg={false} />
+      {/* Hero Section featuring 0831 (2).mov Red Video Loop & Interactive Typewriter */}
+      <SolutionHero
+        lang={lang}
+        eyebrow={`01 / ${t.hero.eyebrow}`}
+        headlinePrefix={t.hero.heading}
+        headlineHighlight={t.hero.headingHighlight}
+        subText={t.hero.desc}
+        ctaText={t.hero.ctaPrimary}
+        ctaSecondaryText={t.hero.ctaSecondary}
+        typewriterItems={lang === 'nl' ? [
+          'no-shows automatisch verminderen...',
+          'kassa en reserveringen synchroniseren...',
+          '24/7 gastvragen beantwoorden via WhatsApp...',
+          '5-sterren Google reviews automatisch boosten...'
+        ] : [
+          'reducing table no-shows automatically...',
+          'syncing POS and reservation engines...',
+          'replying to guest emails & WhatsApp 24/7...',
+          'boosting 5-star Google reviews on autopilot...'
+        ]}
+        onOpenBooking={(query) => openBooking(query)}
+      />
 
       {/* Interactive CRM Demo */}
       <section className="b2b-section" id="solutions" style={{ padding: '96px 0', background: '#faf8f5', borderTop: '1px solid rgba(28,25,23,0.08)' }}>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import '../../styles/landing-b2b.css'
+import SolutionHero from '../../components/SolutionHero'
 
 const TRANSLATIONS = {
   en: {
@@ -284,25 +285,28 @@ export default function HVACAutomation({ lang }) {
         </ul>
       </nav>
 
-      {/* ── Hero Section ── */}
-      <section className="b2b-section" style={{ paddingTop: '180px', paddingBottom: '100px' }}>
-        <div className="b2b-container">
-          <div style={{ textAlign: 'center', maxWidth: '850px', margin: '0 auto' }}>
-            <span className="b2b-tag">{t.hero.eyebrow}</span>
-            <h1 style={{ fontSize: '3.4rem', lineHeight: '1.15', marginBottom: '24px', letterSpacing: '-0.03em', fontFamily: "'Space Grotesk', sans-serif" }}>
-              {t.hero.heading}
-              <span style={{ color: 'var(--b2b-primary)', fontStyle: 'italic', display: 'block' }}>{t.hero.headingHighlight}</span>
-            </h1>
-            <p style={{ fontSize: '1.15rem', color: 'var(--b2b-text-muted)', marginBottom: '40px', lineHeight: '1.6' }}>
-              {t.hero.desc}
-            </p>
-            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button onClick={openBooking} className="b2b-btn-primary">{t.hero.ctaPrimary}</button>
-              <a href="#roi" className="b2b-btn-secondary">{t.hero.ctaSecondary}</a>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Section featuring 0831 (2).mov Red Video Loop & Interactive Typewriter */}
+      <SolutionHero
+        lang={lang}
+        eyebrow={lang === 'nl' ? '01 / HVAC & FIELD SERVICE' : '01 / HVAC & FIELD SERVICE'}
+        headlinePrefix={t.hero.heading}
+        headlineHighlight={t.hero.headingHighlight}
+        subText={t.hero.desc}
+        ctaText={t.hero.ctaPrimary}
+        ctaSecondaryText={t.hero.ctaSecondary}
+        typewriterItems={lang === 'nl' ? [
+          'technici en werkbonnen automatisch inplannen...',
+          'facturatie koppelen aan veldwerk-updates...',
+          'klantherinneringen sturen via SMS & WhatsApp...',
+          'dubbel werk en papierwerk uitsluiten...'
+        ] : [
+          'scheduling technicians and job dispatching...',
+          'syncing field updates directly with invoicing...',
+          'sending automated SMS & WhatsApp job alerts...',
+          'eliminating paperwork and double dispatch...'
+        ]}
+        onOpenBooking={(query) => openBooking(query)}
+      />
 
       {/* ── Interactive CRM Mockup Section ── */}
       <section className="b2b-section alt-bg" id="solutions" style={{ padding: '80px 0' }}>
