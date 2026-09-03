@@ -4,13 +4,30 @@ import React, { useState, useEffect } from 'react'
  * Aircall Floating Web Phone & CTI Dialer Widget
  *
  * Embeds official Aircall Web Phone (https://phone.aircall.io).
- * Reps log in once in the iframe; clicking any lead's phone number
- * auto-opens the dialer and loads the number ready to call directly inside CRM.
+ * Automatically requests parent window microphone permission so Chrome
+ * grants audio access to the embedded iframe without permission error banners.
  */
 export default function AircallWidget() {
   const [isOpen, setIsOpen] = useState(false)
   const [activeNumber, setActiveNumber] = useState('')
   const [activeLeadName, setActiveLeadName] = useState('')
+  const [micStatus, setMicStatus] = useState('prompt') // 'prompt', 'granted', 'denied'
+
+  // Request browser microphone permission on parent window
+  async function requestMicrophonePermission() {
+    if (typeof navigator !== 'undefined' && navigator.mediaDevices?.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+        console.log('[aircall-widget] Microphone permission granted!')
+        setMicStatus('granted')
+        // Stop temporary track stream
+        stream.getTracks().forEach(track => track.stop())
+      } catch (err) {
+        console.warn('[aircall-widget] Microphone permission denied or prompt error:', err)
+        setMicStatus('denied')
+      }
+    }
+  }
 
   useEffect(() => {
     function handleDialEvent(e) {
@@ -18,18 +35,25 @@ export default function AircallWidget() {
         setActiveNumber(e.detail.phone)
         setActiveLeadName(e.detail.leadName || e.detail.company || '')
         setIsOpen(true)
+        requestMicrophonePermission()
       }
     }
+
     window.addEventListener('aircall:dial', handleDialEvent)
     return () => window.removeEventListener('aircall:dial', handleDialEvent)
   }, [])
+
+  const handleOpen = () => {
+    setIsOpen(true)
+    requestMicrophonePermission()
+  }
 
   return (
     <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 99999, fontFamily: 'Arial, sans-serif' }}>
       {/* Floating Toggle Button */}
       {!isOpen && (
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={handleOpen}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -60,9 +84,9 @@ export default function AircallWidget() {
         <div
           style={{
             width: '380px',
-            height: '620px',
+            height: '640px',
             maxWidth: '92vw',
-            maxHeight: '85vh',
+            maxHeight: '88vh',
             background: '#0d1117',
             border: '1px solid rgba(0, 178, 169, 0.4)',
             borderRadius: '20px',
@@ -103,6 +127,28 @@ export default function AircallWidget() {
               ✕
             </button>
           </div>
+
+          {/* Microphone Permission Prompt Bar if denied/not granted */}
+          {micStatus !== 'granted' && (
+            <div style={{ padding: '10px 16px', background: 'rgba(245, 158, 11, 0.15)', borderBottom: '1px solid rgba(245, 158, 11, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', color: '#fbbf24' }}>
+              <span>🎙️ Allow Microphone Access for Calls</span>
+              <button
+                onClick={requestMicrophonePermission}
+                style={{
+                  padding: '4px 10px',
+                  background: '#f59e0b',
+                  color: 'black',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontWeight: 800,
+                  fontSize: '0.75rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Enable Mic
+              </button>
+            </div>
+          )}
 
           {/* Active Lead Info Sub-bar */}
           {activeNumber && (
