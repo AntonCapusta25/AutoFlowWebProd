@@ -6,6 +6,8 @@ import FollowUpCalendar from './FollowUpCalendar'
 import { parseFollowUpDate } from '../../lib/followUpParser'
 import { scheduleFollowUp } from '../../lib/followUps'
 import { getLeadLocalTimeStr } from '../../lib/timezone'
+import { triggerAircall } from '../../lib/aircall'
+import AircallWidget from './AircallWidget'
 
 export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle = "Manage your leads." }) {
   const { user, isAdmin, profile, salespeople, loading: authLoading } = useAdmin()
@@ -1684,7 +1686,16 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                     <td style={{ padding: '20px', minWidth: '160px', width: '160px', whiteSpace: 'nowrap' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#CBD5E1', fontSize: '0.85rem', fontWeight: 600 }}>
                         {lead.phone ? (
-                          <a href={`tel:${lead.phone}`} onClick={e => e.stopPropagation()} style={{ color: '#d1bbfb', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <a
+                            href={`tel:${lead.phone}`}
+                            onClick={e => {
+                              e.stopPropagation()
+                              e.preventDefault()
+                              triggerAircall(lead.phone, { leadId: lead.id, leadName: lead.name, company: lead.company })
+                            }}
+                            title="Click to Call via Aircall"
+                            style={{ color: '#00B2A9', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: 700 }}
+                          >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                             {lead.phone}
                           </a>
@@ -1889,7 +1900,14 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                 <h3 style={{ margin: '0 0 4px', color: 'white', fontSize: '1.4rem', fontWeight: 800, display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap' }}>
                   <span>{activeLead.name || 'Unnamed'}</span>
                   {activeLead.phone && (
-                    <a href={`tel:${activeLead.phone}`} style={{ fontSize: '0.95rem', color: '#d1bbfb', fontWeight: 500, textDecoration: 'none' }}>
+                    <a 
+                      href={`tel:${activeLead.phone}`}
+                      onClick={e => {
+                        e.preventDefault()
+                        triggerAircall(activeLead.phone, { leadId: activeLead.id, leadName: activeLead.name, company: activeLead.company })
+                      }}
+                      style={{ fontSize: '0.95rem', color: '#d1bbfb', fontWeight: 500, textDecoration: 'none', cursor: 'pointer' }}
+                    >
                       ({activeLead.phone})
                     </a>
                   )}
@@ -2870,6 +2888,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           </div>
         )
       })()}
+      <AircallWidget />
     </>
   )
 }
