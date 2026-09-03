@@ -262,6 +262,28 @@ Deno.serve(async (req) => {
     const { type, name, email, company, message, service, size, platform, recipient, subject: customSubject, emailLogId } = body
     console.log(`[send-email] type=${type} recipient=${recipient || email}`)
 
+    // ── aircall_dial (Aircall Outbound Call API) ───────────────────────────
+    if (type === 'aircall_dial') {
+      const { phone } = body
+      if (!phone) throw new Error('Missing required aircall_dial field: phone')
+      const b64 = btoa('f5faee77fd7497d482376fae85cf85cf:10e3d5746a9e19b1ad96a56463c73842')
+      const dialRes = await fetch('https://api.aircall.io/v1/users/2055112/calls', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${b64}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          to: phone,
+          number_id: 1369705
+        })
+      })
+      console.log(`[aircall_dial] Triggered call to ${phone}, HTTP status: ${dialRes.status}`)
+      return new Response(JSON.stringify({ success: true, status: dialRes.status }), {
+        headers: { 'Content-Type': 'application/json', ...CORS }
+      })
+    }
+
     // ── get_busy_times (Google Calendar API) ───────────────────────────────
     if (type === 'get_busy_times') {
       const { timeMin, timeMax } = body
