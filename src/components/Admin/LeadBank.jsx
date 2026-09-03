@@ -7,6 +7,7 @@ import { parseFollowUpDate } from '../../lib/followUpParser'
 import { scheduleFollowUp } from '../../lib/followUps'
 import { getLeadLocalTimeStr } from '../../lib/timezone'
 import { triggerAircall } from '../../lib/aircall'
+import AircallWidget from './AircallWidget'
 
 export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle = "Manage your leads." }) {
   const { user, isAdmin, profile, salespeople, loading: authLoading } = useAdmin()
@@ -2887,6 +2888,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           </div>
         )
       })()}
+      <AircallWidget />
     </>
   )
 }

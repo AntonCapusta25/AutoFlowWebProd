@@ -1,17 +1,13 @@
 import { supabase } from './supabase'
 
 /**
- * Aircall Direct Auto-Dial Utility for AutoFlow Studio CRM
+ * Aircall CTI & Web Phone Launcher Utility for AutoFlow Studio CRM
  *
- * Initiates Aircall outbound calls exclusively via Aircall API:
+ * Integrates directly with embedded Aircall Web Phone (https://phone.aircall.io)
+ * and Aircall REST API:
  * - User: Walid Sabihi (ID: 2055112)
  * - Line: AutoFlow Studio dialers (+1 888-752-5240 | ID: 1369705)
- * - Zero personal phone calls (tel:) - Aircall line only.
  */
-
-const AUTH_HEADER = 'Basic ZjVmYWVlNzdmZDc0OTdkNDgyMzc2ZmFlODVjZjg1Y2Y6MTBlM2Q1NzQ2YTllMTliMWFkOTZhNTY0NjNjNzM4NDI='
-const DEFAULT_USER_ID = 2055112
-const DEFAULT_NUMBER_ID = 1369705
 
 /**
  * Format phone number into clean E.164 international format (+31..., +1...)
@@ -45,7 +41,7 @@ function showStatusToast(message, isError = false) {
     position: fixed;
     bottom: 24px;
     right: 24px;
-    z-index: 10000;
+    z-index: 100000;
     padding: 14px 22px;
     border-radius: 14px;
     background: ${isError ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #00B2A9, #006666)'};
@@ -74,59 +70,29 @@ function showStatusToast(message, isError = false) {
 }
 
 /**
- * Execute actual HTTP POST request to Aircall API (Serverless Gateway + Direct Fallback)
+ * Execute Dial: Dispatch event to embedded Aircall Phone drawer + send backend API trigger
  */
 async function executeAircallDial(cleanPhone, leadName) {
-  showStatusToast(`📞 Initiating Aircall dial for ${leadName ? `<strong>${leadName}</strong> (${cleanPhone})` : `<strong>${cleanPhone}</strong>`}…`)
+  showStatusToast(`📞 Opening Aircall Web Phone for ${leadName ? `<strong>${leadName}</strong> (${cleanPhone})` : `<strong>${cleanPhone}</strong>`}…`)
 
-  // 1. Try primary backend gateway via Supabase Function (deployed and CORS-safe)
+  // 1. Dispatch custom event to pop open embedded Aircall Web Phone drawer loaded with cleanPhone
+  const dialEvent = new CustomEvent('aircall:dial', {
+    detail: { phone: cleanPhone, leadName }
+  })
+  window.dispatchEvent(dialEvent)
+
+  // 2. Trigger API call via Supabase Gateway in background
   try {
-    const { data, error } = await supabase.functions.invoke('send-email', {
+    await supabase.functions.invoke('send-email', {
       body: { type: 'aircall_dial', phone: cleanPhone }
     })
-    if (!error && data?.success) {
-      console.log('[aircall] Call initiated via send-email gateway!')
-      showStatusToast(`📞 Aircall call triggered for ${cleanPhone}!`)
-      return { success: true }
-    }
   } catch (e) {
-    console.log('[aircall] Gateway notice:', e)
-  }
-
-  // 2. Direct client-side fetch to Aircall REST API
-  try {
-    const res = await fetch(`https://api.aircall.io/v1/users/${DEFAULT_USER_ID}/calls`, {
-      method: 'POST',
-      headers: {
-        'Authorization': AUTH_HEADER,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        to: cleanPhone,
-        number_id: DEFAULT_NUMBER_ID
-      })
-    })
-
-    if (res.ok || res.status === 204) {
-      console.log(`[aircall] Direct Aircall API call triggered (HTTP ${res.status})`)
-      showStatusToast(`📞 Aircall call triggered for ${cleanPhone}!`)
-      return { success: true }
-    }
-
-    const data = await res.json().catch(() => ({}))
-    const errMsg = data.troubleshoot || data.message || `HTTP ${res.status}`
-    console.warn('[aircall] Call response warning:', errMsg)
-    showStatusToast(`📞 Call sent to Aircall line (${cleanPhone})`)
-    return { success: true }
-  } catch (err) {
-    console.log('[aircall] Fetch exception:', err)
-    showStatusToast(`📞 Call command dispatched for ${cleanPhone}`)
-    return { success: true }
+    console.log('[aircall] API dial background notice:', e)
   }
 }
 
 /**
- * Trigger Aircall Call with Popup Countdown Modal & Cancel Button
+ * Trigger Aircall Call with 3-Second Popup Countdown Modal & Cancel Button
  */
 export function triggerAircall(rawPhone, options = {}) {
   if (!rawPhone) return null
@@ -146,8 +112,8 @@ export function triggerAircall(rawPhone, options = {}) {
   modal.style.cssText = `
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    z-index: 99999;
-    background: rgba(0, 0, 0, 0.7);
+    z-index: 999999;
+    background: rgba(0, 0, 0, 0.75);
     backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
@@ -161,10 +127,10 @@ export function triggerAircall(rawPhone, options = {}) {
       background: #0d1117;
       border: 1px solid rgba(0, 178, 169, 0.4);
       border-radius: 20px;
-      padding: 28px 28px;
+      padding: 28px 32px;
       width: 380px;
       max-width: 90vw;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
       text-align: center;
       color: white;
     ">
@@ -188,7 +154,7 @@ export function triggerAircall(rawPhone, options = {}) {
       </p>
 
       <p style="margin: 0 0 24px; font-size: 0.85rem; color: #94A3B8;">
-        Initiating Aircall dialer in <span id="aircall-timer-text" style="color: white; font-weight: 700;">3 seconds</span>…
+        Opening Aircall Web Phone in <span id="aircall-timer-text" style="color: white; font-weight: 700;">3 seconds</span>…
       </p>
 
       <div style="display: flex; gap: 12px; justify-content: center;">
