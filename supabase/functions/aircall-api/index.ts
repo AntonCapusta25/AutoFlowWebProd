@@ -2,8 +2,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.8'
 
 const AIRCALL_API_ID = Deno.env.get('AIRCALL_API_ID') || 'f5faee77fd7497d482376fae85cf85cf'
 const AIRCALL_API_TOKEN = Deno.env.get('AIRCALL_API_TOKEN') || '10e3d5746a9e19b1ad96a56463c73842'
-const DEFAULT_NUMBER_ID = '1369705' // AutoFlow Studio dialers (+1 888-752-5240)
-const DEFAULT_USER_ID = '2055112' // Walid Sabihi
+const DEFAULT_NUMBER_ID = 1369705 // AutoFlow Studio dialers (+1 888-752-5240)
+const DEFAULT_USER_ID = 2055112 // Walid Sabihi
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -21,29 +21,18 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const url = new URL(req.url)
-    const path = url.pathname.split('/').pop()
     const body = req.method === 'POST' ? await req.json() : {}
+    const phone = body.phone
+    const action = body.action || 'dial'
 
-    // 1. Get Aircall User & Number status
-    if (path === 'status' || path === 'aircall-api') {
-      const res = await fetch('https://api.aircall.io/v1/ping', {
-        headers: { 'Authorization': getAuthHeader() }
-      })
-      const data = await res.json()
-      return new Response(JSON.stringify({ success: true, ping: data, user_id: DEFAULT_USER_ID, number_id: DEFAULT_NUMBER_ID }), {
-        headers: { 'Content-Type': 'application/json', ...CORS }
-      })
-    }
+    console.log(`[aircall-api] Action=${action}, phone=${phone}`)
 
-    // 2. Start an Outbound Call via Aircall API
-    if (path === 'dial') {
-      const { phone, leadName } = body
+    // Direct Automatic Outbound Dial via Aircall API
+    if (phone || action === 'dial') {
       if (!phone) throw new Error('Missing required field: phone')
 
-      console.log(`[aircall-api] Initiating call to ${phone} for lead: ${leadName || 'Unknown'}`)
+      console.log(`[aircall-api] Triggering automatic call to ${phone} via Aircall API...`)
 
-      // Call Aircall API to trigger call for user
       const dialRes = await fetch(`https://api.aircall.io/v1/users/${DEFAULT_USER_ID}/calls`, {
         method: 'POST',
         headers: {
@@ -57,29 +46,16 @@ Deno.serve(async (req) => {
       })
 
       const dialData = await dialRes.json()
-      console.log('[aircall-api] Dial response:', dialData)
+      console.log('[aircall-api] Aircall API Dial Response:', JSON.stringify(dialData))
 
       return new Response(JSON.stringify({ success: true, data: dialData }), {
         headers: { 'Content-Type': 'application/json', ...CORS }
       })
     }
 
-    // 3. Fetch Recent Aircall Calls
-    if (path === 'calls') {
-      const callsRes = await fetch('https://api.aircall.io/v1/calls?order=desc&per_page=20', {
-        headers: { 'Authorization': getAuthHeader() }
-      })
-      const callsData = await callsRes.json()
-      return new Response(JSON.stringify({ success: true, calls: callsData.calls || [] }), {
-        headers: { 'Content-Type': 'application/json', ...CORS }
-      })
-    }
-
-    // 4. Create/Sync Contact in Aircall
-    if (path === 'sync-contact') {
-      const { name, phone, email, company } = body
-      if (!phone) throw new Error('Missing required field: phone')
-
+    // Sync Contact to Aircall
+    if (action === 'sync-contact') {
+      const { name, email, company } = body
       const contactRes = await fetch('https://api.aircall.io/v1/contacts', {
         method: 'POST',
         headers: {
@@ -94,13 +70,13 @@ Deno.serve(async (req) => {
         })
       })
       const contactData = await contactRes.json()
-      return new Response(JSON.stringify({ success: true, contact: contactData.contact }), {
+      return new Response(JSON.stringify({ success: true, contact: contactData }), {
         headers: { 'Content-Type': 'application/json', ...CORS }
       })
     }
 
-    return new Response(JSON.stringify({ error: 'Unknown action' }), {
-      status: 404,
+    return new Response(JSON.stringify({ error: 'Invalid payload' }), {
+      status: 400,
       headers: { 'Content-Type': 'application/json', ...CORS }
     })
   } catch (err: any) {
