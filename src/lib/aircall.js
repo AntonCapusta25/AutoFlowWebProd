@@ -7,14 +7,11 @@
  * - Supports native mobile device calling (tel:) when opened on phones/tablets
  */
 
-const AIRCALL_API_ID = 'f5faee77fd7497d482376fae85cf85cf'
-const AIRCALL_API_TOKEN = '10e3d5746a9e19b1ad96a56463c73842'
 const DEFAULT_USER_ID = 2055112
 const DEFAULT_NUMBER_ID = 1369705
-
-function getAuthHeader() {
-  return 'Basic ' + btoa(`${AIRCALL_API_ID}:${AIRCALL_API_TOKEN}`)
-}
+// Pre-encoded Base64 string for "f5faee77fd7497d482376fae85cf85cf:10e3d5746a9e19b1ad96a56463c73842"
+// (Avoids btoa DOMException "The string did not match the expected pattern" in iOS Safari / WebKit)
+const AUTH_HEADER = 'Basic ZjVmYWVlNzdmZDc0OTdkNDgyMzc2ZmFlODVjZjg1Y2Y6MTBlM2Q1NzQ2YTllMTliMWFkOTZhNTY0NjNjNzM4NDI='
 
 /**
  * Check if current user is on a mobile device (iPhone, iPad, Android)
@@ -99,7 +96,7 @@ async function executeAircallDial(cleanPhone, leadName, useNativeTel = false) {
     const res = await fetch(`https://api.aircall.io/v1/users/${DEFAULT_USER_ID}/calls`, {
       method: 'POST',
       headers: {
-        'Authorization': getAuthHeader(),
+        'Authorization': AUTH_HEADER,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
