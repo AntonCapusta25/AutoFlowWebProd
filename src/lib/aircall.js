@@ -108,25 +108,21 @@ async function executeAircallDial(cleanPhone, leadName, useNativeTel = false) {
       })
     })
 
-    const data = await res.json()
-    console.log('[aircall] Direct API Call Result:', data)
-
-    if (!res.ok || data.error) {
-      const errMsg = data.troubleshoot || data.message || 'Call failed'
+    // Aircall returns HTTP 204 No Content on successful call trigger (no JSON body)
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      const errMsg = data.troubleshoot || data.message || `Call failed (HTTP ${res.status})`
       console.warn('[aircall] Call failed:', errMsg)
-      if (!isMobileDevice()) {
-        showStatusToast(`⚠️ Aircall Failed: ${errMsg}`, true)
-      }
+      showStatusToast(`⚠️ Aircall Failed: ${errMsg}`, true)
       return null
     }
 
+    console.log(`[aircall] Aircall API call successfully triggered (HTTP ${res.status})`)
     showStatusToast(`📞 Dialing ${leadName ? `<strong>${leadName}</strong> (${cleanPhone})` : `<strong>${cleanPhone}</strong>`} via Aircall…`)
-    return data
+    return { success: true }
   } catch (err) {
     console.error('[aircall] Network error during Aircall API call:', err)
-    if (!isMobileDevice()) {
-      showStatusToast(`⚠️ Error connecting to Aircall: ${err.message}`, true)
-    }
+    showStatusToast(`⚠️ Error connecting to Aircall: ${err.message}`, true)
     return null
   }
 }
