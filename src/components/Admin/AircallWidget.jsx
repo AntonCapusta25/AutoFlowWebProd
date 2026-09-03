@@ -121,7 +121,7 @@ export default function AircallWidget() {
           <iframe
             src={`https://phone.aircall.io${activeNumber ? `?number=${encodeURIComponent(activeNumber)}` : ''}`}
             title="Aircall Web Phone"
-            allow="microphone; autoplay; clipboard-read; clipboard-write"
+            allow="microphone; camera; autoplay; clipboard-read; clipboard-write; display-capture; speaker-selection; hid"
             style={{
               width: '100%',
               height: '100%',
