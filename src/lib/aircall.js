@@ -4,6 +4,7 @@
  * Calls Aircall REST API directly from the browser with Basic Auth credentials:
  * - User: Walid Sabihi (ID: 2055112)
  * - Line: AutoFlow Studio dialers (+1 888-752-5240 | ID: 1369705)
+ * - Supports native mobile device calling (tel:) when opened on phones/tablets
  */
 
 const AIRCALL_API_ID = 'f5faee77fd7497d482376fae85cf85cf'
@@ -13,6 +14,13 @@ const DEFAULT_NUMBER_ID = 1369705
 
 function getAuthHeader() {
   return 'Basic ' + btoa(`${AIRCALL_API_ID}:${AIRCALL_API_TOKEN}`)
+}
+
+/**
+ * Check if current user is on a mobile device (iPhone, iPad, Android)
+ */
+export function isMobileDevice() {
+  return typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 }
 
 /**
@@ -76,9 +84,15 @@ function showStatusToast(message, isError = false) {
 }
 
 /**
- * Execute actual HTTP POST request to Aircall API
+ * Execute actual HTTP POST request to Aircall API & trigger native device call on mobile
  */
-async function executeAircallDial(cleanPhone, leadName) {
+async function executeAircallDial(cleanPhone, leadName, useNativeTel = false) {
+  // If native tel requested or on mobile device, trigger phone's native dialer
+  if (useNativeTel || isMobileDevice()) {
+    console.log(`[aircall] Triggering native mobile device dialer for ${cleanPhone}...`)
+    window.location.href = `tel:${cleanPhone}`
+  }
+
   try {
     console.log(`[aircall] Initiating direct Aircall API call to ${cleanPhone}...`)
 
@@ -100,7 +114,9 @@ async function executeAircallDial(cleanPhone, leadName) {
     if (!res.ok || data.error) {
       const errMsg = data.troubleshoot || data.message || 'Call failed'
       console.warn('[aircall] Call failed:', errMsg)
-      showStatusToast(`⚠️ Aircall Failed: ${errMsg}`, true)
+      if (!isMobileDevice()) {
+        showStatusToast(`⚠️ Aircall Failed: ${errMsg}`, true)
+      }
       return null
     }
 
@@ -108,7 +124,9 @@ async function executeAircallDial(cleanPhone, leadName) {
     return data
   } catch (err) {
     console.error('[aircall] Network error during Aircall API call:', err)
-    showStatusToast(`⚠️ Error connecting to Aircall: ${err.message}`, true)
+    if (!isMobileDevice()) {
+      showStatusToast(`⚠️ Error connecting to Aircall: ${err.message}`, true)
+    }
     return null
   }
 }
@@ -120,6 +138,7 @@ export function triggerAircall(rawPhone, options = {}) {
   if (!rawPhone) return null
   const cleanPhone = formatE164(rawPhone)
   const leadName = options.leadName || options.company || cleanPhone
+  const isMobile = isMobileDevice()
 
   // Remove any previous active modal
   const existingModal = document.getElementById('aircall-countdown-modal')
@@ -149,8 +168,8 @@ export function triggerAircall(rawPhone, options = {}) {
       background: #0d1117;
       border: 1px solid rgba(0, 178, 169, 0.4);
       border-radius: 20px;
-      padding: 28px 32px;
-      width: 380px;
+      padding: 28px 24px;
+      width: 400px;
       max-width: 90vw;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
       text-align: center;
@@ -171,44 +190,59 @@ export function triggerAircall(rawPhone, options = {}) {
       <h3 style="margin: 0 0 6px; font-size: 1.2rem; font-weight: 800; color: white;">
         Calling ${leadName}
       </h3>
-      <p style="margin: 0 0 20px; font-size: 0.95rem; color: #00B2A9; font-weight: 700;">
+      <p style="margin: 0 0 16px; font-size: 0.95rem; color: #00B2A9; font-weight: 700;">
         ${cleanPhone}
       </p>
 
       <p style="margin: 0 0 24px; font-size: 0.85rem; color: #94A3B8;">
-        Initiating Aircall dialer in <span id="aircall-timer-text" style="color: white; font-weight: 700;">3 seconds</span>…
+        Initiating ${isMobile ? 'mobile call & Aircall' : 'Aircall dialer'} in <span id="aircall-timer-text" style="color: white; font-weight: 700;">3 seconds</span>…
       </p>
 
-      <div style="display: flex; gap: 12px; justify-content: center;">
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
         <button id="aircall-cancel-btn" style="
-          flex: 1;
-          padding: 12px 18px;
+          flex: 1; min-width: 100px;
+          padding: 12px 14px;
           background: rgba(239, 68, 68, 0.15);
           border: 1px solid rgba(239, 68, 68, 0.4);
           color: #fca5a5;
           border-radius: 12px;
           font-weight: 700;
-          font-size: 0.9rem;
+          font-size: 0.85rem;
           cursor: pointer;
           transition: all 0.2s;
         ">
-          ✕ Cancel Call
+          ✕ Cancel
+        </button>
+
+        <button id="aircall-device-btn" style="
+          flex: 1; min-width: 110px;
+          padding: 12px 14px;
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: white;
+          border-radius: 12px;
+          font-weight: 700;
+          font-size: 0.85rem;
+          cursor: pointer;
+          transition: all 0.2s;
+        ">
+          📱 Mobile Dial
         </button>
 
         <button id="aircall-dial-now-btn" style="
-          flex: 1;
-          padding: 12px 18px;
+          flex: 1; min-width: 110px;
+          padding: 12px 14px;
           background: linear-gradient(135deg, #00B2A9, #008080);
           border: none;
           color: white;
           border-radius: 12px;
           font-weight: 700;
-          font-size: 0.9rem;
+          font-size: 0.85rem;
           cursor: pointer;
           box-shadow: 0 4px 15px rgba(0, 178, 169, 0.3);
           transition: all 0.2s;
         ">
-          📞 Call Now
+          📞 Aircall Dial
         </button>
       </div>
     </div>
@@ -219,6 +253,7 @@ export function triggerAircall(rawPhone, options = {}) {
   const numEl = document.getElementById('aircall-timer-num')
   const textEl = document.getElementById('aircall-timer-text')
   const cancelBtn = document.getElementById('aircall-cancel-btn')
+  const deviceBtn = document.getElementById('aircall-device-btn')
   const dialNowBtn = document.getElementById('aircall-dial-now-btn')
 
   function closeModal() {
@@ -232,10 +267,16 @@ export function triggerAircall(rawPhone, options = {}) {
     showStatusToast('⏹️ Call Canceled', false)
   }
 
-  // Instant Dial Now Action
+  // Native Mobile Device Call Action
+  deviceBtn.onclick = () => {
+    closeModal()
+    executeAircallDial(cleanPhone, leadName, true)
+  }
+
+  // Aircall API Dial Now Action
   dialNowBtn.onclick = () => {
     closeModal()
-    executeAircallDial(cleanPhone, leadName)
+    executeAircallDial(cleanPhone, leadName, false)
   }
 
   // Start 3-second countdown
@@ -246,7 +287,7 @@ export function triggerAircall(rawPhone, options = {}) {
 
     if (secondsLeft <= 0) {
       closeModal()
-      executeAircallDial(cleanPhone, leadName)
+      executeAircallDial(cleanPhone, leadName, isMobile)
     }
   }, 1000)
 
