@@ -372,7 +372,7 @@ Deno.serve(async (req) => {
           <head>
             <meta charset="utf-8">
             <style>
-              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0b0f19; color: #f3f4f6; padding: 30px; margin: 0; }
+              body { font-family: Arial, Helvetica, sans-serif; background-color: #0b0f19; color: #f3f4f6; padding: 30px; margin: 0; }
               .card { background-color: #111827; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 32px; max-width: 550px; margin: 0 auto; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
               h2 { margin-top: 0; color: #60a5fa; font-size: 1.4rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px; font-weight: 800; letter-spacing: -0.01em; }
               .detail { margin: 18px 0; }
@@ -942,7 +942,7 @@ Deno.serve(async (req) => {
 <head>
   <meta charset="utf-8">
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.5; color: #1a1a1a; margin: 0; padding: 0;">
+<body style="font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 1.5; color: #1a1a1a; margin: 0; padding: 0;">
   <div style="max-width: 600px; margin: 0; padding: 10px 0;">
     ${formatBodyToHtml(finalBodyInner)}
   </div>
@@ -996,7 +996,7 @@ Deno.serve(async (req) => {
 
     const adminSubject = "New Lead"
     const adminHtml = `
-      <div style="font-family: sans-serif; background: #f9fafb; padding: 20px; border-radius: 8px;">
+      <div style="font-family: Arial, Helvetica, sans-serif; background: #f9fafb; padding: 20px; border-radius: 8px;">
         <h2 style="color: #111827; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">New Lead Captured</h2>
         <p><strong>Type:</strong> ${type}</p>
         <p><strong>Name:</strong> ${name}</p>
@@ -1016,7 +1016,7 @@ Deno.serve(async (req) => {
   <meta charset="utf-8">
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       font-size: 15px;
       line-height: 1.6;
       color: #334155;
@@ -1026,7 +1026,7 @@ Deno.serve(async (req) => {
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background-color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+<body style="margin:0;padding:0;background-color:#f8fafc;font-family:Arial,Helvetica,sans-serif;">
   <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f8fafc;padding:40px 20px;">
     <tr>
       <td align="center">
@@ -1037,7 +1037,7 @@ Deno.serve(async (req) => {
             <td style="background: linear-gradient(135deg, #7949da, #5646e4); padding: 24px 32px; text-align: left;">
               <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
-                  <td style="color: #ffffff; font-size: 20px; font-weight: 800; font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif; letter-spacing: -0.02em;">
+                  <td style="color: #ffffff; font-size: 20px; font-weight: 800; font-family: Arial, Helvetica, sans-serif; letter-spacing: -0.02em;">
                     ⚡ AutoFlow Studio
                   </td>
                 </tr>
@@ -1048,7 +1048,7 @@ Deno.serve(async (req) => {
           <!-- Main Content Body -->
           <tr>
             <td style="padding: 40px 32px; background-color: #ffffff;">
-              <h2 style="color: #1e293b; margin-top: 0; font-size: 20px; font-weight: 700; font-family: 'Space Grotesk', sans-serif;">Hello ${name},</h2>
+              <h2 style="color: #1e293b; margin-top: 0; font-size: 20px; font-weight: 700; font-family: Arial, Helvetica, sans-serif;">Hello ${name},</h2>
               
               <p style="color: #334155; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">
                 Thank you for reaching out to us. We've successfully received your <strong>${type === 'booking' ? 'audit request' : 'message'}</strong>.

@@ -1542,6 +1542,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         ))}
 
 
+
       </div>
 
       <div className={`leadbank-grid ${selectedLead ? 'has-selection' : ''}`}>
@@ -1614,7 +1615,24 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                     </select>
                   </div>
                 </th>
-                {isAdmin && <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Assignee</th>}
+                {isAdmin && (
+                  <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      Assignee
+                      <select
+                        value={assigneeFilter}
+                        onChange={e => { setAssigneeFilter(e.target.value); goToPage(0); }}
+                        style={{ background: 'transparent', border: 'none', color: '#3b82f6', outline: 'none', cursor: 'pointer', fontWeight: 800 }}
+                      >
+                        <option value="all" style={{ background: '#0a0a0a', color: 'white' }}>All</option>
+                        <option value="unassigned" style={{ background: '#0a0a0a', color: '#94A3B8' }}>Unassigned</option>
+                        {salespeople.map(sp => (
+                          <option key={sp.id} value={sp.id} style={{ background: '#0a0a0a', color: 'white' }}>{sp.name || sp.email}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </th>
+                )}
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center', position: 'sticky', right: 0, background: '#0a0a0a', zIndex: 10, borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                     Activity

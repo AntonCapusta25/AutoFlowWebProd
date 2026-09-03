@@ -4,65 +4,24 @@ import * as chrono from 'chrono-node'
 // scheduling a reminder off an incidental date mention (e.g. "customer since 2019").
 const FOLLOW_UP_HINTS = /\b(call|callback|bellen|terugbellen|bel|followup|opvolgen|opvolging|remind|herinneren|herinnering|reach\s*out|contact|touch\s*base|check\s*in|check\s*back|checken|ping|text|sms|email|mail|mailen|speak|spreken|afspraak|plannen|inplannen)\b/i
 
-function preprocessDutchToEnglish(text) {
-  let lower = text.toLowerCase();
-  
-  const mappings = [
-    // Direct day translations to prevent splitting "volgende week [dag]"
-    { regex: /\bvolgende\s+week\s+maandag\b/g, replacement: 'next Monday' },
-    { regex: /\bvolgende\s+week\s+dinsdag\b/g, replacement: 'next Tuesday' },
-    { regex: /\bvolgende\s+week\s+woensdag\b/g, replacement: 'next Wednesday' },
-    { regex: /\bvolgende\s+week\s+donderdag\b/g, replacement: 'next Thursday' },
-    { regex: /\bvolgende\s+week\s+vrijdag\b/g, replacement: 'next Friday' },
-    { regex: /\bvolgende\s+week\s+zaterdag\b/g, replacement: 'next Saturday' },
-    { regex: /\bvolgende\s+week\s+zondag\b/g, replacement: 'next Sunday' },
-
-    { regex: /\bovermorgen\b/g, replacement: 'day after tomorrow' },
-    { regex: /\bmorgen\b/g, replacement: 'tomorrow' },
-    { regex: /\bvolgende\s+week\b/g, replacement: 'next week' },
-    { regex: /\bvolgende\s+maand\b/g, replacement: 'next month' },
-    { regex: /\bkomende\s+week\b/g, replacement: 'next week' },
-    { regex: /\bvanavond\b/g, replacement: 'tonight' },
-    
-    // Days of the week
-    { regex: /\bmaandag\b/g, replacement: 'Monday' },
-    { regex: /\bdinsdag\b/g, replacement: 'Tuesday' },
-    { regex: /\bwoensdag\b/g, replacement: 'Wednesday' },
-    { regex: /\bdonderdag\b/g, replacement: 'Thursday' },
-    { regex: /\bvrijdag\b/g, replacement: 'Friday' },
-    { regex: /\bzaterdag\b/g, replacement: 'Saturday' },
-    { regex: /\bzondag\b/g, replacement: 'Sunday' },
-    
-    // Relative times
-    { regex: /\bover\s+(\d+)\s+dagen\b/g, replacement: 'in $1 days' },
-    { regex: /\bover\s+(\d+)\s+weken\b/g, replacement: 'in $1 weeks' },
-    { regex: /\bover\s+(\d+)\s+maanden\b/g, replacement: 'in $1 months' },
-    { regex: /\bover\s+(\d+)\s+uur\b/g, replacement: 'in $1 hours' },
-    { regex: /\bover\s+een\s+week\b/g, replacement: 'in 1 week' },
-    { regex: /\bover\s+een\s+maand\b/g, replacement: 'in 1 month' },
-
-    // Dutch time prepositions (om, rond, tegen)
-    { regex: /\b(om|rond|tegen)\s+(\d{1,2}):(\d{2})\b/g, replacement: 'at $2:$3' },
-    { regex: /\b(om|rond|tegen)\s+(\d{1,2})\s*uur\b/g, replacement: 'at $2:00' },
-    { regex: /\b(om|rond|tegen)\s+(\d{1,2})\b/g, replacement: 'at $2' }
-  ];
-  
-  for (const map of mappings) {
-    lower = lower.replace(map.regex, map.replacement);
-  }
-  return lower;
-}
-
-// Parses free-text CRM notes ("call back tmrw", "follow up next Monday at 2pm")
+// Parses free-text CRM notes ("call back tmrw", "follow up next Monday at 2pm",
+// "bellen volgende week maandag om 10:00", "terugbellen morgen om 14u30")
 // into a concrete Date to schedule a follow-up reminder for.
-// Returns null when nothing schedulable was found.
+//
+// Uses chrono.nl for Dutch text (handles "morgen", "volgende week maandag",
+// "om 14u30", "over 3 dagen om 16u", etc. natively) and falls back to
+// chrono.en for English text. Returns null when nothing schedulable was found.
 export function parseFollowUpDate(text, referenceDate = new Date()) {
   if (!text || !text.trim()) return null
 
-  // Preprocess Dutch phrases to English
-  const englishText = preprocessDutchToEnglish(text)
+  const hasDutchHint = /\b(morgen|gisteren|overmorgen|maandag|dinsdag|woensdag|donderdag|vrijdag|zaterdag|zondag|volgende|komende|vandaag|vanavond|bellen|terugbellen|opvolgen|opvolging|herinneren|herinnering|mailen|plannen|inplannen|afspraak|spreken|checken)\b/i.test(text)
 
-  const results = chrono.parse(englishText, referenceDate, { forwardDate: true })
+  // Use the native Dutch parser when Dutch words are detected — it handles
+  // "morgen om 14u30", "volgende week maandag om 10:00", "over 3 dagen", etc.
+  // much more reliably than the old manual-translation approach.
+  const parser = hasDutchHint ? chrono.nl : chrono.en
+
+  const results = parser.parse(text, referenceDate, { forwardDate: true })
   if (results.length === 0) return null
 
   const hasExplicitTime = results.some(r => r.start.isCertain('hour'))
