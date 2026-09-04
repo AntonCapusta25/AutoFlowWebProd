@@ -5,6 +5,12 @@ const AIRCALL_API_TOKEN = Deno.env.get('AIRCALL_API_TOKEN') || '10e3d5746a9e19b1
 const DEFAULT_NUMBER_ID = 1369705 // AutoFlow Studio dialers (+1 888-752-5240)
 const DEFAULT_USER_ID = 2055112 // Walid Sabihi
 
+const AIRCALL_USER_MAP: Record<string, number> = {
+  'info@autoflowstudio.net': 2055112,       // Walid Sabihi (Ext 001)
+  'muiziyiola75@gmail.com': 2055578,        // Muiz Iyiola (Ext 002)
+  'bourhane.fetni7009@gmail.com': 2055582,   // Bourhane Fetni (Ext 003)
+}
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -24,16 +30,26 @@ Deno.serve(async (req) => {
     const body = req.method === 'POST' ? await req.json() : {}
     const phone = body.phone
     const action = body.action || 'dial'
+    const userId = body.user_id
+    const userEmail = body.user_email
 
-    console.log(`[aircall-api] Action=${action}, phone=${phone}`)
+    let targetUserId = userId
+    if (!targetUserId && userEmail && AIRCALL_USER_MAP[userEmail.toLowerCase()]) {
+      targetUserId = AIRCALL_USER_MAP[userEmail.toLowerCase()]
+    }
+    if (!targetUserId) {
+      targetUserId = DEFAULT_USER_ID
+    }
+
+    console.log(`[aircall-api] Action=${action}, phone=${phone}, targetUserId=${targetUserId}`)
 
     // Direct Automatic Outbound Dial via Aircall API
     if (phone || action === 'dial') {
       if (!phone) throw new Error('Missing required field: phone')
 
-      console.log(`[aircall-api] Triggering automatic call to ${phone} via Aircall API...`)
+      console.log(`[aircall-api] Triggering call to ${phone} for Aircall user ${targetUserId}...`)
 
-      const dialRes = await fetch(`https://api.aircall.io/v1/users/${DEFAULT_USER_ID}/calls`, {
+      const dialRes = await fetch(`https://api.aircall.io/v1/users/${targetUserId}/calls`, {
         method: 'POST',
         headers: {
           'Authorization': getAuthHeader(),
@@ -45,10 +61,10 @@ Deno.serve(async (req) => {
         })
       })
 
-      const dialData = await dialRes.json()
-      console.log('[aircall-api] Aircall API Dial Response:', JSON.stringify(dialData))
+      const dialData = await dialRes.json().catch(() => ({}))
+      console.log(`[aircall-api] Dial Response (user ${targetUserId}):`, JSON.stringify(dialData))
 
-      return new Response(JSON.stringify({ success: true, data: dialData }), {
+      return new Response(JSON.stringify({ success: true, data: dialData, userId: targetUserId }), {
         headers: { 'Content-Type': 'application/json', ...CORS }
       })
     }

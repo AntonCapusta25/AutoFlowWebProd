@@ -6,11 +6,17 @@ const AircallWorkspace = AircallWorkspaceModule.default || AircallWorkspaceModul
 /**
  * Aircall Direct Native Auto-Dial Utility for AutoFlow Studio CRM
  *
- * Integrates Aircall Everywhere SDK (workspace.aircall.io) natively:
- * - Each device/session runs its own embedded workspace instance.
- * - Local postMessage protocol guarantees 100% device isolation.
- * - Zero personal phone calls (tel:) - Aircall line only.
+ * Team Members & Aircall User ID Mapping:
+ * - Walid Sabihi: info@autoflowstudio.net -> 2055112 (Ext: 001)
+ * - Muiz Iyiola: muiziyiola75@gmail.com -> 2055578 (Ext: 002)
+ * - Bourhane Fetni: bourhane.fetni7009@gmail.com -> 2055582 (Ext: 003)
  */
+
+export const AIRCALL_USER_MAP = {
+  'info@autoflowstudio.net': 2055112,       // Walid Sabihi
+  'muiziyiola75@gmail.com': 2055578,        // Muiz Iyiola
+  'bourhane.fetni7009@gmail.com': 2055582,   // Bourhane Fetni
+}
 
 const AUTH_HEADER = 'Basic ZjVmYWVlNzdmZDc0OTdkNDgyMzc2ZmFlODVjZjg1Y2Y6MTBlM2Q1NzQ2YTllMTliMWFkOTZhNTY0NjNjNzM4NDI='
 const DEFAULT_USER_ID = 2055112
@@ -33,7 +39,6 @@ export function clearLocalCall() {
 
 export function isLocalCallStarted() {
   if (isLocalCallActiveState) return true
-  // Consider call local if started within last 2 minutes on THIS tab
   if (localCallTimestamp && (Date.now() - localCallTimestamp < 120000)) return true
   return false
 }
@@ -55,6 +60,18 @@ export function setAircallUserData(userData) {
 
 export function getAircallUserData() {
   return currentAircallUser
+}
+
+/**
+ * Helper to get currently logged in Supabase user email
+ */
+async function getLoggedUserEmail() {
+  try {
+    const { data } = await supabase.auth.getUser()
+    return data?.user?.email || null
+  } catch (e) {
+    return null
+  }
 }
 
 /**
@@ -112,7 +129,7 @@ export function showStatusToast(message, isError = false) {
     z-index: 100000;
     padding: 14px 22px;
     border-radius: 14px;
-    background: ${isError ? 'gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #00B2A9, #006666)'};
+    background: ${isError ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #00B2A9, #006666)'};
     color: white;
     font-family: Arial, sans-serif;
     font-size: 0.9rem;
@@ -172,15 +189,35 @@ export async function executeAircallDial(cleanPhone, leadName) {
 }
 
 async function triggerApiFallback(cleanPhone) {
-  const userIdToCall = currentAircallUser?.id || DEFAULT_USER_ID
+  let userIdToCall = currentAircallUser?.id
+  let userEmailToCall = currentAircallUser?.email
+
+  if (!userEmailToCall) {
+    userEmailToCall = await getLoggedUserEmail()
+  }
+
+  if (!userIdToCall && userEmailToCall && AIRCALL_USER_MAP[userEmailToCall.toLowerCase()]) {
+    userIdToCall = AIRCALL_USER_MAP[userEmailToCall.toLowerCase()]
+  }
+
+  if (!userIdToCall) {
+    userIdToCall = DEFAULT_USER_ID
+  }
+
+  console.log(`[aircall] Triggering API call fallback for Aircall User ID: ${userIdToCall} (${userEmailToCall || 'default'})`)
 
   // Try primary backend gateway via Supabase Function
   try {
     const { data, error } = await supabase.functions.invoke('send-email', {
-      body: { type: 'aircall_dial', phone: cleanPhone, user_id: userIdToCall }
+      body: {
+        type: 'aircall_dial',
+        phone: cleanPhone,
+        user_id: userIdToCall,
+        user_email: userEmailToCall
+      }
     })
     if (!error && data?.success) {
-      console.log('[aircall] Call initiated via send-email gateway!')
+      console.log('[aircall] Call initiated via send-email gateway for user:', userIdToCall)
       showStatusToast(`📞 Aircall call triggered for ${cleanPhone}!`)
       return { success: true }
     }

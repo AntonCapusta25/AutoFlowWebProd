@@ -264,10 +264,25 @@ Deno.serve(async (req) => {
 
     // ── aircall_dial (Aircall Outbound Call API) ───────────────────────────
     if (type === 'aircall_dial') {
-      const { phone } = body
+      const { phone, user_id, user_email } = body
       if (!phone) throw new Error('Missing required aircall_dial field: phone')
+
+      const EMAIL_TO_AIRCALL_ID: Record<string, number> = {
+        'info@autoflowstudio.net': 2055112,       // Walid Sabihi
+        'muiziyiola75@gmail.com': 2055578,        // Muiz Iyiola
+        'bourhane.fetni7009@gmail.com': 2055582,   // Bourhane Fetni
+      }
+
+      let targetUserId = user_id
+      if (!targetUserId && user_email && EMAIL_TO_AIRCALL_ID[user_email.toLowerCase()]) {
+        targetUserId = EMAIL_TO_AIRCALL_ID[user_email.toLowerCase()]
+      }
+      if (!targetUserId) {
+        targetUserId = 2055112 // Default fallback
+      }
+
       const b64 = btoa('f5faee77fd7497d482376fae85cf85cf:10e3d5746a9e19b1ad96a56463c73842')
-      const dialRes = await fetch('https://api.aircall.io/v1/users/2055112/calls', {
+      const dialRes = await fetch(`https://api.aircall.io/v1/users/${targetUserId}/calls`, {
         method: 'POST',
         headers: {
           'Authorization': `Basic ${b64}`,
@@ -278,8 +293,8 @@ Deno.serve(async (req) => {
           number_id: 1369705
         })
       })
-      console.log(`[aircall_dial] Triggered call to ${phone}, HTTP status: ${dialRes.status}`)
-      return new Response(JSON.stringify({ success: true, status: dialRes.status }), {
+      console.log(`[aircall_dial] Triggered call for user ${targetUserId} to ${phone}, HTTP status: ${dialRes.status}`)
+      return new Response(JSON.stringify({ success: true, status: dialRes.status, userId: targetUserId }), {
         headers: { 'Content-Type': 'application/json', ...CORS }
       })
     }
