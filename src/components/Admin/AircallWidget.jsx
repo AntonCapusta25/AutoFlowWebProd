@@ -73,8 +73,6 @@ export default function AircallWidget() {
       // Event listeners for call states
       workspace.on('outgoing_call', (data) => {
         console.log('[aircall-widget] Outgoing call event received:', data)
-        // Ignore remote outgoing calls from other devices on the same Aircall account!
-        // Only open widget UI if call was initiated on THIS device tab or if widget is already open.
         if (isLocalCallStarted()) {
           setActiveCall({ type: 'outgoing', ...data })
           setIsOpen(true)
@@ -126,6 +124,10 @@ export default function AircallWidget() {
     }
   }
 
+  const handleSwitchUser = () => {
+    showStatusToast('🔑 To switch user: Click the Settings/Profile icon at bottom of Aircall phone panel, click "Sign Out", then sign in.')
+  }
+
   return (
     <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 99999, fontFamily: 'Arial, sans-serif' }}>
       {/* Expanded Phone Container Panel */}
@@ -174,7 +176,27 @@ export default function AircallWidget() {
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {/* Switch User Helper Button */}
+            {isLoggedIn && (
+              <button
+                onClick={handleSwitchUser}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  color: '#cbd5e1',
+                  borderRadius: '6px',
+                  padding: '2px 8px',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+                title="Switch Aircall account / Sign out"
+              >
+                Sign Out
+              </button>
+            )}
+
             {!micGranted && (
               <button
                 onClick={handleGrantMic}
