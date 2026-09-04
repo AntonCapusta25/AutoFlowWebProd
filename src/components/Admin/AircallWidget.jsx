@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import AircallWorkspaceModule from 'aircall-everywhere'
 import {
   setAircallWorkspaceInstance,
+  setAircallUserData,
   requestMicPermission,
   showStatusToast
 } from '../../lib/aircall'
@@ -29,6 +30,7 @@ export function openAircallPhoneWindow(phone = '') {
 export default function AircallWidget() {
   const [isOpen, setIsOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [aircallUser, setAircallUser] = useState(null)
   const [micGranted, setMicGranted] = useState(true)
   const [activeCall, setActiveCall] = useState(null)
   const workspaceRef = useRef(null)
@@ -39,20 +41,26 @@ export default function AircallWidget() {
       setMicGranted(granted)
     })
 
-    // 2. Initialize Aircall Everywhere Workspace SDK
+    // 2. Initialize Aircall Everywhere Workspace SDK (isolated to THIS browser session/device)
     try {
       const workspace = new AircallWorkspace({
         domToLoadWorkspace: '#aircall-workspace-frame',
         size: 'auto',
         debug: false,
         onLogin: (data) => {
-          console.log('[aircall-widget] Logged into Aircall Workspace:', data)
+          console.log('[aircall-widget] Logged into local Aircall Workspace:', data)
           setIsLoggedIn(true)
-          setAircallWorkspaceInstance(workspace)
+          if (data?.user) {
+            setAircallUser(data.user)
+            setAircallUserData(data.user)
+          }
+          setAircallWorkspaceInstance(workspace, data?.user)
         },
         onLogout: () => {
-          console.log('[aircall-widget] Logged out of Aircall Workspace')
+          console.log('[aircall-widget] Logged out of local Aircall Workspace')
           setIsLoggedIn(false)
+          setAircallUser(null)
+          setAircallUserData(null)
           setAircallWorkspaceInstance(null)
         }
       })
@@ -60,29 +68,29 @@ export default function AircallWidget() {
       workspaceRef.current = workspace
       setAircallWorkspaceInstance(workspace)
 
-      // Event listeners for active call states
+      // Event listeners for active call states on local device
       workspace.on('outgoing_call', (data) => {
-        console.log('[aircall-widget] Outgoing call started:', data)
+        console.log('[aircall-widget] Outgoing call started on local device:', data)
         setActiveCall({ type: 'outgoing', ...data })
         setIsOpen(true)
       })
 
       workspace.on('incoming_call', (data) => {
-        console.log('[aircall-widget] Incoming call ringing:', data)
+        console.log('[aircall-widget] Incoming call ringing on local device:', data)
         setActiveCall({ type: 'incoming', ...data })
         setIsOpen(true)
       })
 
       workspace.on('call_ended', (data) => {
-        console.log('[aircall-widget] Call ended:', data)
+        console.log('[aircall-widget] Local call ended:', data)
         setActiveCall(null)
       })
     } catch (err) {
       console.warn('[aircall-widget] Failed to initialize AircallWorkspace:', err)
     }
 
-    // Handle external dial events
-    function handleDialEvent(e) {
+    // Handle external dial events for this browser instance
+    function handleDialEvent() {
       setIsOpen(true)
     }
 
@@ -139,18 +147,21 @@ export default function AircallWidget() {
             color: 'white',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
             <span
               style={{
                 width: '10px',
                 height: '10px',
+                minWidth: '10px',
                 borderRadius: '50%',
                 backgroundColor: activeCall ? '#22c55e' : (isLoggedIn ? '#00B2A9' : '#f59e0b'),
                 boxShadow: activeCall ? '0 0 10px #22c55e' : 'none',
               }}
             />
-            <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#e2e8f0' }}>
-              {activeCall ? 'Active Call' : (isLoggedIn ? 'Aircall Online' : 'Aircall Phone')}
+            <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#e2e8f0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {activeCall
+                ? 'Active Call'
+                : (aircallUser?.first_name ? `${aircallUser.first_name} (${aircallUser.email})` : (isLoggedIn ? 'Aircall Online' : 'Aircall Phone'))}
             </span>
           </div>
 
@@ -243,7 +254,7 @@ export default function AircallWidget() {
           </div>
         )}
 
-        {/* Embedded Workspace Frame (Aircall Everywhere SDK injection target) */}
+        {/* Embedded Workspace Frame (Aircall Everywhere SDK injection target for THIS device) */}
         <div
           id="aircall-workspace-frame"
           style={{

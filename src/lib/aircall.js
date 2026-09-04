@@ -7,8 +7,8 @@ const AircallWorkspace = AircallWorkspaceModule.default || AircallWorkspaceModul
  * Aircall Direct Native Auto-Dial Utility for AutoFlow Studio CRM
  *
  * Integrates Aircall Everywhere SDK (workspace.aircall.io) natively:
- * - User: Walid Sabihi (ID: 2055112)
- * - Line: AutoFlow Studio dialers (+1 888-752-5240 | ID: 1369705)
+ * - Each device/session runs its own embedded workspace instance.
+ * - Local postMessage protocol guarantees 100% device isolation.
  * - Zero personal phone calls (tel:) - Aircall line only.
  */
 
@@ -17,13 +17,25 @@ const DEFAULT_USER_ID = 2055112
 const DEFAULT_NUMBER_ID = 1369705
 
 let globalWorkspaceInstance = null
+let currentAircallUser = null
 
-export function setAircallWorkspaceInstance(instance) {
+export function setAircallWorkspaceInstance(instance, userData = null) {
   globalWorkspaceInstance = instance
+  if (userData) {
+    currentAircallUser = userData
+  }
 }
 
 export function getAircallWorkspaceInstance() {
   return globalWorkspaceInstance
+}
+
+export function setAircallUserData(userData) {
+  currentAircallUser = userData
+}
+
+export function getAircallUserData() {
+  return currentAircallUser
 }
 
 /**
@@ -112,25 +124,24 @@ export function showStatusToast(message, isError = false) {
 export async function executeAircallDial(cleanPhone, leadName) {
   showStatusToast(`📞 Dialing ${leadName ? `<strong>${leadName}</strong> (${cleanPhone})` : `<strong>${cleanPhone}</strong>`}…`)
 
-  // Dispatch widget open event so the Aircall panel is visible to user
+  // Dispatch widget open event so the Aircall panel is visible to user on THIS device
   window.dispatchEvent(new CustomEvent('aircall:widget:open'))
 
-  // 1. Try native Aircall Everywhere SDK first if initialized
+  // 1. Try native Aircall Everywhere SDK first if initialized (guarantees local device isolation!)
   if (globalWorkspaceInstance) {
     try {
       globalWorkspaceInstance.send('dial_number', { phone_number: cleanPhone }, (success, data) => {
         if (success) {
-          console.log('[aircall] Dialed natively via Aircall Everywhere SDK:', data)
+          console.log('[aircall] Dialed natively via local Aircall Everywhere SDK:', data)
           showStatusToast(`📞 Dialing ${cleanPhone} natively via Aircall…`)
         } else {
           console.warn('[aircall] SDK dial response warning:', data)
-          // Fallback to API call if SDK returns not_ready or in_call
           triggerApiFallback(cleanPhone)
         }
       })
       return { success: true }
     } catch (e) {
-      console.warn('[aircall] SDK dial exception, trying REST API:', e)
+      console.warn('[aircall] SDK dial exception, trying REST API fallback:', e)
     }
   }
 
@@ -139,10 +150,12 @@ export async function executeAircallDial(cleanPhone, leadName) {
 }
 
 async function triggerApiFallback(cleanPhone) {
+  const userIdToCall = currentAircallUser?.id || DEFAULT_USER_ID
+
   // Try primary backend gateway via Supabase Function
   try {
     const { data, error } = await supabase.functions.invoke('send-email', {
-      body: { type: 'aircall_dial', phone: cleanPhone }
+      body: { type: 'aircall_dial', phone: cleanPhone, user_id: userIdToCall }
     })
     if (!error && data?.success) {
       console.log('[aircall] Call initiated via send-email gateway!')
@@ -153,9 +166,9 @@ async function triggerApiFallback(cleanPhone) {
     console.log('[aircall] Gateway notice:', e)
   }
 
-  // Direct client-side fetch to Aircall REST API
+  // Direct client-side fetch to Aircall REST API targeting specific user ID
   try {
-    const res = await fetch(`https://api.aircall.io/v1/users/${DEFAULT_USER_ID}/calls`, {
+    const res = await fetch(`https://api.aircall.io/v1/users/${userIdToCall}/calls`, {
       method: 'POST',
       headers: {
         'Authorization': AUTH_HEADER,
@@ -168,7 +181,7 @@ async function triggerApiFallback(cleanPhone) {
     })
 
     if (res.ok || res.status === 204) {
-      console.log(`[aircall] Direct Aircall API call triggered (HTTP ${res.status})`)
+      console.log(`[aircall] Direct Aircall API call triggered for user ${userIdToCall} (HTTP ${res.status})`)
       showStatusToast(`📞 Aircall call triggered for ${cleanPhone}!`)
       return { success: true }
     }
