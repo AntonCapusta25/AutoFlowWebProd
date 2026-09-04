@@ -1,9 +1,12 @@
 import { supabase } from './supabase'
+import AircallWorkspaceModule from 'aircall-everywhere'
+
+const AircallWorkspace = AircallWorkspaceModule.default || AircallWorkspaceModule
 
 /**
- * Aircall Direct Auto-Dial Utility for AutoFlow Studio CRM
+ * Aircall Direct Native Auto-Dial Utility for AutoFlow Studio CRM
  *
- * Initiates Aircall outbound calls exclusively via Aircall API:
+ * Integrates Aircall Everywhere SDK (workspace.aircall.io) natively:
  * - User: Walid Sabihi (ID: 2055112)
  * - Line: AutoFlow Studio dialers (+1 888-752-5240 | ID: 1369705)
  * - Zero personal phone calls (tel:) - Aircall line only.
@@ -12,6 +15,16 @@ import { supabase } from './supabase'
 const AUTH_HEADER = 'Basic ZjVmYWVlNzdmZDc0OTdkNDgyMzc2ZmFlODVjZjg1Y2Y6MTBlM2Q1NzQ2YTllMTliMWFkOTZhNTY0NjNjNzM4NDI='
 const DEFAULT_USER_ID = 2055112
 const DEFAULT_NUMBER_ID = 1369705
+
+let globalWorkspaceInstance = null
+
+export function setAircallWorkspaceInstance(instance) {
+  globalWorkspaceInstance = instance
+}
+
+export function getAircallWorkspaceInstance() {
+  return globalWorkspaceInstance
+}
 
 /**
  * Format phone number into clean E.164 international format (+31..., +1...)
@@ -32,9 +45,29 @@ export function formatE164(phone) {
 }
 
 /**
+ * Request Top-Level Browser Microphone Permission
+ * Crucial for Chrome cross-origin iframe WebRTC audio delegation.
+ */
+export async function requestMicPermission() {
+  if (typeof window === 'undefined' || !navigator?.mediaDevices?.getUserMedia) {
+    return false
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    // Stop tracks immediately so mic isn't held open unnecessarily
+    stream.getTracks().forEach(track => track.stop())
+    console.log('[aircall] Microphone permission granted at top-level origin!')
+    return true
+  } catch (err) {
+    console.warn('[aircall] Microphone permission prompt error or denied:', err)
+    return false
+  }
+}
+
+/**
  * Show temporary sleek status toast notification
  */
-function showStatusToast(message, isError = false) {
+export function showStatusToast(message, isError = false) {
   const existing = document.getElementById('aircall-status-toast')
   if (existing) existing.remove()
 
@@ -45,7 +78,7 @@ function showStatusToast(message, isError = false) {
     position: fixed;
     bottom: 24px;
     right: 24px;
-    z-index: 10000;
+    z-index: 100000;
     padding: 14px 22px;
     border-radius: 14px;
     background: ${isError ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #00B2A9, #006666)'};
@@ -74,12 +107,39 @@ function showStatusToast(message, isError = false) {
 }
 
 /**
- * Execute actual HTTP POST request to Aircall API (Serverless Gateway + Direct Fallback)
+ * Execute actual HTTP POST request or SDK Dial
  */
-async function executeAircallDial(cleanPhone, leadName) {
-  showStatusToast(`📞 Initiating Aircall dial for ${leadName ? `<strong>${leadName}</strong> (${cleanPhone})` : `<strong>${cleanPhone}</strong>`}…`)
+export async function executeAircallDial(cleanPhone, leadName) {
+  showStatusToast(`📞 Dialing ${leadName ? `<strong>${leadName}</strong> (${cleanPhone})` : `<strong>${cleanPhone}</strong>`}…`)
 
-  // 1. Try primary backend gateway via Supabase Function (deployed and CORS-safe)
+  // Dispatch widget open event so the Aircall panel is visible to user
+  window.dispatchEvent(new CustomEvent('aircall:widget:open'))
+
+  // 1. Try native Aircall Everywhere SDK first if initialized
+  if (globalWorkspaceInstance) {
+    try {
+      globalWorkspaceInstance.send('dial_number', { phone_number: cleanPhone }, (success, data) => {
+        if (success) {
+          console.log('[aircall] Dialed natively via Aircall Everywhere SDK:', data)
+          showStatusToast(`📞 Dialing ${cleanPhone} natively via Aircall…`)
+        } else {
+          console.warn('[aircall] SDK dial response warning:', data)
+          // Fallback to API call if SDK returns not_ready or in_call
+          triggerApiFallback(cleanPhone)
+        }
+      })
+      return { success: true }
+    } catch (e) {
+      console.warn('[aircall] SDK dial exception, trying REST API:', e)
+    }
+  }
+
+  // 2. Fallback to API Gateway / Direct REST API
+  return await triggerApiFallback(cleanPhone)
+}
+
+async function triggerApiFallback(cleanPhone) {
+  // Try primary backend gateway via Supabase Function
   try {
     const { data, error } = await supabase.functions.invoke('send-email', {
       body: { type: 'aircall_dial', phone: cleanPhone }
@@ -93,7 +153,7 @@ async function executeAircallDial(cleanPhone, leadName) {
     console.log('[aircall] Gateway notice:', e)
   }
 
-  // 2. Direct client-side fetch to Aircall REST API
+  // Direct client-side fetch to Aircall REST API
   try {
     const res = await fetch(`https://api.aircall.io/v1/users/${DEFAULT_USER_ID}/calls`, {
       method: 'POST',
