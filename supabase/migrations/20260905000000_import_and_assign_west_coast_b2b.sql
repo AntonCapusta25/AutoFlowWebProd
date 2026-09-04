@@ -5,7 +5,7 @@
 -- ============================================================
 
 -- 1. Fetch Sales Rep IDs into a temporary array
-DO 3904
+DO $$
 DECLARE
   reps uuid[];
 BEGIN
@@ -324,7 +324,7 @@ BEGIN
   ('Food Corner Consulting', 'Food Corner Consulting', 'aline@foodcornerconsulting.com', '+1 408-646-3200', 'https://alinecrowder.wixsite.com/mysite', 'San Jose, CA', 'B2B Consulting', 'Scraped', reps[2], '{"query": "business consulting agency", "google_reviews": "", "google_maps_url": "https://www.google.com/maps/place/Food+Corner+Consulting/data=!4m7!3m6!1s0x808fcb2b183ae5df:0x63578861a43ec437!8m2!3d37.3772716!4d-121.9203329!16s%2Fg%2F11tcxvy2bf!19sChIJ3-U6GCvLj4ARN8Q-pGGIV2M?authuser=0&hl=en&g_ep=EgoyMDI2MDkwMi4wIJJjKgBIAVAD&rclk=1", "source": "west_coast_b2b_consultants_WITH_EMAILS"}'::jsonb),
   ('Catalyst Business Partners', 'Catalyst Business Partners', 'presidentfrancismeston@catalyst-us.com', '+1 408-281-7100', 'https://www.catalyst-us.com/contact-us', 'San Jose, CA', 'B2B Consulting', 'Scraped', reps[3], '{"query": "business consulting agency", "google_reviews": "", "google_maps_url": "https://www.google.com/maps/place/Catalyst+Business+Partners/data=!4m7!3m6!1s0x808e2e69a6bc8761:0x1cb14750d4f19638!8m2!3d37.236382!4d-121.7780307!16s%2Fg%2F1tzvwsy6!19sChIJYYe8pmkujoAROJbx1FBHsRw?authuser=0&hl=en&g_ep=EgoyMDI2MDkwMi4wIJJjKgBIAVAD&rclk=1", "source": "west_coast_b2b_consultants_WITH_EMAILS"}'::jsonb),
   ('Riverfy | IT Support & Managed IT Services in San Jose', 'Riverfy | IT Support & Managed IT Services in San Jose', 'sales@riverfy.com', '+1 408-474-0909', 'https://www.riverfy.com/', 'San Jose, CA', 'B2B Consulting', 'Scraped', reps[4], '{"query": "business consulting agency", "google_reviews": "49", "google_maps_url": "https://www.google.com/maps/place/Riverfy+%7C+IT+Support+%26+Managed+IT+Services+in+San+Jose/data=!4m7!3m6!1s0x808fcbb66d098629:0xf36d707fbf4ae7d2!8m2!3d37.3358292!4d-121.9151304!16s%2Fg%2F11btx180v5!19sChIJKYYJbbbLj4AR0udKv39wbfM?authuser=0&hl=en&g_ep=EgoyMDI2MDkwMi4wIJJjKgBIAVAD&rclk=1", "source": "west_coast_b2b_consultants_WITH_EMAILS"}'::jsonb);
-END 3904;
+END $$;
 
 -- ============================================================
 -- UPDATE QUERY OPTION (If leads were already inserted):
