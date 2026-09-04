@@ -4,7 +4,9 @@ import {
   setAircallWorkspaceInstance,
   setAircallUserData,
   requestMicPermission,
-  showStatusToast
+  showStatusToast,
+  isLocalCallStarted,
+  clearLocalCall
 } from '../../lib/aircall'
 
 const AircallWorkspace = AircallWorkspaceModule.default || AircallWorkspaceModule
@@ -68,21 +70,28 @@ export default function AircallWidget() {
       workspaceRef.current = workspace
       setAircallWorkspaceInstance(workspace)
 
-      // Event listeners for active call states on local device
+      // Event listeners for call states
       workspace.on('outgoing_call', (data) => {
-        console.log('[aircall-widget] Outgoing call started on local device:', data)
-        setActiveCall({ type: 'outgoing', ...data })
-        setIsOpen(true)
+        console.log('[aircall-widget] Outgoing call event received:', data)
+        // Ignore remote outgoing calls from other devices on the same Aircall account!
+        // Only open widget UI if call was initiated on THIS device tab or if widget is already open.
+        if (isLocalCallStarted()) {
+          setActiveCall({ type: 'outgoing', ...data })
+          setIsOpen(true)
+        } else {
+          console.log('[aircall-widget] Outgoing call initiated on remote device. Keeping local widget closed.')
+        }
       })
 
       workspace.on('incoming_call', (data) => {
-        console.log('[aircall-widget] Incoming call ringing on local device:', data)
+        console.log('[aircall-widget] Incoming call ringing:', data)
         setActiveCall({ type: 'incoming', ...data })
         setIsOpen(true)
       })
 
       workspace.on('call_ended', (data) => {
-        console.log('[aircall-widget] Local call ended:', data)
+        console.log('[aircall-widget] Call ended:', data)
+        clearLocalCall()
         setActiveCall(null)
       })
     } catch (err) {

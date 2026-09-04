@@ -18,6 +18,25 @@ const DEFAULT_NUMBER_ID = 1369705
 
 let globalWorkspaceInstance = null
 let currentAircallUser = null
+let isLocalCallActiveState = false
+let localCallTimestamp = 0
+
+export function markLocalCallStarted() {
+  isLocalCallActiveState = true
+  localCallTimestamp = Date.now()
+}
+
+export function clearLocalCall() {
+  isLocalCallActiveState = false
+  localCallTimestamp = 0
+}
+
+export function isLocalCallStarted() {
+  if (isLocalCallActiveState) return true
+  // Consider call local if started within last 2 minutes on THIS tab
+  if (localCallTimestamp && (Date.now() - localCallTimestamp < 120000)) return true
+  return false
+}
 
 export function setAircallWorkspaceInstance(instance, userData = null) {
   globalWorkspaceInstance = instance
@@ -93,7 +112,7 @@ export function showStatusToast(message, isError = false) {
     z-index: 100000;
     padding: 14px 22px;
     border-radius: 14px;
-    background: ${isError ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #00B2A9, #006666)'};
+    background: ${isError ? 'gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #00B2A9, #006666)'};
     color: white;
     font-family: Arial, sans-serif;
     font-size: 0.9rem;
@@ -122,6 +141,9 @@ export function showStatusToast(message, isError = false) {
  * Execute actual HTTP POST request or SDK Dial
  */
 export async function executeAircallDial(cleanPhone, leadName) {
+  // Mark local call explicitly on THIS device
+  markLocalCallStarted()
+
   showStatusToast(`📞 Dialing ${leadName ? `<strong>${leadName}</strong> (${cleanPhone})` : `<strong>${cleanPhone}</strong>`}…`)
 
   // Dispatch widget open event so the Aircall panel is visible to user on THIS device
@@ -314,6 +336,7 @@ export function triggerAircall(rawPhone, options = {}) {
   // Cancel Button Action
   cancelBtn.onclick = () => {
     closeModal()
+    clearLocalCall()
     showStatusToast('⏹️ Call Canceled', false)
   }
 
