@@ -4,7 +4,8 @@
 -- Sales Team: Bourhane, Muiz, Walid, Hassan
 -- ============================================================
 
-DO 56132
+-- 1. Fetch Sales Rep IDs
+DO $$
 DECLARE
   reps uuid[];
 BEGIN
@@ -1147,4 +1148,4 @@ BEGIN
     location = EXCLUDED.location,
     assignee_id = EXCLUDED.assignee_id,
     tags = EXCLUDED.tags;
-END 56132;
+END $$;

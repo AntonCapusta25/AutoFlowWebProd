@@ -14,8 +14,8 @@ BEGIN
   WHERE email IN (
     'bourhane.fetni7009@gmail.com',
     'muiziyiola75@gmail.com',
-    'info@autoflowstudio.net',
-    'hassansyhuzz@gmail.com'
+    'afeefa2050@gmail.com',
+    'abdullahdesai3@gmail.com'
   );
 
   -- If fewer than 4 specific emails found, fallback to any 4 profiles
