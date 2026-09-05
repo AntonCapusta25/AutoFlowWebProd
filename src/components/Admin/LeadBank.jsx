@@ -250,7 +250,8 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       // Apply Phone / Country Filter
       if (phoneFilter === 'nl') query = query.ilike('phone', '+31%')
       else if (phoneFilter === 'uk') query = query.ilike('phone', '+44%')
-      else if (phoneFilter === 'us') query = query.ilike('phone', '+1%')
+      else if (phoneFilter === 'us') query = query.ilike('phone', '+1%').not('location', 'ilike', '%Canada%')
+      else if (phoneFilter === 'ca') query = query.or('location.ilike.%Canada%,tags.cs.{"Canada"},metadata->>source.ilike.%ca_b2b%')
 
       // Apply Excel-style Column Filters
       if (tableIndustryFilter) query = query.eq('industry', tableIndustryFilter)
@@ -1526,7 +1527,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
         <div className="leadbank-divider" style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.08)' }} />
         <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Phone:</p>
-        {[{ id: 'all', label: 'All' }, { id: 'nl', label: '🇳🇱 NL' }, { id: 'uk', label: '🇬🇧 UK' }, { id: 'us', label: '🇺🇸 US' }].map(opt => (
+        {[{ id: 'all', label: 'All' }, { id: 'nl', label: '🇳🇱 NL' }, { id: 'uk', label: '🇬🇧 UK' }, { id: 'us', label: '🇺🇸 US' }, { id: 'ca', label: '🇨🇦 CA' }].map(opt => (
           <button
             key={opt.id}
             onClick={() => { setPhoneFilter(opt.id); goToPage(0); }}
