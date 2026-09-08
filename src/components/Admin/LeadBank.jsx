@@ -5,6 +5,7 @@ import useSessionState from '../../hooks/useSessionState'
 import FollowUpCalendar from './FollowUpCalendar'
 import { parseFollowUpDate } from '../../lib/followUpParser'
 import { scheduleFollowUp } from '../../lib/followUps'
+import { handleNoResponseAutomation } from '../../lib/noResponse'
 import { getLeadLocalTimeStr } from '../../lib/timezone'
 import { triggerAircall } from '../../lib/aircall'
 import AircallWidget from './AircallWidget'
@@ -434,6 +435,19 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         setNewNote('')
       }
       setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, notes: content, call_attempts: newCallCount } : l))
+      handleNoResponseAutomation({
+        lead,
+        leadType: 'outreach',
+        text: content,
+        supabase,
+        user,
+        salespeople,
+        onStatusUpdated: (newSt) => {
+          setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, status: newSt } : l))
+          if (selectedLead?.id === lead.id) setSelectedLead(prev => ({ ...prev, status: newSt }))
+        },
+        onHistoryUpdated: () => fetchUnifiedHistory(lead.id)
+      })
       maybeAutoScheduleFollowUp(lead, content)
     }
     setIsActionLoading(false)

@@ -5,6 +5,7 @@ import { useAdmin } from '../../components/Admin/AdminContext'
 import useSessionState from '../../hooks/useSessionState'
 import { parseFollowUpDate } from '../../lib/followUpParser'
 import { formatFollowUpDate, scheduleFollowUp } from '../../lib/followUps'
+import { handleNoResponseAutomation } from '../../lib/noResponse'
 import { getLeadLocalTimeStr } from '../../lib/timezone'
 
 export default function AdminLeads() {
@@ -639,6 +640,19 @@ export default function AdminLeads() {
       if (selectedLead?.id === lead.id) fetchHistory(lead.id)
       setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, notes: content } : l))
       if (selectedLead?.id === lead.id) setSelectedLead(prev => ({ ...prev, notes: content }))
+      handleNoResponseAutomation({
+        lead,
+        leadType: lead.type,
+        text: content,
+        supabase,
+        user,
+        salespeople,
+        onStatusUpdated: (newSt) => {
+          setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, status: newSt } : l))
+          if (selectedLead?.id === lead.id) setSelectedLead(prev => ({ ...prev, status: newSt }))
+        },
+        onHistoryUpdated: () => fetchHistory(lead.id)
+      })
       maybeAutoScheduleFollowUp(lead, content)
     }
     setIsActionLoading(false)
@@ -670,7 +684,22 @@ export default function AdminLeads() {
         admin_id: user?.id
       })
       if (selectedLead?.id === lead.id) fetchHistory(lead.id)
-      if (noteContent) maybeAutoScheduleFollowUp(lead, noteContent)
+      if (noteContent) {
+        handleNoResponseAutomation({
+          lead,
+          leadType: lead.type,
+          text: noteContent,
+          supabase,
+          user,
+          salespeople,
+          onStatusUpdated: (newSt) => {
+            setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, status: newSt } : l))
+            if (selectedLead?.id === lead.id) setSelectedLead(prev => ({ ...prev, status: newSt }))
+          },
+          onHistoryUpdated: () => fetchHistory(lead.id)
+        })
+        maybeAutoScheduleFollowUp(lead, noteContent)
+      }
     }
     setIsActionLoading(false)
   }
