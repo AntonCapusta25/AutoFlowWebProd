@@ -5422,5 +5422,132 @@ async function maakVerbruiksFactuur(klant, verbruiksData, totaalBedrag) {
 <p>Blijf niet langer aanmodderen met handmatige exports, spreadsheets en foutgevoelige facturatieruns. Jouw ontwikkelaars moeten bezig zijn met de kern van je product, niet met het bouwen van provisorische administratieve scripts. Laat de specialisten van <strong>AutoFlow Studio</strong> een veilig, robuust en volledig op maat gemaakt abonnements- en verbruikssysteem voor je ontwerpen en bouwen. Zo is je administratie altijd up-to-date, worden facturen direct betaald en kan je business onbezorgd verder groeien.</p>
 </div>`,
   },
+  {
+    slug: 'custom-rma-refund-mollie-exact',
+    title: `Custom RMA koppeling Mollie Exact: Bouw een Geautomatiseerd Retoursysteem`,
+    desc: `Ontdek hoe je met een custom RMA-portaal geïntegreerd met Mollie en Exact Online handmatige retourverwerking en administratieve fouten definitief elimineert.`,
+    date: 'Juli 2026',
+    faqs: [
+      {
+            "q": "Kunnen we ook automatische deelretouren verwerken via deze Mollie-koppeling?",
+            "a": "Ja, absoluut. De op maat gemaakte RMA-engine stelt magazijn- of supportmedewerkers in staat om per productregel de status en herbevoorradingskosten aan te passen. Het systeem berekent vervolgens exact het resterende bedrag en stuurt een gerichte deel-terugbetaling naar de Mollie API."
+      },
+      {
+            "q": "Hoe gaat de koppeling om met de API-limieten (rate limits) van Exact Online?",
+            "a": "Exact Online hanteert strikte API-limieten. Om te voorkomen dat het systeem vastloopt, bouwen we een wachtrijsysteem (queueing mechanism). In plaats van live de API te belasten, worden creditboekingen in een wachtrij geplaatst en door achtergrondtaken (background workers) verwerkt die rekening houden met de limieten en mislukte pogingen automatisch opnieuw proberen."
+      },
+      {
+            "q": "Wat gebeurt er als een betaling is gedaan met een methode die geen refunds via de API ondersteunt?",
+            "a": "Hoewel populaire betaalmethoden zoals iDeal en Bancontact probleemloos refunds via de API ondersteunen, is dat niet voor elke methode het geval. De custom middleware herkent de betaalmethode uit de Mollie-transactiedata. Indien een API-refund niet mogelijk is, krijgt de boeking de status 'Handmatige uitbetaling' en wordt er direct een SEPA XML-betaalbestand klaargezet in Exact Online."
+      }
+],
+    body: `<div class="article-content">
+  <div class="hero-image">
+    <img src="/images/blog_custom-rma-refund-mollie-exact.png" alt="Custom RMA en Terugbetaling Integratie Mollie Exact Online" />
+  </div>
+  <p>Laten we eerlijk zijn: retouren zijn de ultieme sfeerspons voor elk B2B-bedrijf of grote groothandel. Dit is de plek waar al je mooi opgezette, geautomatiseerde salesfunnels sterven in schoonheid. Het ene moment vier je een gigantische B2B-bestelling; het volgende moment verdrinkt je klantenservice in de e-mails omdat een klant 45 industriële kleppen wil retourneren. De klant begrijpt niets van de retourinstructies, je magazijnmedewerkers hebben geen idee wat er binnenkort op de stoep staat, en de boekhouding zit handmatig IBAN-nummers in Mollie te kloppen terwijl ze koortsachtig zoeken hoe ze een creditfactuur maken in Exact Online. Het is een administratieve chaos die bakken met tijd en geld kost.</p>
+  <p>Echt, dit los je niet op met een simpele Shopify-app of een hout-je-touwtje Zapier koppeling. Als je te maken hebt met B2B-volumes, specifieke herbevoorradingskosten (restocking fees), complexe ERP-processen en directe betalingsgateways, is maatwerk de enige weg. In dit artikel duiken we diep in de architectuur van een custom Return Merchandise Authorization (RMA) en een geautomatiseerde refund engine die je voorraadbeheer, Mollie betalingen en Exact Online boekhouding naadloos met elkaar verbindt.</p>
+
+  <h2>Het retourproces: Waarom handmatige systemen omvallen</h2>
+  <p>Voordat we naar de code en API-koppelingen kijken, moeten we realistisch zijn over waarom je huidige proces waarschijnlijk geld lekt. Een retourzending is niet simpelweg een omgekeerde verkoop. Het is een logistieke dans tussen verschillende afdelingen:</p>
+  <ul>
+    <li><strong>De Klantenservice-valstrik:</strong> Een klant vraagt een retour aan. Support moet handmatig mailboxen doorzoeken, controleren of de aankoop binnen de retourtermijn valt en checken of de artikelen überhaupt geretourneerd mogen worden.</li>
+    <li><strong>Het Zwarte Gat in het Magazijn:</strong> Er komt een doos binnen zonder RMA-nummer. De magazijnmedewerker moet zijn werk staken, de doos openmaken, uitzoeken van wie de zending is, en schrijft de status van de producten op een fysiek klembord.</li>
+    <li><strong>Het Boekhoudkundige Drama:</strong> Drie dagen later belandt het briefje op het bureau van de boekhouder. Die moet Exact Online openen, een creditboeking maken, handmatig de herbevoorradingskosten berekenen en vervolgens inloggen op het Mollie-dashboard om de terugbetaling te starten.</li>
+  </ul>
+  <p>Als dit bekend in de oren klinkt, vertoont je organisatie gegarandeerd de <a href="/nl/blog/5-signs">vijf duidelijke signalen</a> dat je je handmatige processen bent ontgroeid. Je hebt geen extra personeel nodig; je hebt een slimme, centrale database nodig die fungeert als state machine. Dit is precies waar een specialistisch bureau zoals <strong>AutoFlow Studio</strong> in beeld komt om een op maat gemaakte RMA-middleware te bouwen die deze chaos omzet in een gestroomlijnd proces.</p>
+
+  <h2>De Architectuur van een Custom RMA State Machine</h2>
+  <p>Een betrouwbaar retoursysteem valt of staat met een state machine. Je kunt niet zomaar direct geld terugstorten. Je hebt een centrale database nodig die elke stap van de retourzending nauwgezet bijhoudt. Hier is een voorbeeld van hoe we het databaseschema voor een dergelijk portaal ontwerpen:</p>
+  <div class="highlight-box">
+    <h3>Voorbeeld RMA Database Schema (SQL)</h3>
+    <p>We houden de volledige levenscyclus van de retour bij via expliciete statussen in de database. Dit voorkomt dat er ooit een betaling via Mollie wordt gedaan voordat het magazijn de producten fysiek heeft goedgekeurd.</p>
+    <pre>
+CREATE TYPE rma_status AS ENUM ('requested', 'approved', 'received', 'inspected', 'completed', 'rejected');
+
+CREATE TABLE rma_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_reference VARCHAR(100) NOT NULL,
+    customer_id VARCHAR(100) NOT NULL,
+    status rma_status DEFAULT 'requested',
+    original_payment_id VARCHAR(100) NOT NULL, -- Mollie Transactie ID
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE rma_items (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    rma_request_id UUID REFERENCES rma_requests(id),
+    sku VARCHAR(100) NOT NULL,
+    quantity INT NOT NULL,
+    inspected_quantity INT DEFAULT 0,
+    restocking_fee_percentage DECIMAL(5, 2) DEFAULT 0.00,
+    status VARCHAR(50) NOT NULL -- 'pending_arrival', 'accepted', 'damaged'
+);</pre>
+  </div>
+  <p>Door deze statussen strikt te definiëren, heeft je software altijd één single source of truth. Een klant gebruikt het retourportaal om een aanvraag in te dienen. Na goedkeuring door support verandert de status naar <code>approved</code> en genereert het systeem een PDF-retourlabel met een unieke barcode. Dit is de absolute basis van professionele <a href="/nl/blog/automation-intro">workflow automatisering</a>.</p>
+
+  <h2>Koppelen met de Exact Online API: De Uitdagingen</h2>
+  <p>Laten we eerlijk zijn over de Exact Online API. Waar Mollie een droom is voor elke software engineer, is Exact Online... laten we zeggen: "historisch gegroeid en uitdagend". De API maakt gebruik van OAuth 2.0 met zeer korte token-looptijden en vereist dat je rekening houdt met specifieke divisie-codes (administratienummers). Als je dit wilt automatiseren, moet je hier slim mee omgaan.</p>
+  <p>Om een retour correct in te boeken, moeten we een creditboeking of een negatieve verkoopboeking maken in Exact Online. Dit zijn de stappen die we via de API doorlopen:</p>
+  <h3>1. De OAuth-token automatisch verversen</h3>
+  <p>Omdat je retoursysteem volledig op de achtergrond draait via webhooks, is er geen actieve gebruiker die handmatig kan inloggen om toestemming te geven. Onze custom achtergrondtaken controleren continu of de access token is verlopen, vragen met de refresh token een nieuwe aan bij Exact, en slaan de actuele sleutels veilig op in je database.</p>
+  <h3>2. De Creditboeking (Sales Entry) aanmaken</h3>
+  <p>Zodra een magazijnmedewerker het geretourneerde product scant en de status op <code>inspected</code> zet, schiet het systeem een verzoek naar de Exact API. We gebruiken hiervoor het endpoint <code>/api/v1/{division}/salesentry/SalesEntries</code>. De JSON payload ziet er als volgt uit:</p>
+  <pre>{
+  "Customer": "c927f8de-8bf1-4e92-a1b9-38efb0ad52fe",
+  "Description": "Retourzending RMA-2024-009",
+  "EntryDate": "2024-10-15",
+  "SalesEntryLines": [
+    {
+      "AmountFC": -120.50,
+      "GLAccount": "800010", -- Grootboekrekening Retouren
+      "Description": "Terugbetaling SKU-VALVE-01",
+      "VATCode": "2" -- Standaard 21% BTW
+    }
+  ]
+}</pre>
+  <p>Door de negatieve waarde bij <code>AmountFC</code> weet Exact Online direct dat het om een creditnota gaat die in mindering moet worden gebracht op het openstaande saldo van de klant. Hierdoor hoeft je administratie nooit meer handmatig journaalposten in te kloppen.</p>
+
+  <h2>De Magie: Automatische Terugbetaling via de Mollie API</h2>
+  <p>Zodra Exact Online de creditboeking succesvol heeft verwerkt en een <code>201 Created</code> status teruggeeft, start onze engine direct de terugbetaling in Mollie. Waarom wachten we op Exact Online? Omdat we willen voorkomen dat de klant zijn geld al terug heeft, terwijl de boekhoudkoppeling faalt en de administratie achteraf niet meer klopt. Eerst de administratie, dan de uitbetaling.</p>
+  <p>De API van Mollie is gelukkig extreem elegant. Om de terugbetaling te initiëren, sturen we een geautoriseerd POST-verzoek naar het refund-endpoint van Mollie:</p>
+  <pre>POST https://api.mollie.com/v2/payments/tr_7Uh3a71b3/refunds
+Authorization: Bearer test_dJsK38aJSkl92...
+Content-Type: application/json
+
+{
+  "amount": {
+    "currency": "EUR",
+    "value": "120.50"
+  },
+  "description": "Goedgekeurde terugbetaling voor RMA-2024-009"
+}</pre>
+  <p>Een groot voordeel van de Mollie API is de ingebouwde ondersteuning voor deelretouren. Mocht een klant vijf producten hebben besteld maar er slechts één retourneren, dan houdt Mollie exact bij hoeveel er maximaal van de oorspronkelijke transactie mag worden teruggeboekt. Mollie regelt vervolgens de daadwerkelijke overboeking via iDeal, creditcard of Bancontact en stuurt direct een bevestiging naar de klant.</p>
+
+  <div class="results-box">
+    <h3>Wat levert dit op in de praktijk?</h3>
+    <p>Door de koppeling tussen Exact Online en Mollie te automatiseren met een op maat gemaakt platform van <strong>AutoFlow Studio</strong>, behaalde een Nederlandse B2B-klant de volgende resultaten:</p>
+    <ul>
+      <li><strong>RMA-verwerkingstijd:</strong> Daalde van gemiddeld 35 minuten per retour naar minder dan 2 minuten handmatig werk.</li>
+      <li><strong>Foutmarge:</strong> Het aantal foutieve terugbetalingen of missende creditnota's daalde naar nul.</li>
+      <li><strong>Klanttevredenheid:</strong> De doorlooptijd van terugbetalingen daalde van 14 werkdagen naar minder dan 48 uur.</li>
+    </ul>
+  </div>
+
+  <h2>Omgaan met Edge Cases (De Nachtmerries van de Developer)</h2>
+  <p>Als developer weet je dat de standaardsituatie zelden het probleem is. Het gaat om de uitzonderingen. Bij het bouwen van een robuust retoursysteem bouwen we altijd strenge controles in voor deze specifieke scenario's:</p>
+  <h3>1. Herbevoorradingskosten (Restocking Fees)</h3>
+  <p>In de B2B-wereld is het heel gebruikelijk om niet het volledige aankoopbedrag te crediteren. Als een klant een verkeerd product bestelt, breng je bijvoorbeeld 15% administratie- of inspectiekosten in rekening. De custom admin-omgeving moet supportmedewerkers de mogelijkheid bieden om dit percentage aan te passen. Bij een retour van €100 maakt het systeem automatisch een creditnota van €85 aan in Exact Online, triggert een refund van €85 in Mollie en boekt de overige €15 als verwerkingsomzet op een aparte grootboekrekening.</p>
+  <h3>2. Beschadigde goederen bij aankomst</h3>
+  <p>Wat gebeurt er als het magazijn de doos opent en het product is onherstelbaar beschadigd of duidelijk gebruikt? De interface van de magazijnmedewerker moet een duidelijke 'Afkeuren'-knop bevatten. Zodra hierop wordt geklikt, wordt het automatische Mollie-proces direct gepauzeerd, de status in de database veranderd naar <code>rejected</code>, en ontvangt de klant direct een geautomatiseerde e-mail met de foto's van de schade die de medewerker met zijn scanner of tablet heeft gemaakt.</p>
+  <h3>3. Verlopen Mollie-transacties</h3>
+  <p>Mollie-transacties hebben een houdbaarheidsdatum. Afhankelijk van de betaalmethode kun je na 120 of 180 dagen vaak geen automatische refund meer uitvoeren via de API. Een slimme maatwerkkoppeling vangt deze API-fouten van Mollie netjes op, markeert de retourstatus als 'Handmatige uitbetaling vereist' en genereert automatisch een SEPA XML-betaalbestand in Exact Online zodat de boekhouding dit via de bank alsnog in bulk kan uitbetalen.</p>
+
+  <h2>Waarom een Custom Koppeling wint van standaard SaaS-tools</h2>
+  <p>Je vraagt je misschien af: "Kan ik niet gewoon een standaard retour-app uit de App Store plukken?" Natuurlijk kan dat, maar je loopt heel snel tegen harde grenzen aan. Standaard plug-ins zijn ontworpen voor eenvoudige webshops die t-shirts verkopen aan consumenten. Ze snappen niets van de complexe processen in de Nederlandse B2B-sector, zoals klantspecifieke prijsafspraken, staffelkortingen, meervoudige magazijnlocaties, directe integraties met oudere Exact Online-omgevingen, of ingewikkelde btw-verleggingsregels.</p>
+  <p>Met een op maat gemaakte oplossing van <strong>AutoFlow Studio</strong> ben je volledig eigenaar van je eigen software. Je retourportaal draait op je eigen domeinnaam, sluit perfect aan op de huisstijl, maakt rechtstreeks verbinding met je ERP en database, en kent geen maandelijkse transactiekosten van tussenpartijen. Je bouwt hiermee een waardevol digitaal bedrijfsmiddel op dat direct bijdraagt aan de efficiëntie en waarde van je onderneming.</p>
+  <p>Stop met het verspillen van kostbare uren aan handmatige retouren en creditnota's. Voorkom dat je administratie achterloopt en zorg dat je klanten niet wekenlang op hun geld hoeven te wachten. Neem vandaag nog contact op met de engineers van <strong>AutoFlow Studio</strong> en laat ons een ijzersterke, op maat gemaakte RMA en geautomatiseerde refund engine bouwen die geruisloos op de achtergrond draait terwijl jij je focust op de groei van je bedrijf.</p>
+</div>`,
+  },
 ]
 export const getNlBlogBySlug = (slug) => NL_BLOG_POSTS.find(p => p.slug === slug)

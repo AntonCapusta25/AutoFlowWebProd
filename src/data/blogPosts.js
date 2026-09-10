@@ -5452,6 +5452,133 @@ async function createUsageInvoice(customer, usageDetails, totalAmount) {
 <p>Stop wasting precious engineering hours or operation team time on manual, repetitive, and error-prone invoicing workflows. Your team should be focused on building products and talking to customers, not copy-pasting values between systems. Let the experts at <strong>AutoFlow Studio</strong> design and build a secure, robust, custom metered billing automation system that keeps your books clean, your payments prompt, and your business scaling effortlessly.</p>
 </div>`,
   },
+  {
+    slug: 'custom-rma-refund-mollie-exact',
+    title: `How to Build a Custom RMA and Automated Refund Engine with Mollie and Exact Online`,
+    desc: `Learn how to orchestrate a custom Return Merchandise Authorization (RMA) portal integrated with Mollie and Exact Online to eliminate manual return processing and back-office headaches.`,
+    date: 'July 2026',
+    faqs: [
+      {
+            "q": "Can we issue partial refunds automatically through this Mollie integration?",
+            "a": "Absolutely. The custom RMA engine allows warehouse or support staff to adjust the accepted quantity and apply restocking fees. The software then dynamically calculates the correct amount and sends a partial refund request to the Mollie API, keeping the transaction perfectly balanced."
+      },
+      {
+            "q": "How does the system handle Exact Online API rate limits?",
+            "a": "Exact Online enforces strict API limits. To prevent system crashes, we build a queueing mechanism. Instead of hitting the Exact Online API synchronously, the app queues the credit entry and processes it using background workers that respect rate limits and automatically retry if a temporary block occurs."
+      },
+      {
+            "q": "What happens if a payment was made using a method that doesn't support API refunds?",
+            "a": "While major payment methods like iDeal, credit cards, and Bancontact easily support API refunds, some do not. The custom middleware checks the payment type from the Mollie transaction data. If it's unsupported, it flags the ticket for manual bank transfer and automatically generates the corresponding bank output file (SEPA XML) in Exact Online."
+      }
+],
+    body: `<div class="article-content">
+  <div class="hero-image">
+    <img src="/images/blog_custom-rma-refund-mollie-exact.png" alt="Custom RMA and Refund Integration Mollie Exact Online" />
+  </div>
+  <p>Look, returns are the absolute worst part of running a B2B operation or high-volume wholesale business. It is where all your nice, neat automated sales pipelines go to die. One minute you are celebrating a massive wholesale order; the next, your customer support desk is drowning in emails because a B2B buyer needs to return 45 custom industrial valves. They are confused about the return shipping, your warehouse team is clueless about what is arriving, and your financial department is manually copy-pasting bank details into Mollie while scrambling to create a credit note in Exact Online. It is a slow-motion car crash of human error and wasted labor.</p>
+  <p>Honestly, you cannot solve this with a generic Shopify app or a messy Zapier flow. When you are dealing with wholesale volumes, custom restocking fees, complex ERP workflows, and direct payment gateways, you need a custom-built solution. In this article, we are going to dive deep into how to design and build a custom Return Merchandise Authorization (RMA) and automated refund engine that bridges the gap between your inventory management, Mollie payment processing, and Exact Online accounting.</p>
+
+  <h2>The Return Flow: Why Manual Systems Break Down</h2>
+  <p>Before we look at the code and API architectures, let us get real about why your current setup is probably leaking cash. A return is not just an inverted purchase. It is a multi-department logistical dance. Let's look at what happens in a typical manual setup:</p>
+  <ul>
+    <li><strong>The Customer Support Trap:</strong> A client requests a return. Support searches through old email threads, manually verifies if the purchase was made within the return window, and checks if the item is eligible.</li>
+    <li><strong>The Logistical Void:</strong> The package arrives at the warehouse with no reference number. The warehouse team has to stop what they are doing, open the box, try to figure out who sent it, and write down the state of the goods on a literal clipboard.</li>
+    <li><strong>The Financial Nightmare:</strong> The bookkeeper receives the clipboard note three days later. They have to open Exact Online, create a credit entry, calculate the restock fee manually, and then log into the Mollie dashboard to trigger a partial refund.</li>
+  </ul>
+  <p>If this sounds familiar, you are definitely showing the <a href="/blog/5-signs">five warning signs</a> of an operations pipeline that has outgrown its manual foundations. You do not need more staff; you need a unified state machine. This is where a custom software agency like <strong>AutoFlow Studio</strong> comes in, designing custom RMA middleware that turns this chaotic multi-step process into a single, seamless, automated sequence.</p>
+
+  <h2>Architecting the Custom RMA State Machine</h2>
+  <p>A resilient return system is built on a state machine. You cannot just jump straight to the refund. You need a centralized database tracking every stage of the return process. Here is how we design the database schema for our custom portal:</p>
+  <div class="highlight-box">
+    <h3>Proposed RMA Database Schema (SQL-ish)</h3>
+    <p>We keep track of the lifecycle of the return using explicit database states. This ensures that no payment is ever triggered in Mollie without the warehouse confirming receipt of the goods.</p>
+    <pre>
+CREATE TYPE rma_status AS ENUM ('requested', 'approved', 'received', 'inspected', 'completed', 'rejected');
+
+CREATE TABLE rma_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_reference VARCHAR(100) NOT NULL,
+    customer_id VARCHAR(100) NOT NULL,
+    status rma_status DEFAULT 'requested',
+    original_payment_id VARCHAR(100) NOT NULL, -- Mollie Transaction ID
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE rma_items (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    rma_request_id UUID REFERENCES rma_requests(id),
+    sku VARCHAR(100) NOT NULL,
+    quantity INT NOT NULL,
+    inspected_quantity INT DEFAULT 0,
+    restocking_fee_percentage DECIMAL(5, 2) DEFAULT 0.00,
+    status VARCHAR(50) NOT NULL -- 'pending_arrival', 'accepted', 'damaged'
+);</pre>
+  </div>
+  <p>By defining these states, your software has a single source of truth. A customer uses their custom portal to create an RMA request. Once approved by support, the status changes to <code>approved</code>, generating a PDF return label with a unique barcode. This is the bedrock of robust <a href="/blog/automation-intro">workflow automation fundamentals</a>.</p>
+
+  <h2>Integrating the Exact Online API: The Quirky Part</h2>
+  <p>Let's talk about the elephant in the room: the Exact Online API. Look, Mollie is a developer's paradise. Exact Online? It is incredibly powerful but let us be polite and call it "historically complex." It uses OAuth 2.0 with aggressive token lifetimes, and it requires you to understand their division schemas. If you want to automate accounting, you have to handle these quirks elegantly.</p>
+  <p>To record a return, we need to create a Credit Entry or a Negative Sales Invoice in Exact Online. Let us look at the steps required to execute this through their REST API:</p>
+  <h3>1. Refreshing your OAuth Token</h3>
+  <p>Because your system runs background webhooks, you cannot rely on an active browser session. Your custom background worker must check if the access token is expired, use the refresh token to request a new one from Exact, and save the updated keys to your secure database.</p>
+  <h3>2. Creating the Credit Entry (Sales Entry)</h3>
+  <p>When the warehouse scans the returned item and sets the status to <code>inspected</code>, your system hits the Exact API. You will target the <code>/api/v1/{division}/salesentry/SalesEntries</code> endpoint. Here is what your JSON payload looks like when recording a credit to a client's account:</p>
+  <pre>{
+  "Customer": "c927f8de-8bf1-4e92-a1b9-38efb0ad52fe",
+  "Description": "Returned Goods RMA-2024-009",
+  "EntryDate": "2024-10-15",
+  "SalesEntryLines": [
+    {
+      "AmountFC": -120.50,
+      "GLAccount": "800010", -- Returns GL Account
+      "Description": "Refund for SKU-VALVE-01",
+      "VATCode": "2" -- Standard Dutch 21% VAT
+    }
+  ]
+}</pre>
+  <p>Notice the negative <code>AmountFC</code>. This tells Exact Online that this is a credit note reducing the receivable amount from that customer. Doing this programmatically means your accounting department does not have to click through forty menus just to balance the books.</p>
+
+  <h2>The Magic Step: Automating the Mollie Refund API</h2>
+  <p>Once Exact Online registers the credit note and returns a successful <code>201 Created</code> status code, your custom RMA engine can confidently trigger the refund in Mollie. Why wait for Exact Online first? Because if your accounting sync fails, you do not want to have already sent the money back, leaving your records permanently out of sync.</p>
+  <p>Let's look at how beautifully simple the Mollie API is. To issue a refund for the returned valve, your system makes an authenticated POST request to Mollie's refund endpoint:</p>
+  <pre>POST https://api.mollie.com/v2/payments/tr_7Uh3a71b3/refunds
+Authorization: Bearer test_dJsK38aJSkl92...
+Content-Type: application/json
+
+{
+  "amount": {
+    "currency": "EUR",
+    "value": "120.50"
+  },
+  "description": "Approved refund for RMA-2024-009"
+}</pre>
+  <p>The beauty of the Mollie Refund API is that it natively supports partial refunds. If a customer ordered five valves but only returned one, Mollie keeps track of the maximum refund limit of that transaction, preventing you from ever refunding more than the original checkout amount. It handles the bank transfer, credit card reversal, or iDeal settlement automatically, sending confirmation directly to the client.</p>
+
+  <div class="results-box">
+    <h3>The Operational Payoff</h3>
+    <p>By automating the bridge between Exact Online and Mollie with a custom portal built by <strong>AutoFlow Studio</strong>, a leading Dutch manufacturer saw the following results:</p>
+    <ul>
+      <li><strong>RMA Processing Time:</strong> Dropped from 35 minutes per ticket to under 2 minutes of human touch.</li>
+      <li><strong>Error Rate:</strong> Over-refunds and missed accounting ledger entries dropped to exactly zero.</li>
+      <li><strong>Client Satisfaction:</strong> Refund payout latency dropped from 14 business days to under 48 hours, raising NPS scores significantly.</li>
+    </ul>
+  </div>
+
+  <h2>Conquering Edge Cases (The Dev's Nightmare)</h2>
+  <p>If you have spent any time writing software, you know that the happy path is easy. It is the exceptions that break systems. When designing your custom return engine, we always build in robust defenses for these exact edge cases:</p>
+  <h3>1. The Restocking Fee</h3>
+  <p>In B2B, you rarely give 100% of the money back. If a customer ordered a product by mistake, you might charge a 15% restocking fee to cover warehouse labor. Your custom dashboard needs to allow support agents to override the final refund amount. If a €100 item is returned, the system automatically writes a credit note of €85 to Exact Online, triggers an €85 refund in Mollie, and logs the €15 difference as processing revenue under a specific general ledger account in Exact.</p>
+  <h3>2. Damaged Goods on Arrival</h3>
+  <p>What happens if the warehouse opens the box and the valve is rusted, scratched, or clearly used? Your warehouse UI needs a "Reject" button. Clicking this button should automatically stop the automated Mollie execution flow, transition the database status to <code>rejected</code>, and trigger an automated email to the client with uploaded photos of the damage. No manual emails required.</p>
+  <h3>3. The Expired Transaction Window</h3>
+  <p>Mollie transactions have a shelf life. Depending on the payment method, you might not be able to issue an API refund after 120 or 180 days. Your custom system must detect API errors from Mollie (such as transaction expired codes) and gracefully fall back to generating a bank payout task in Exact Online or notifying the accounts team to trigger a manual SEPA credit transfer.</p>
+
+  <h2>Why Custom Integration Trumps Clunky Third-Party Platforms</h2>
+  <p>You might be wondering: "Can't I just buy an off-the-shelf SaaS return tool?" Honestly, you can, but you will hit a brick wall fast. Standard apps are built for direct-to-consumer Shopify stores selling t-shirts. They cannot handle the unique nuances of Dutch B2B operations: customized tier pricing, multi-warehouse integrations, direct integration with older Exact Online setups, or complex VAT classifications.</p>
+  <p>A custom solution developed by <strong>AutoFlow Studio</strong> ensures you own the entire lifecycle. Your return portal sits cleanly on your domain, matches your corporate identity, utilizes your exact database design, and connects directly to your ERP without middleman fees. You escape the SaaS subscription trap and build a proprietary asset that increases your company's valuation.</p>
+  <p>Look, stop letting returns drain your team's energy. Stop letting your bookkeeping lag because of missing credit notes, and stop making customers wait weeks for their money. Reach out to the engineers at <strong>AutoFlow Studio</strong> and let us build you a bulletproof, customized RMA and automated refund engine that runs quietly in the background while you focus on growing your business.</p>
+</div>`,
+  },
 ]
 
 export const getBlogBySlug = (slug) => BLOG_POSTS.find(p => p.slug === slug)
