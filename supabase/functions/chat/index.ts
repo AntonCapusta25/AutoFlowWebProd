@@ -76,18 +76,17 @@ Deno.serve(async (req) => {
 
     // 3. Define the guardrails and system instructions
     const systemInstruction = `You are a helpful, professional, and friendly AI chatbot for AutoFlow Studio (autoflowstudio.net).
-Your goal is to answer client questions about AutoFlow Studio, our services (custom automation, workflow optimization, AI chatbots, CRM integrations), and pricing.
+Your goal is to assist clients, answer questions about AutoFlow Studio, our services (custom automations, workflow optimization, AI agents, CRM integrations), and help them get started.
 
 Here is the database information about AutoFlow Studio:
 ${knowledgeContext}
 
 CRITICAL RULES & GUARDRAILS:
-1. Topic Limitation: You are strictly an assistant for AutoFlow Studio's automation services.
-2. Creative Reframing: If the user asks anything off-topic, unrelated, or completely random (for example, "I want to buy a car for my IT agency", cooking recipes, personal travel booking, math exercises, or general chit-chat), do NOT reject them with a flat error or block message. Instead, creatively spin, reframe, and shape their request with an automation, custom software, CRM, or web application angle!
-Start by saying something like: "Oh well, that's a good idea! If you run a business in that space, we could build a nice custom booking system / automated pipeline for that..." or "Interesting! We could build custom software to solve that..."
-Connect even the most random or BS requests back to how AutoFlow Studio can design custom portals, booking interfaces, automated CRM pipelines, or custom AI assistants to power or streamline that specific concept.
-3. Keep your answers concise, structured, and easy to read. Use bullet points where appropriate.
-4. If a user wants to book an appointment or strategy session, encourage them to click the "Book a Call" button or help them schedule it.`;
+1. Greetings & Small Talk: ALWAYS respond warmly, naturally, and enthusiastically to greetings like "hi", "hello", "hey", "good morning", "how are you", etc. Introduce yourself as AutoFlow Studio's AI assistant and ask how you can help automate their business or workflows today.
+2. Core Focus: You specialize in AutoFlow Studio's automation services, custom software, CRM pipelines, and AI systems.
+3. Unrelated Off-Topic Requests: If the user asks about completely unrelated subjects (such as cooking recipes, buying cars, solving math homework, or sports scores), politely and creatively steer the conversation back to how AutoFlow Studio can help build custom software or automations for their business. Never be dismissive or say "that's not possible here".
+4. Formatting: Keep your answers concise, structured, professional, and easy to read.
+5. Call to Action: If a user expresses interest in starting a project or learning more, encourage them to book a free 15-minute Discovery Call or contact us.`;
 
     // 4. Map the conversation history to the Gemini format
     // Gemini roles: 'user' or 'model'
@@ -102,35 +101,46 @@ Connect even the most random or BS requests back to how AutoFlow Studio can desi
       parts: [{ text: message }]
     })
 
-    // 5. Call Gemini API
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-    
-    console.log('[chatbot] Calling Gemini API...')
-    const response = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents,
-        systemInstruction: {
-          parts: [{ text: systemInstruction }]
-        },
-        generationConfig: {
-          temperature: 0.2, // Lower temperature to follow instructions strictly
-          maxOutputTokens: 1000
+    // 5. Call Gemini API (Try latest Gemini 3.8 Flash, fallback to 3.5 or 2.5)
+    const MODELS = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-2.5-flash']
+    let data = null
+    let lastError = null
+
+    for (const model of MODELS) {
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`
+      console.log(`[chatbot] Calling Gemini API (${model})...`)
+      try {
+        const response = await fetch(geminiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents,
+            systemInstruction: { parts: [{ text: systemInstruction }] },
+            generationConfig: {
+              temperature: 0.2,
+              maxOutputTokens: 1000
+            }
+          })
+        })
+        const resJson = await response.json()
+        if (response.ok && resJson.candidates?.[0]?.content?.parts?.[0]?.text) {
+          data = resJson
+          break
         }
-      })
-    })
+        lastError = resJson.error?.message || `HTTP ${response.status}`
+        console.warn(`[chatbot] Model ${model} failed:`, lastError)
+      } catch (err) {
+        lastError = err.message
+        console.warn(`[chatbot] Model ${model} exception:`, err.message)
+      }
+    }
 
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(`Gemini API returned error ${response.status}: ${JSON.stringify(data)}`)
+    if (!data) {
+      throw new Error(`All Gemini models failed. Last error: ${lastError}`)
     }
 
     // Extract text from Gemini response structure
-    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't generate a response."
+    const replyText = data.candidates[0].content.parts[0].text
 
     // Save bot response to database if chat_id is provided
     if (chat_id) {

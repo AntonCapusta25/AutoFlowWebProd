@@ -2,9 +2,9 @@ import * as chrono from 'chrono-node'
 
 // Phrases that signal "this note implies I need to follow up," used to avoid
 // scheduling a reminder off an incidental date mention (e.g. "customer since 2019").
-export const FOLLOW_UP_HINTS = /\b(call|callback|bellen|terugbellen|bel|followup|opvolgen|opvolging|remind|herinneren|herinnering|reach\s*out|contact|touch\s*base|check\s*in|check\s*back|checken|ping|text|sms|email|mail|mailen|speak|spreken|afspraak|plannen|inplannen|no[ -]?response|no[ -]?answer|no[ -]?ans|nr|n\.r\.|n\/r|vm|v\.m\.|v\/m|voicemail|voice[ -]?mail|na|n\.a\.|n\/a|geen[ -]?gehoor|ingesproken)\b|left[ -]?(a[ -]?)?(vm|voicemail|voice[ -]?mail)/i
+export const FOLLOW_UP_HINTS = /(?:^|\b|\s)(call|callback|bellen|terugbellen|bel|followup|opvolgen|opvolging|remind|herinneren|herinnering|reach\s*out|contact|touch\s*base|check\s*in|check\s*back|checken|ping|text|sms|email|mail|mailen|speak|spreken|afspraak|plannen|inplannen|no[ -]?response|no[ -]?answer|no[ -]?ans|nr|n[._\/]?r[._]?|vm|v[._\/]?m[._]?|voicemail|voice[ -]?mail|na|n[._\/]?a[._]?|n[ -.]a|geen[ -]?gehoor|ingesproken)(?:\b|\s|$|[.,;!])|left[ -]?(a[ -]?)?(vm|voicemail|voice[ -]?mail)/i
 
-export const NO_RESPONSE_HINTS = /\b(no[ -]?response|no[ -]?answer|no[ -]?ans|nr|n\.r\.|n\/r|vm|v\.m\.|v\/m|voicemail|voice[ -]?mail|na|n\.a\.|n\/a|geen[ -]?gehoor|ingesproken)\b|left[ -]?(a[ -]?)?(vm|voicemail|voice[ -]?mail)/i
+export const NO_RESPONSE_HINTS = /(?:^|\b|\s)(no[ -]?response|no[ -]?answer|no[ -]?ans|nr|n[._\/]?r[._]?|vm|v[._\/]?m[._]?|voicemail|voice[ -]?mail|na|n[._\/]?a[._]?|n[ -.]a|geen[ -]?gehoor|ingesproken)(?:\b|\s|$|[.,;!])|left[ -]?(a[ -]?)?(vm|voicemail|voice[ -]?mail)/i
 
 // Parses free-text CRM notes ("call back tmrw", "follow up next Monday at 2pm",
 // "bellen volgende week maandag om 10:00", "terugbellen morgen om 14u30", "nr", "left vm")

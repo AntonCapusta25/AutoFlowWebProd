@@ -54,15 +54,28 @@ export default function ChatbotWidget() {
   // Default Fallback Response Tree (if database table is empty)
   const fallbackResponseTree = {
     en: {
+      'hi': "Hello! I am AutoFlow Studio's AI assistant. How can I help you automate your business workflows, CRMs, or portals today? [View Solutions](action:portfolio) or [Book a Call](action:book)",
+      'hello': "Hello! I am AutoFlow Studio's AI assistant. How can I help you automate your business workflows, CRMs, or portals today? [View Solutions](action:portfolio) or [Book a Call](action:book)",
+      'hey': "Hello! I am AutoFlow Studio's AI assistant. How can I help you automate your business workflows, CRMs, or portals today? [View Solutions](action:portfolio) or [Book a Call](action:book)",
+      'hi there': "Hello! I am AutoFlow Studio's AI assistant. How can I help you automate your business workflows, CRMs, or portals today? [View Solutions](action:portfolio) or [Book a Call](action:book)",
+      'hey there': "Hello! I am AutoFlow Studio's AI assistant. How can I help you automate your business workflows, CRMs, or portals today? [View Solutions](action:portfolio) or [Book a Call](action:book)",
+      'good morning': "Good morning! How can I help you with custom automations, CRMs, or software workflows today? [View Solutions](action:portfolio) or [Book a Call](action:book)",
+      'good afternoon': "Good afternoon! How can I help you with custom automations, CRMs, or software workflows today? [View Solutions](action:portfolio) or [Book a Call](action:book)",
+      'good evening': "Good evening! How can I help you with custom automations, CRMs, or software workflows today? [View Solutions](action:portfolio) or [Book a Call](action:book)",
       'what do you do?': 'We build custom AI automation tools, database systems, and integrations to eliminate your manual work. From CRM syncing to AI chatbots, we automate it all. Check out our projects: [View Portfolio](action:portfolio)',
       'pricing & rates': 'Pricing is custom based on project complexity. Smaller automations start low and are delivered within 7 days. Book a strategy session for a custom quote: [Book a Call](action:book)',
       'examples': 'Some examples of what we build:\n* **AI Chatbots** with CRM integration\n* **Database Syncs** (Google Sheets, Airtable, SQL)\n* **Automatic Lead Responders** via Email/WhatsApp\n[View Portfolio](action:portfolio)',
       'book a call': 'Opening the booking calendar for you now! Fill in your details to lock in a slot: [Book a Call](action:book)'
     },
     nl: {
+      'hi': "Hallo! Ik ben de AI-assistent van AutoFlow Studio. Hoe kan ik u vandaag helpen met automatisering, CRM-koppelingen of maatwerk software? [Bekijk Oplossingen](action:portfolio) of [Plan een Call](action:book)",
+      'hallo': "Hallo! Ik ben de AI-assistent van AutoFlow Studio. Hoe kan ik u vandaag helpen met automatisering, CRM-koppelingen of maatwerk software? [Bekijk Oplossingen](action:portfolio) of [Plan een Call](action:book)",
+      'hey': "Hallo! Ik ben de AI-assistent van AutoFlow Studio. Hoe kan ik u vandaag helpen met automatisering, CRM-koppelingen of maatwerk software? [Bekijk Oplossingen](action:portfolio) of [Plan een Call](action:book)",
+      'hoi': "Hallo! Ik ben de AI-assistent van AutoFlow Studio. Hoe kan ik u vandaag helpen met automatisering, CRM-koppelingen of maatwerk software? [Bekijk Oplossingen](action:portfolio) of [Plan een Call](action:book)",
+      'dag': "Hallo! Ik ben de AI-assistent van AutoFlow Studio. Hoe kan ik u vandaag helpen met automatisering, CRM-koppelingen of maatwerk software? [Bekijk Oplossingen](action:portfolio) of [Plan een Call](action:book)",
       'wat doen jullie?': 'Wij bouwen op maat gemaakte AI-automatiseringsoplossingen, databasekoppelingen en workflows om uw handmatige werk te elimineren. Bekijk onze projecten: [Bekijk Portfolio](action:portfolio)',
       'tarieven & prijzen': 'Tarieven zijn op maat en afhankelijk van de complexiteit van de automatisering. Kleinere projecten worden binnen 7 dagen opgeleverd. Boek een gesprek voor een offerte: [Gesprek Boeken](action:book)',
-      'voorbeelden': 'Enkele voorbeelden van wat we bouwen:\n* **AI Chatbots** met CRM-integratie\n* **Database Koppelingen** (Google Sheets, Airtable, SQL)\n* **Automatische Lead Responders** via Email/WhatsApp\n[Bekijk Portfolio](action:portfolio)',
+      'voorbeelden': 'Enkele voorbeelden van what we bouwen:\n* **AI Chatbots** met CRM-integratie\n* **Database Koppelingen** (Google Sheets, Airtable, SQL)\n* **Automatische Lead Responders** via Email/WhatsApp\n[Bekijk Portfolio](action:portfolio)',
       'gesprek boeken': 'Ik open het boekingsformulier nu voor u! Vul uw gegevens in om een afspraak in te plannen: [Gesprek Boeken](action:book)'
     }
   }
@@ -80,10 +93,18 @@ export default function ChatbotWidget() {
     loadDbTree()
   }, [])
 
-  // Helper to fetch matching trigger response for exact quick chips/keywords only
+  // Helper to fetch matching trigger response for exact quick chips/keywords/greetings
   const matchResponseTree = (text) => {
-    const normalized = text.toLowerCase().trim().replace(/[?.!]/g, '')
+    const normalized = text.toLowerCase().trim().replace(/[?.!👋]/g, '')
     const lang = isNl ? 'nl' : 'en'
+
+    // Instant local match for common greetings (0ms latency, no AI call needed)
+    const isGreeting = /^(hi|hello|hey|hallo|hoi|dag|greetings|good morning|good afternoon|good evening|hi there|hey there|sup|yo)$/i.test(normalized)
+    if (isGreeting) {
+      return isNl
+        ? "Hallo! Ik ben de AI-assistent van AutoFlow Studio. Hoe kan ik u vandaag helpen met automatisering, CRM-koppelingen of maatwerk software? [Bekijk Oplossingen](action:portfolio) of [Plan een Call](action:book)"
+        : "Hello! I am AutoFlow Studio's AI assistant. How can I help you automate your business workflows, CRMs, or portals today? [View Solutions](action:portfolio) or [Book a Call](action:book)"
+    }
 
     // Try DB Tree first (exact or phrase match)
     const dbMatch = dbResponseTree.find(entry => {
@@ -1284,21 +1305,30 @@ export default function ChatbotWidget() {
 function generateSmartFallbackResponse(text, isNl) {
   const q = (text || '').toLowerCase().trim()
 
-  // Off-topic, unrelated, or impossible requests (buying cars, recipes, jokes, sports, math, personal advice, etc.)
-  const isOffTopic = 
-    q.includes('car') || q.includes('buy') || q.includes('recipe') || 
-    q.includes('joke') || q.includes('weather') || q.includes('movie') || 
-    q.includes('crypto') || q.includes('game') || q.includes('food') ||
-    q.includes('van') || q.includes('shoe') || q.includes('song') ||
-    (!q.includes('autom') && !q.includes('crm') && !q.includes('lead') && !q.includes('price') && !q.includes('cost') && !q.includes('bot') && !q.includes('call') && !q.includes('book') && !q.includes('workflow') && !q.includes('software') && !q.includes('app') && !q.includes('b2b') && !q.includes('horeca') && !q.includes('agency') && !q.includes('contact') && !q.includes('email') && !q.includes('scrap') && !q.includes('python') && !q.includes('help') && !q.includes('hi') && !q.includes('hello'))
+  // 1. Greetings (Hi, Hello, Hey, Hallo, Good morning, etc.)
+  const isGreeting = 
+    /^(hi|hello|hey|hallo|hoi|dag|greetings|good morning|good afternoon|good evening|hi there|hey there|sup|yo)[\s.!👋]*$/i.test(q) ||
+    q === 'hi' || q === 'hello' || q === 'hey' || q === 'hallo' || q === 'hoi' || q === 'dag'
 
-  if (isOffTopic && q.length > 2) {
+  if (isGreeting) {
     return isNl
-      ? "Kijk, dat is hier niet mogelijk, maar laten we het over automatisering hebben! Waar kan ik u vandaag mee helpen? [Bekijk Oplossingen](action:portfolio) of [Plan een Call](action:book)"
-      : "Look, that's not possible here, but let's speak about automations! What can I help you with today? [View Solutions](action:portfolio) or [Book a Call](action:book)"
+      ? "Hallo! Ik ben de AI-assistent van AutoFlow Studio. Hoe kan ik u vandaag helpen met automatisering, CRM-koppelingen of maatwerk software? [Bekijk Oplossingen](action:portfolio) of [Plan een Call](action:book)"
+      : "Hello! I am AutoFlow Studio's AI assistant. How can I help you automate your business workflows, CRMs, or portals today? [View Solutions](action:portfolio) or [Book a Call](action:book)"
   }
 
-  // Domain Queries
+  // 2. Off-topic or unrelated requests (recipes, cars, jokes, etc.)
+  const isExplicitOffTopic = 
+    q.includes('car') || q.includes('recipe') || q.includes('joke') || 
+    q.includes('weather') || q.includes('movie') || q.includes('crypto') || 
+    q.includes('game') || q.includes('food') || q.includes('shoe') || q.includes('song')
+
+  if (isExplicitOffTopic) {
+    return isNl
+      ? "Interessant! Wij zijn gespecialiseerd in maatwerk automatiseringen, CRM-systemen en bedrijfssoftware. Als u in die sector actief bent, kunnen we een slimme boekings- of workflow-automatisering voor u bouwen! [Plan een Call](action:book)"
+      : "Interesting idea! We specialize in custom business automations, CRMs, and workflow portals. If you operate in that space, we can engineer custom automation pipelines or booking engines for you. [Book a Strategy Call](action:book)"
+  }
+
+  // 3. Domain Queries
   if (q.includes('b2b') || q.includes('operation') || q.includes('crm') || q.includes('portal') || q.includes('excel') || q.includes('sheet') || q.includes('database')) {
     return isNl 
       ? "Onze B2B-automatiseringsoplossingen omvatten maatwerk portalen, geautomatiseerde PDF-offertes en naadloze database-koppelingen (Postgres, Moneybird, Stripe). [Plan een Audit](action:book)"
@@ -1325,7 +1355,7 @@ function generateSmartFallbackResponse(text, isNl) {
       : "You can book a free 15-minute strategy call directly via our calendar: [Book a Call](action:book) or message us on [WhatsApp](action:whatsapp)."
   }
 
-  // Default AI automation response
+  // 4. Default AI automation response
   return isNl
     ? "Bij AutoFlow Studio ontwerpen en bouwen we maatwerk automatiseringen, AI-agents en dashboard-systemen die in minder dan 7 dagen live gaan. Waar kan ik u mee helpen? [Plan een gratis Discovery Call](action:book)"
     : "At AutoFlow Studio, we design and deploy custom business automations, AI agents, and internal portals in under 7 days. What can I help you automate today? [Book a Free Discovery Call](action:book)"
