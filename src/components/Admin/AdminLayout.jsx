@@ -170,14 +170,15 @@ export default function AdminLayout({ children }) {
 
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#050505', color: '#F8FAFC' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh', background: '#050505', color: '#F8FAFC' }}>
       <style>{`
         @media (max-width: 768px) {
           .admin-sidebar {
             position: fixed !important;
             top: 0;
             left: 0;
-            height: 100vh;
+            height: 100vh !important;
+            height: 100dvh !important;
             z-index: 10001;
             transform: translateX(-100%);
             width: 280px !important;
@@ -191,19 +192,23 @@ export default function AdminLayout({ children }) {
             top: 0;
             left: 0;
             width: 100vw;
+            width: 100dvw;
             height: 100vh;
+            height: 100dvh;
             background: rgba(0,0,0,0.6);
             backdrop-filter: blur(4px);
             z-index: 10000;
           }
           .admin-header {
-            padding: 0 20px !important;
+            padding: 0 16px !important;
           }
           .admin-header-title {
-            font-size: 1.1rem !important;
+            font-size: 1rem !important;
           }
           .admin-main-content {
-            padding: 20px !important;
+            padding: 16px !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
           }
           .mobile-menu-btn {
             display: flex !important;
@@ -481,7 +486,7 @@ export default function AdminLayout({ children }) {
         </aside>
 
         {/* Main Content Pane with Top Bar */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden' }}>
           {/* Header Bar */}
           <header className="admin-header" style={{
             height: '70px',

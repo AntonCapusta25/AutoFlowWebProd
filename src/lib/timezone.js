@@ -111,6 +111,18 @@ export function getLeadTimezone(lead) {
   return null
 }
 
+export function getLeadTimezoneCode(lead) {
+  const tz = getLeadTimezone(lead)
+  if (!tz) return null
+  if (tz === 'America/New_York') return 'ET'
+  if (tz === 'America/Chicago') return 'CT'
+  if (tz === 'America/Denver') return 'MT'
+  if (tz === 'America/Los_Angeles') return 'PT'
+  if (tz === 'Europe/London') return 'GMT'
+  if (tz === 'Europe/Amsterdam') return 'CET'
+  return null
+}
+
 export function getLeadLocalTimeStr(lead) {
   const tz = getLeadTimezone(lead)
   if (!tz) return 'N/A'
@@ -135,3 +147,4 @@ export function getLeadLocalTimeStr(lead) {
     return 'N/A'
   }
 }
+

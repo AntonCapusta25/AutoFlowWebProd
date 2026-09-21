@@ -6,7 +6,7 @@ import FollowUpCalendar from './FollowUpCalendar'
 import { parseFollowUpDate } from '../../lib/followUpParser'
 import { scheduleFollowUp } from '../../lib/followUps'
 import { handleNoResponseAutomation } from '../../lib/noResponse'
-import { getLeadLocalTimeStr } from '../../lib/timezone'
+import { getLeadLocalTimeStr, getLeadTimezoneCode } from '../../lib/timezone'
 import { triggerAircall } from '../../lib/aircall'
 import AircallWidget from './AircallWidget'
 
@@ -42,6 +42,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   const [phoneFilter, setPhoneFilter] = useSessionState(`${stateKey}_phoneFilter`, 'nl')
   const [commentFilter, setCommentFilter] = useSessionState(`${stateKey}_commentFilter`, 'all')
   const [callFilter, setCallFilter] = useSessionState(`${stateKey}_callFilter`, 'all')
+  const [timezoneFilter, setTimezoneFilter] = useSessionState(`${stateKey}_timezoneFilter`, 'all')
   const [activeIndustries, setActiveIndustries] = useState([])
   const [tableIndustryFilter, setTableIndustryFilter] = useSessionState(`${stateKey}_tableIndustry`, '')
   const [tableTagFilter, setTableTagFilter] = useSessionState(`${stateKey}_tableTag`, '')
@@ -339,8 +340,12 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         .range(page * pageSize, (page + 1) * pageSize - 1)
 
       if (!error) {
-        setLeads(data || [])
-        setTotalCount(count || 0)
+        let finalData = data || []
+        if (timezoneFilter && timezoneFilter !== 'all') {
+          finalData = finalData.filter(l => getLeadTimezoneCode(l) === timezoneFilter)
+        }
+        setLeads(finalData)
+        setTotalCount(timezoneFilter && timezoneFilter !== 'all' ? finalData.length : (count || 0))
       }
     } catch (err) {
       console.error('Fetch error:', err)
@@ -352,7 +357,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   useEffect(() => {
     if (authLoading) return
     fetchLeads()
-  }, [page, searchTerm, statusFilter, assigneeFilter, phoneFilter, tableIndustryFilter, tableTagFilter, commentFilter, callFilter, JSON.stringify(filters), user, authLoading])
+  }, [page, searchTerm, statusFilter, assigneeFilter, phoneFilter, tableIndustryFilter, tableTagFilter, commentFilter, callFilter, timezoneFilter, JSON.stringify(filters), user, authLoading])
 
   useEffect(() => {
     async function fetchFilterOptions() {
@@ -1384,7 +1389,8 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         }
         @media (max-width: 768px) {
           .leadbank-grid.has-selection { grid-template-columns: 1fr !important; }
-          .lead-detail-panel { position: fixed; top: 70px; left: 0; width: 100vw; height: calc(100vh - 70px); z-index: 10000; border-radius: 0; overflow-y: auto; }
+          .lead-detail-panel { position: fixed !important; top: 70px !important; left: 0 !important; width: 100vw !important; width: 100dvw !important; height: calc(100vh - 70px) !important; height: calc(100dvh - 70px) !important; z-index: 10000 !important; border-radius: 0 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; }
+          .lead-table-container { maxHeight: none !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
           
           .leadbank-header {
             flex-direction: column;
@@ -1573,7 +1579,24 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Outbound Profile</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Website</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '160px', width: '160px' }}>Phone</th>
-                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '120px', width: '120px' }}>Local Time</th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '150px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    Local Time
+                    <select
+                      value={timezoneFilter}
+                      onChange={e => { setTimezoneFilter(e.target.value); goToPage(0); }}
+                      style={{ background: 'transparent', border: 'none', color: '#3b82f6', outline: 'none', cursor: 'pointer', fontWeight: 800 }}
+                    >
+                      <option value="all" style={{ background: '#0a0a0a', color: 'white' }}>All</option>
+                      <option value="ET" style={{ background: '#0a0a0a', color: 'white' }}>ET (Eastern)</option>
+                      <option value="CT" style={{ background: '#0a0a0a', color: 'white' }}>CT (Central)</option>
+                      <option value="MT" style={{ background: '#0a0a0a', color: 'white' }}>MT (Mountain)</option>
+                      <option value="PT" style={{ background: '#0a0a0a', color: 'white' }}>PT (Pacific)</option>
+                      <option value="GMT" style={{ background: '#0a0a0a', color: 'white' }}>GMT (UK)</option>
+                      <option value="CET" style={{ background: '#0a0a0a', color: 'white' }}>CET (NL/EU)</option>
+                    </select>
+                  </div>
+                </th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     Industry

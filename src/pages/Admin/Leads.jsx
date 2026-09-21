@@ -6,12 +6,13 @@ import useSessionState from '../../hooks/useSessionState'
 import { parseFollowUpDate } from '../../lib/followUpParser'
 import { formatFollowUpDate, scheduleFollowUp } from '../../lib/followUps'
 import { handleNoResponseAutomation } from '../../lib/noResponse'
-import { getLeadLocalTimeStr } from '../../lib/timezone'
+import { getLeadLocalTimeStr, getLeadTimezoneCode } from '../../lib/timezone'
 
 export default function AdminLeads() {
   const { user, isAdmin, profile, salespeople, loading: authLoading } = useAdmin()
   const stateKey = useMemo(() => window.location.pathname, [])
   const [assigneeFilter, setAssigneeFilter] = useSessionState(`${stateKey}_assigneeFilter`, 'all')
+  const [timezoneFilter, setTimezoneFilter] = useSessionState(`${stateKey}_timezoneFilter`, 'all')
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedLead, setSelectedLead] = useSessionState(`${stateKey}_selectedLead`, null)
@@ -162,8 +163,12 @@ export default function AdminLeads() {
     ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 
     const uniqueLeads = Array.from(new Map(combined.map(item => [item.id, item])).values())
+    let finalLeads = uniqueLeads
+    if (timezoneFilter && timezoneFilter !== 'all') {
+      finalLeads = finalLeads.filter(l => getLeadTimezoneCode(l) === timezoneFilter)
+    }
 
-    setLeads(uniqueLeads)
+    setLeads(finalLeads)
     setLoading(false)
   }
 
@@ -786,9 +791,9 @@ export default function AdminLeads() {
           .leads-header { flex-direction: column; align-items: stretch; }
           .leads-actions { margin-top: 16px; justify-content: space-between; }
           .leads-grid.has-selection { grid-template-columns: 1fr; }
-          .lead-table-container { display: block; }
+          .lead-table-container { display: block; maxHeight: none !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
           .leads-grid.has-selection .lead-table-container { display: none; }
-          .lead-detail-panel { position: fixed; top: 70px; left: 0; width: 100vw; height: calc(100vh - 70px); z-index: 10000; border-radius: 0; overflow-y: auto; }
+          .lead-detail-panel { position: fixed !important; top: 70px !important; left: 0 !important; width: 100vw !important; width: 100dvw !important; height: calc(100vh - 70px) !important; height: calc(100dvh - 70px) !important; z-index: 10000 !important; border-radius: 0 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; }
         }
       `}</style>
       {emailSentFor && (
@@ -860,7 +865,24 @@ export default function AdminLeads() {
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Website</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Source</th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '160px', width: '160px' }}>Phone</th>
-                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '120px', width: '120px' }}>Local Time</th>
+                <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '150px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    Local Time
+                    <select
+                      value={timezoneFilter}
+                      onChange={e => setTimezoneFilter(e.target.value)}
+                      style={{ background: 'transparent', border: 'none', color: '#3b82f6', outline: 'none', cursor: 'pointer', fontWeight: 800 }}
+                    >
+                      <option value="all" style={{ background: '#0a0a0a', color: 'white' }}>All</option>
+                      <option value="ET" style={{ background: '#0a0a0a', color: 'white' }}>ET (Eastern)</option>
+                      <option value="CT" style={{ background: '#0a0a0a', color: 'white' }}>CT (Central)</option>
+                      <option value="MT" style={{ background: '#0a0a0a', color: 'white' }}>MT (Mountain)</option>
+                      <option value="PT" style={{ background: '#0a0a0a', color: 'white' }}>PT (Pacific)</option>
+                      <option value="GMT" style={{ background: '#0a0a0a', color: 'white' }}>GMT (UK)</option>
+                      <option value="CET" style={{ background: '#0a0a0a', color: 'white' }}>CET (NL/EU)</option>
+                    </select>
+                  </div>
+                </th>
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
                 {isAdmin && <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Assignee</th>}
                 <th style={{ padding: '24px 20px', color: '#94A3B8', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Initial Problem</th>
