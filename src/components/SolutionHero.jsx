@@ -24,6 +24,7 @@ const LOGOS = [
 ]
 
 export default function SolutionHero({ 
+  theme = 'red',
   lang = 'en', 
   eyebrow = '01 / SOLUTION',
   headlinePrefix = 'AUTOMATE YOUR',
@@ -35,6 +36,7 @@ export default function SolutionHero({
   onOpenBooking = null
 }) {
   const isNl = lang === 'nl'
+  const isBlue = theme === 'blue'
   const [typeText, setTypeText] = useState('')
   const [itemIdx, setItemIdx] = useState(0)
   const [charIdx, setCharIdx] = useState(0)
@@ -112,7 +114,7 @@ export default function SolutionHero({
           min-height: 90vh;
           padding-top: 150px;
           position: relative;
-          background-color: #050203;
+          background-color: ${isBlue ? '#030712' : '#050203'};
           overflow: hidden;
           display: flex;
           flex-direction: column;
@@ -125,11 +127,11 @@ export default function SolutionHero({
         .solution-glass-pill {
           display: inline-flex;
           align-items: center;
-          background: rgba(153, 27, 27, 0.15);
+          background: ${isBlue ? 'rgba(30, 58, 138, 0.25)' : 'rgba(153, 27, 27, 0.15)'};
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(239, 68, 68, 0.3);
-          box-shadow: 0 8px 32px rgba(153, 27, 27, 0.3);
+          border: 1px solid ${isBlue ? 'rgba(59, 130, 246, 0.4)' : 'rgba(239, 68, 68, 0.3)'};
+          box-shadow: ${isBlue ? '0 8px 32px rgba(30, 58, 138, 0.4)' : '0 8px 32px rgba(153, 27, 27, 0.3)'};
           border-radius: 50px;
           padding: 8px 36px;
           margin-left: 12px;
@@ -137,7 +139,7 @@ export default function SolutionHero({
           min-height: 1.4em;
         }
         .solution-red-gradient {
-          background: linear-gradient(135deg, #ffffff 0%, #fca5a5 50%, #ef4444 100%);
+          background: ${isBlue ? 'linear-gradient(135deg, #ffffff 0%, #93c5fd 50%, #3b82f6 100%)' : 'linear-gradient(135deg, #ffffff 0%, #fca5a5 50%, #ef4444 100%)'};
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           white-space: nowrap;
@@ -156,10 +158,10 @@ export default function SolutionHero({
           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .solution-logo-pill:hover {
-          background: rgba(239, 68, 68, 0.15);
-          border-color: rgba(239, 68, 68, 0.4);
+          background: ${isBlue ? 'rgba(59, 130, 246, 0.15)' : 'rgba(239, 68, 68, 0.15)'};
+          border-color: ${isBlue ? 'rgba(59, 130, 246, 0.4)' : 'rgba(239, 68, 68, 0.4)'};
           transform: scale(1.05);
-          box-shadow: 0 0 25px rgba(239, 68, 68, 0.3);
+          box-shadow: ${isBlue ? '0 0 25px rgba(59, 130, 246, 0.3)' : '0 0 25px rgba(239, 68, 68, 0.3)'};
         }
         @media (max-width: 768px) {
           .solution-hero-section {
@@ -181,10 +183,10 @@ export default function SolutionHero({
       `}</style>
 
       <section className="solution-hero-section">
-        {/* Background Video looping (0831 (2).mov red liquid video) */}
+        {/* Background Video looping */}
         <video
           ref={videoRef}
-          src="/hero_red_loop.mp4"
+          src={isBlue ? '/hero_loop.mp4' : '/hero_red_loop.mp4'}
           autoPlay
           loop
           muted
@@ -206,7 +208,9 @@ export default function SolutionHero({
         <div style={{
           position: 'absolute',
           inset: 0,
-          background: 'radial-gradient(circle at center, rgba(10,4,6,0.3) 0%, rgba(5,2,3,0.85) 100%)',
+          background: isBlue
+            ? 'radial-gradient(circle at center, rgba(5,15,35,0.3) 0%, rgba(2,6,16,0.88) 100%)'
+            : 'radial-gradient(circle at center, rgba(10,4,6,0.3) 0%, rgba(5,2,3,0.85) 100%)',
           zIndex: 0,
           pointerEvents: 'none'
         }} />
@@ -215,9 +219,30 @@ export default function SolutionHero({
           
           {/* Main Hero Content Header */}
           <div style={{ textAlign: 'center', marginTop: '2vh' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', padding: '6px 18px', borderRadius: '50px', marginBottom: '24px' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ef4444', boxShadow: '0 0 10px #ef4444' }}></span>
-              <span style={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.18em', color: '#fca5a5', textTransform: 'uppercase' }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '10px',
+              background: isBlue ? 'rgba(59, 130, 246, 0.12)' : 'rgba(239, 68, 68, 0.1)',
+              border: `1px solid ${isBlue ? 'rgba(59, 130, 246, 0.3)' : 'rgba(239, 68, 68, 0.25)'}`,
+              padding: '6px 18px',
+              borderRadius: '50px',
+              marginBottom: '24px'
+            }}>
+              <span style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                background: isBlue ? '#3b82f6' : '#ef4444',
+                boxShadow: `0 0 10px ${isBlue ? '#3b82f6' : '#ef4444'}`
+              }}></span>
+              <span style={{
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                letterSpacing: '0.18em',
+                color: isBlue ? '#93c5fd' : '#fca5a5',
+                textTransform: 'uppercase'
+              }}>
                 {eyebrow}
               </span>
             </div>
@@ -263,7 +288,7 @@ export default function SolutionHero({
               <button 
                 onClick={() => onOpenBooking ? onOpenBooking('') : window.dispatchEvent(new CustomEvent('open-booking'))} 
                 style={{ 
-                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', 
+                  background: isBlue ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', 
                   color: '#ffffff', 
                   border: 'none', 
                   borderRadius: '50px', 
@@ -272,7 +297,7 @@ export default function SolutionHero({
                   fontSize: '0.95rem',
                   letterSpacing: '0.03em',
                   cursor: 'pointer',
-                  boxShadow: '0 10px 30px rgba(239, 68, 68, 0.4)',
+                  boxShadow: isBlue ? '0 10px 30px rgba(59, 130, 246, 0.4)' : '0 10px 30px rgba(239, 68, 68, 0.4)',
                   transition: 'all 0.3s ease'
                 }}
               >
@@ -304,8 +329,8 @@ export default function SolutionHero({
           {/* Typewriter Problem Search Box */}
           <div style={{ paddingTop: '40px', paddingBottom: '32px', display: 'flex', justifyContent: 'center' }}>
             <div className="solution-search-box hero-search-box" style={{
-              background: 'rgba(18,8,12,0.75)',
-              border: '1px solid rgba(239, 68, 68, 0.25)',
+              background: isBlue ? 'rgba(8,16,32,0.85)' : 'rgba(18,8,12,0.75)',
+              border: `1px solid ${isBlue ? 'rgba(59, 130, 246, 0.3)' : 'rgba(239, 68, 68, 0.25)'}`,
               borderRadius: '14px',
               padding: '8px 8px 8px 24px',
               display: 'flex', alignItems: 'center', gap: '12px',
@@ -316,7 +341,7 @@ export default function SolutionHero({
               <label style={{
                 fontFamily: "'Space Grotesk', sans-serif",
                 fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.1em',
-                color: '#fca5a5', textTransform: 'uppercase', whiteSpace: 'nowrap', flexShrink: 0,
+                color: isBlue ? '#93c5fd' : '#fca5a5', textTransform: 'uppercase', whiteSpace: 'nowrap', flexShrink: 0,
               }}>
                 {inputLabel}
               </label>
@@ -335,13 +360,15 @@ export default function SolutionHero({
                   />
                 </div>
                 <button type="submit" style={{
-                  background: inputVal.trim() ? 'linear-gradient(135deg,#ef4444,#dc2626)' : 'rgba(255,255,255,0.08)',
+                  background: inputVal.trim()
+                    ? (isBlue ? 'linear-gradient(135deg,#3b82f6,#1d4ed8)' : 'linear-gradient(135deg,#ef4444,#dc2626)')
+                    : 'rgba(255,255,255,0.08)',
                   color: inputVal.trim() ? '#fff' : 'rgba(255,255,255,0.4)',
                   border: 'none', borderRadius: '8px', padding: '12px 32px',
                   fontFamily: "'Space Grotesk', sans-serif",
                   fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer',
                   transition: 'all 0.2s', letterSpacing: '0.05em',
-                  boxShadow: inputVal.trim() ? '0 8px 25px rgba(239, 68, 68, 0.4)' : 'none',
+                  boxShadow: inputVal.trim() ? (isBlue ? '0 8px 25px rgba(59, 130, 246, 0.4)' : '0 8px 25px rgba(239, 68, 68, 0.4)') : 'none',
                 }}>
                   {sendText}
                 </button>

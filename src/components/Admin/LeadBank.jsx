@@ -1473,7 +1473,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           <button onClick={deduplicateDatabase} disabled={isActionLoading} style={{ padding: '10px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#94A3B8', borderRadius: '12px', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }}>
             {isActionLoading ? 'Cleaning...' : 'Cleanup Duplicates'}
           </button>
-          <button onClick={() => setShowImportModal(true)} style={{ padding: '10px 20px', background: 'linear-gradient(135deg, #e91e63, #9c27b0)', color: 'white', borderRadius: '12px', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem', border: 'none' }}>
+          <button onClick={() => setShowImportModal(true)} style={{ padding: '10px 20px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: 'white', borderRadius: '12px', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem', border: 'none', boxShadow: '0 4px 15px rgba(59,130,246,0.3)' }}>
             {isImporting ? 'Importing...' : 'Upload CSV'}
           </button>
           <button onClick={() => fetchLeads()} style={{ padding: '10px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', borderRadius: '12px', cursor: 'pointer' }}>Refresh</button>
@@ -1513,9 +1513,9 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
               style={{
                 padding: '9px 18px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer',
                 border: viewMode === t.id ? 'none' : '1px solid rgba(255,255,255,0.1)',
-                background: viewMode === t.id ? 'linear-gradient(135deg, #e91e63, #9c27b0)' : 'rgba(255,255,255,0.03)',
+                background: viewMode === t.id ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)' : 'rgba(255,255,255,0.03)',
                 color: viewMode === t.id ? 'white' : '#94A3B8',
-                boxShadow: viewMode === t.id ? '0 4px 15px rgba(233,30,99,0.3)' : 'none',
+                boxShadow: viewMode === t.id ? '0 4px 15px rgba(59,130,246,0.3)' : 'none',
                 transition: 'all 0.2s'
               }}
             >
@@ -1844,7 +1844,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                     )}
                     <td style={{ padding: '20px', textAlign: 'center', position: 'sticky', right: 0, background: selectedLead?.id === lead.id ? '#1a0b12' : '#0a0a0a', zIndex: 10, borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <button onClick={() => setCallModalLead(lead)} style={{ padding: '8px 12px', background: 'rgba(233, 30, 99, 0.08)', border: '1px solid rgba(233, 30, 99, 0.1)', color: '#e91e63', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <button onClick={() => setCallModalLead(lead)} style={{ padding: '8px 12px', background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.2)', color: '#3b82f6', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                           <span style={{ fontWeight: 800, fontSize: '0.8rem' }}>{lead.call_attempts || 0}</span>
                         </button>
@@ -1900,11 +1900,11 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                         onClick={() => goToPage(pageNum)}
                         style={{
                           width: '40px', height: '40px', borderRadius: '10px',
-                          background: page === pageNum ? '#e91e63' : 'rgba(255,255,255,0.03)',
+                          background: page === pageNum ? '#3b82f6' : 'rgba(255,255,255,0.03)',
                           border: page === pageNum ? 'none' : '1px solid rgba(255,255,255,0.08)',
                           color: 'white', cursor: 'pointer', fontWeight: 800, fontSize: '0.85rem',
                           transition: 'all 0.2s',
-                          boxShadow: page === pageNum ? '0 4px 15px rgba(233, 30, 99, 0.3)' : 'none'
+                          boxShadow: page === pageNum ? '0 4px 15px rgba(59, 130, 246, 0.3)' : 'none'
                         }}
                       >
                         {pageNum + 1}
@@ -2023,7 +2023,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                 <button
                   onClick={() => addComment(activeLead, newNote)}
                   disabled={!newNote.trim() || isActionLoading}
-                  style={{ padding: '10px 16px', background: newNote.trim() ? '#e91e63' : 'rgba(233, 30, 99, 0.2)', border: 'none', color: 'white', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, cursor: newNote.trim() ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}
+                  style={{ padding: '10px 16px', background: newNote.trim() ? '#3b82f6' : 'rgba(59, 130, 246, 0.2)', border: 'none', color: 'white', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, cursor: newNote.trim() ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}
                 >
                   Save
                 </button>
@@ -2072,7 +2072,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
             <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button onClick={() => setCallModalLead(activeLead)} style={{ flex: 1, padding: '14px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 8px 20px rgba(233, 30, 99, 0.3)' }}>
+                <button onClick={() => setCallModalLead(activeLead)} style={{ flex: 1, padding: '14px', background: '#3b82f6', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 8px 20px rgba(59, 130, 246, 0.3)' }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                   Log Call
                 </button>
@@ -2226,7 +2226,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                   logCall(callModalLead, content)
                   setCallModalLead(null)
                 }}
-                style={{ flex: 1, padding: '12px', background: '#e91e63', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}
+                style={{ flex: 1, padding: '12px', background: '#3b82f6', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}
               >
                 Log Call
               </button>
@@ -2434,7 +2434,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                   }
                 }}
                 disabled={emailSending}
-                style={{ flex: 1, padding: '14px', background: 'linear-gradient(135deg, #e91e63, #9c27b0)', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                style={{ flex: 1, padding: '14px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', border: 'none', color: 'white', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
                 {emailSending ? (
                   <>

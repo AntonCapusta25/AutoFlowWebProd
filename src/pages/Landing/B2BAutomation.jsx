@@ -260,6 +260,7 @@ export default function B2BAutomation({ lang }) {
 
       {/* Hero Section featuring 0831 (2).mov Red Video Loop & Interactive Typewriter */}
       <SolutionHero
+        theme="blue"
         lang={lang}
         eyebrow={lang === 'nl' ? '01 / B2B OPERATIES' : '01 / B2B OPERATIONS'}
         headlinePrefix={lang === 'nl' ? 'SCHAAL B2B OPERATIES' : 'SCALE B2B OPERATIONS'}
