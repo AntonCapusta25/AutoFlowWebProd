@@ -186,11 +186,13 @@ export default function SolutionHero({
         {/* Background Video looping */}
         <video
           ref={videoRef}
-          src={isBlue ? '/hero_loop.mp4' : '/hero_red_loop.mp4'}
+          key={isBlue ? 'blue-hero-video' : 'red-hero-video'}
           autoPlay
           loop
           muted
           playsInline
+          webkit-playsinline="true"
+          preload="auto"
           style={{
             position: 'absolute',
             top: 0,
@@ -202,7 +204,9 @@ export default function SolutionHero({
             opacity: 0.45,
             zIndex: 0
           }}
-        />
+        >
+          <source src={isBlue ? '/hero_loop.mp4' : '/hero_red_loop.mp4'} type="video/mp4" />
+        </video>
 
         {/* Dark vignette overlay for optimal text contrast */}
         <div style={{
