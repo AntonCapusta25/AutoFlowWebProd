@@ -5828,6 +5828,127 @@ Content-Type: application/json
   <p>We do not deliver black-box software. We write clean, modern code, host it securely within GDPR-compliant European environments, and provide clear dashboards so you always know exactly how your business operations are running. Stop wasting hours copying data and fighting default sync plugins. Let us build a reliable system that grows with your business.</p>
 </div>`,
   },
+  {
+    slug: 'custom-afas-profit-b2b-customer-portal',
+    title: `Stop Fighting Outsite: Build a Custom AFAS Profit B2B Customer Portal Instead`,
+    desc: `Tired of slow, clunky ERP interfaces? Learn how to build a lightning-fast custom B2B customer portal using the AFAS Profit API to automate orders, pricing, and billing.`,
+    date: 'July 2026',
+    faqs: [
+      {
+            "q": "Can we use our existing branding and design for the custom AFAS portal?",
+            "a": "Yes, absolutely. Unlike AFAS Outsite, which has strict layout and styling constraints, a custom portal gives you 100% design freedom. We can build it exactly according to your company’s brand guidelines, creating a seamless experience for your clients."
+      },
+      {
+            "q": "Will a custom portal slow down our AFAS Profit performance?",
+            "a": "Not at all. By using a smart middleware layer with Redis caching, we store product listings, basic customer details, and pricing models locally. The portal only queries AFAS directly for critical real-time actions, protecting your ERP from heavy traffic."
+      },
+      {
+            "q": "Can we integrate Dutch payment methods like iDEAL inside the portal?",
+            "a": "Yes. We can integrate payment gateways like Mollie or Stripe directly into the portal. This allows customers to view outstanding invoices (fetched from AFAS) and pay them instantly using iDEAL, credit card, or Bancontact."
+      }
+],
+    body: `<div class="article-content">
+<div class="hero-image">
+  <img src="/images/blog_custom-afas-profit-b2b-customer-portal.png" alt="Custom B2B Customer Portal Integrated with AFAS Profit" />
+</div>
+
+<p>Look, let's be totally honest here. AFAS Profit is an absolute beast of an ERP. It handles your finance, your HR, and your complex warehouse workflows beautifully. But the second you try to use AFAS Outsite as a customer-facing portal, it feels like stepping straight back into 2008. The user interface is rigid, customizing a single button requires a PhD in AFAS administration, and your B2B clients simply hate using it. </p>
+
+<p>If your customer service desk is still spending half their day emailing PDF invoices, manually copying order sheets, or answering phone calls just to check if a specific part is in stock, you have a massive operational leak. Honestly, you are losing thousands of euros in pure developer hours and friction. This is one of the classic <a href="/blog/5-signs">signs your business is outgrowing its current setup</a> and desperately needs a custom solution.</p>
+
+<h2>Why Default ERP Portals Make Your Customers Want to Scream</h2>
+
+<p>We've all been there. You get access to a supplier's B2B portal, and it's just a glorified, slow database view. There is no search auto-suggest, the mobile layout is broken, and finding an invoice from three months ago takes ten clicks. For modern B2B buyers—who are used to slick consumer experiences like Coolblue or Bol.com—this is incredibly frustrating. They expect speed, simplicity, and self-service.</p>
+
+<p>Here is the hard truth: when a portal is painful to use, customers avoid it. They will resort to emailing their orders in messy Excel spreadsheets or calling your sales team. This defeats the whole purpose of having an ERP portal in the first place. You end up with a high-end ERP but still have to do manual, double-data entry to get orders into the system. This is a massive bottleneck, and as we detail in our <a href="/blog/bottlenecks-guide">guide on identifying operational bottlenecks</a>, manual data entry is the silent killer of growth.</p>
+
+<p>This is where <strong>AutoFlow Studio</strong> comes in. We don't believe in forcing your business or your clients to adapt to clunky, off-the-shelf software. Instead of fighting with Outsite's design limits, you can build a custom, headless web portal that speaks directly to the AFAS Profit REST API. You get a modern front-end (using Vue.js or React) that loads in milliseconds, while AFAS remains your single source of truth in the background.</p>
+
+<h2>The Tech Breakdown: Talking to the AFAS Profit REST API</h2>
+
+<p>Let's dive into how this actually works under the hood. To build an ultra-fast customer portal, you can't just query the AFAS API live on every single page load. If a user is browsing a catalog of 10,000 SKUs, making a direct API call to AFAS for every product image, stock level, and custom price matrix will quickly hit rate limits and crawl to a halt.</p>
+
+<p>Instead, we design a smart middleware architecture. Here is what the pipeline looks like:</p>
+
+<div class="highlight-box">
+  <h3>The Smart Sync Architecture</h3>
+  <ul>
+    <li><strong>Data Caching:</strong> A high-performance local database (like PostgreSQL or MongoDB) paired with Redis caches product metadata, general stock levels, and basic account details.</li>
+    <li><strong>GetConnectors for Bulk Syncs:</strong> We configure scheduled cron jobs using AFAS GetConnectors to pull delta updates (e.g., stock changes, new products, updated pricelists) every 10 to 15 minutes.</li>
+    <li><strong>Live API Calls for Critical Data:</strong> Only real-time critical data—like the final cart checkout verification or exact custom client discounts—triggers a direct, microsecond API call to AFAS.</li>
+  </ul>
+</div>
+
+<h3>1. Pulling Customer Data via GetConnectors</h3>
+<p>To display order history, open invoices, and tracking numbers, we set up specific GetConnectors in AFAS. These connectors output clean JSON payloads that our middleware consumes. For example, a GetConnector for open invoices allows your clients to see exactly what they owe and even pay instantly using an integrated payment gateway like Mollie.</p>
+
+<h3>2. Writing Orders Back via UpdateConnectors</h3>
+<p>When a B2B customer places an order on your custom portal, we don't just send an email to your sales team. Our middleware validates the order and instantly pushes it to AFAS using an <code>UpdateConnector</code> (specifically the sales order connector, <code>FbSalesOrder</code>). </p>
+
+<p>Here is an example of what that payload look like when sent to the AFAS endpoint:</p>
+
+<pre><code>{
+  "Element": {
+    "Fields": {
+      "DbId": "Your_AFAS_Database_ID",
+      "OrId": "", 
+      "CoId": "CUSTOMER_10029",
+      "DaOr": "2023-10-27"
+    },
+    "Objects": {
+      "SalesOrderLine": {
+        "Element": [
+          {
+            "Fields": {
+              "ItId": "PRODUCT_SKU_9982",
+              "QuOr": "15",
+              "PrUn": "45.50"
+            }
+          }
+        ]
+      }
+    }
+  }
+}</code></pre>
+
+<p>Once AFAS accepts the payload, it generates a real sales order inside your ERP. The stock is reserved, the warehouse team gets a picking slip, and the customer receives an automated confirmation. No humans needed, zero margin for transcription errors.</p>
+
+<h2>Handling Complex B2B Pricing Matrices</h2>
+
+<p>One of the biggest headaches in B2B commerce is custom pricing. Customer A gets a 10% discount on category X, while Customer B has a negotiated contract price of €12.50 per unit for item Y, regardless of volume. If you try to build this pricing logic inside a standard e-commerce platform like Shopify or WooCommerce, you will quickly lose your mind.</p>
+
+<p>The beauty of building a custom portal linked with AFAS is that we can leverage the native AFAS pricing engine. When a customer logs into your custom portal, the frontend queries our fast middleware, which checks the cached AFAS price lists for that specific customer ID. If there are volume discounts, they are applied dynamically in the shopping cart before checkout. This ensures complete consistency across your entire sales network—whether an order comes in via the portal, an account manager, or an email.</p>
+
+<h2>The Hidden Benefit: Relieving Your Finance Team</h2>
+
+<p>Let's talk about the invoicing nightmare. Clients lose invoices. It's a fundamental law of business. Every week, your finance department gets emails asking for copies of old invoices so they can process payments. </p>
+
+<p>With a custom client portal built by <strong>AutoFlow Studio</strong>, we can implement a self-service invoice center. By calling the AFAS <code>GetConnector</code> for invoice PDF documents, we can fetch the original PDF directly from your AFAS environment and display a clean "Download PDF" button on the customer’s dashboard. You can even add a Mollie "Pay Now" link right next to outstanding invoices, drastically reducing your average Days Sales Outstanding (DSO).</p>
+
+<div class="results-box">
+  <h3>Real Results: What a Custom Portal Achieves</h3>
+  <p>Our custom integrations have helped Dutch wholesalers and B2B service providers completely transform their operations. By replacing clunky default ERP tools with customized, fast portals, our clients typically see:</p>
+  <ul>
+    <li><strong>80% reduction</strong> in manual order entry work for the internal sales team (binnendienst).</li>
+    <li><strong>Faster payment times</strong> as customers can download and pay invoices with one click.</li>
+    <li><strong>Zero duplicate data errors</strong>, meaning fewer wrong deliveries and returned goods.</li>
+    <li>An elegant, modern brand experience that helps win larger corporate contracts.</li>
+  </ul>
+</div>
+
+<h2>Why Custom Middleware Beats direct ERP Plugins</h2>
+
+<p>You might be wondering: "Can't we just find a pre-made WordPress plugin that connects to AFAS?" </p>
+
+<p>In theory, maybe. In practice, it's a disaster waiting to happen. Off-the-shelf plugins are built for generic use cases. They don't understand your unique custom fields (vrije velden), your specific tax configurations, or your complex delivery schedules. When AFAS rolls out an update to their API, these generic plugins often break, leaving your sales portal completely offline for days while you wait for some random developer to release a patch.</p>
+
+<p>A custom middleware built on modern serverless architecture gives you full control. It acts as a protective buffer between your customer-facing portal and your core ERP. If AFAS is down for maintenance, your customers can still browse the portal and place orders because the middleware queues the transactions and pushes them to AFAS the minute it comes back online. This is the level of resilience your business needs to scale safely.</p>
+
+<h2>Let's Stop the Manual Chaos</h2>
+
+<p>If you're ready to stop fighting with outdated interfaces and want to offer your customers an experience they'll actually enjoy using, it’s time to think about a bespoke portal. At <strong>AutoFlow Studio</strong>, we specialize in building custom portals and robust API integrations that turn complex ERP data into smooth, automated user experiences. Let's get rid of the manual spreadsheets once and for all.</p>
+</div>`,
+  },
 ]
 
 export const getBlogBySlug = (slug) => BLOG_POSTS.find(p => p.slug === slug)

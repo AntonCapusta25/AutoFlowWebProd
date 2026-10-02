@@ -5798,5 +5798,126 @@ Content-Type: application/json
   <p>Wij geloven niet in vage systemen. We schrijven schone, moderne code, hosten de middleware op beveiligde Europese servers die volledig voldoen aan de AVG-wetgeving, en leveren heldere dashboards zodat je altijd de controle houdt over je datastromen. Stop met handmatig overtypen en prutsen met standaard integraties. Laat ons een systeem bouwen dat met je meegroeit.</p>
 </div>`,
   },
+  {
+    slug: 'custom-afas-profit-b2b-customer-portal',
+    title: `Stop met Klooien met Outsite: Bouw een AFAS Profit B2B Klantenportaal op Maat`,
+    desc: `Ben je de trage en stugge ERP-interfaces beu? Ontdek hoe je met een razendsnel custom B2B klantenportaal via de AFAS Profit API jouw bestellingen, prijzen en facturatie automatiseert.`,
+    date: 'Juli 2026',
+    faqs: [
+      {
+            "q": "Kunnen we onze eigen huisstijl en branding gebruiken voor het portaal?",
+            "a": "Ja, absoluut. In tegenstelling tot AFAS Outsite, waar je vastzit aan strakke kaders en beperkte styling-opties, hebben we bij een custom portaal 100% ontwerpvrijheid. We bouwen het portaal exact volgens jouw merkrichtlijnen voor een professionele uitstraling."
+      },
+      {
+            "q": "Zorgt een extern portaal niet voor vertraging in AFAS Profit?",
+            "a": "Nee. Omdat we gebruikmaken van een slimme middleware met een lokale database en Redis-caching, worden productdata en algemene informatie lokaal opgeslagen en getoond. AFAS wordt alleen live aangeroepen voor kritieke processen, waardoor je ERP niet zwaar belast wordt."
+      },
+      {
+            "q": "Kunnen we Nederlandse betaalmethoden zoals iDEAL integreren?",
+            "a": "Zeker. We kunnen bekende betaalproviders zoals Mollie of Stripe direct integreren in het portaal. Klanten kunnen direct openstaande facturen inzien en deze direct veilig afrekenen via iDEAL, creditcard of Bancontact."
+      }
+],
+    body: `<div class="article-content">
+<div class="hero-image">
+  <img src="/images/blog_custom-afas-profit-b2b-customer-portal.png" alt="Custom B2B Klantenportaal Gekoppeld met AFAS Profit" />
+</div>
+
+<p>Laten we heel eerlijk zijn. AFAS Profit is een fantastische machine voor je backoffice. Financiën, HRM, projecten en logistiek—het draait allemaal als een geoliede machine. Maar zodra je AFAS Outsite probeert in te zetten als het gezicht naar je B2B-klanten toe, loopt het spaak. Het voelt als een tijdreis naar de begindagen van het internet. De interface is stug, aanpassingen kosten kapitalen bij traditionele AFAS-consultants, en je klanten vinden het simpelweg vreselijk om te gebruiken.</p>
+
+<p>Als jouw binnendienst nog steeds de helft van de dag bezig is met het handmatig mailen van PDF-facturen, het overtikken van Excel-bestellijsten, of het beantwoorden van telefoontjes om de voorraad te checken, dan lekt er kostbare tijd weg. Dit is een klassiek voorbeeld van de <a href="/nl/blog/5-signs">signalen dat je organisatie uit haar jasje groeit</a>. Je verliest simpelweg marge door onnodig handmatig werk.</p>
+
+<h2>Waarom Standaard ERP-Portalen Je Klanten Frustreren</h2>
+
+<p>We hebben het allemaal wel eens meegemaakt. Je krijgt inloggegevens voor het portaal van een leverancier, en het blijkt een trage, onoverzichtelijke tabel met data te zijn. Er is geen fatsoenlijke zoekbalk, mobiel werkt het voor geen meter, en het vinden van een factuur van twee maanden geleden kost je tien minuten frustratie. Moderne B2B-inkopers zijn gewend aan de snelheid en eenvoud van consumentenwebshops zoals Coolblue of Bol.com. Ze verwachten dat ze snel zelf dingen kunnen regelen.</p>
+
+<p>De realiteit is simpel: als een portaal niet prettig werkt, gaan klanten het ontwijken. Ze pakken weer de telefoon of sturen een rommelige mail met een bestelling. Weg automatisering. Je blijft zitten met een dure ERP-licentie, terwijl je medewerkers alsnog handmatig orders moeten invoeren. Dit soort inefficiënties bespreken we uitgebreid in onze <a href="/nl/blog/bottlenecks-guide">gids over het opsporen van operationele bottlenecks</a>. Handmatige invoer is de stille sluipmoordenaar van je productiviteit.</p>
+
+<p>Dit is precies de reden dat we met <strong>AutoFlow Studio</strong> moderne, maatwerk portalen bouwen. Wij geloven niet dat jouw klanten zich moeten aanpassen aan de beperkingen van je ERP. In plaats van te vechten met de ontwerplimieten van Outsite, bouwen we een razendsnel, modern portaal (bijvoorbeeld met Vue.js of React) dat via de API rechtstreeks communiceert met AFAS Profit. Je krijgt een moderne interface die in milliseconden laadt, terwijl AFAS op de achtergrond de administratieve bron van waarheid blijft.</p>
+
+<h2>De Technische Koppeling: Slim Communiceren met de AFAS API</h2>
+
+<p>Laten we even onder de motorkap kijken. Als je een snel en modern klantenportaal wilt bouwen, kun je niet bij elke klik van de gebruiker een live API-call naar AFAS sturen. Als een klant door een catalogus van duizenden producten bladert, raakt de AFAS API binnen de kortste keren overbelast, met trage laadtijden en foutmeldingen tot gevolg.</p>
+
+<p>Daarom ontwerpen wij een slimme middleware-architectuur. Dit ziet er als volgt uit:</p>
+
+<div class="highlight-box">
+  <h3>De Slimme Synchronisatie-Architectuur</h3>
+  <ul>
+    <li><strong>Lokale Database & Caching:</strong> Een supersnelle lokale database (zoals PostgreSQL) in combinatie met Redis slaat productinformatie, algemene voorraadniveaus en klantinformatie op.</li>
+    <li><strong>GetConnectors voor Bulk-Updates:</strong> We stellen automatische cron jobs in die via AFAS GetConnectors elke 10 tot 15 minuten de laatste wijzigingen ophalen (zoals gewijzigde voorraden of nieuwe producten).</li>
+    <li><strong>Live API-aanroepen voor Cruciale Data:</strong> Alleen wanneer het écht nodig is—zoals het definitief berekenen van klantspecifieke kortingen in de winkelwagen of het afronden van de betaling—maken we een directe live koppeling met AFAS.</li>
+  </ul>
+</div>
+
+<h3>1. Klantgegevens ophalen met GetConnectors</h3>
+<p>Om de bestelgeschiedenis, openstaande facturen en track-and-trace-codes te tonen, bouwen we specifieke GetConnectors in AFAS. Deze connectors spugen schone JSON-data uit die onze middleware razendsnel kan verwerken. Een GetConnector voor openstaande posten zorgt er bijvoorbeeld voor dat klanten direct hun openstaande facturen kunnen inzien en meteen kunnen betalen via een geïntegreerde betaallink van Mollie.</p>
+
+<h3>2. Orders direct wegschrijven via UpdateConnectors</h3>
+<p>Zodra een klant een bestelling plaatst in het portaal, sturen we geen e-mail naar de binnendienst. Onze middleware valideert de order en schiet deze direct in AFAS via een <code>UpdateConnector</code> (de sales order connector, <code>FbSalesOrder</code>). </p>
+
+<p>Dit is een voorbeeld van hoe zo'n payload eruitziet die we naar jouw AFAS-omgeving sturen:</p>
+
+<pre><code>{
+  "Element": {
+    "Fields": {
+      "DbId": "Jouw_AFAS_Omgevings_ID",
+      "OrId": "", 
+      "CoId": "KLANT_10029",
+      "DaOr": "2023-10-27"
+    },
+    "Objects": {
+      "SalesOrderLine": {
+        "Element": [
+          {
+            "Fields": {
+              "ItId": "PRODUCT_SKU_9982",
+              "QuOr": "15",
+              "PrUn": "45.50"
+            }
+          }
+        ]
+      }
+    }
+  }
+}</code></pre>
+
+<p>Zodra AFAS de order heeft geaccepteerd, wordt er automatisch een verkooporder aangemaakt. De voorraad wordt gereserveerd, het magazijn krijgt een pickbon, en de klant krijgt direct een nette bevestiging in zijn mailbox. Geen handmatig werk, geen typefouten.</p>
+
+<h2>Complexe B2B Prijsafspraken Automatiseren</h2>
+
+<p>Een van de grootste uitdagingen in de B2B-markt is de prijsstelling. Klant A krijgt 15% korting op productgroep X, terwijl Klant B een vaste contractprijs heeft afgesproken voor een specifiek artikel, ongeacht het volume. Als je dit probeert in te richten in een standaard e-commerceplatform zoals Shopify of WooCommerce, loop je snel tegen de muren op.</p>
+
+<p>Het grote voordeel van een custom portaal dat gekoppeld is met AFAS, is dat we de krachtige prijsmatrix van AFAS zelf kunnen gebruiken. Zodra een klant inlogt op het portaal, controleert de middleware de prijsafspraken die in AFAS gekoppeld zijn aan dat specifieke klantnummer. Volume- en staffelkortingen worden direct live berekend in de winkelwagen. Dit zorgt voor 100% consistentie: de prijs in het portaal is exact gelijk aan de prijs die de binnendienst handmatig zou invoeren of die op de uiteindelijke factuur komt te staan.</p>
+
+<h2>De Grote Opluchting voor de Financiële Administratie</h2>
+
+<p>Laten we de administratieve kant niet vergeten. Klanten raken facturen kwijt. Dat is een universele wet. Wekelijks krijgt je financiële administratie mails met de vraag: "Kan ik nog even de factuur van maart ontvangen?" </p>
+
+<p>Met een op maat gemaakt klantenportaal van <strong>AutoFlow Studio</strong> lossen we dit op met een self-service facturenoverzicht. Door de AFAS <code>GetConnector</code> voor factuur-PDF's aan te roepen, kunnen we de originele pdf rechtstreeks uit de AFAS-omgeving ophalen en aanbieden als download. Voeg daar een directe betaalknop via Mollie aan toe, en je zult zien dat de openstaande posten veel sneller worden voldaan.</p>
+
+<div class="results-box">
+  <h3>Wat een Custom Portaal Je Oplevert:</h3>
+  <p>Onze maatwerkoplossingen helpen Nederlandse groothandels en zakelijke dienstverleners om hun processen radicaal te versnellen. Door Outsite te vervangen door een modern portaal op maat, zien onze klanten direct resultaat:</p>
+  <ul>
+    <li><strong>80% minder tijd</strong> kwijt aan handmatige invoer door de binnendienst.</li>
+    <li><strong>Snellere betalingen</strong> dankzij geïntegreerde iDEAL-betaallinks bij openstaande facturen.</li>
+    <li><strong>Foutloze orderverwerking</strong>, wat leidt tot minder retourzendingen en logistieke herstelkosten.</li>
+    <li>Een professionele, moderne uitstraling waarmee je makkelijker grotere corporate klanten overtuigt.</li>
+  </ul>
+</div>
+
+<h2>Waarom Maatwerk Middleware Altijd Wint van Standaard Plugins</h2>
+
+<p>Je vraagt je misschien af: "Kunnen we niet gewoon een kant-en-klare WordPress-plugin kopen die met AFAS koppelt?" </p>
+
+<p>In theorie klinkt dat leuk, maar in de praktijk is het vragen om problemen. Standaard plugins zijn gebouwd voor algemene scenario's. Ze begrijpen jouw specifieke vrije velden, unieke belastingregels of afwijkende leveringsvoorwaarden niet. Als AFAS hun API bijwerkt, breken deze standaard koppelingen vaak direct, waardoor je webshop dagenlang plat kan liggen terwijl je wacht op een update van een externe ontwikkelaar.</p>
+
+<p>Een custom middleware, gebouwd op moderne serverless technologie, geeft je de volledige controle. Het fungeert als een veilige buffer tussen het internet en je kwetsbare ERP-systeem. Mocht AFAS bijvoorbeeld tijdelijk offline zijn voor gepland onderhoud, dan kunnen je klanten nog steeds bestellingen plaatsen in het portaal. De middleware slaat deze orders tijdelijk op in een queue en schiet ze automatisch door naar AFAS zodra de systemen weer in de lucht zijn. Dat is de betrouwbaarheid die je nodig hebt om zorgeloos te kunnen schalen.</p>
+
+<h2>Maak een Einde aan de Handmatige Chaos</h2>
+
+<p>Ben je klaar om afscheid te nemen van trage portals, rondslingerende Excel-lijsten en onnodige mailtjes naar de binnendienst? Een op maat gemaakt B2B klantenportaal is de sleutel tot schaalbare groei. Bij <strong>AutoFlow Studio</strong> zijn we gespecialiseerd in het bouwen van dit soort slimme koppelingen die complexe ERP-systemen transformeren in gebruiksvriendelijke software. Laten we die handmatige processen voorgoed naar het verleden verbannen.</p>
+</div>`,
+  },
 ]
 export const getNlBlogBySlug = (slug) => NL_BLOG_POSTS.find(p => p.slug === slug)
