@@ -130,8 +130,17 @@ export function AdminProvider({ children }) {
         try {
           sessionStorage.removeItem('autoflow_impersonated_profile')
         } catch {}
+        applySession(null)
+        return
       }
-      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+      if (event === 'TOKEN_REFRESHED') {
+        // Token silently rotated (common on mobile background-resume).
+        // Just update the user object — don't cycle loading or re-fetch profiles
+        // because that resets every CRM page.
+        if (session?.user) setUser(session.user)
+        return
+      }
+      if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
         applySession(session)
       }
     })

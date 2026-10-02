@@ -37,6 +37,9 @@ export default function AdminLeads() {
   const scrollRestoredRef = useRef(false)
   const loadingRef = useRef(true)
   const filterChangedByUserRef = useRef(false)
+  // Track the user+filter combo that last triggered a fetch, to avoid
+  // redundant refetches when only the token rotates (mobile background-resume)
+  const lastFetchKeyRef = useRef(null)
 
   useEffect(() => {
     loadingRef.current = loading
@@ -49,7 +52,6 @@ export default function AdminLeads() {
     let timeout
     const handleScroll = () => {
       if (document.visibilityState === 'hidden') return
-      if (!document.hasFocus()) return
       if (loadingRef.current) return
 
       const currentScroll = container.scrollTop
@@ -61,7 +63,6 @@ export default function AdminLeads() {
       clearTimeout(timeout)
       timeout = setTimeout(() => {
         if (document.visibilityState === 'hidden') return
-        if (!document.hasFocus()) return
         if (loadingRef.current) return
 
         const finalScroll = container.scrollTop
@@ -101,6 +102,12 @@ export default function AdminLeads() {
 
   useEffect(() => {
     if (authLoading) return
+    // Build a key representing the current fetch context.
+    // If only the JWT token rotated (TOKEN_REFRESHED on mobile),
+    // user.id and the filters stay the same — skip the redundant fetch.
+    const fetchKey = `${user?.id}|${String(isAdmin)}|${assigneeFilter}`
+    if (fetchKey === lastFetchKeyRef.current) return
+    lastFetchKeyRef.current = fetchKey
     fetchLeads()
   }, [assigneeFilter, isAdmin, user, authLoading])
 
