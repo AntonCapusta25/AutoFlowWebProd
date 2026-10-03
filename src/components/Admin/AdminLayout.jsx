@@ -11,6 +11,26 @@ export default function AdminLayout({ children }) {
   const [segments, setSegments] = useState([])
   const [isNotifOpen, setIsNotifOpen] = useState(false)
   const [toasts, setToasts] = useState([])
+  const [expandedMenus, setExpandedMenus] = useState(() => ({
+    '/admin/outreach': location.pathname.startsWith('/admin/outreach'),
+    '/admin/segments': location.pathname.startsWith('/admin/segments')
+  }))
+
+  useEffect(() => {
+    setExpandedMenus(prev => ({
+      ...prev,
+      '/admin/outreach': location.pathname.startsWith('/admin/outreach'),
+      '/admin/segments': location.pathname.startsWith('/admin/segments')
+    }))
+  }, [location.pathname])
+
+  const toggleMenu = (menuPath) => {
+    setExpandedMenus(prev => ({
+      ...prev,
+      [menuPath]: !prev[menuPath]
+    }))
+  }
+
   const { user, profile, isAdmin, isImpersonating, stopImpersonating, notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification } = useAdmin()
 
   // Base64 helper to register push subscription VAPID keys
@@ -407,91 +427,153 @@ export default function AdminLayout({ children }) {
           </div>
 
           <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', paddingRight: '4px' }}>
-            {menu.map(item => (
-              <div key={item.to}>
-                <Link
-                  to={item.to}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: isCollapsed ? '0' : '12px', padding: '12px',
-                    justifyContent: isCollapsed ? 'center' : 'flex-start',
-                    borderRadius: '12px', textDecoration: 'none', color: location.pathname.startsWith(item.to) ? 'white' : '#94A3B8',
-                    background: location.pathname.startsWith(item.to) ? 'rgba(209, 187, 251, 0.1)' : 'transparent',
+            {menu.map(item => {
+              const isItemActive = location.pathname.startsWith(item.to)
+              const hasChildren = !isCollapsed && item.children && item.children.length > 0
+              const isExpanded = !!expandedMenus[item.to]
+
+              return (
+                <div key={item.to}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    borderRadius: '12px',
+                    background: isItemActive ? 'rgba(209, 187, 251, 0.1)' : 'transparent',
                     transition: 'all 0.2s',
                     overflow: 'hidden'
-                  }}
-                  title={isCollapsed ? item.label : ''}
-                >
-                  <span style={{ fontSize: '1.2rem', flexShrink: 0 }}>{item.icon}</span>
-                  {!isCollapsed && <span style={{ fontWeight: 600, fontSize: '0.95rem', whiteSpace: 'nowrap' }}>{item.label}</span>}
-                </Link>
-                {!isCollapsed && item.children && location.pathname.startsWith(item.to) && (
-                  <div style={{ marginLeft: '34px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '3px', borderLeft: '1px solid rgba(255,255,255,0.07)', paddingLeft: '8px' }}>
-                    {item.children.map(child => {
-                      const childParams = new URLSearchParams(child.to.includes('?') ? child.to.split('?')[1] : '')
-                      const currentParams = new URLSearchParams(location.search)
-                      const currentStatus = currentParams.get('status')
-                      const childStatus = childParams.get('status')
+                  }}>
+                    <Link
+                      to={item.to}
+                      onClick={() => {
+                        setIsMobileMenuOpen(false)
+                        if (hasChildren) {
+                          setExpandedMenus(prev => ({ ...prev, [item.to]: true }))
+                        }
+                      }}
+                      style={{
+                        flex: 1,
+                        display: 'flex', alignItems: 'center', gap: isCollapsed ? '0' : '12px', padding: '12px',
+                        justifyContent: isCollapsed ? 'center' : 'flex-start',
+                        textDecoration: 'none', color: isItemActive ? 'white' : '#94A3B8',
+                        overflow: 'hidden'
+                      }}
+                      title={isCollapsed ? item.label : ''}
+                    >
+                      <span style={{ fontSize: '1.2rem', flexShrink: 0 }}>{item.icon}</span>
+                      {!isCollapsed && <span style={{ fontWeight: 600, fontSize: '0.95rem', whiteSpace: 'nowrap' }}>{item.label}</span>}
+                    </Link>
 
-                      let isChildActive = false
-                      if (child.to.includes('?')) {
-                        isChildActive = location.pathname === child.to.split('?')[0] && (
-                          (currentStatus && currentStatus.toLowerCase() === childStatus?.toLowerCase()) ||
-                          (!currentStatus && childStatus === 'All')
-                        )
-                      } else {
-                        isChildActive = location.pathname === child.to && (!currentStatus || currentStatus === 'All')
-                      }
-
-                      return (
-                        <Link
-                          key={child.to} to={child.to}
-                          onClick={() => setIsMobileMenuOpen(false)}
+                    {hasChildren && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          toggleMenu(item.to)
+                        }}
+                        title={isExpanded ? 'Collapse' : 'Expand'}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: isItemActive ? '#d1bbfb' : '#64748B',
+                          cursor: 'pointer',
+                          padding: '12px 14px 12px 6px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'color 0.2s'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.color = 'white'}
+                        onMouseLeave={e => e.currentTarget.style.color = isItemActive ? '#d1bbfb' : '#64748B'}
+                      >
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
                           style={{
-                            padding: '6px 10px',
-                            color: isChildActive ? '#ffffff' : '#94A3B8',
-                            fontSize: '0.82rem',
-                            fontWeight: isChildActive ? 700 : 500,
-                            textDecoration: 'none',
-                            borderRadius: '8px',
-                            background: isChildActive ? 'rgba(209, 187, 251, 0.14)' : 'transparent',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            transition: 'all 0.15s ease'
-                          }}
-                          onMouseEnter={e => {
-                            if (!isChildActive) {
-                              e.currentTarget.style.color = '#F8FAFC'
-                              e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
-                            }
-                          }}
-                          onMouseLeave={e => {
-                            if (!isChildActive) {
-                              e.currentTarget.style.color = '#94A3B8'
-                              e.currentTarget.style.background = 'transparent'
-                            }
+                            transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                            transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
                           }}
                         >
-                          {child.isFavorite ? (
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="#eab308" stroke="#eab308" strokeWidth="2" style={{ flexShrink: 0 }}>
-                              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                            </svg>
-                          ) : child.color ? (
-                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: child.color, flexShrink: 0, opacity: isChildActive ? 1 : 0.7 }} />
-                          ) : (
-                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#64748B', flexShrink: 0, opacity: isChildActive ? 1 : 0.4 }} />
-                          )}
-                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {child.label}
-                          </span>
-                        </Link>
-                      )
-                    })}
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </button>
+                    )}
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {hasChildren && isExpanded && (
+                    <div style={{ marginLeft: '34px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '3px', borderLeft: '1px solid rgba(255,255,255,0.07)', paddingLeft: '8px' }}>
+                      {item.children.map(child => {
+                        const childParams = new URLSearchParams(child.to.includes('?') ? child.to.split('?')[1] : '')
+                        const currentParams = new URLSearchParams(location.search)
+                        const currentStatus = currentParams.get('status')
+                        const childStatus = childParams.get('status')
+
+                        let isChildActive = false
+                        if (child.to.includes('?')) {
+                          isChildActive = location.pathname === child.to.split('?')[0] && (
+                            (currentStatus && currentStatus.toLowerCase() === childStatus?.toLowerCase()) ||
+                            (!currentStatus && childStatus === 'All')
+                          )
+                        } else {
+                          isChildActive = location.pathname === child.to && (!currentStatus || currentStatus === 'All')
+                        }
+
+                        return (
+                          <Link
+                            key={child.to} to={child.to}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            style={{
+                              padding: '6px 10px',
+                              color: isChildActive ? '#ffffff' : '#94A3B8',
+                              fontSize: '0.82rem',
+                              fontWeight: isChildActive ? 700 : 500,
+                              textDecoration: 'none',
+                              borderRadius: '8px',
+                              background: isChildActive ? 'rgba(209, 187, 251, 0.14)' : 'transparent',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              transition: 'all 0.15s ease'
+                            }}
+                            onMouseEnter={e => {
+                              if (!isChildActive) {
+                                e.currentTarget.style.color = '#F8FAFC'
+                                e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
+                              }
+                            }}
+                            onMouseLeave={e => {
+                              if (!isChildActive) {
+                                e.currentTarget.style.color = '#94A3B8'
+                                e.currentTarget.style.background = 'transparent'
+                              }
+                            }}
+                          >
+                            {child.isFavorite ? (
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="#eab308" stroke="#eab308" strokeWidth="2" style={{ flexShrink: 0 }}>
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                              </svg>
+                            ) : child.color ? (
+                              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: child.color, flexShrink: 0, opacity: isChildActive ? 1 : 0.7 }} />
+                            ) : (
+                              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#64748B', flexShrink: 0, opacity: isChildActive ? 1 : 0.4 }} />
+                            )}
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {child.label}
+                            </span>
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </nav>
 
           {!isCollapsed && profile && (
