@@ -118,7 +118,12 @@ export default function AdminLayout({ children }) {
     const path = location.pathname
     if (path === '/admin/dashboard') return 'Dashboard Overview'
     if (path === '/admin/leads') return 'Inbound Lead Bank'
-    if (path === '/admin/outreach') return 'Outbound Campaign CRM'
+    if (path === '/admin/outreach') {
+      const statusParam = new URLSearchParams(location.search).get('status')
+      if (statusParam === 'Favourites') return 'Outbound CRM • Favourites'
+      if (statusParam && statusParam !== 'All') return `Outbound CRM • ${statusParam}`
+      return 'Outbound Campaign CRM'
+    }
     if (path === '/admin/chat') return 'Team Collaborator Chat'
     if (path === '/admin/calendar') return 'Shared Appointment Calendar'
     if (path === '/admin/deals') return 'Revenue Pipeline & Splits'
@@ -150,7 +155,24 @@ export default function AdminLayout({ children }) {
     ...(isAdmin ? [
       { to: '/admin/leads', label: 'Inbound Leads', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> }
     ] : []),
-    { to: '/admin/outreach', label: 'Outbound', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg> },
+    {
+      to: '/admin/outreach',
+      label: 'Outbound',
+      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>,
+      children: [
+        { to: '/admin/outreach', label: 'All Leads' },
+        { to: '/admin/outreach?status=Favourites', label: 'Favourites', isFavorite: true },
+        { to: '/admin/outreach?status=New', label: 'New', color: 'rgb(244, 114, 182)' },
+        { to: '/admin/outreach?status=Contacted', label: 'Contacted', color: '#93c5fd' },
+        { to: '/admin/outreach?status=In%20Progress', label: 'In Progress', color: '#fcd34d' },
+        { to: '/admin/outreach?status=Follow%20Up%20Needed', label: 'Follow Up Needed', color: '#fdba74' },
+        { to: '/admin/outreach?status=Meeting%20Booked', label: 'Meeting Booked', color: '#c084fc' },
+        { to: '/admin/outreach?status=Waiting%20for%20Invoice', label: 'Waiting for Invoice', color: '#67e8f9' },
+        { to: '/admin/outreach?status=No%20Response', label: 'No Response', color: '#94a3b8' },
+        { to: '/admin/outreach?status=Converted', label: 'Converted', color: '#6ee7b7' },
+        { to: '/admin/outreach?status=Lost', label: 'Lost', color: '#fca5a5' }
+      ]
+    },
     ...(isAdmin ? [
       {
         to: '/admin/segments', label: 'Segments',
@@ -404,21 +426,68 @@ export default function AdminLayout({ children }) {
                   {!isCollapsed && <span style={{ fontWeight: 600, fontSize: '0.95rem', whiteSpace: 'nowrap' }}>{item.label}</span>}
                 </Link>
                 {!isCollapsed && item.children && location.pathname.startsWith(item.to) && (
-                  <div style={{ marginLeft: '42px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '4px', borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
-                    {item.children.map(child => (
-                      <Link
-                        key={child.to} to={child.to}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        style={{
-                          padding: '8px 12px', color: location.pathname === child.to ? 'white' : '#64748B',
-                          fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none', borderRadius: '8px',
-                          background: location.pathname === child.to ? 'rgba(255,255,255,0.03)' : 'transparent',
-                          transition: 'all 0.2s'
-                        }}
-                      >
-                        {child.label}
-                      </Link>
-                    ))}
+                  <div style={{ marginLeft: '34px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '3px', borderLeft: '1px solid rgba(255,255,255,0.07)', paddingLeft: '8px' }}>
+                    {item.children.map(child => {
+                      const childParams = new URLSearchParams(child.to.includes('?') ? child.to.split('?')[1] : '')
+                      const currentParams = new URLSearchParams(location.search)
+                      const currentStatus = currentParams.get('status')
+                      const childStatus = childParams.get('status')
+
+                      let isChildActive = false
+                      if (child.to.includes('?')) {
+                        isChildActive = location.pathname === child.to.split('?')[0] && (
+                          (currentStatus && currentStatus.toLowerCase() === childStatus?.toLowerCase()) ||
+                          (!currentStatus && childStatus === 'All')
+                        )
+                      } else {
+                        isChildActive = location.pathname === child.to && (!currentStatus || currentStatus === 'All')
+                      }
+
+                      return (
+                        <Link
+                          key={child.to} to={child.to}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          style={{
+                            padding: '6px 10px',
+                            color: isChildActive ? '#ffffff' : '#94A3B8',
+                            fontSize: '0.82rem',
+                            fontWeight: isChildActive ? 700 : 500,
+                            textDecoration: 'none',
+                            borderRadius: '8px',
+                            background: isChildActive ? 'rgba(209, 187, 251, 0.14)' : 'transparent',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            transition: 'all 0.15s ease'
+                          }}
+                          onMouseEnter={e => {
+                            if (!isChildActive) {
+                              e.currentTarget.style.color = '#F8FAFC'
+                              e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
+                            }
+                          }}
+                          onMouseLeave={e => {
+                            if (!isChildActive) {
+                              e.currentTarget.style.color = '#94A3B8'
+                              e.currentTarget.style.background = 'transparent'
+                            }
+                          }}
+                        >
+                          {child.isFavorite ? (
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="#eab308" stroke="#eab308" strokeWidth="2" style={{ flexShrink: 0 }}>
+                              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            </svg>
+                          ) : child.color ? (
+                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: child.color, flexShrink: 0, opacity: isChildActive ? 1 : 0.7 }} />
+                          ) : (
+                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#64748B', flexShrink: 0, opacity: isChildActive ? 1 : 0.4 }} />
+                          )}
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {child.label}
+                          </span>
+                        </Link>
+                      )
+                    })}
                   </div>
                 )}
               </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useRef, useCallback } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAdmin } from './AdminContext'
 import useSessionState from '../../hooks/useSessionState'
@@ -7,8 +8,6 @@ import { parseFollowUpDate } from '../../lib/followUpParser'
 import { scheduleFollowUp } from '../../lib/followUps'
 import { handleNoResponseAutomation } from '../../lib/noResponse'
 import { getLeadLocalTimeStr, getLeadTimezoneCode } from '../../lib/timezone'
-import { triggerAircall } from '../../lib/aircall'
-import AircallWidget from './AircallWidget'
 
 export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle = "Manage your leads." }) {
   const { user, isAdmin, profile, salespeople, loading: authLoading } = useAdmin()
@@ -34,10 +33,42 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
   const [followUpTime, setFollowUpTime] = useState('')
   const [followUpNote, setFollowUpNote] = useState('')
   const [followUpSaving, setFollowUpSaving] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [hasDbColumnIsFavorite, setHasDbColumnIsFavorite] = useState(true)
   const [page, setPage] = useSessionState(`${stateKey}_page`, 0)
   const [totalCount, setTotalCount] = useState(0)
   const [searchTerm, setSearchTerm] = useSessionState(`${stateKey}_searchTerm`, '')
   const [statusFilter, setStatusFilter] = useSessionState(`${stateKey}_statusFilter`, 'All')
+
+  // Sync statusFilter with URL query param from sidebar subtabs
+  useEffect(() => {
+    const statusParam = searchParams.get('status')
+    if (statusParam) {
+      if (statusParam !== statusFilter) {
+        setStatusFilter(statusParam)
+        setPage(0)
+      }
+    } else {
+      if (statusFilter !== 'All') {
+        setStatusFilter('All')
+        setPage(0)
+      }
+    }
+  }, [searchParams])
+
+  const handleStatusFilterChange = (newStatus) => {
+    setStatusFilter(newStatus)
+    setPage(0)
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      if (newStatus === 'All') {
+        next.delete('status')
+      } else {
+        next.set('status', newStatus)
+      }
+      return next
+    }, { replace: true })
+  }
   const [assigneeFilter, setAssigneeFilter] = useSessionState(`${stateKey}_assigneeFilter`, 'all')
   const [phoneFilter, setPhoneFilter] = useSessionState(`${stateKey}_phoneFilter`, 'nl')
   const [commentFilter, setCommentFilter] = useSessionState(`${stateKey}_commentFilter`, 'all')
@@ -219,6 +250,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
   const statusOptions = [
     { label: 'All' },
+    { label: 'Favourites' },
     { label: 'New' },
     { label: 'Contacted' },
     { label: 'In Progress' },
@@ -246,8 +278,16 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       if (filters.industry) query = query.ilike('industry', `%${filters.industry}%`)
       if (filters.tags) query = query.contains('tags', [filters.tags])
 
-      // Apply Status Toggle Filter
-      if (statusFilter !== 'All') query = query.eq('status', statusFilter)
+      // Apply Status / Favourites Toggle Filter
+      if (statusFilter === 'Favourites') {
+        if (hasDbColumnIsFavorite) {
+          query = query.eq('is_favorite', true)
+        } else {
+          query = query.eq('metadata->>is_favorite', 'true')
+        }
+      } else if (statusFilter !== 'All') {
+        query = query.eq('status', statusFilter)
+      }
 
       // Apply Phone / Country Filter
       if (phoneFilter === 'nl') query = query.ilike('phone', '+31%')
@@ -335,9 +375,86 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         }
       }
 
-      const { data, count, error } = await query
+      let { data, count, error } = await query
         .order('created_at', { ascending: false })
         .range(page * pageSize, (page + 1) * pageSize - 1)
+
+      if (error && statusFilter === 'Favourites' && hasDbColumnIsFavorite && (error.message?.includes('is_favorite') || error.code === '42703')) {
+        setHasDbColumnIsFavorite(false)
+        let fallbackQuery = supabase
+          .from('outreach_leads')
+          .select('*', { count: 'exact' })
+          .eq('metadata->>is_favorite', 'true')
+
+        // Apply Global Segment Filters
+        if (filters.industry) fallbackQuery = fallbackQuery.ilike('industry', `%${filters.industry}%`)
+        if (filters.tags) fallbackQuery = fallbackQuery.contains('tags', [filters.tags])
+
+        // Apply Phone / Country Filter
+        if (phoneFilter === 'nl') fallbackQuery = fallbackQuery.ilike('phone', '+31%')
+        else if (phoneFilter === 'uk') fallbackQuery = fallbackQuery.ilike('phone', '+44%')
+        else if (phoneFilter === 'us') fallbackQuery = fallbackQuery.ilike('phone', '+1%').not('location', 'ilike', '%Canada%')
+        else if (phoneFilter === 'ca') fallbackQuery = fallbackQuery.or('location.ilike.%Canada%,tags.cs.{"Canada"},metadata->>source.ilike.%ca_b2b%')
+
+        // Apply Excel-style Column Filters
+        if (tableIndustryFilter) fallbackQuery = fallbackQuery.eq('industry', tableIndustryFilter)
+        if (tableTagFilter) fallbackQuery = fallbackQuery.contains('tags', [tableTagFilter])
+
+        // Apply Comment Filter
+        if (commentFilter === 'has') fallbackQuery = fallbackQuery.not('notes', 'is', null).neq('notes', '')
+        else if (commentFilter === 'none') fallbackQuery = fallbackQuery.or('notes.is.null,notes.eq.')
+
+        // Apply Call Filter
+        if (callFilter === 'has') fallbackQuery = fallbackQuery.gt('call_attempts', 0)
+        else if (callFilter === 'none') fallbackQuery = fallbackQuery.or('call_attempts.is.null,call_attempts.eq.0')
+
+        if (searchTerm) {
+          const cleanSearch = searchTerm.replace(/[()\",\\]/g, '')
+          const orClauses = [
+            `name.ilike.%${cleanSearch}%`,
+            `email.ilike.%${cleanSearch}%`,
+            `company.ilike.%${cleanSearch}%`,
+            `industry.ilike.%${cleanSearch}%`
+          ]
+          const digits = searchTerm.replace(/\D/g, '')
+          if (digits.length >= 4) {
+            const wildcardPattern = `%${digits.split('').join('%')}%`
+            orClauses.push(`phone.ilike.${wildcardPattern}`)
+            if (digits.startsWith('0') && digits.length > 4) {
+              const suffixDigits = digits.substring(1)
+              orClauses.push(`phone.ilike.%${suffixDigits.split('').join('%')}%`)
+            }
+            if (digits.startsWith('31') && digits.length > 5) {
+              const raw = digits.substring(2)
+              orClauses.push(`phone.ilike.%0%${raw.split('').join('%')}%`)
+              orClauses.push(`phone.ilike.%0${raw}%`)
+            }
+            if (digits.startsWith('44') && digits.length > 5) {
+              const raw = digits.substring(2)
+              orClauses.push(`phone.ilike.%0%${raw.split('').join('%')}%`)
+              orClauses.push(`phone.ilike.%0${raw}%`)
+            }
+            orClauses.push(`phone.ilike.%${digits}%`)
+          } else if (cleanSearch) {
+            orClauses.push(`phone.ilike.%${cleanSearch}%`)
+          }
+          fallbackQuery = fallbackQuery.or(orClauses.join(','))
+        }
+
+        if (isAdmin) {
+          if (assigneeFilter === 'unassigned') fallbackQuery = fallbackQuery.is('assignee_id', null)
+          else if (assigneeFilter !== 'all') fallbackQuery = fallbackQuery.eq('assignee_id', assigneeFilter)
+        } else {
+          fallbackQuery = fallbackQuery.eq('assignee_id', user?.id || '00000000-0000-0000-0000-000000000000')
+        }
+
+        const res = await fallbackQuery
+          .order('created_at', { ascending: false })
+          .range(page * pageSize, (page + 1) * pageSize - 1)
+        data = res.data
+        count = res.count
+        error = res.error
+      }
 
       if (!error) {
         let finalData = data || []
@@ -872,6 +989,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
   const getStatusColor = (status) => {
     switch (status) {
+      case 'Favourites': return { bg: 'rgba(234, 179, 8, 0.1)', text: '#eab308', border: '1px solid rgba(234, 179, 8, 0.3)' }
       case 'New': return { bg: 'rgba(233, 30, 99, 0.1)', text: 'rgb(244, 114, 182)', border: '1px solid rgba(233, 30, 99, 0.2)' }
       case 'Contacted': return { bg: 'rgba(59, 130, 246, 0.1)', text: '#93c5fd', border: '1px solid rgba(59, 130, 246, 0.2)' }
       case 'In Progress': return { bg: 'rgba(245, 158, 11, 0.1)', text: '#fcd34d', border: '1px solid rgba(245, 158, 11, 0.2)' }
@@ -887,6 +1005,63 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       case 'Not Interested': return { bg: 'rgba(239, 68, 68, 0.1)', text: '#f87171', border: '1px solid rgba(239, 68, 68, 0.2)' }
       case 'Promoted': return { bg: 'rgba(233, 30, 99, 0.1)', text: '#f472b6', border: '1px solid rgba(233, 30, 99, 0.2)' }
       default: return { bg: 'rgba(233, 30, 99, 0.1)', text: 'rgb(244, 114, 182)', border: '1px solid rgba(233, 30, 99, 0.2)' }
+    }
+  }
+
+  async function toggleFavorite(lead) {
+    const currentFav = !!(lead.is_favorite || lead.metadata?.is_favorite)
+    const nextFav = !currentFav
+
+    // 1. Optimistic update
+    setLeads(prev => prev.map(l => {
+      if (l.id === lead.id) {
+        return {
+          ...l,
+          is_favorite: nextFav,
+          metadata: { ...(l.metadata || {}), is_favorite: nextFav }
+        }
+      }
+      return l
+    }))
+
+    if (selectedLead?.id === lead.id) {
+      setSelectedLead(prev => ({
+        ...prev,
+        is_favorite: nextFav,
+        metadata: { ...(prev.metadata || {}), is_favorite: nextFav }
+      }))
+    }
+
+    // 2. Persist to DB
+    try {
+      if (hasDbColumnIsFavorite) {
+        const { error } = await supabase
+          .from('outreach_leads')
+          .update({
+            is_favorite: nextFav,
+            metadata: { ...(lead.metadata || {}), is_favorite: nextFav }
+          })
+          .eq('id', lead.id)
+
+        if (error && (error.message?.includes('is_favorite') || error.code === '42703')) {
+          setHasDbColumnIsFavorite(false)
+          await supabase
+            .from('outreach_leads')
+            .update({
+              metadata: { ...(lead.metadata || {}), is_favorite: nextFav }
+            })
+            .eq('id', lead.id)
+        }
+      } else {
+        await supabase
+          .from('outreach_leads')
+          .update({
+            metadata: { ...(lead.metadata || {}), is_favorite: nextFav }
+          })
+          .eq('id', lead.id)
+      }
+    } catch (err) {
+      console.error('Failed to update favorite status:', err)
     }
   }
 
@@ -1533,7 +1708,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Quick Filter Status:</p>
         <select
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+          onChange={(e) => handleStatusFilterChange(e.target.value)}
           style={{
             background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
             color: 'white', padding: '10px 16px', borderRadius: '12px', fontSize: '0.9rem',
@@ -1632,7 +1807,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                     Status
                     <select
                       value={statusFilter}
-                      onChange={e => setStatusFilter(e.target.value)}
+                      onChange={e => handleStatusFilterChange(e.target.value)}
                       style={{ background: 'transparent', border: 'none', color: '#3b82f6', outline: 'none', cursor: 'pointer', fontWeight: 800 }}
                     >
                       {statusOptions.map(opt => (
@@ -1693,7 +1868,9 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
               {loading && leads.length === 0 ? (
                 <tr><td colSpan={isAdmin ? '10' : '9'} style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>Loading outbound leads...</td></tr>
               ) : leads.length === 0 ? (
-                <tr><td colSpan={isAdmin ? '10' : '9'} style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>No outbound leads match table filters.</td></tr>
+                <tr><td colSpan={isAdmin ? '10' : '9'} style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>
+                  {statusFilter === 'Favourites' ? 'No leads added to favourites yet. Click the star on any lead in the frozen Activity column to add it here.' : 'No outbound leads match table filters.'}
+                </td></tr>
               ) : leads.map(lead => {
                 return (
                   <tr key={lead.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)', background: selectedLead?.id === lead.id ? 'rgba(233, 30, 99, 0.04)' : 'transparent', transition: 'all 0.2s' }}>
@@ -1726,12 +1903,8 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                         {lead.phone ? (
                           <a
                             href={`tel:${lead.phone}`}
-                            onClick={e => {
-                              e.stopPropagation()
-                              e.preventDefault()
-                              triggerAircall(lead.phone, { leadId: lead.id, leadName: lead.name, company: lead.company })
-                            }}
-                            title="Click to Call via Aircall"
+                            onClick={e => e.stopPropagation()}
+                            title="Call Phone"
                             style={{ color: '#00B2A9', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: 700 }}
                           >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
@@ -1844,6 +2017,60 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                     )}
                     <td style={{ padding: '20px', textAlign: 'center', position: 'sticky', right: 0, background: selectedLead?.id === lead.id ? '#1a0b12' : '#0a0a0a', zIndex: 10, borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                        {(() => {
+                          const isFav = !!(lead.is_favorite || lead.metadata?.is_favorite)
+                          return (
+                            <button
+                              type="button"
+                              onClick={e => {
+                                e.stopPropagation()
+                                toggleFavorite(lead)
+                              }}
+                              title={isFav ? "Favorited (click to remove)" : "Add to Favourites"}
+                              style={{
+                                padding: '8px',
+                                background: isFav ? 'rgba(234, 179, 8, 0.15)' : 'rgba(255,255,255,0.04)',
+                                border: isFav ? '1px solid rgba(234, 179, 8, 0.4)' : '1px solid rgba(255,255,255,0.08)',
+                                color: isFav ? '#eab308' : '#64748B',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                boxShadow: isFav ? '0 0 10px rgba(234, 179, 8, 0.2)' : 'none'
+                              }}
+                              onMouseEnter={e => {
+                                if (!isFav) {
+                                  e.currentTarget.style.color = '#eab308'
+                                  e.currentTarget.style.borderColor = 'rgba(234, 179, 8, 0.3)'
+                                  e.currentTarget.style.background = 'rgba(234, 179, 8, 0.08)'
+                                }
+                              }}
+                              onMouseLeave={e => {
+                                if (!isFav) {
+                                  e.currentTarget.style.color = '#64748B'
+                                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
+                                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
+                                }
+                              }}
+                            >
+                              <svg 
+                                width="15" 
+                                height="15" 
+                                viewBox="0 0 24 24" 
+                                fill={isFav ? '#eab308' : 'none'} 
+                                stroke={isFav ? '#eab308' : 'currentColor'} 
+                                strokeWidth="2.2" 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round"
+                              >
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                              </svg>
+                            </button>
+                          )
+                        })()}
+
                         <button onClick={() => setCallModalLead(lead)} style={{ padding: '8px 12px', background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.2)', color: '#3b82f6', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                           <span style={{ fontWeight: 800, fontSize: '0.8rem' }}>{lead.call_attempts || 0}</span>
@@ -1935,15 +2162,38 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
 
             <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
               <div>
-                <h3 style={{ margin: '0 0 4px', color: 'white', fontSize: '1.4rem', fontWeight: 800, display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap' }}>
+                <h3 style={{ margin: '0 0 4px', color: 'white', fontSize: '1.4rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                   <span>{activeLead.name || 'Unnamed'}</span>
+                  {(() => {
+                    const isFav = !!(activeLead.is_favorite || activeLead.metadata?.is_favorite)
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => toggleFavorite(activeLead)}
+                        title={isFav ? "Favorited (click to remove)" : "Add to Favourites"}
+                        style={{
+                          background: isFav ? 'rgba(234, 179, 8, 0.15)' : 'rgba(255,255,255,0.05)',
+                          border: isFav ? '1px solid rgba(234, 179, 8, 0.4)' : '1px solid rgba(255,255,255,0.1)',
+                          color: isFav ? '#eab308' : '#64748B',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '6px',
+                          borderRadius: '8px',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill={isFav ? '#eab308' : 'none'} stroke={isFav ? '#eab308' : 'currentColor'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                      </button>
+                    )
+                  })()}
                   {activeLead.phone && (
                     <a 
                       href={`tel:${activeLead.phone}`}
-                      onClick={e => {
-                        e.preventDefault()
-                        triggerAircall(activeLead.phone, { leadId: activeLead.id, leadName: activeLead.name, company: activeLead.company })
-                      }}
+                      title="Call Phone"
                       style={{ fontSize: '0.95rem', color: '#d1bbfb', fontWeight: 500, textDecoration: 'none', cursor: 'pointer' }}
                     >
                       ({activeLead.phone})
@@ -2926,7 +3176,6 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
           </div>
         )
       })()}
-      <AircallWidget />
     </>
   )
 }
