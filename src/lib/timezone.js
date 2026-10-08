@@ -98,6 +98,7 @@ export function getLeadTimezone(lead) {
   // 3. Fallbacks based on phone code
   if (lead.phone?.startsWith('+44')) return 'Europe/London'
   if (lead.phone?.startsWith('+31')) return 'Europe/Amsterdam'
+  if (lead.phone?.startsWith('+40')) return 'Europe/Bucharest'
   
   // Fallbacks based on location keywords
   const locNorm = (lead.location || '').toLowerCase()
@@ -106,6 +107,9 @@ export function getLeadTimezone(lead) {
   }
   if (locNorm.includes('netherlands') || locNorm.includes('nl') || locNorm.includes('amsterdam')) {
     return 'Europe/Amsterdam'
+  }
+  if (locNorm.includes('romania') || locNorm.includes('bucharest') || locNorm.includes('cluj') || locNorm.includes('timisoara') || locNorm.includes('iasi')) {
+    return 'Europe/Bucharest'
   }
   
   return null
@@ -120,6 +124,7 @@ export function getLeadTimezoneCode(lead) {
   if (tz === 'America/Los_Angeles') return 'PT'
   if (tz === 'Europe/London') return 'GMT'
   if (tz === 'Europe/Amsterdam') return 'CET'
+  if (tz === 'Europe/Bucharest') return 'EET'
   return null
 }
 
@@ -141,6 +146,7 @@ export function getLeadLocalTimeStr(lead) {
     else if (tz === 'America/Los_Angeles') tzName = 'PT'
     else if (tz === 'Europe/London') tzName = 'GMT'
     else if (tz === 'Europe/Amsterdam') tzName = 'CET'
+    else if (tz === 'Europe/Bucharest') tzName = 'EET'
     
     return `${formatter.format(new Date())} (${tzName})`
   } catch (e) {

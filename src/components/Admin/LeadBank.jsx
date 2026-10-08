@@ -294,6 +294,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
       else if (phoneFilter === 'uk') query = query.ilike('phone', '+44%')
       else if (phoneFilter === 'us') query = query.ilike('phone', '+1%').not('location', 'ilike', '%Canada%')
       else if (phoneFilter === 'ca') query = query.or('location.ilike.%Canada%,tags.cs.{"Canada"},metadata->>source.ilike.%ca_b2b%')
+      else if (phoneFilter === 'ro') query = query.or('phone.ilike.+40%,location.ilike.%Romania%,tags.cs.{"Romania"},metadata->>country.eq.Romania')
 
       // Apply Excel-style Column Filters
       if (tableIndustryFilter) query = query.eq('industry', tableIndustryFilter)
@@ -348,6 +349,14 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
             orClauses.push(`phone.ilike.${localPattern}`);
             orClauses.push(`phone.ilike.%0${raw}%`);
           }
+
+          // If the digits start with a Romanian country code '40', also query local '0' prefix
+          if (digits.startsWith('40') && digits.length > 5) {
+            const raw = digits.substring(2);
+            const localPattern = `%0%${raw.split('').join('%')}%`;
+            orClauses.push(`phone.ilike.${localPattern}`);
+            orClauses.push(`phone.ilike.%0${raw}%`);
+          }
           
           // Also check for the clean digit string directly
           orClauses.push(`phone.ilike.%${digits}%`);
@@ -395,6 +404,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         else if (phoneFilter === 'uk') fallbackQuery = fallbackQuery.ilike('phone', '+44%')
         else if (phoneFilter === 'us') fallbackQuery = fallbackQuery.ilike('phone', '+1%').not('location', 'ilike', '%Canada%')
         else if (phoneFilter === 'ca') fallbackQuery = fallbackQuery.or('location.ilike.%Canada%,tags.cs.{"Canada"},metadata->>source.ilike.%ca_b2b%')
+        else if (phoneFilter === 'ro') fallbackQuery = fallbackQuery.or('phone.ilike.+40%,location.ilike.%Romania%,tags.cs.{"Romania"},metadata->>country.eq.Romania')
 
         // Apply Excel-style Column Filters
         if (tableIndustryFilter) fallbackQuery = fallbackQuery.eq('industry', tableIndustryFilter)
@@ -430,6 +440,11 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
               orClauses.push(`phone.ilike.%0${raw}%`)
             }
             if (digits.startsWith('44') && digits.length > 5) {
+              const raw = digits.substring(2)
+              orClauses.push(`phone.ilike.%0%${raw.split('').join('%')}%`)
+              orClauses.push(`phone.ilike.%0${raw}%`)
+            }
+            if (digits.startsWith('40') && digits.length > 5) {
               const raw = digits.substring(2)
               orClauses.push(`phone.ilike.%0%${raw.split('').join('%')}%`)
               orClauses.push(`phone.ilike.%0${raw}%`)
@@ -1721,8 +1736,15 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
         </select>
 
         <div className="leadbank-divider" style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.08)' }} />
-        <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Phone:</p>
-        {[{ id: 'all', label: 'All' }, { id: 'nl', label: '🇳🇱 NL' }, { id: 'uk', label: '🇬🇧 UK' }, { id: 'us', label: '🇺🇸 US' }, { id: 'ca', label: '🇨🇦 CA' }].map(opt => (
+        <p style={{ margin: 0, color: '#64748B', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Country:</p>
+        {[
+          { id: 'all', label: 'All' },
+          { id: 'nl', label: '🇳🇱 NL' },
+          { id: 'uk', label: '🇬🇧 UK' },
+          { id: 'us', label: '🇺🇸 US' },
+          { id: 'ca', label: '🇨🇦 CA' },
+          { id: 'ro', label: '🇷🇴 RO' }
+        ].map(opt => (
           <button
             key={opt.id}
             onClick={() => { setPhoneFilter(opt.id); goToPage(0); }}
@@ -1769,6 +1791,7 @@ export default function LeadBank({ filters = {}, title = "Lead Bank", subtitle =
                       <option value="PT" style={{ background: '#0a0a0a', color: 'white' }}>PT (Pacific)</option>
                       <option value="GMT" style={{ background: '#0a0a0a', color: 'white' }}>GMT (UK)</option>
                       <option value="CET" style={{ background: '#0a0a0a', color: 'white' }}>CET (NL/EU)</option>
+                      <option value="EET" style={{ background: '#0a0a0a', color: 'white' }}>EET (RO/Bucharest)</option>
                     </select>
                   </div>
                 </th>
