@@ -50,6 +50,7 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
   const [callNote, setCallNote] = useState('')
   const [isActionLoading, setIsActionLoading] = useState(false)
   const [syncingCalendar, setSyncingCalendar] = useState(false)
+  const [sendingDigest, setSendingDigest] = useState(false)
 
   useEffect(() => {
     fetchReminders()
@@ -397,6 +398,68 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
     }
   }
 
+  async function sendTodayCallDigest() {
+    if (sendingDigest) return
+    const today = new Date().toDateString()
+    const todayReminders = reminders.filter(r => new Date(r.scheduled_at).toDateString() === today && !r.completed)
+
+    const recipientEmail = (isAdmin && assigneeFilter !== 'all')
+      ? salespeople.find(s => s.id === assigneeFilter)?.email
+      : (user?.email || 'info@autoflowstudio.net')
+    const repName = (isAdmin && assigneeFilter !== 'all')
+      ? salespeople.find(s => s.id === assigneeFilter)?.name
+      : (user?.user_metadata?.name || 'Team Member')
+
+    if (!recipientEmail) {
+      alert('Could not determine recipient email address.')
+      return
+    }
+
+    if (todayReminders.length === 0) {
+      if (!confirm(`No pending follow-ups found scheduled for today (${new Date().toLocaleDateString()}). Do you still want to send a test digest to ${recipientEmail}?`)) {
+        return
+      }
+    }
+
+    setSendingDigest(true)
+    try {
+      const callsPayload = await Promise.all(todayReminders.map(async r => {
+        const table = r.lead_type === 'booking' ? 'booking_leads' : r.lead_type === 'outreach' ? 'outreach_leads' : 'contact_leads'
+        const { data: leadData } = await supabase.from(table).select('phone, company, service').eq('id', r.lead_id).maybeSingle()
+        return {
+          leadId: r.lead_id,
+          leadName: r.lead_name,
+          leadType: r.lead_type,
+          phone: leadData?.phone || '',
+          company: leadData?.company || leadData?.service || '',
+          scheduledTime: new Date(r.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          notes: r.notes_content
+        }
+      }))
+
+      const { data, error } = await supabase.functions.invoke('send-email', {
+        body: {
+          type: 'daily_call_digest',
+          recipient: recipientEmail,
+          salespersonName: repName,
+          date: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }),
+          calls: callsPayload
+        }
+      })
+
+      if (error || !data?.success) {
+        throw new Error(error?.message || 'Failed to dispatch digest email')
+      }
+
+      alert(`✅ Sent batched call list (${callsPayload.length} call${callsPayload.length === 1 ? '' : 's'}) to ${recipientEmail}!`)
+    } catch (err) {
+      console.error('[sendTodayCallDigest] Error:', err)
+      alert('Failed to send call digest email: ' + (err?.message || 'Unknown error'))
+    } finally {
+      setSendingDigest(false)
+    }
+  }
+
   function openReschedule(r) {
     const d = new Date(r.scheduled_at)
     setRescheduleDate(d.toISOString().slice(0, 10))
@@ -490,6 +553,33 @@ export default function FollowUpCalendar({ user, isAdmin, salespeople, onViewLea
               <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
             </svg>
             {syncingCalendar ? 'Syncing...' : 'Sync Calendar'}
+          </button>
+
+          <button
+            onClick={sendTodayCallDigest}
+            disabled={sendingDigest}
+            title="Batch all of today's scheduled calls into a single organized email digest"
+            style={{
+              padding: '8px 12px',
+              background: 'rgba(16, 185, 129, 0.1)',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              borderRadius: '10px',
+              color: '#6ee7b7',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              opacity: sendingDigest ? 0.7 : 1,
+              transition: 'all 0.2s'
+            }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+            {sendingDigest ? 'Sending Digest...' : 'Email Today\'s Call List'}
           </button>
 
           {isAdmin && (

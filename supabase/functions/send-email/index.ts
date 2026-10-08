@@ -693,13 +693,12 @@ Deno.serve(async (req) => {
         reminders: {
           useDefault: false,
           overrides: [
-            { method: 'email', minutes: 30 },
             { method: 'popup', minutes: 10 }
           ]
         }
       }
 
-      const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?sendUpdates=all`, {
+      const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?sendUpdates=none`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -753,7 +752,7 @@ Deno.serve(async (req) => {
         patchBody.colorId = colorId
       }
 
-      const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events/${eventId}?sendUpdates=all`, {
+      const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events/${eventId}?sendUpdates=none`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -768,6 +767,107 @@ Deno.serve(async (req) => {
       }
 
       return new Response(JSON.stringify({ success: true }), {
+        headers: { 'Content-Type': 'application/json', ...CORS }
+      })
+    }
+
+    // ── Batched Daily Call Digest Email ──────────────────────────────────────
+    if (type === 'daily_call_digest') {
+      const { recipient, salespersonName, date, calls } = body
+      if (!recipient || !calls || !Array.isArray(calls)) {
+        throw new Error('Missing required fields for daily_call_digest: recipient, calls')
+      }
+
+      const accessToken = await getAccessToken()
+      const totalCalls = calls.length
+      const subject = `📞 Your Scheduled Call List — ${date || 'Today'} (${totalCalls} Call${totalCalls === 1 ? '' : 's'})`
+
+      const callsListHtml = calls.map((c: any, index: number) => {
+        const timeStr = c.scheduledTime || 'Scheduled'
+        const phoneLink = c.phone ? `<a href="tel:${c.phone}" style="color: #10b981; font-weight: 700; text-decoration: none;">📞 ${c.phone}</a>` : '<span style="color: #64748b;">No phone</span>'
+        const crmUrl = c.leadType === 'outreach' ? 'https://autoflowstudio.net/admin/outreach' : 'https://autoflowstudio.net/admin/leads'
+
+        return `
+          <div style="background-color: #111827; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 18px 20px; margin-bottom: 12px;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td>
+                  <span style="display: inline-block; background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em;">
+                    #${index + 1} · ${timeStr}
+                  </span>
+                </td>
+                <td style="text-align: right;">
+                  <span style="color: #94a3b8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+                    ${c.leadType || 'LEAD'}
+                  </span>
+                </td>
+              </tr>
+            </table>
+            <div style="font-size: 1.05rem; font-weight: 700; color: #f8fafc; margin-top: 8px; margin-bottom: 4px;">
+              ${c.leadName || 'Unnamed Contact'} ${c.company ? `<span style="color: #94a3b8; font-weight: 400; font-size: 0.9rem;">(${c.company})</span>` : ''}
+            </div>
+            <div style="font-size: 0.95rem; margin-bottom: 10px;">
+              ${phoneLink}
+            </div>
+            ${c.notes ? `
+              <div style="background: rgba(255,255,255,0.03); border-left: 3px solid #10b981; padding: 10px 14px; border-radius: 4px; font-size: 0.85rem; color: #cbd5e1; font-style: italic; margin-bottom: 10px; line-height: 1.5;">
+                "${c.notes}"
+              </div>
+            ` : ''}
+            <div style="text-align: right;">
+              <a href="${crmUrl}" style="color: #38bdf8; font-size: 0.8rem; font-weight: 700; text-decoration: none;" target="_blank">View in CRM →</a>
+            </div>
+          </div>
+        `
+      }).join('')
+
+      const digestHtml = `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #030712; color: #f9fafb; padding: 32px 16px; margin: 0;">
+          <div style="max-width: 600px; margin: 0 auto; background-color: #0b0f19; border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 32px 28px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);">
+            
+            <div style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 20px; margin-bottom: 24px;">
+              <div style="color: #10b981; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px;">
+                AutoFlow Studio · Daily Call Digest
+              </div>
+              <h1 style="color: #ffffff; font-size: 1.4rem; font-weight: 800; margin: 0 0 8px 0; letter-spacing: -0.02em;">
+                📞 Scheduled Calls for ${date || 'Today'}
+              </h1>
+              <p style="color: #94a3b8; font-size: 0.9rem; margin: 0;">
+                Hey ${salespersonName || 'Team Member'}, you have <strong style="color: #f8fafc;">${totalCalls} call${totalCalls === 1 ? '' : 's'}</strong> scheduled on your pipeline. Here is your full batched list:
+              </p>
+            </div>
+
+            <div style="margin-bottom: 28px;">
+              ${callsListHtml}
+            </div>
+
+            <div style="text-align: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 24px;">
+              <a href="https://autoflowstudio.net/admin/calendar" style="display: inline-block; width: 100%; box-sizing: border-box; padding: 14px 20px; background: #12715B; color: #ffffff !important; text-decoration: none; border-radius: 12px; font-weight: 800; font-size: 0.95rem; text-align: center;" target="_blank">
+                Open CRM Follow-Up Calendar
+              </a>
+              <p style="color: #64748b; font-size: 0.75rem; margin-top: 16px;">
+                This digest batches all scheduled calls into a single email to eliminate individual notification spam.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      `
+
+      const raw = createRawMessage(recipient, subject, digestHtml)
+      const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ raw })
+      })
+
+      if (!res.ok) {
+        const errBody = await res.text()
+        throw new Error(`Gmail API error ${res.status}: ${errBody}`)
+      }
+
+      console.log(`[daily_call_digest] Sent batched email with ${totalCalls} calls to ${recipient}`)
+      return new Response(JSON.stringify({ success: true, totalCalls }), {
         headers: { 'Content-Type': 'application/json', ...CORS }
       })
     }
