@@ -5982,5 +5982,145 @@ Content-Type: application/json
 ],
     body: `<div class="article-content"><div class="hero-image"><img src="/images/blog_custom-topdesk-afas-profit-billing-integration.png" alt="TOPdesk en AFAS Profit API koppeling op maat voor IT-dienstverleners" /></div><p>Kijk, laten we even heel eerlijk zijn. Als je een IT Managed Service Provider (MSP) of een facilitaire dienst in Nederland runt, is de kans groot dat je TOPdesk gebruikt. Het is een fantastische tool voor ticketbeheer, asset management en het gestructureerd houden van je servicedesk. Maar zodra het einde van de maand nadert, begint de ellende. Iemand moet urenlang TOPdesk in het ene tabblad openen, AFAS Profit in het andere, en handmatig uren gaan overtypen, contracten controleren en hopen dat er geen typefouten worden gemaakt. Het is saai, frustrerend en simpelweg ontzettend duur.</p><p>We zien dit continu gebeuren. Bedrijven proberen het gat tussen operations en finance te dichten door er kostbare uren van medewerkers tegenaan te gooien. Maar je hoogopgeleide operations managers of financiële administrators inzetten als handmatige copy-paste bots is zonde van de resources. Als je deze knelpunten herkent, herken je wellicht ook de patronen die we besproken hebben in ons artikel over <a href="/nl/blog/10-repetitive-tasks">repetitieve taken die je direct moet automatiseren</a>. Het is tijd om te kijken naar hoe een TOPdesk AFAS koppeling op maat dit probleem definitief oplost.</p><h2>De stille margesluipmoordenaar: Handmatige urenregistratie overtypen</h2><p>Het ding met MSP-facturatie is: het is nooit simpel. Je factureert niet zomaar één vast uurtarief voor elk ticket. Je hebt te maken met complexe Service Level Agreements (SLAs). Je hebt strippenkaarten die moeten worden afgewaardeerd. Je hebt verschillende tarieven voor standaard kantooruren versus stand-by diensten in het weekend. En dan zijn er nog projecturen die onder specifieke AFAS projectcodes geboekt moeten worden.</p><p>Wanneer je vertrouwt op handmatig werk om deze TOPdesk-events naar AFAS-facturen te vertalen, gebeuren er drie dingen die je absoluut wilt vermijden:</p><ul><li><strong>Omzetverlies (Revenue Leakage):</strong> Facturabele uren worden simpelweg vergeten. Een engineer lost een kritieke serverstoring op vrijdagavond om 23:00 uur op, registreert dit netjes in TOPdesk, maar de financiële administratie mist de weekendtoeslag. Of erger nog: het ticket wordt gesloten maar nooit als facturabel gemarkeerd.</li><li><strong>Fouten op de factuur:</strong> Klanten ontvangen facturen met onjuiste uren, verkeerde tarieven of vage omschrijvingen. Dit leidt tot eindeloze mailwisselingen, vertraagde betalingen en een deuk in het klantvertrouwen.</li><li><strong>Trage cashflow:</strong> Je cashflow loopt vertraging op omdat het je team twee weken kost om de uren van de vorige maand te controleren, te corrigeren en handmatig in te voeren voordat de factuur de deur uit kan.</li></ul><p>Als je team elke maand stress heeft om de facturen de deur uit te krijgen, is dat een duidelijk signaal. We hebben een compleet gids geschreven over de <a href="/nl/blog/5-signs">signalen dat je bedrijf klaar is voor custom software en automatisering</a>. Handmatige facturatieprocessen die knellen staan daar met stip op nummer één.</p><h2>Waarom standaard koppelingen je vroeg of laat in de steek laten</h2><p>Je denkt nu misschien: "Kan ik niet gewoon een kant-en-klare koppeling kopen in een of andere app store?" Ja, er zijn standaard integraties op de markt die beloven TOPdesk en AFAS Profit met elkaar te verbinden. Ze klinken aantrekkelijk omdat de instapprijs laag is. Maar laten we realistisch zijn: ze schieten vrijwel altijd tekort zodra het complex wordt.</p><p>Standaard SaaS-connectoren zijn gebouwd voor de absolute basis. Ze gaan ervan uit dat jouw TOPdesk-inrichting volledig standaard is en dat je AFAS Profit-omgeving precies zo is ingericht als het boekje voorschrijft. In de praktijk is jouw AFAS-omgeving echter een uniek ingericht systeem. Je hebt specifieke UpdateConnectors, vrije velden, unieke workflows en specifieke prijsafspraken. Een generieke koppeling snapt regels zoals: "Als het ticket de categorie 'Netwerk' heeft en opgelost is door een 'Senior Engineer', hanteer dan tarief X, tenzij de klant een Silver SLA heeft in AFAS; schrijf dan uren af van de actieve strippenkaart" simpelweg niet.</p><p>Dat is waar maatwerk software het verschil maakt. Bij AutoFlow Studio geloven we niet in het forceren van jouw unieke bedrijfsprocessen in een rigide, vooraf gebouwd sjabloon. Wij bouwen een custom API middleware die fungeert als een intelligente vertaler tussen TOPdesk en AFAS Profit, exact afgestemd op hoe jouw business daadwerkelijk draait.</p><p>Laten we eens kijken hoe zo'n integratie er technisch uitziet onder de motorkap.</p><div class="highlight-box"><h3>De technische opzet van een custom API Middleware</h3><p>Om een robuuste en foutloze synchronisatie te garanderen, bouwen we een slimme middleware-laag (gehost op beveiligde cloud-infrastructuur zoals AWS of Azure) die luistert naar gebeurtenissen in beide systemen.</p><ol><li><strong>TOPdesk Webhooks:</strong> Zodra er een event plaatsvindt—bijvoorbeeld een ticket dat de status "Gereed" krijgt en gemarkeerd is als "Facturabel"—stuurt TOPdesk direct een HTTP webhook-payload naar onze middleware met de ticketgegevens, geregistreerde uren en het klant-ID.</li><li><strong>Validatie door de Middleware:</strong> De middleware ontvangt deze payload, valideert de datastructuur en controleert of alle verplichte velden zijn ingevuld. Mist er bijvoorbeeld een contractcode? Dan geeft de middleware een melding in plaats van corrupte data naar AFAS te pushen.</li><li><strong>AFAS Contract & Tarief Check:</strong> De middleware spreekt de AFAS Profit REST API aan om de actieve contractgegevens van de specifieke klant op te halen. De middleware berekent automatisch het juiste tarief op basis van de opgestelde logica (bijvoorbeeld weekendtoeslagen of SLA-kortingen).</li><li><strong>Push naar AFAS Profit UpdateConnector:</strong> Nadat de exacte factuurregel is berekend, schiet de middleware de data rechtstreeks in AFAS Profit via de juiste UpdateConnector (zoals <code>FbInvoices</code> of <code>PtProjectInvoices</code>).</li></ol></div><h2>Omgaan met de grillen van AFAS Profit</h2><p>Vraag een willekeurige software engineer die met AFAS Profit heeft gewerkt naar zijn ervaringen, en je krijgt te horen dat de AFAS API enorm krachtig is, maar ook een steile leercurve heeft. Het is volledig opgebouwd rondom JSON/XML-schema's genaamd UpdateConnectors en GetConnectors. Als je payload net een verkeerde structuur heeft, of je mist een verplicht vrij veld dat de financiële administratie ooit heeft aangemaakt, gooit de API er een cryptische foutmelding uit waar je weinig mee kunt.</p><p>Een cruciaal onderdeel van een succesvolle koppeling is hoe we met deze complexiteit omgaan. Token-rotatie en beveiliging zijn hierbij essentieel. Je kunt niet zomaar API-tokens hardcoderen in een simpel scriptje. Bij AutoFlow Studio bouwen we een veilige token-management-module in onze middleware. Hierdoor worden tokens versleuteld opgeslagen, automatisch ververst en voldoet de volledige gegevensstroom aan de AVG/GDPR-wetgeving.</p><p>Daarnaast implementeren we slimme rate-limiting en queuing-mechanismen. Als je servicedesk op vrijdag om 17:00 uur in één klap 200 tickets sluit, wil je niet de AFAS API overbelasten met 200 gelijktijdige verzoeken. Onze middleware maakt gebruik van een berichtenwachtrij (zoals RabbitMQ of AWS SQS) om de data netjes en achter elkaar te verwerken. Mocht AFAS tijdelijk onbereikbaar zijn wegens wekelijks onderhoud? Geen probleem. De middleware houdt de gegevens vast en probeert het later opnieuw, zonder dat er ook maar één boeking verloren gaat.</p><h2>Praktijkvoorbeeld: De automatische strippenkaart</h2><p>Laten we een concreet voorbeeld nemen waar bijna elke Nederlandse IT-dienstverlener mee worstelt: de strippenkaart. Stel, Klant X koopt vooraf een strippenkaart van 50 uur. Telkens wanneer je team support levert, moeten deze uren worden afgeschreven van die specifieke strippenkaart in AFAS Profit. Tegelijkertijd wil je dat de klant bij de ticket-afhandeling direct ziet hoeveel uur er nog over is.</p><div class="results-box"><h4>De geautomatiseerde strippenkaart workflow</h4><ul><li><strong>Stap 1:</strong> Een engineer registreert 2,5 uur op een TOPdesk ticket.</li><li><strong>Stap 2:</strong> Het ticket wordt gesloten. Onze custom middleware pikt de webhook direct op.</li><li><strong>Stap 3:</strong> De middleware vraagt in AFAS Profit het openstaande saldo van de strippenkaart op.</li><li><strong>Stap 4:</strong> De middleware boekt de 2,5 uur af in AFAS en schrijft het nieuwe saldo (bijvoorbeeld 32,5 uur) terug naar een specifiek vrij veld op de klantenkaart in TOPdesk.</li><li><strong>Stap 5:</strong> Er wordt automatisch een e-mail naar de klant gestuurd: <em>"We hebben je incident opgelost! Er is 2,5 uur afgeschreven van je strippenkaart. Je resterende saldo is 32,5 uur."</em></li></ul><p>Geen enkele handmatige handeling. Geen vertraging. Volledige transparantie naar de klant en een sluitende administratie in AFAS.</p></div><h2>Waarom AutoFlow Studio de ideale integratiepartner is</h2><p>Het bouwen van een API-koppeling van dit niveau vereist diepgaande technische kennis van zowel de TOPdesk API als de complexe connector-architectuur van AFAS Profit. Dit is niet iets wat je 'erbij' laat doen door een junior developer, of uitbesteedt aan een partij die de Nederlandse markt, AFAS-termen en lokale btw-regels niet begrijpt.</p><p>Bij AutoFlow Studio zijn we gespecialiseerd in het bouwen van exact dit soort custom middleware oplossingen. We werken nauw samen met zowel je operationele team als de financiële administratie om alle business rules, uitzonderingen en vrije velden nauwkeurig in kaart te brengen. Wij bouwen, testen en implementeren de koppeling, en leveren een overzichtelijk dashboard mee waarin je de status van je synchronisaties live kunt volgen.</p><p>Kijk, stop met het verspillen van het talent van je team aan handmatig administratief werk. Laat hen zich focussen op het leveren van topkwaliteit IT-support aan je klanten, en laat AutoFlow Studio de automatisering van je billing-proces regelen.</p><h2>Klaar om je TOPdesk AFAS facturatie te automatiseren?</h2><p>Laat handmatige administratie de groei van je bedrijf niet in de weg staan. Als je klaar bent om facturatiebloopers te elimineren, je cashflow te versnellen en op te schalen zonder extra administratief personeel aan te nemen, is het tijd voor een op maat gemaakte oplossing. Neem vandaag nog contact op met AutoFlow Studio en ontdek hoe we jouw administratieve bottlenecks transformeren in een geautomatiseerde motor.</p></div>`,
   },
+  {
+    slug: 'custom-b2b-lease-contract-automation',
+    title: `B2B Lease-overeenkomsten Automatiseren: Van Custom Calculators tot Getekende Contracten`,
+    desc: `Stop met handmatige spreadsheets en PDF-bestanden mailen. Leer hoe je het volledige B2B lease-proces automatiseert: van calculators tot kredietchecks, e-signing en ERP-koppelingen.`,
+    date: 'Juli 2026',
+    faqs: [
+      {
+            "q": "Kunnen we dit systeem integreren met ons huidige CRM zoals HubSpot of Salesforce?",
+            "a": "Ja, absoluut. We ontwerpen deze pipelines zo dat ze naadloos aansluiten op je huidige CRM. Een sales-rep kan met één druk op de knop in Salesforce of HubSpot de calculator starten met alle bekende klantgegevens, en de status van de deal wordt automatisch bijgewerkt."
+      },
+      {
+            "q": "Hoe gaat het systeem om met kredietbeoordelingen voor startende ondernemingen?",
+            "a": "We kunnen aangepaste regels inbouwen. Als de geautomatiseerde kredietcheck onvoldoende data oplevert (wat vaak zo is bij jonge BV's), kan het systeem de aanvraag automatisch doorsturen naar een 'Handmatige Beoordeling'-status in je dashboard, zodat je risicoteam handmatig bankafschriften of garantstellingen kan opvragen."
+      },
+      {
+            "q": "Is een handtekening via iDIN rechtsgeldig voor Nederlandse B2B-overeenkomsten?",
+            "a": "Ja, digitale handtekeningen die gezet zijn met een iDIN-verificatie zijn volledig rechtsgeldig onder de Europese eIDAS-verordening en bieden een extreem hoge mate van betrouwbaarheid omdat de identiteit van de ondertekenaar via hun zakelijke bankomgeving wordt geverifieerd."
+      }
+],
+    body: `<div class="article-content">
+  <div class="hero-image">
+    <img src="/images/blog_custom-b2b-lease-contract-automation.png" alt="B2B Lease-overeenkomsten Automatiseren Flowchart" />
+  </div>
+
+  <p>Laten we heel eerlijk zijn. Als je kostbare B2B-apparatuur verkoopt of verhuurt—denk aan industriële machines, medische apparaten, IT-hardware of elektrische wagenparken—dan is je lease-proces waarschijnlijk een gigantische bottleneck. Je sales-reps kopiëren handmatig getallen in rammelende Excel-sheets. Ze doen handmatig kredietchecks, typen Word-sjablonen over, exporteren ze naar PDF's en mailen deze heen en weer. Tegen de tijd dat de klant eindelijk zijn handtekening zet, zijn er weken voorbij en is je salesteam uitgeblust.</p>
+
+  <p>Dat is niet alleen traag, het is dodelijk voor je conversie en cashflow. In de moderne B2B-markt wint snelheid. Als een klant dagen moet wachten op een formeel leasevoorstel, stappen ze over naar een concurrent die dit in tien minuten kan regelen. Dat is precies waarom <strong>B2B equipment lease automatisering</strong> cruciaal is. We hebben het hier over het bouwen van een op maat gemaakte, end-to-end pijplijn die een klant in één vloeiende sessie van de eerste configuratie naar een rechtsgeldig getekend contract en een gesynchroniseerd ERP-systeem loodst.</p>
+
+  <h2>Waarom standaard software tekortschiet bij complexe leaseberekeningen</h2>
+  <p>Veel bedrijven proberen dit op te lossen met standaard SaaS-tools of door hun CRM zo ver te buigen dat het onwerkbaar wordt. Kijk, jouw business is uniek. Je hebt te maken met specifieke restwaardeformules, dynamische rentetarieven die afhangen van de kredietscore van de klant, aangepaste btw-regelingen en complexe afschrijvingsschema's. Standaard software kan dat simpelweg niet aan zonder dat je een fortuin betaalt aan consultancy en maatwerk.</p>
+
+  <p>Met een op maat gemaakte lease-engine ben jij de eigenaar van de logica. Wil je dynamische prijzen aanbieden op basis van seizoensgebonden gebruik, of speciale rentetarieven hanteren voor bepaalde productcategorieën? Dan schrijven we de code die dat exact uitvoert. Als je de <a href="/nl/blog/5-signs">5 signalen dat je Excel bent ontgroeid</a> herkent binnen je organisatie, dan is je lease-workflow de uitgelezen plek om te starten met moderniseren.</p>
+
+  <div class="highlight-box">
+    <h3>De verborgen kosten van handmatig werk</h3>
+    <p>Elk handmatig overtyp-moment in een lease-workflow vergroot de kans op fouten. Een typefout in een rentepercentage of een verkeerde btw-berekening kan leiden tot duizenden euro's misgelopen omzet of, erger nog, een contract dat juridisch niet klopt. Een geautomatiseerde pijplijn lost dit direct op.</p>
+  </div>
+
+  <h2>De architectuur van een geautomatiseerd B2B lease-proces</h2>
+  <p>Hoe ziet een modern, op maat gemaakt lease-automatiseringssysteem er nu echt uit? Bij <strong>AutoFlow Studio</strong> ontwerpen we deze systemen volgens een API-first architectuur. Hierdoor kunnen je salesportal, je CRM, je kredietbeoordelaar en je boekhoudpakket in real-time met elkaar communiceren.</p>
+
+  <p>Dit zijn de kernmodules die je nodig hebt voor een solide en schaalbare setup:</p>
+  <ul>
+    <li><strong>Interactieve Calculatortool:</strong> Een webapplicatie (voor klanten of je salesteam) waarin apparatuur geselecteerd kan worden, inclusief de gewenste looptijd (bijv. 24, 36 of 48 maanden) en aanbetaling.</li>
+    <li><strong>De Core Calculation Engine:</strong> Een beveiligde backend-service die op de achtergrond de exacte maandtermijnen, afschrijvingen, btw en rentetarieven berekent.</li>
+    <li><strong>Gekoppelde Kredietcheck:</strong> Een API-koppeling met een bedrijfsinformatiebron (zoals Graydon, Altares Dun & Bradstreet of de KVK API) om direct de kredietwaardigheid te controleren.</li>
+    <li><strong>Dynamische PDF-Generator:</strong> Een service die de juridische voorwaarden, specificaties en betaalschema's samenvoegt tot een prachtig, beveiligd PDF-contract.</li>
+    <li><strong>E-Signing Integratie:</strong> Koppelingen met rechtsgeldige handtekeningdiensten zoals Signhost (Ondertekenen.nl) of DocuSign.</li>
+    <li><strong>ERP & Boekhouding Synchronisatie:</strong> Directe pipelines om het definitieve leasecontract en de periodieke facturatieschema's door te schieten naar systemen zoals Exact Online of AFAS Profit.</li>
+  </ul>
+
+  <h2>Stap 1: Het bouwen van de dynamische calculatie-engine</h2>
+  <p>De calculatie-engine is het brein van je platform. Deze moet variabelen zoals de aanschafwaarde, restwaarde, contractduur en het risicoprofiel verwerken om tot de maandelijkse termijn te komen. Dit is een voorbeeld van hoe de TypeScript backend-logica eruitziet om dit dynamisch te berekenen:</p>
+
+  <pre><code>
+interface LeaseInput {
+  equipmentValue: number;
+  residualValueFactor: number; // bijv. 0.15 voor 15%
+  termMonths: number;
+  baseInterestRate: number; // bijv. 0.05 voor 5% op jaarbasis
+  riskPremium: number; // dynamisch berekend op basis van kredietcheck
+}
+
+function calculateMonthlyInstallment(input: LeaseInput): number {
+  const totalInterestRate = input.baseInterestRate + input.riskPremium;
+  const monthlyRate = totalInterestRate / 12;
+  const residualValue = input.equipmentValue * input.residualValueFactor;
+  const amountToAmortize = input.equipmentValue - residualValue;
+  
+  // Klassieke PMT-formule voor lease-amortisatie
+  const monthlyPayment = (amountToAmortize * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -input.termMonths));
+  
+  return Math.round(monthlyPayment * 100) / 100;
+}
+  </code></pre>
+
+  <p>Door deze berekeningen veilig op de server uit te voeren in plaats van via onveilige scripts in de browser van de gebruiker, voorkom je dat slimme gebruikers de parameters manipuleren om een lager tarief te forceren. Deze calculator kan worden aangesproken door je salesportal, je website of zelfs een interne Slack-koppeling die we bij <strong>AutoFlow Studio</strong> voor je kunnen opzetten.</p>
+
+  <h2>Stap 2: Directe KVK-koppeling en B2B Kredietwaardigheidstoetsing</h2>
+  <p>Laten we wel wezen: niemand wil dagen wachten op een handmatige goedkeuring van een kredietanalist. Om dit proces te versnellen, koppelen we je platform rechtstreeks aan de KVK API en een commerciële kredietbeoordelaar.</p>
+
+  <p>Zodra een gebruiker zijn bedrijfsnaam of KVK-nummer invoert, haalt het systeem direct de officiële inschrijfgegevens op. Dit voorkomt fouten in de contractformulering. Vervolgens checkt het systeem via een API de financiële gezondheidsscore van het bedrijf. Is de score uitstekend? Dan wordt de lease direct pre-approved. Is er een verhoogd risico? Dan kan het systeem automatisch de <code>riskPremium</code> verhogen of de aanvraag markeren voor handmatige controle. Dit voorkomt vertragingen zonder dat je onnodig financieel risico loopt.</p>
+
+  <div class="results-box">
+    <h4>De impact van geautomatiseerde risico-pricing</h4>
+    <p>Door de kredietbeoordeling direct te integreren, bied je altijd een tarief op maat. Klanten met een minimaal risico profiteren direct van de scherpste tarieven, terwijl het systeem bij een hoger risico automatisch een buffer inbouwt. Snel, efficiënt en volledig geautomatiseerd.</p>
+  </div>
+
+  <h2>Stap 3: Dynamische contracten genereren en digitaal ondertekenen</h2>
+  <p>Zodra de offerte akkoord is, is het tijd voor het papierwerk. Laten we eerlijk zijn: handmatig gegevens overtypen in Word-documenten is een van die typische <a href="/nl/blog/10-repetitive-tasks">repetitieve taken die je kunt automatiseren</a> om zeeën van tijd te besparen. In plaats daarvan gebruiken we een PDF-generator die het contract direct opbouwt op basis van de ingevoerde variabelen.</p>
+
+  <p>We mappen de bedrijfsnaam, het KVK-nummer, de tekenbevoegde personen, serienummers van de apparatuur en het betaalschema direct in je goedgekeurde juridische template. De gegenereerde PDF sturen we vervolgens via een API direct door naar een e-signing service zoals Signhost. Dit is een voorbeeld van zo'n API-payload:</p>
+
+  <pre><code>
+POST /api/v1/transaction
+Host: api.signhost.com
+Content-Type: application/json
+
+{
+  "File": {
+    "Name": "Lease_Overeenkomst_AutoFlow_Studio.pdf"
+  },
+  "Signers": [
+    {
+      "Email": "directeur@klantbedrijf.nl",
+      "Roles": ["Signer"],
+      "RequireIdin": true,
+      "SendSignRequest": true
+    }
+  ],
+  "Reference": "LEASE-2023-9982",
+  "PostbackUrl": "https://jouw-api.nl/webhooks/signhost"
+}
+  </code></pre>
+
+  <p>Waarom kiezen we voor <code>RequireIdin: true</code>? Met een iDIN-verificatie in Nederland weet je 100% zeker dat degene die tekent ook echt de tekenbevoegde bestuurder is van het bedrijf. Dit sluit identiteitsfraude volledig uit. Zodra de handtekening is gezet, triggert Signhost je webhook (<code>PostbackUrl</code>) en weet je systeem direct dat de deal rond is.</p>
+
+  <h2>Stap 4: Naadloze synchronisatie met Exact Online of AFAS</h2>
+  <p>Een getekend contract is fantastisch, maar het is pas echt efficiënt als je boekhouding er geen omkijken naar heeft. Zodra de handtekening binnen is, start ons systeem automatisch een serie API-koppelingen op de achtergrond:</p>
+  <ol>
+    <li><strong>Klant aanmaken of bijwerken:</strong> Het systeem zoekt de relatie op in Exact Online of AFAS Profit. Bestaat deze nog niet? Dan maken we direct een nieuwe debiteur aan met de geverifieerde KVK-gegevens.</li>
+    <li><strong>Lease-object registreren:</strong> Er wordt een contract of activum aangemaakt in het ERP-systeem om de afschrijvingen en de totale contractwaarde te bewaken.</li>
+    <li><strong>Periodieke facturatie inplannen:</strong> De maandelijkse termijnfacturen worden automatisch ingepland en klaargezet voor verzending, inclusief een SEPA-automatische incasso via bijvoorbeeld Mollie.</li>
+  </ol>
+
+  <p>Hierdoor hoeft je financiële administratie nooit meer handmatig facturen aan te maken of betalingen na te jagen. Alles loopt volledig op rolletjes.</p>
+
+  <h2>Wat levert deze automatisering je concreet op?</h2>
+  <p>Laten we kijken naar het verschil in doorlooptijd. Vóór automatisering zag het proces er zo uit: telefoontje -> handmatige berekening (20 min) -> interne controle (1 dag) -> kredietwaardigheidscheck (1 dag) -> contract opstellen (30 min) -> mailen en opvolgen (3 dagen) -> handtekening -> handmatige invoer ERP (30 min). Totale doorlooptijd: 5 tot 7 werkdagen.</p>
+
+  <p>Met een op maat gemaakte oplossing van <strong>AutoFlow Studio</strong> ziet het er zo uit: klant configureert de apparatuur -> directe kredietcheck & berekening (2 seconden) -> klant klikt op akkoord -> PDF wordt gegenereerd en verzonden naar Signhost (5 seconden) -> klant ondertekent direct met iDIN (2 minuten) -> ERP direct bijgewerkt. Totale doorlooptijd: minder dan 5 minuten.</p>
+
+  <p>Je bespaart hiermee niet alleen enorm veel tijd en operationele kosten; je haalt de klant binnen op het moment dat de koopintentie het hoogst is. Dat is hoe je het verschil maakt in een concurrerende markt.</p>
+
+  <div class="highlight-box">
+    <h3>Klaar om jouw lease-processen te automatiseren?</h3>
+    <p>Bij AutoFlow Studio zijn we gespecialiseerd in het bouwen van op maat gemaakte, veilige API-integraties en klantportalen voor Nederlandse ondernemingen. Of je nu complexe Excel-sheets wilt omzetten in solide code, of je CRM wilt koppelen aan de KVK en Exact Online: wij bouwen de oplossing die met je meegroeit.</p>
+  </div>
+</div>`,
+  },
 ]
 export const getNlBlogBySlug = (slug) => NL_BLOG_POSTS.find(p => p.slug === slug)
