@@ -19,8 +19,7 @@ BEGIN
 
   -- 2. Reassign all Marketing Agencies leads to Lounis
   UPDATE public.outreach_leads
-  SET assignee_id = lounis_id,
-      updated_at = now()
+  SET assignee_id = lounis_id
   WHERE 
     tags @> ARRAY['Marketing Agency']
     OR tags @> ARRAY['Marketing Agencies']
