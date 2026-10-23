@@ -21,6 +21,7 @@ export default function AdminDashboard() {
   const [analyticsLoading, setAnalyticsLoading] = useState(false)
   const [leaderboardLoading, setLeaderboardLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('activity')
+  const [growthRange, setGrowthRange] = useState(14)
   const [dailyData, setDailyData] = useState({ dailyLeads: [], dailyCalls: [] })
   const [statusDistribution, setStatusDistribution] = useState([])
   const [leaderboard, setLeaderboard] = useState([])
@@ -112,7 +113,8 @@ export default function AdminDashboard() {
     async function fetchGrowthData() {
       setGrowthLoading(true)
       try {
-        const last7Days = [...Array(7)].map((_, i) => {
+        const numDays = growthRange || 14
+        const daysList = [...Array(numDays)].map((_, i) => {
           const d = new Date()
           d.setDate(d.getDate() - i)
           const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate())
@@ -121,7 +123,7 @@ export default function AdminDashboard() {
           return { label, dayStart: dayStart.toISOString(), dayEnd: dayEnd.toISOString() }
         }).reverse()
 
-        const dailyLeadResults = await Promise.all(last7Days.map(({ dayStart, dayEnd }) => {
+        const dailyLeadResults = await Promise.all(daysList.map(({ dayStart, dayEnd }) => {
           let q = supabase.from('outreach_leads').select('*', { count: 'exact', head: true }).gte('created_at', dayStart).lt('created_at', dayEnd)
           if (isAdmin) {
             if (assigneeFilter === 'unassigned') q = q.is('assignee_id', null)
@@ -134,7 +136,7 @@ export default function AdminDashboard() {
           return q
         }))
 
-        const dailyCallResults = await Promise.all(last7Days.map(({ dayStart, dayEnd }) => {
+        const dailyCallResults = await Promise.all(daysList.map(({ dayStart, dayEnd }) => {
           let q = supabase.from('lead_history').select('*', { count: 'exact', head: true }).eq('event_type', 'call').gte('created_at', dayStart).lt('created_at', dayEnd)
           if (isAdmin) {
             if (assigneeFilter !== 'all' && assigneeFilter !== 'unassigned') {
@@ -148,8 +150,8 @@ export default function AdminDashboard() {
           return q
         }))
 
-        const dailyLeads = last7Days.map((day, i) => ({ date: day.label, count: dailyLeadResults[i].count || 0 }))
-        const dailyCalls = last7Days.map((day, i) => ({ date: day.label, count: dailyCallResults[i].count || 0 }))
+        const dailyLeads = daysList.map((day, i) => ({ date: day.label, count: dailyLeadResults[i]?.count || 0 }))
+        const dailyCalls = daysList.map((day, i) => ({ date: day.label, count: dailyCallResults[i]?.count || 0 }))
 
         setDailyData({ dailyLeads, dailyCalls })
       } catch (err) {
@@ -160,7 +162,7 @@ export default function AdminDashboard() {
     }
 
     fetchGrowthData()
-  }, [activeTab, assigneeFilter, isAdmin, user])
+  }, [activeTab, assigneeFilter, growthRange, isAdmin, user])
 
   // 3. Fetch Analytics Data (Status distribution) lazily when Analytics tab is active
   useEffect(() => {
@@ -349,6 +351,7 @@ export default function AdminDashboard() {
     const [hoveredIndex, setHoveredIndex] = useState(null)
     const maxCount = Math.max(...data.map(d => d.count), 0)
     const gridMax = maxCount <= 4 ? 6 : Math.max(maxCount + 2, 10)
+    const isDense = data.length > 14
     
     return (
       <div style={{ height: '220px', position: 'relative', padding: '30px 0 20px' }}>
@@ -359,11 +362,11 @@ export default function AdminDashboard() {
           }} />
         ))}
 
-        <div style={{ height: '180px', display: 'flex', alignItems: 'flex-end', gap: '12px', position: 'relative', zIndex: 1 }}>
+        <div style={{ height: '180px', display: 'flex', alignItems: 'flex-end', gap: isDense ? '4px' : '10px', position: 'relative', zIndex: 1 }}>
           {data.map((d, i) => (
-            <div key={i} style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', gap: '8px', position: 'relative' }}>
+            <div key={i} style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', gap: '6px', position: 'relative' }}>
               <span style={{ 
-                color: hoveredIndex === i ? 'white' : '#475569', fontSize: '0.7rem', fontWeight: 800, transition: 'all 0.2s' 
+                color: hoveredIndex === i ? 'white' : '#475569', fontSize: isDense ? '0.6rem' : '0.7rem', fontWeight: 800, transition: 'all 0.2s' 
               }}>{d.count}</span>
               <div 
                 onMouseEnter={() => setHoveredIndex(i)}
@@ -372,10 +375,10 @@ export default function AdminDashboard() {
                   width: '100%', height: `${(d.count / gridMax) * 100}%`, background: color, borderRadius: '4px 4px 0 0', 
                   opacity: hoveredIndex === null || hoveredIndex === i ? 1 : 0.4, transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', cursor: 'pointer',
                   boxShadow: hoveredIndex === i ? `0 0 20px ${color}40` : 'none',
-                  minHeight: d.count > 0 ? '2px' : '0'
+                  minHeight: d.count > 0 ? '3px' : '2px'
                 }} 
               />
-              <span style={{ color: '#64748B', fontSize: '0.65rem', fontWeight: 600, marginTop: '4px' }}>{d.date}</span>
+              <span style={{ color: '#64748B', fontSize: isDense ? '0.55rem' : '0.65rem', fontWeight: 600, marginTop: '4px', whiteSpace: 'nowrap' }}>{d.date}</span>
             </div>
           ))}
         </div>
@@ -652,14 +655,43 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 ) : (
-                  <div className="growth-grid">
-                    <div style={{ background: 'rgba(255,255,255,0.01)', padding: '32px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                      <h4 style={{ color: 'white', marginBottom: '24px', fontSize: '1.1rem', fontWeight: 800 }}>Leads Added (7 Days)</h4>
-                      <BarChart data={dailyData.dailyLeads} color="#d1bbfb" />
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
+                      <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.03)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)', gap: '4px' }}>
+                        {[
+                          { days: 7, label: '7 Days' },
+                          { days: 14, label: '14 Days' },
+                          { days: 30, label: '30 Days' }
+                        ].map(({ days, label }) => (
+                          <button
+                            key={days}
+                            onClick={() => setGrowthRange(days)}
+                            style={{
+                              padding: '6px 14px',
+                              borderRadius: '8px',
+                              border: 'none',
+                              cursor: 'pointer',
+                              fontSize: '0.8rem',
+                              fontWeight: 700,
+                              background: growthRange === days ? 'rgba(255,255,255,0.12)' : 'transparent',
+                              color: growthRange === days ? 'white' : '#94A3B8',
+                              transition: 'all 0.2s'
+                            }}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <div style={{ background: 'rgba(255,255,255,0.01)', padding: '32px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                      <h4 style={{ color: 'white', marginBottom: '24px', fontSize: '1.1rem', fontWeight: 800 }}>Calls Logged (7 Days)</h4>
-                      <BarChart data={dailyData.dailyCalls} color="#3b82f6" />
+                    <div className="growth-grid">
+                      <div style={{ background: 'rgba(255,255,255,0.01)', padding: '32px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                        <h4 style={{ color: 'white', marginBottom: '24px', fontSize: '1.1rem', fontWeight: 800 }}>Leads Added ({growthRange} Days)</h4>
+                        <BarChart data={dailyData.dailyLeads} color="#d1bbfb" />
+                      </div>
+                      <div style={{ background: 'rgba(255,255,255,0.01)', padding: '32px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                        <h4 style={{ color: 'white', marginBottom: '24px', fontSize: '1.1rem', fontWeight: 800 }}>Calls Logged ({growthRange} Days)</h4>
+                        <BarChart data={dailyData.dailyCalls} color="#3b82f6" />
+                      </div>
                     </div>
                   </div>
                 )
