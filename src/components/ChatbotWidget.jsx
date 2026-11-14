@@ -1336,13 +1336,13 @@ function generateSmartFallbackResponse(text, isNl) {
   }
   if (q.includes('horeca') || q.includes('restaurant') || q.includes('hotel') || q.includes('booking') || q.includes('table') || q.includes('no-show')) {
     return isNl
-      ? "Voor de Horeca bouwen we commissievrije reserveringssystemen, automatische SMS/WhatsApp herinneringen tegen no-shows en personeelsplanners. [Bekijk Horeca](action:/solutions/horeca-hospitality)"
-      : "For Horeca & Hospitality, we engineer commission-free booking engines, automatic SMS/WhatsApp no-show prevention, and shift planners. [View Horeca](action:/solutions/horeca-hospitality)"
+      ? "Voor de Horeca bouwen we commissievrije reserveringssystemen, automatische SMS/WhatsApp herinneringen tegen no-shows en personeelsplanners. [Plan een Audit](action:book)"
+      : "For Horeca & Hospitality, we engineer commission-free booking engines, automatic SMS/WhatsApp no-show prevention, and shift planners. [Book an Audit](action:book)"
   }
   if (q.includes('agency') || q.includes('marketing') || q.includes('report') || q.includes('client') || q.includes('bureau') || q.includes('ad')) {
     return isNl
-      ? "Voor marketingbureaus automatiseren we maandelijks KPI-rapportages, client-onboarding en campagne-dashboards. [Bekijk Marketing Solutions](action:/solutions/marketing-agency)"
-      : "For marketing agencies, we automate client reporting dashboards, onboarding workflows, and campaign tracking. [View Marketing Solutions](action:/solutions/marketing-agency)"
+      ? "Voor marketingbureaus automatiseren we maandelijks KPI-rapportages, client-onboarding en campagne-dashboards. [Plan een Audit](action:book)"
+      : "For marketing agencies, we automate client reporting dashboards, onboarding workflows, and campaign tracking. [Book an Audit](action:book)"
   }
   if (q.includes('price') || q.includes('cost') || q.includes('rate') || q.includes('prijs') || q.includes('tarief') || q.includes('kosten') || q.includes('money')) {
     return isNl

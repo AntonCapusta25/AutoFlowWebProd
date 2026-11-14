@@ -544,10 +544,10 @@ const ProcessSection = ({ lang }) => {
   const processStepCount = t.timeline.steps.length
 
   const processImages = [
-    '/images/weve-been-there.webp',
+    '/images/process-discover.webp',
     '/images/build-step.webp',
     '/images/built-for-long-run.webp',
-    '/images/more-growth.webp',
+    '/images/process-optimize.webp',
   ]
 
   useEffect(() => {

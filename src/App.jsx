@@ -3,7 +3,7 @@ import { lazy, Suspense, useState, useEffect } from 'react'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import CookiesBanner from './components/CookiesBanner'
-import PromoBanner from './components/PromoBanner'
+// import PromoBanner from './components/PromoBanner' // temporarily disabled
 import MultiStepBooking from './components/MultiStepBooking'
 import './styles/index.css'
 
@@ -17,11 +17,12 @@ const CookiePolicy  = lazy(() => import('./pages/CookiePolicy'))
 const Blog          = lazy(() => import('./pages/Blog'))
 const BlogPost      = lazy(() => import('./pages/BlogPost'))
 const ProjectDetail = lazy(() => import('./pages/ProjectDetail'))
+const About         = lazy(() => import('./pages/About'))
 
-// ── Landing / Targeted Solutions pages (lazy) ──────────────────────────────
-const B2BAutomation = lazy(() => import('./pages/Landing/B2BAutomation'))
-const HorecaAutomation = lazy(() => import('./pages/Landing/HorecaAutomation'))
-const MarketingAutomation = lazy(() => import('./pages/Landing/MarketingAutomation'))
+// ── Landing / Targeted Solutions pages (lazy) — temporarily disabled ───────
+// const B2BAutomation = lazy(() => import('./pages/Landing/B2BAutomation'))
+// const HorecaAutomation = lazy(() => import('./pages/Landing/HorecaAutomation'))
+// const MarketingAutomation = lazy(() => import('./pages/Landing/MarketingAutomation'))
 
 // ── Admin pages (lazy — never fetched by public visitors) ─────────────────
 const AdminLogin        = lazy(() => import('./pages/Admin/Login'))
@@ -41,7 +42,7 @@ const AdminKnowledge    = lazy(() => import('./pages/Admin/Knowledge'))
 const AdminBlogCMS      = lazy(() => import('./pages/Admin/BlogCMS'))
 const AuthGuard = lazy(() => import('./components/Admin/AuthGuard'))
 const AdminGuard = lazy(() => import('./components/Admin/AuthGuard').then(m => ({ default: m.AdminGuard })))
-import ChatbotWidget from './components/ChatbotWidget'
+// import ChatbotWidget from './components/ChatbotWidget' // temporarily disabled
 
 const Loading = () => <div style={{ minHeight: '100vh', background: '#0F1115' }} />
 
@@ -85,11 +86,12 @@ function AppContent() {
           <Route path="/blog/:slug"        element={<BlogPost lang="en" />} />
           <Route path="/portfolio"         element={<Portfolio lang="en" />} />
           <Route path="/projects/:slug"    element={<ProjectDetail lang="en" />} />
+          <Route path="/about"             element={<About lang="en" />} />
           <Route path="/contact"           element={<Contact lang="en" />} />
           <Route path="/privacy-policy"    element={<PrivacyPolicy />} />
           <Route path="/cookie-policy"     element={<CookiePolicy />} />
 
-          {/* ── Landing / Targeted Solutions routes ── */}
+          {/* ── Landing / Targeted Solutions routes (temporarily disabled) ──
           <Route path="/solutions/b2b-automation" element={<B2BAutomation lang="en" />} />
           <Route path="/nl/solutions/b2b-automation" element={<B2BAutomation lang="nl" />} />
           <Route path="/solutions/hvac-field-services" element={<Navigate to="/solutions/b2b-automation" replace />} />
@@ -98,6 +100,10 @@ function AppContent() {
           <Route path="/nl/solutions/horeca-hospitality" element={<HorecaAutomation lang="nl" />} />
           <Route path="/solutions/marketing-agency" element={<MarketingAutomation lang="en" />} />
           <Route path="/nl/solutions/marketing-agency" element={<MarketingAutomation lang="nl" />} />
+          */}
+          {/* While disabled, send any /solutions/* traffic to the homepage */}
+          <Route path="/solutions/*" element={<Navigate to="/" replace />} />
+          <Route path="/nl/solutions/*" element={<Navigate to="/nl" replace />} />
 
           {/* ── Dutch routes (/nl/) ── */}
           <Route path="/nl"                element={<Home lang="nl" />} />
@@ -105,6 +111,7 @@ function AppContent() {
           <Route path="/nl/blog/:slug"     element={<BlogPost lang="nl" />} />
           <Route path="/nl/portfolio"      element={<Portfolio lang="nl" />} />
           <Route path="/nl/projects/:slug" element={<ProjectDetail lang="nl" />} />
+          <Route path="/nl/about"          element={<About lang="nl" />} />
           <Route path="/nl/contact"        element={<Contact lang="nl" />} />
 
           {/* ── Admin routes ── */}
@@ -130,7 +137,7 @@ function AppContent() {
       </Suspense>
       {!hideGlobalLayout && <Footer />}
       {!isAdmin && <CookiesBanner />}
-      {!hideGlobalLayout && <PromoBanner onCTA={() => window.dispatchEvent(new CustomEvent('open-booking'))} />}
+      {/* {!hideGlobalLayout && <PromoBanner onCTA={() => window.dispatchEvent(new CustomEvent('open-booking'))} />} */}
       {!isAdmin && (
         <MultiStepBooking 
           isOpen={isBookingOpen} 
@@ -139,7 +146,7 @@ function AppContent() {
           lang={isNl ? 'nl' : 'en'}
         />
       )}
-      {!isAdmin && <ChatbotWidget />}
+      {/* {!isAdmin && <ChatbotWidget />} */}
 
       {/* {!isAdmin && <PriceCalculator />} */}
 

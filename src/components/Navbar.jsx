@@ -213,7 +213,7 @@ export default function Navbar() {
               </Link>
             </li>
             
-            {/* Solutions Dropdown Trigger */}
+            {/* Solutions Dropdown Trigger — temporarily disabled
             <li 
               className="nav-dropdown-item"
               onMouseEnter={() => setSolutionsOpen(true)}
@@ -255,6 +255,7 @@ export default function Navbar() {
                 ))}
               </div>
             </li>
+            */}
 
             <li>
               <Link to={prefix + '/blog'} className={location.pathname.startsWith(prefix + '/blog') ? 'active' : ''}>
@@ -264,6 +265,11 @@ export default function Navbar() {
             <li>
               <Link to={prefix + '/portfolio'} className={location.pathname.startsWith(prefix + '/portfolio') ? 'active' : ''}>
                 {t.nav.portfolio}
+              </Link>
+            </li>
+            <li>
+              <Link to={prefix + '/about'} className={location.pathname === (prefix + '/about') ? 'active' : ''}>
+                {t.nav.about}
               </Link>
             </li>
             <li>
@@ -308,7 +314,7 @@ export default function Navbar() {
             </Link>
           </li>
           
-          {/* Mobile solutions collapsible accordion */}
+          {/* Mobile solutions collapsible accordion — temporarily disabled
           <li className="mobile-dropdown-item" style={{ width: '100%' }}>
             <button 
               className="mobile-dropdown-btn" 
@@ -361,6 +367,7 @@ export default function Navbar() {
               ))}
             </div>
           </li>
+          */}
 
           <li>
             <Link to={prefix + '/blog'} className={location.pathname.startsWith(prefix + '/blog') ? 'active' : ''} onClick={() => setMenuOpen(false)}>
@@ -370,6 +377,11 @@ export default function Navbar() {
           <li>
             <Link to={prefix + '/portfolio'} className={location.pathname.startsWith(prefix + '/portfolio') ? 'active' : ''} onClick={() => setMenuOpen(false)}>
               {t.nav.portfolio}
+            </Link>
+          </li>
+          <li>
+            <Link to={prefix + '/about'} className={location.pathname === (prefix + '/about') ? 'active' : ''} onClick={() => setMenuOpen(false)}>
+              {t.nav.about}
             </Link>
           </li>
           <li>
