@@ -19,7 +19,7 @@ const copy = {
     heroTitleA: 'Two builders.',
     heroTitleB: 'One obsession: killing busywork.',
     heroSub:
-      "AutoFlow Studio is a small, hands-on automation studio. We build custom CRMs, reporting systems and workflows that take repetitive work off your team's plate, so you can spend your time on the parts of the business that actually need you.",
+      "AutoFlow Studio is a hands-on automation studio. We build custom CRMs, reporting systems and workflows that take repetitive work off your team's plate, so you can spend your time on the parts of the business that actually need you.",
     heroCta: 'Book a free audit',
     heroSecondary: 'See our work',
     videoLabel: 'Meet the studio',
@@ -51,7 +51,7 @@ const copy = {
     heroTitleA: 'Twee bouwers.',
     heroTitleB: 'Eén obsessie: weg met saai werk.',
     heroSub:
-      'AutoFlow Studio is een kleine, hands-on automatiseringsstudio. We bouwen maatwerk CRM\'s, rapportages en workflows die repetitief werk van je team overnemen, zodat jij je tijd kunt besteden aan de onderdelen van je bedrijf die jou écht nodig hebben.',
+      'AutoFlow Studio is een hands-on automatiseringsstudio. We bouwen maatwerk CRM\'s, rapportages en workflows die repetitief werk van je team overnemen, zodat jij je tijd kunt besteden aan de onderdelen van je bedrijf die jou écht nodig hebben.',
     heroCta: 'Boek een gratis audit',
     heroSecondary: 'Bekijk ons werk',
     videoLabel: 'Maak kennis met de studio',

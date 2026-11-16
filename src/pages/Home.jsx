@@ -545,8 +545,8 @@ const ProcessSection = ({ lang }) => {
 
   const processImages = [
     '/images/process-discover.webp',
-    '/images/build-step.webp',
-    '/images/built-for-long-run.webp',
+    '/images/process-build.webp',
+    '/images/process-deploy.webp',
     '/images/process-optimize.webp',
   ]
 
