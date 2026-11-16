@@ -235,7 +235,7 @@ export default function About({ lang = 'en' }) {
               <img src="/images/team/founder-talking.webp" alt="" loading="lazy" style={{ objectPosition: '30% center' }} />
             </div>
             <div className="about-collage-tall about-collage-offset">
-              <img src="/images/team/founder-portrait.webp" alt="" loading="lazy" style={{ objectPosition: '55% center' }} />
+              <img src="/images/team/founder-sitting.webp" alt="" loading="lazy" style={{ objectPosition: '52% center' }} />
             </div>
           </motion.div>
 
