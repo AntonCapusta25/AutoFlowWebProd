@@ -6380,5 +6380,163 @@ async function maakExactInspectieFactuur(authTokens, inspectieData) {
 ],
     body: `<div class='article-content'><div class='hero-image'><img src='/images/blog_custom-subscription-revenue-recognition-automation.png' alt='Omzetverantwoording Automatiseren voor SaaS' /></div><h2>De Nachtmerrie van Handmatige Omzetverantwoording in B2B SaaS</h2><p>Kijk, als je een snelgroeiend B2B SaaS-bedrijf of abonnementsdienst in Nederland runt, ken je de maandafsluiting op de financiële afdeling maar al te goed. Het salesteam viert het binnenhalen van een groot jaarcontract van € 120.000 dat vooraf is betaald via Mollie of Stripe. Maar de finance manager zucht diep. Waarom? Omdat je volgens Dutch GAAP (RJ 270) en internationale standaarden zoals IFRS 15 die € 120.000 niet direct als behaalde omzet in maand één mag boeken. Je moet gedurende twaalf maanden exact € 10.000 per maand verantwoorden op de balans en de winst-en-verliesrekening.</p><p>Wat gebeurt er vervolgens? Iemand van finance opent een immens, kwetsbaar Excel-bestand. Transactie-ID's uit Stripe worden handmatig gekopieerd, er worden formules gebouwd om regelitems te splitsen in dagelijkse of maandelijkse perioden, en transitorische posten (uitgestelde omzet) worden handmatig ingevoerd als memoriaalboekingen in Exact Online of AFAS Profit. Vermenigvuldig dat proces nu met honderden klanten, tussentijdse upgrades, downgrades, creditnota's en vreemde valuta. Eerlijk is eerlijk: het is een tikkende tijdbom. Eén verkeerde formule of een gemiste webhook en je audit trail verandert in een chaos.</p><p>Omzetverantwoording automatiseren voor SaaS lost dit handmatige probleem definitief op. In plaats van afhankelijk te zijn van handmatig kopieer- en plakwerk, luistert maatwerk software in real-time naar abonnementsgebeurtenissen, genereert het automatisch dagelijkse afschrijvingsschema's en schiet het perfect gebalanceerde memoriaalboekingen rechtstreeks in je boekhoudpakket.</p><div class='highlight-box'><h3>Belangrijkste Inzicht voor B2B Tech- & Finance-Leiders</h3><p>Handmatige omzetverantwoording schaalt niet. Zodra je meer dan 50 actieve abonnementen hebt met verschillende factuurvoorwaarden, kost handmatig Excel-werk tientallen uren per maand en loop je grote risico's bij financiële audits. Het automatiseren van uitgestelde omzet garandeert 100% nauwkeurigheid zonder dat je extra personeel op finance hoeft aan te nemen.</p></div><h2>Waarom Standaard Boekhoudsoftware Tekortschiet bij SaaS-Omzet</h2><p>Hier is het probleem: pakketten zoals Exact Online, Moneybird en AFAS Profit zijn uitstekend in standaard facturatie en bankafschriften verwerken. Ze zijn echter gebouwd voor traditionele verkoop en niet voor terugkerende SaaS-modellen waarbij de contractwaarde losstaat van de daadwerkelijke kasstroom. Standaard ERP-systemen missen een engine om realtime contractwijzigingen te verwerken. Wanneer een klant halverwege de maand op dag 17 upgradet van een pakket van € 2.000/maand naar € 5.000/maand, heeft een standaard boekhoudpakket geen logica om het onverdiende restbedrag automatisch te berekenen en het afschrijvingsschema aan te passen.</p><p>Veel financiële teams proberen dit gat te dichten met eenvoudige koppelingen. Maar zoals we laten zien in onze gids over <a href='/nl/blog/5-signs'>5 signalen dat je maatwerk software nodig hebt</a>, lopen standaard koppelingen vast zodra je te maken krijgt met complexe SaaS-scenario's. Standaard tools kunnen niet omgaan met variabel verbruik, meerjarige staffelcontracten of gecombineerde licentie- en dienstverleningsfacturen. Daarom lopen groeiende bedrijven vast. Als je kampt met te veel handmatig werk, bekijk dan ons overzicht van <a href='/nl/blog/10-repetitive-tasks'>10 repetitieve handmatige taken die je vandaag kunt automatiseren</a>.</p><h2>Hoe Geautomatiseerde Omzetverantwoording in de Praktijk Werkt</h2><p>Laten we kijken naar de technische werking van een geautomatiseerde omzetverantwoording-pipeline. Bij AutoFlow Studio bouwen we maatwerk middleware die op de achtergrond draait tussen je abonnementssysteem (Stripe, Mollie, Chargebee) en je financiële administratie (Exact Online, AFAS Profit, Twinfield).</p><h3>Stap 1: Realtime Verwerking van Abonnement-Webhooks</h3><p>Zodra een klant zich abonneert, vernieuwt, upgradet of een terugbetaling ontvangt, verstuurt het betalingsplatform een beveiligde HTTP-webhook. De maatwerk middleware vangt dit bericht op, controleert de cryptografische handtekening voor maximale veiligheid en leest de transactiegegevens uit. Belangrijke metadata zoals de startdatum van de dienst, contractduur, btw-regimes en product-SKU's worden direct geanalyseerd.</p><h3>Stap 2: De Berekeningsengine & Het Omzetregister</h3><p>Na het uitlezen van de gegevens berekent de maatwerk engine de exacte afschrijving per dag. In plaats van uit te gaan van een standaard maand van 30 dagen, verdeelt de engine de contractwaarde over het werkelijke aantal dagen in elke kalendermaand (inclusief schrikkeljaren).</p><div class='results-box'><h3>Rekenvoorbeeld: Dagelijkse Evenredige Verdeling vs Vast Maandbedrag</h3><p>Stel dat een jaarabonnement van € 36.500 start op 1 maart. In een schrikkeljaar met 366 dagen bedraagt het dagtarief exact € 99,726. Maart (31 dagen) verantwoordt € 3.091,50 aan omzet, terwijl februari (29 dagen) € 2.892,05 verantwoordt. Een maatwerk omzetengine voert deze berekening foutloos uit, waardoor je balans voor uitgestelde omzet tot op de cent nauwkeurig blijft.</p></div><h3>Stap 3: Automatische Memoriaalboekingen in Exact Online of AFAS</h3><p>Op de eerste dag van elke nieuwe boekhoudperiode (of via een dagelijkse geautomatiseerde batch) roept de software de REST API van Exact Online of AFAS Profit aan. Het systeem maakt een gebalanceerde memoriaalboeking aan met twee hoofdverschuivingen:</p><ul><li><strong>Debet Uitgestelde Omzet (Overlopende Passiva / Transitorische Posten):</strong> Verlaagt de schuld op je balans met het voor die maand verdiende deel.</li><li><strong>Credit Gerealiseerde Omzet (Winst-en-Verliesrekening):</strong> Boekt de werkelijk behaalde omzet van die periode in de resultatenrekening.</li></ul><p>Omdat deze pipeline werkt met strikte databasetransacties, bevat elke memoriaalboeking een directe link naar het oorspronkelijke Stripe-transactie-ID en het contract. Dit maakt audits door je accountant overzichtelijk en eenvoudig.</p><h2>Complexe SaaS-Vraagstukken Automatisch Opgelost</h2><p>In theorie klinkt het verwerken van uitgestelde omzet eenvoudig. In de praktijk zorgen veranderende klantsituaties voor veel complexiteit. Maatwerk software voor omzetverantwoording lost de vier grootste financiële uitdagingen op:</p><h3>1. Tussentijdse Upgrades, Downgrades en Planwijzigingen</h3><p>Stel dat een klant € 12.000 vooraf betaalt voor een jaarcontract. Na zes maanden upgraden ze naar een enterprise-pakket van € 24.000 per jaar. Standaard systemen raken in de war: wat gebeurt er met de resterende € 6.000 aan nog niet verantwoorde omzet van het oude plan? Onze maatwerk middleware berekent automatisch het resterende saldo, haalt het oude schema weg en maakt direct een nieuw gecombineerd afschrijvingsschema aan.</p><h3>2. Gecombineerde Verkoop (Softwarelicenties + Implementatiekosten)</h3><p>Veel B2B SaaS-bedrijven rekenen eenmalige implementatiekosten naast periodieke softwarelicenties. Volgens Dutch GAAP en IFRS 15 mag je eenmalige kosten vaak niet direct volledig als omzet boeken als de dienst onlosmakelijk verbonden is met de software. AutoFlow Studio bouwt specifieke regels in je middleware om implementatiekosten te spreiden over de gemiddelde klantlevensduur, terwijl de licenties maandelijks worden verwerkt.</p><h3>3. Meerdere Valuta en Wisselkoersverschillen</h3><p>Wanneer je internationale klanten factureert in USD of GBP terwijl je Nederlandse boekhouding in EUR staat, kunnen koersschommelingen tot verschillen leiden. Maatwerk middleware haalt de actuele wisselkoers op bij de Europese Centrale Bank op het moment van facturatie, zet de basiswaarde in EUR vast op de balans en berekent automatisch koerswinsten of -verliezen bij de maandelijkse afboeking.</p><h3>4. Btw-Regels voor EU-Transacties (Btw Verlegd)</h3><p>Bij grensoverschrijdende B2B SaaS-verkoop binnen de EU geldt de btw-verleggingsregeling (0% btw), terwijl Nederlandse klanten 21% btw betalen. De omzetengine scheidt de brutofactuurbedragen van de btw-verplichtingen voordat het afschrijvingsschema wordt berekend. Zo blijven je btw-rekeningen in AFAS of Exact Online altijd zuiver.</p><h2>Maatwerk Middleware versus Beperkte No-Code Tools</h2><p>Wanneer IT- of financieteams omzetverantwoording proberen te automatiseren met eenvoudige no-code tools zoals Zapier of Make, lopen ze snel tegen grenzen aan. Eenvoudige tools hebben geen eigen database, kunnen geen ingewikkelde berekeningen over meerdere jaren uitvoeren en lopen vast op limieten van Nederlandse financiële software. Zoals beschreven in onze <a href='/nl/blog/bottlenecks-guide'>gids voor operationele knelpunten</a> vereist kritieke financiële software maatwerk code, uitgebreide foutafhandeling en een betrouwbare database.</p><p>Door samen te werken met AutoFlow Studio krijg je maatwerk middleware die exact aansluit op jouw financiële architectuur. Wij bouwen stabiele koppelingen in Python of TypeScript die draaien op beveiligde cloudinfrastructuur, zodat elke transactie, wijziging en afschrijving foutloos wordt verwerkt.</p><h2>Het Rendement van Geautomatiseerde Omzetverantwoording</h2><p>Het automatiseren van je proces voor uitgestelde omzet levert direct resultaat op voor je hele organisatie:</p><ul><li><strong>90% Snellere Maandafsluiting:</strong> Het financieel team hoeft gecontroleerde boekingsvoorstellen alleen nog goed te keuren in plaats van dagenlang sheets in te vullen.</li><li><strong>Foutloze Audits:</strong> Duidelijke, geautomatiseerde audit trails zorgen voor een soepele controle door accountants en lagere accountantskosten.</li><li><strong>Direct Inzicht in SaaS-Metrics:</strong> Directie en management hebben altijd actueel inzicht in de werkelijke MRR (Monthly Recurring Revenue), ARR (Annual Recurring Revenue) en uitgestelde omzet.</li><li><strong>Schaalbaar Zonder Extra Personeel:</strong> Groei van 100 naar 10.000 abonnementen zonder dat je extra financieel personeel hoeft aan te nemen voor handmatige administratie.</li></ul><p>Wil je geen kostbare tijd van je finance- en IT-team meer verspillen aan handmatige omzetschema's? AutoFlow Studio is gespecialiseerd in het bouwen van betrouwbare maatwerk koppelingen tussen abonnementssystemen en Nederlandse boekhoudpakketten zoals Exact Online, AFAS Profit en Twinfield. Neem vandaag nog contact met ons op om je omzetverantwoording te automatiseren.</p></div>`,
   },
+  {
+    slug: 'custom-trade-credit-insurance-afas-exact-automation',
+    title: `Kredietverzekering Automatiseren: Atradius, Allianz Trade en Coface Koppelen met AFAS en Exact Online`,
+    desc: `Ontdek hoe maatwerk middleware kredietverzekerings-API's koppelt met Exact Online en AFAS om kredietlimieten, orderblokkades en claimmeldingen te automatiseren.`,
+    date: 'Juli 2026',
+    faqs: [
+      {
+            "q": "Welke kredietverzekeraars bieden API's voor koppeling met Exact Online of AFAS?",
+            "a": "Grote kredietverzekeraars zoals Atradius (via de AtraShip API), Allianz Trade / Euler Hermes (via API Connect) en Coface (via CofaNet API) bieden REST- en SOAP-API's om limieten op te vragen, statussen te controleren en betalingsachterstanden te melden."
+      },
+      {
+            "q": "Kan een maatwerk koppeling automatisch orders blokkeren in AFAS of Exact Online?",
+            "a": "Ja. De maatwerk middleware vergelijkt continu het totale openstaande risico in het ERP (openstaande facturen + openstaande verkooporders) met de goedgekeurde polislimiet. Bij een overschrijding wordt de order of debiteur direct automatisch geblokkeerd."
+      },
+      {
+            "q": "Waarom is Zapier of Make niet geschikt voor dit type koppeling?",
+            "a": "Geautomatiseerd kredietrisicobeheer vereist transactiezekerheid, verwerking van complexe samengestelde valuta- en limietregels en strikte audit-logging. Generieke no-code tools bieden niet de betrouwbaarheid die nodig is voor juridisch bindende kredietverzekeringspolissen."
+      }
+],
+    body: `<div class="article-content">
+<div class="hero-image"><img src="/images/blog_custom-trade-credit-insurance-afas-exact-automation.png" alt="Kredietverzekering ERP Integratie met AFAS en Exact Online" /></div>
+<h2>De Stille Winstsloper in de Nederlandse B2B Groothandel: Handmatig Kredietrisicobeheer</h2>
+<p>Laten we eerlijk zijn. Als u een B2B groothandel, productiebedrijf of importeur in Nederland runne, draait alles om betalingstermijnen. U geeft 30, 60 of 90 dagen krediet aan uw klanten omdat de markt dat nu eenmaal vraagt. Om de CFO 's nachts gerust te laten slapen, betaalt u jaarlijks tienduizenden euro's aan kredietverzekeraars zoals Atradius, Allianz Trade (Euler Hermes) of Coface.</p>
+<p>Maar hier zit de pijn: ondanks die dure polis is uw dagelijkse kredietbewaking waarschijnlijk een trage, handmatige chaos. Uw debiteurenbeheerder logt in op de portal van de verzekeraar, controleert handmatig of 'Jansen Logistiek B.V.' een goedgekeurde limiet heeft van € 50.000, en opent vervolgens AFAS Profit of Exact Online om handmatig de kredietlimiet op de debiteurenkaart aan te passen.</p>
+<p>Twee weken later vraagt de klant een extra levering van € 25.000 aan. De verkoper voert een order van € 40.000 in. Niemand heeft door dat de verzekeraar de verhoging drie dagen geleden heeft afgewezen in de portal. De order wordt gepakt, ingeladen en verzonden. Zestig dagen later gaat de klant failliet, wijst de verzekeraar de claim af omdat de goedgekeurde limiet is overschreden, en verdampt uw operationele winst van het hele kwartaal.</p>
+<p>Eerlijk is eerlijk: dit gebeurt veel vaker bij B2B-bedrijven dan men durft toe te geven. Als u merkt dat uw operationele processen schuren, bekijk dan ons artikel over <a href="/nl/blog/5-signs">5 signalen dat uw bedrijf handmatige workflows is ontgroeid</a>.</p>
+
+<div class="highlight-box">
+<h3>Waarom Verzekeraarsportals en ERP-systemen Niet Standaard Samenwerken</h3>
+<p>Standaard SaaS-koppelingen en generieke integratietools snappen de strikte juridische regels van kredietverzekeringspolissen niet. Verzekeraars werken met dynamische risicoscores, tijdelijke limietrestricties en harde meldtermijnen (zoals het verplicht melden van facturen die 30 dagen vervallen zijn). Standaard ERP-connectors zijn simpelweg niet gebouwd voor deze specifieke complianceregels.</p>
+</div>
+
+<h2>De Kern van Geautomatiseerd Kredietrisicobeheer</h2>
+<p>Wanneer u een maatwerk middleware-laag bouwt tussen uw kredietverzekeraar (via REST- of SOAP-API's) en uw ERP-systeem (AFAS Profit, Exact Online of SAP Business One), haalt u menselijke fouten volledig uit de risicoketen. Laten we kijken naar de technische bouwstenen van een robuuste geautomatiseerde architectuur.</p>
+
+<h3>1. Synchroniseren van Debiteurengegevens (KvK & Insurer Buyer ID's)</h3>
+<p>Elk Nederlands bedrijf staat ingeschreven bij de Kamer van Koophandel (KvK). Kredietverzekeraars hanteren daarnaast hun eigen unieke identificatienummers (zoals de Atradius Policyholder Key of Allianz Cover Key). De eerste stap in maatwerkautomatisering is geautomatiseerde entiteitsmatching.</p>
+<p>Wanneer een nieuwe klant wordt aangemaakt in Exact Online of AFAS, pakt de middleware via een webhook de KvK-nummer en BTW-gegevens op. De middleware vraagt direct via de API van de verzekeraar de status en limiet op en slaat het unieke Buyer ID van de verzekeraar op in een maatwerkveld in uw ERP.</p>
+
+<h3>2. Realtime Limietbewaking en Automatische Orderblokkade</h3>
+<p>Verzekeraars passen kredietlimieten continu aan op basis van macro-economische trends, betalingsgedrag binnen hun netwerk of ingediende jaarcijfers. Als Atradius de limiet van een afnemer verlaagt van € 100.000 naar € 20.000, moet uw ERP dat binnen enkele minuten weten—niet pas aan het einde van de maand tijdens de boekhoudcontrole.</p>
+<p>Dit is hoe de geautomatiseerde event flow werkt in de middleware:</p>
+<ul>
+<li><strong>Webhook / Polling Service van Verzekeraar:</strong> Vangt limietwijzigingen op van de Atradius AtraShip API of Allianz Trade API.</li>
+<li><strong>Middleware Berekeningsengine:</strong> Vraagt via de API van AFAS of Exact Online het huidige totaal op van openstaande facturen + niet-geleverde verkooporders.</li>
+<li><strong>ERP Status Mutator:</strong> Als het Totale Risico > Goedgekeurde Limiet is, zet de engine de debiteur in het ERP direct op <code>Gefactureerd / Blokkade voor Levering</code> en stuurt een melding naar de credit controller via Teams of Slack.</li>
+</ul>
+
+<div class="results-box">
+<h3>Praktijkvoorbeeld: Nederlandse Technische Groothandel</h3>
+<p>Voor de implementatie van geautomatiseerde kredietbewaking leed een technische groothandel met 45 medewerkers in Rotterdam in twee jaar tijd € 115.000 aan oninventariseerbare verliezen door gemiste limietverlagingen. Na het opleveren van een maatwerk AFAS-Allianz Trade koppeling daalde de handmatige administratie naar 0 uur per week en kwamen afwijzingen van claims niet meer voor.</p>
+</div>
+
+<h2>Technische Verdieping: Hoe de API Middleware Werkt</h2>
+<p>Laten we naar de techniek kijken. Een schone softwarearchitectuur gebruikt microservices gebouwd in Node.js/TypeScript of Python, gehost op serverless infrastructuur (zoals AWS Lambda of GCP) met een PostgreSQL database voor transactie-logging.</p>
+
+<p>Bekijk dit vereenvoudigde TypeScript-voorbeeld van een realtime ordervalidatiedienst bij het aanmaken van een order in Exact Online:</p>
+
+<pre><code>// Voorbeeld Ordervalidatie Workflow in Maatwerk Middleware
+interface OrdervalidatieAanvraag {
+  debiteurId: string;
+  orderBedrag: number;
+  valuta: string;
+}
+
+async function valideerOrderTegenKredietverzekering(req: OrdervalidatieAanvraag) {
+  // 1. Haal huidige exposure op uit ERP (Exact Online / AFAS)
+  const huidigeExposure = await erpClient.getDebiteurenBlootstelling(req.debiteurId);
+  
+  // 2. Haal actieve polislimiet op bij Kredietverzekeraar
+  const polisLimiet = await kredietVerzekeraarClient.getGoedgekeurdeLimiet(req.debiteurId);
+  
+  const verwachteExposure = huidigeExposure.totaalOpenstaand + req.orderBedrag;
+  
+  if (verwachteExposure > polisLimiet.bedrag) {
+    // Blokkeer verkooporder in het ERP en voorkom magazijn-picking
+    await erpClient.blokkeerVerkoopOrder(
+      req.orderId,
+      \`Kredietlimiet overschreden. Max polis: €\${polisLimiet.bedrag}, Verwacht: €\${verwachteExposure}\`
+    );
+    
+    await notificatieClient.waarschuwCreditControl({
+      debiteurId: req.debiteurId,
+      overschrijding: verwachteExposure - polisLimiet.bedrag
+    });
+    
+    return { goedgekeurd: false, reden: 'VERZEKERDE_LIMIET_OVERSCHREDEN' };
+  }
+  
+  return { goedgekeurd: true };
+}</code></pre>
+
+<p>Met deze logica kan er nooit per ongeluk een order door het magazijn worden gepakt tenzij de totale blootstelling van de klant 100% voldoet aan uw polisvoorwaarden. Wilt u weten welke andere tijdrovende taken u snel kunt schrappen? Bekijk dan ons overzicht van <a href="/nl/blog/10-repetitive-tasks">10 repetitieve taken die u direct kunt automatiseren</a>.</p>
+
+<h2>Automatisch Melden van Vervallen Facturen en Claims</h2>
+<p>Kredietverzekeringen zijn strakke juridische contracten. Als een klant een factuur na 60 dagen nog niet heeft betaald, eist de polis dat u binnen een strikte termijn melding maakt van de betalingsachterstand. Bent u 24 uur te laat met melden? Dan vervalt uw recht op uitkering volledig.</p>
+<p>Een maatwerk middleware-platform ontwikkeld door <strong>AutoFlow Studio</strong> controleert dagelijks automatisch de openstaande posten in Exact Online of AFAS Profit. Zodra een factuur een kritieke vervaldatum nadert, voert het systeem automatisch het volgende uit:</p>
+<ol>
+<li>Er wordt een formele herinnering vastgelegd in het CRM.</li>
+<li>De JSON-payload voor de vervallen-melding bij de verzekeraar wordt klaargezet.</li>
+<li>De financial controller krijgt een melding met een 1-klik goedkeuringsknop om de claim direct via de API in te dienen.</li>
+</ol>
+
+<div class="highlight-box">
+<h3>Maatwerk API-integratie vs. Standaard No-Code Platforms</h3>
+<p>U vraagt zich misschien af: "Kunnen we dit niet simpel regelen met Zapier of Make?" Nou, nee. Standaard no-code tools missen de vereiste transactiegaranties, verwerking van complexe valuta-omrekeningen, automatische retry-queues bij API-storingen en de beveiligde audit-logs die verplicht zijn bij het beheren van kredietrisico's van miljoenen euro's. Bij kredietverzekeringen heeft u robuuste maatwerk software nodig.</p>
+</div>
+
+<h2>Overzicht: Handmatig vs. Geautomatiseerd Kredietbeheer</h2>
+<table style="width:100%; border-collapse: collapse; margin: 20px 0;">
+<thead>
+<tr style="background-color: #f2f2f2; text-align: left;">
+<th style="padding: 10px; border: 1px solid #ddd;">Functionaliteit</th>
+<th style="padding: 10px; border: 1px solid #ddd;">Handmatig Proces</th>
+<th style="padding: 10px; border: 1px solid #ddd;">Geautomatiseerde Middleware</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding: 10px; border: 1px solid #ddd;"><strong>Limietcontrole</strong></td>
+<td style="padding: 10px; border: 1px solid #ddd;">Handmatig inloggen in verzekeraarportal per order</td>
+<td style="padding: 10px; border: 1px solid #ddd;">Realtime webhook-synchronisatie op de ERP-debiteurenkaart</td>
+</tr>
+<tr>
+<td style="padding: 10px; border: 1px solid #ddd;"><strong>Orderblokkade</strong></td>
+<td style="padding: 10px; border: 1px solid #ddd;">Afhankelijk van alerte binnendienstmedewerkers</td>
+<td style="padding: 10px; border: 1px solid #ddd;">Automatische ordervergrendeling in AFAS/Exact vóór levering</td>
+</tr>
+<tr>
+<td style="padding: 10px; border: 1px solid #ddd;"><strong>Achterstallige Meldingen</strong></td>
+<td style="padding: 10px; border: 1px solid #ddd;">Maandelijkse Excel-check (groot risico op gemiste deadlines)</td>
+<td style="padding: 10px; border: 1px solid #ddd;">Dagelijkse scan van de openstaande postenlijst met claim-alerts</td>
+</tr>
+<tr>
+<td style="padding: 10px; border: 1px solid #ddd;"><strong>Nieuwe Limiet-aanvragen</strong></td>
+<td style="padding: 10px; border: 1px solid #ddd;">Verkoop mailt Finance -> Finance vult webformulieren in</td>
+<td style="padding: 10px; border: 1px solid #ddd;">1-Klik limjetaanvraag rechtstreeks vanuit het ERP of CRM</td>
+</tr>
+</tbody>
+</table>
+
+<h2>Hoe AutoFlow Studio Maatwerk ERP-Koppelingen Bouwt</h2>
+<p>Bij <strong>AutoFlow Studio</strong> ontwikkelen we schaalbare, op maat gemaakte middleware-platforms die Nederlandse ERP-systemen (AFAS Profit, Exact Online, AccountView, Ridder iQ) naadloos verbinden met externe enterprise API's. Wij verkopen geen standaard SaaS-pakketten met maandelijkse restricties, maar bouwen hoogwaardige maatwerksoftware die precies aansluit op uw bedrijfsvoering.</p>
+<p>Benieuwd hoe procesautomatisering uw organisatie verder kan helpen? Lees ons uitgebreide artikel over <a href="/nl/blog/automation-intro">de basis van bedrijfsautomatisering voor het MKB</a>.</p>
+
+<h3>Ons Implementatieproces</h3>
+<p>Het bouwen van een betrouwbare kredietrisico-koppeling volgt vier duidelijke stappen:</p>
+<ul>
+<li><strong>1. API & Polis Audit:</strong> We analyseren uw polisvoorwaarden, meldtermijnen en de mogelijkheden van de specifieke verzekeraar-API (Atradius AtraShip, Allianz Trade API of Coface CofaNet).</li>
+<li><strong>2. ERP Inrichting:</strong> We configureren de benodigde velden, webhooks en status-handlers in AFAS Profit of Exact Online.</li>
+<li><strong>3. Middleware Ontwikkeling & Testen:</strong> We bouwen de koppeling met fallback-mechanismen, fouthandling en volledige audit-logging.</li>
+<li><strong>4. Monitoring & Beheer:</strong> De software wordt uitgerold op beveiligde Nederlandse cloud-infrastructuur (AVG/GDPR-compliant) met actieve monitoring.</li>
+</ul>
+
+<h2>Stop met Gokken op Onverzekerde B2B-Kredietrisico's</h2>
+<p>Handmatige administratie rondom uw kredietverzekering is niet alleen zonde van de tijd—het is een direct risico voor uw balanstotaal. Wanneer uw omzet groeit, kan één onopgemerkte limietverlaging een streep zetten door de jaarwinst. Een geautomatiseerde API-koppeling geeft u totale controle, operational excellence en de zekerheid dat uw claims altijd worden uitgekeerd.</p>
+</div>`,
+  },
 ]
 export const getNlBlogBySlug = (slug) => NL_BLOG_POSTS.find(p => p.slug === slug)
