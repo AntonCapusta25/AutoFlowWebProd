@@ -280,6 +280,12 @@ export default function Navbar() {
           </ul>
 
           <div className="nav-right">
+            <a
+              href="https://crm.autoflowstudio.net/"
+              className="nav-login-btn desktop-only"
+            >
+              {t.nav.login}
+            </a>
             <div className="language-switch desktop-only">
               <button
                 className={`lang-btn${lang === 'en' ? ' active' : ''}`}
@@ -388,6 +394,11 @@ export default function Navbar() {
             <Link to={prefix + '/contact'} className={location.pathname === (prefix + '/contact') ? 'active' : ''} onClick={() => setMenuOpen(false)}>
               {t.nav.contact}
             </Link>
+          </li>
+          <li>
+            <a href="https://crm.autoflowstudio.net/" className="mobile-login-link" onClick={() => setMenuOpen(false)}>
+              {t.nav.login} →
+            </a>
           </li>
           <li className="mobile-lang-li">
             <div className="mobile-lang-switch">

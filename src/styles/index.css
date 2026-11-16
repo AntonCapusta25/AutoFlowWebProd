@@ -273,6 +273,32 @@ nav.navbar::after {
     transform: translateY(-2px);
 }
 
+/* CRM Login button */
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.nav-login-btn {
+    align-items: center;
+    padding: 9px 20px;
+    border-radius: 50px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: #fff;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+    white-space: nowrap;
+    margin-left: auto;
+}
+.nav-login-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-1px);
+}
+
 /* Language Switch */
 .language-switch {
     display: flex;
