@@ -16,7 +16,7 @@ const copy = {
   en: {
     metaTitle: 'About Us - AutoFlow Studio',
     badge: 'About us',
-    heroTitleA: 'Two builders.',
+    heroTitleA: 'Bespoke engineering.',
     heroTitleB: 'One obsession: killing busywork.',
     heroSub:
       "AutoFlow Studio is a hands-on automation studio. We build custom CRMs, reporting systems and workflows that take repetitive work off your team's plate, so you can spend your time on the parts of the business that actually need you.",
@@ -48,7 +48,7 @@ const copy = {
   nl: {
     metaTitle: 'Over Ons - AutoFlow Studio',
     badge: 'Over ons',
-    heroTitleA: 'Twee bouwers.',
+    heroTitleA: 'Maatwerk automatisering.',
     heroTitleB: 'Eén obsessie: weg met saai werk.',
     heroSub:
       'AutoFlow Studio is een hands-on automatiseringsstudio. We bouwen maatwerk CRM\'s, rapportages en workflows die repetitief werk van je team overnemen, zodat jij je tijd kunt besteden aan de onderdelen van je bedrijf die jou écht nodig hebben.',
