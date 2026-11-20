@@ -6623,6 +6623,129 @@ async function validateOrderAgainstCreditInsurance(req: OrderValidationRequest) 
   }
 }</code></pre><p>When the customer pays using iDEAL, Credit Card, or Bancontact, Mollie fires an asynchronous HTTP POST webhook back to our middleware. The engine receives the webhook, verifies the payload signature, fetches the payment status (<code>paid</code>), updates the open invoice status inside AFAS Profit or Exact Online, and cancels any scheduled downstream reminder tasks immediately. If you want to dive deeper into how automated software integration replaces manual data entry tasks, explore our detailed breakdown on <a href="/blog/10-repetitive-tasks">10 repetitive tasks you can automate today</a>.</p><h2>Navigating Dutch Compliance: Statutory Interest & WIK Calculations</h2><p>Operating a B2B debt collection workflow in the Netherlands means strictly adhering to local statutory requirements. Under Dutch law (Wet Incassokosten - WIK), businesses calculating collection fees on overdue commercial invoices must apply specific tiered percentages based on the principal amount:</p><ul><li><strong>First €2,500:</strong> 15% (with a legal minimum of €40)</li><li><strong>Next €2,500 (up to €5,000):</strong> 10%</li><li><strong>Next €5,000 (up to €10,000):</strong> 5%</li><li><strong>Next €190,000 (up to €200,000):</strong> 1%</li><li><strong>Excess over €200,000:</strong> 0.5% (capped at €6,775 maximum)</li></ul><p>Handling these calculations manually inside Excel spreadsheets leads to rounding errors, inconsistent client communication, and audit headaches. A custom automation system built by AutoFlow Studio automatically executes exact WIK math models instantly when an invoice crosses the statutory deadline. The system generates an updated, legally sound notice, records the secondary fee item in AFAS or Exact Online, and updates the payment link in Mollie so the debtor pays the accurate total in a single seamless checkout experience.</p><h2>Building vs. Buying: Why Off-the-Shelf Dunning Plugins Fall Short</h2><p>When companies decide to tackle unpaid invoices, they often try generic third-party SaaS plugins first. But here is the thing: off-the-shelf dunning tools are built for mass-market SaaS subscriptions, not complex B2B commerce. They lack deep integration with Dutch ERP environments like AFAS Profit or specialized Exact Online setups.</p><p>Generic tools frequently fail when dealing with:</p><ul><li><strong>Custom Multi-Entity Structures:</strong> If you run holding structures with multiple AFAS administration environments, generic plugins cannot route payments across separate ledger books dynamically.</li><li><strong>Custom CRM Logic:</strong> If an account manager marks an enterprise account as "Under Contract Renegotiation" in HubSpot or Salesforce, standard plugins ignore that flag and send awkward payment collection demands anyway.</li><li><strong>Strict Security & GDPR Standards:</strong> Handling customer financial data requires robust EU hosting and custom encryption layers to ensure full GDPR compliance without third-party data leakage.</li></ul><p>By opting for bespoke middleware engineered by AutoFlow Studio, you retain 100% control over your data structures, communication branding, edge-case business logic, and escalation rules. If your company is struggling to evaluate whether bespoke software or off-the-shelf tools make sense for your growth stage, check out our guide on <a href="/blog/bottlenecks-guide">how to identify operational bottlenecks in your business</a>.</p><h2>How AutoFlow Studio Engineers Custom Debt Collection Engines</h2><p>At AutoFlow Studio, we build high-reliability, custom operational automation and integration software designed specifically for Dutch mid-market leaders and enterprise teams. We do not apply generic low-code bandages that break when your transaction volume scales. We engineer resilient, maintainable, and fully customized software solutions tailored to your unique operational workflow.</p><p>Our development and implementation process follows four disciplined phases:</p><ol><li><strong>Architecture & API Mapping:</strong> We audit your current ERP (AFAS, Exact Online, Twinfield), CRM, and payment architecture to map data schemas, edge cases, and compliance needs.</li><li><strong>Bespoke Middleware Development:</strong> We code resilient middleware services using modern backend frameworks, featuring automated retries, error handling, detailed logging, and webhook event processing.</li><li><strong>Sandbox Testing & Scenario Validation:</strong> We thoroughly test every scenario—dispute pauses, partial payments, failed SEPA direct debit reversals, WIK calculations, and collection agency API pushes—in staging environments.</li><li><strong>Production Deployment & Monitoring:</strong> We launch your automated pipeline with real-time health dashboards, alerting systems, and complete operational documentation.</li></ol><h2>Take Control of Your Cash Flow Today</h2><p>Stop wasting precious team hours chasing late payments manually. Modernizing your accounts receivable through automated AFAS, Exact Online, and Mollie integration turns cash collection from an unpredictable operational headache into a precise, reliable background engine.</p><p>Ready to lower your DSO and automate your B2B dunning workflow? Contact the engineering team at AutoFlow Studio today to schedule a technical discovery consultation.</p></div>`,
   },
+  {
+    slug: 'custom-postnl-dhl-shipping-label-afas-exact-automation',
+    title: `How to Automate PostNL & DHL Parcel Shipping Labels Directly from Exact Online and AFAS`,
+    desc: `Stop manually copying addresses into shipping portals. Discover how custom API integrations between PostNL, DHL, and Exact Online or AFAS automate packing slips, shipping labels, and track-and-trace updates.`,
+    date: 'July 2026',
+    faqs: [
+      {
+            "q": "Can custom shipping automation work with both PostNL and DHL simultaneously?",
+            "a": "Yes. A custom middleware integration can route orders dynamically between PostNL, DHL, DPD, or freight carriers based on rules like package weight, dimensions, destination country, or customer preference, printing the right label instantly."
+      },
+      {
+            "q": "How does thermal label printing work without manual browser popups?",
+            "a": "We use cloud print agents or local WebSocket services (like PrintNode or custom daemons) that receive raw ZPL code directly from the API integration and stream it straight to your Zebra thermal printers in under a second."
+      },
+      {
+            "q": "Does this work with customized fields in AFAS Profit or Exact Online?",
+            "a": "Absolutely. Because we build custom API handlers for AFAS (GetConnectors/UpdateConnectors) and Exact Online REST API, we can read any custom fields, free fields, or specialized packing slip tables specific to your ERP setup."
+      }
+],
+    body: `<div class="article-content">
+<div class="hero-image"><img src="/images/blog_custom-postnl-dhl-shipping-label-afas-exact-automation.png" alt="Custom PostNL and DHL Shipping Label Automation with Exact Online and AFAS ERP" /></div>
+
+<h2>The Warehouse Reality: Copy-Pasting Addresses at 4:30 PM</h2>
+<p>Look, if you run a growing B2B trade, distribution, or manufacturing business in the Netherlands, you probably know this exact scenario. It is 4:30 PM on a rainy Tuesday. Your warehouse floor is buzzing. The daily courier cutoff for PostNL and DHL is 5:00 PM. And what is your warehouse lead doing? They are not packing boxes. They are sitting at a cluttered desk with three browser tabs open, manually copy-pasting customer names, street names, house numbers, and postal codes from Exact Online or AFAS Profit into the PostNL Mijn Bedrijvenloket or DHL eCommerce portal.</p>
+<p>Honestly, it is painful to watch. Someone types the street name wrong. A postal code loses its space. A customer requested a split delivery, but the portal prints a label for the whole order. The thermal printer jams, someone re-types the tracking number into your ERP, and your customer service desk gets five emails tomorrow asking: <em>"Where is my tracking link?"</em></p>
+<p>Here is the thing: manual order dispatch is not just a slowdown; it is a giant leak in your operational margin. When you process 20 orders a day, manual entry feels like a minor nuisance. When you hit 100, 500, or 2,000 orders a day, it becomes a structural disaster. That is why custom integration between your core ERP (like Exact Online or AFAS) and major Dutch carriers like PostNL and DHL is no longer a luxury—it is table stakes for operational scaling.</p>
+
+<div class="highlight-box">
+<h3>Quick Reality Check on Shipping Manual Work</h3>
+<ul>
+  <li><strong>Time Lost:</strong> Average warehouse staff spend 2.5 to 4 minutes per package creating labels and typing back tracking info manually.</li>
+  <li><strong>Typo Rate:</strong> 3% to 5% of manually entered addresses contain formatting errors that lead to failed deliveries or surcharge fees from PostNL/DHL.</li>
+  <li><strong>Customer Service Friction:</strong> Over 40% of B2B support tickets are simple status inquiries ("Where is my order?") that could be automated instantly.</li>
+</ul>
+</div>
+
+<h2>Why Off-the-Shelf Shipping Plugins Fall Short in B2B Fulfillment</h2>
+<p>Let's be real for a second. You have probably looked at generic shipping apps or plug-and-play connectors. Plug-ins built for WooCommerce or Shopify work great if every order is a single box shipped to a consumer address via standard PostNL parcel delivery. But B2B operations in the Netherlands rarely work like standard B2C e-commerce.</p>
+<p>Here are the exact places standard off-the-shelf connectors break down in real-world B2B workflows:</p>
+
+<h3>1. Partial Shipments and Backorders</h3>
+<p>In B2B, sales orders frequently ship in parts. Item A is in stock today; Item B is backordered for next week. Generic connectors usually expect one order to match one shipping label. They cannot handle partial packing slips in AFAS (like partial delivery notes) or line-item fulfillment in Exact Online without creating duplicate orders or throwing API synchronization errors.</p>
+
+<h3>2. Complex Multi-Carrier Logic (PostNL vs. DHL vs. DPD vs. Freight)</h3>
+<p>Your business probably does not ship everything with one carrier. Small parcels go via PostNL. Heavier multi-colli boxes go via DHL Parcel. Pallets need Mainfreight or Dachser. Hazardous goods or high-value electronics require insurance tags. Standard tools force your team to manually pick the carrier for every order. A custom shipping automation engine evaluates weight, dimensions, destination, customer agreement rules, and hazardous material codes instantly, assigning the optimal carrier and service level automatically.</p>
+
+<h3>3. Custom Package Types and Multi-Colli Rules</h3>
+<p>If an order contains 12 industrial pumps, it is not 1 parcel; it is 3 multi-colli master boxes with child tracking numbers. Standard webshop plugins stumble hard when trying to push multi-colli manifests back into AFAS Profit or Exact Online. A dedicated middleware solution generated by <a href="/blog/automation-intro">end-to-end operational business automation</a> builds clean data contracts for every colli in the shipment.</p>
+
+<div class="results-box">
+<h3>What Real B2B Shipping Automation Looks Like</h3>
+<p>Instead of manual entry, a warehouse packer scans an order barcode on a handheld scanner. Within 400 milliseconds, the printer automatically spits out a pre-validated PostNL or DHL shipping label, the packing slip updates to "Dispatched" in Exact Online or AFAS, and an automated branded email with track-and-trace links is sent to the customer.</p>
+</div>
+
+<h2>Inside the Architecture: Connecting PostNL & DHL APIs with Exact Online & AFAS</h2>
+<p>How does custom integration software actually work under the hood? As engineers, we do not rely on fragile browser extensions or manual CSV exports. We build secure, event-driven middleware using robust APIs.</p>
+<p>If you are looking at identifying bottlenecks in your logistics chain, start by reading our guide on <a href="/blog/bottlenecks-guide">eliminating operational bottlenecks</a> in Dutch business workflows.</p>
+
+<h3>The Exact Online & AFAS Middleware Pipeline</h3>
+<p>Here is a breakdown of how a custom integration pipeline processes shipping data seamlessly:</p>
+
+<ol>
+  <li><strong>Event Triggering:</strong> When a warehouse user creates or approves a packing slip (Pakbon in AFAS or Goederenlevering in Exact Online), the ERP fires a webhook or the middleware polls the API (using AFAS GetConnector or Exact Online SalesOrders/GoodsDeliveries REST API endpoints).</li>
+  <li><strong>Address Normalization & Validation:</strong> The custom engine runs the recipient address through Dutch address validation rules (verifying Postcode + Huisnummer formatting against national datasets) to prevent carrier rejection fees.</li>
+  <li><strong>Carrier Routing Engine:</strong> The system applies business logic: Is the destination in the Benelux or international? Is the package over 23kg? Is it a B2B business location requiring daytime-only delivery? The engine selects PostNL, DHL, or DPD based on pre-configured cost and service rules.</li>
+  <li><strong>Direct Carrier API Payload Generation:</strong> The middleware formats a direct API request to PostNL API (v2 REST) or DHL ParcelConnect API. It requests the label format (such as native ZPL II for thermal label printers or high-res PDF).</li>
+  <li><strong>Automatic Printing Signal:</strong> The label data is routed directly to thermal barcode printers (Zebra, Honeywell, SATO) on the packing stations via local print agents or WebSocket print servers—no "Print Dialog" popups required.</li>
+  <li><strong>ERP Status Writeback:</strong> The track-and-trace URL, carrier barcode, colli count, and actual weight are written back to AFAS via UpdateConnector (\`FbDeliveryNote\`) or Exact Online (\`GoodsDeliveries\`) in real-time.</li>
+</ol>
+
+<h2>Step-by-Step Breakdown of the Automated Shipping Flow</h2>
+<p>Let's map out what happens on the warehouse floor when you replace manual labor with custom automation engineered by <strong>AutoFlow Studio</strong>.</p>
+
+<h3>Step 1: The Order Packing Trigger</h3>
+<p>Your warehouse operator picks the items listed on an order. They bring the items to the packing bench. On a touchscreen monitor or warehouse handheld, they scan the picking order barcode. The custom middleware immediately queries AFAS or Exact Online to fetch line items, target weight, customer notes, and delivery address.</p>
+
+<h3>Step 2: Automated Box Calculation & Carrier Choice</h3>
+<p>Instead of the packer guessing which carrier box to use, the middleware calculates the volumetric weight. If the total weight is under 30kg and fits standard dimensions, it routes the shipment request to PostNL API. If it is a multi-box shipment, it generates 1 main tracking number and N child tracking labels for DHL Parcel.</p>
+
+<h3>Step 3: Direct Thermal Label Printing</h3>
+<p>Forget opening PDF downloads and manually selecting printers. The custom system streams ZPL raw printer code directly to the thermal printer on the operator's table. The label prints in under 1 second. The operator sticks the label on the box and pushes it onto the courier conveyor.</p>
+
+<h3>Step 4: Silent ERP Synchronization & Customer Updates</h3>
+<p>The system instantly posts the tracking code back into Exact Online or AFAS. If you want to eliminate low-value admin tasks across your team, take a look at our list of <a href="/blog/10-repetitive-tasks">10 repetitive tasks you can automate today</a>. Once the ERP is updated, the system triggers an automatic shipping confirmation email to the client featuring a branded tracking link, reducing incoming customer service calls by up to 70%.</p>
+
+<div class="highlight-box">
+<h3>Technical Stack Highlights</h3>
+<p>At <strong>AutoFlow Studio</strong>, we build custom shipping middleware using modern, scalable infrastructure:</p>
+<ul>
+  <li><strong>Node.js / TypeScript Microservices:</strong> Fast, event-driven API handling with minimal latency.</li>
+  <li><strong>Direct Webhooks & Queues:</strong> Resilience against ERP downtime or carrier API rate limits using RabbitMQ or Redis queues.</li>
+  <li><strong>Direct ZPL & PrintNode Integration:</strong> Silent background printing directly to Zebra thermal label printers on the shop floor.</li>
+  <li><strong>Multi-Carrier Support:</strong> Single API wrapper unifying PostNL, DHL Express, DHL Parcel, DPD, UPS, and GLSI.</li>
+</ul>
+</div>
+
+<h2>Handling Dutch Carrier Edge Cases: Non-Standard Shipments</h2>
+<p>Real-world logistics is messy. Standard software assumes perfect inputs, but Dutch B2B shipping comes with plenty of edge cases. Here is how custom automation handles real-world scenarios without breaking:</p>
+
+<h3>1. PostNL Avondlevering (Evening Delivery) and Saturday Shipping</h3>
+<p>Some B2B customers demand specific delivery windows. A custom pipeline reads special flags or customer delivery preference fields in AFAS or Exact Online and automatically appends the correct product options in the PostNL API payload (e.g., product code 3085 for Signature on Delivery, or specific time-window flags).</p>
+
+<h3>2. Customs Documentation for Extra-EU Shipments (UK, Switzerland, Worldwide)</h3>
+<p>Shipping outside the EU via DHL Express requires commercial invoices, HS commodity codes, country of origin data, and CN22/CN23 customs declarations. A custom integration pulls commodity codes directly from your Exact Online or AFAS item master data, generates digital customs manifests (Paperless Trade), and submits them directly to DHL's API alongside label generation.</p>
+
+<h3>3. Return Label Generation (RMA Workflows)</h3>
+<p>When a customer needs to return equipment or defective products, manual return label creation takes 10 minutes per ticket. A custom setup allows your customer portal or internal support desk to generate a pre-paid PostNL or DHL return label with one click. The return tracking code links straight to the RMA file in your ERP.</p>
+
+<h2>Why Custom Middleware Trumps Third-Party SaaS Platforms</h2>
+<p>Many business owners ask: <em>"Why shouldn't we just pay for a subscription to a generic SaaS shipping platform?"</em></p>
+<p>While generic platforms work okay for basic shopfronts, they quickly become an expensive trap for established mid-market B2B companies:</p>
+<ul>
+  <li><strong>High Monthly Tier Fees:</strong> SaaS platforms charge per-label fees or force you into high monthly tiers as your volume grows. Over 50,000 shipments a year, those SaaS fees dwarf the one-time cost of custom software.</li>
+  <li><strong>Strict Data Silos:</strong> Generic apps store your shipping data on their servers. When you need custom reporting on carrier performance, actual shipping costs vs. charged shipping fees, or warehouse packing speed, you are stuck using limited built-in dashboards.</li>
+  <li><strong>No Control Over Custom Business Logic:</strong> Want to automatically split orders across two different fulfillment centers based on inventory levels in AFAS? Generic tools cannot support custom business logic without expensive custom enterprise add-ons.</li>
+</ul>
+<p>When you build a dedicated integration solution with <strong>AutoFlow Studio</strong>, you own your code, maintain total control over your workflows, pay zero monthly per-label taxes, and get software tailored 100% to your warehouse operations.</p>
+
+<h2>Ready to Stop Copy-Pasting Shipping Labels?</h2>
+<p>If your warehouse team is spending hours every day typing addresses into PostNL or DHL portals, running back to Exact Online or AFAS to enter tracking codes, and fixing preventable shipping mistakes, it is time for a modern solution.</p>
+<p>At <strong>AutoFlow Studio</strong>, we engineer tailored API integrations and operational automation platforms that connect your ERP, warehouse workflows, and carrier networks into one seamless, high-speed pipeline.</p>
+</div>`,
+  },
 ]
 
 export const getBlogBySlug = (slug) => BLOG_POSTS.find(p => p.slug === slug)

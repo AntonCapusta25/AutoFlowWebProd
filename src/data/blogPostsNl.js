@@ -6592,5 +6592,128 @@ async function valideerOrderTegenKredietverzekering(req: OrdervalidatieAanvraag)
   }
 }</code></pre><p>Wanneer de klant betaalt via iDEAL, Creditcard of Bancontact, stuurt Mollie direct een HTTP POST webhook naar onze middleware. De software ontvangt de melding, controleert de authenticiteit, haalt de status op (<code>paid</code>), werkt de openstaande post direct bij in AFAS Profit of Exact Online en annuleert alle geplande vervolgstappen. Wil je meer weten over hoe slimme software koppelingen handmatig werk vervangen? Lees dan ons artikel over <a href="/nl/blog/10-repetitive-tasks">10 repetitieve taken die je vandaag kunt automatiseren</a>.</p><h2>Voldoen aan de Nederlandse Wetgeving: WIK en Wettelijke Rente</h2><p>Het automatiseren van B2B incassoprocessen in Nederland vereist dat je je strikt houdt aan de wettelijke kaders. Volgens de Wet Incassokosten (WIK) geldt er voor het berekenen van incassokosten op achterstallige zakelijke facturen een wettelijke staffel op basis van de hoofdsom:</p><ul><li><strong>Over de eerste € 2.500:</strong> 15% (met een wettelijk minimum van € 40)</li><li><strong>Over de volgende € 2.500 (tot € 5.000):</strong> 10%</li><li><strong>Over de volgende € 5.000 (tot € 10.000):</strong> 5%</li><li><strong>Over de volgende € 190.000 (tot € 200.000):</strong> 1%</li><li><strong>Over het meerdere boven € 200.000:</strong> 0,5% (met een maximum van € 6.775)</li></ul><p>Het handmatig uitrekenen van deze staffels in Excel zorgt al snel voor afrondingsfouten, foute aanmaningen en juridisch gedoe. Een maatwerk oplossing ontwikkeld door AutoFlow Studio voert de exacte WIK-berekeningen automatisch uit op het moment dat een factuur de wettelijke termijn overschrijdt. Het systeem genereert direct een correcte aanmaning, registreert de incassoregel in AFAS of Exact Online en past de Mollie betaallink aan, zodat de debiteur het exacte bedrag in één keer kan voldoen.</p><h2>Maatwerk vs. Standaard Software: Waarom Plug-ins Tekortschieten</h2><p>Wanneer bedrijven hun debiteurenbeheer willen aanpakken, grijpen ze vaak naar standaard SaaS-plug-ins. Maar hier is het punt: kant-en-klare tools zijn gemaakt voor standaard SaaS-abonnementen, niet voor ingewikkelde B2B-handel. Ze missen de diepe integratie die nodig is voor Nederlandse ERP-systemen zoals AFAS Profit of specifieke Exact Online inrichtingen.</p><p>Standaard tools lopen vaak vast op:</p><ul><li><strong>Complexe Bedrijfsstructuren:</strong> Als je werkt met meerdere werkmaatschappijen of AFAS-administraties, kunnen standaard plug-ins betalingen niet dynamisch naar het juiste grootboek roberen.</li><li><strong>Specifieke CRM-Logica:</strong> Als een accountmanager in HubSpot of Salesforce aangeeft dat een klant in een contractherziening zit, negeert een standaard tool dat signaal en stuurt alsnog een kille incassomail.</li><li><strong>Strengere Privacy & AVG-Eisen:</strong> De verwerking van financiële klantdata vereist veilige EU-hosting en op maat gemaakte beveiliging om volledige AVG-compliance te garanderen.</li></ul><p>Door te kiezen voor maatwerk middleware ontwikkeld door AutoFlow Studio, houd je 100% controle over je data, de uitstraling van je communicatie en je specifieke bedrijfsregels. Twijfel je of maatwerk software de juiste stap is voor jouw organisatie? Bekijk onze uitgebreide gids over <a href="/nl/blog/bottlenecks-guide">het opsporen en oplossen van operationele knelpunten</a>.</p><h2>Hoe AutoFlow Studio Maatwerk Incasso-Engines Bouwt</h2><p>Bij AutoFlow Studio ontwikkelen we hoogwaardige, op maat gemaakte integratiesoftware speciaal voor Nederlandse MKB-plus bedrijven en enterprise teams. Wij geloven niet in snelle no-code pleisters die vastlopen als je transactievolumes groeien. Wij bouwen robuuste, onderhoudbare en volledig afgestemde softwareoplossingen die naadloos aansluiten op jouw bedrijfsprocessen.</p><p>Onze werkwijze bestaat uit vier gestructureerde fases:</p><ol><li><strong>Architectuur & API Mapping:</strong> We analyseren je huidige ERP (AFAS, Exact Online, Twinfield), CRM en betaalomgeving om datastromen, uitzonderingen en juridische vereisten in kaart te brengen.</li><li><strong>Maatwerk Middleware Ontwikkeling:</strong> We ontwikkelen een stabiele middleware-laag in moderne backend-technologie, voorzien van automatische foutafhandeling, uitgebreide logging en webhook-verwerking.</li><li><strong>Staging & Scenario Validatie:</strong> Alle mogelijke scenario's—van betalingsregelingen en geschillen tot mislukte SEPA-incasso's en WIK-staffels—worden grondig getest in een testomgeving.</li><li><strong>Productie & Monitoring:</strong> We lanceren de geautomatiseerde pijplijn inclusief dashboards voor systeemgezondheid, automatische waarschuwingen en heldere documentatie.</li></ol><h2>Krijg Vandaag Nog Grip op je Cashflow</h2><p>Stop met het verspillen van waardevolle uren aan handmatige betalingsherinneringen. Het moderniseren van je debiteurenbeheer via een geautomatiseerde koppeling tussen AFAS, Exact Online en Mollie verandert het binnenhalen van geld van een dagelijkse ergernis in een gestroomlijnd, betrouwbaar proces op de achtergrond.</p><p>Klaar om je DSO te verlagen en je B2B-debiteurenbeheer te automatiseren? Neem vandaag nog contact op met de engineers van AutoFlow Studio voor een vrijblijvend technisch adviesgesprek.</p></div>`,
   },
+  {
+    slug: 'custom-postnl-dhl-shipping-label-afas-exact-automation',
+    title: `PostNL & DHL Verzendlabels Automatiseren vanuit Exact Online en AFAS`,
+    desc: `Stop met het handmatig overtypen van adressen in verzendportalen. Ontdek hoe op maat gemaakt API-koppelingen tussen PostNL, DHL en Exact Online of AFAS pakbonnen, verzendlabels en track-and-trace updates volautomatisch afhandelen.`,
+    date: 'Juli 2026',
+    faqs: [
+      {
+            "q": "Kan een maatwerk integratie gelijktijdig werken met zowel PostNL als DHL?",
+            "a": "Jazeker. Een maatwerk middleware-oplossing kan orders dynamisch verdelen tussen PostNL, DHL, DPD of palletvervoerders op basis van gewicht, afmetingen, bestemming of klantafspraken, en print direct het juiste label."
+      },
+      {
+            "q": "Hoe werkt het afdrukken van thermische verzendlabels zonder handmatige pop-ups?",
+            "a": "Wij maken gebruik van cloud print-agents of lokale WebSocket-diensten (zoals PrintNode of maatwerk daemons) die de ruwe ZPL-code direct van de API ontvangen en binnen één seconde naar uw Zebra-labelprinter sturen."
+      },
+      {
+            "q": "Werkt deze automatisering ook met aangepaste velden in AFAS Profit of Exact Online?",
+            "a": "Absoluut. Doordat wij maatwerk API-koppelingen bouwen voor AFAS (GetConnectors/UpdateConnectors) en de Exact Online REST API, kunnen we alle vrije velden, aangepaste tabellen en specifieke pakbon-instellingen uit uw ERP verwerken."
+      }
+],
+    body: `<div class="article-content">
+<div class="hero-image"><img src="/images/blog_custom-postnl-dhl-shipping-label-afas-exact-automation.png" alt="Op Maat Gemaakte PostNL en DHL Verzenders Integratie met Exact Online en AFAS ERP" /></div>
+
+<h2>De Realiteit in het Magazijn: Adressen Overtypen om 16:30 Uur</h2>
+<p>Kijk, als u een groeiend B2B-handelsbedrijf, distributeur of productieonderneming in Nederland leidt, kent u dit scenario waarschijnlijk maar al te goed. Het is dinsdagmiddag 16:30 uur. De sfeer in het magazijn is hectisch. De dagelijkse cut-off tijd voor PostNL en DHL is 17:00 uur. En wat zit uw hoofd magazijn op dit cruciale moment te doen? Geen dozen inpakken. Hij zit achter een overvol bureau met drie browsertabs open, handmatig klantnamen, straatnamen, huisnummers en postcodes over te typen uit Exact Online of AFAS Profit naar Mijn Bedrijvenloket van PostNL of het DHL eCommerce portaal.</p>
+<p>Eerlijk gezegd is het pijnlijk om te zien. Iemand typt een straatnaam verkeerd. Een postcode mist een spatie. Een B2B-klant heeft om een deellevering gevraagd, maar het portaal print een label voor de gehele order. De labelprinter loopt vast, iemand typt de trackingcode handmatig verkeerd over in het ERP, en de klantenservice krijgt de volgende ochtend vijf e-mails met de vraag: <em>"Waar blijft mijn verzendbevestiging?"</em></p>
+<p>Hier is het punt: handmatige orderafhandeling is niet zomaar een vertraging; het is een reusachtig lek in uw operationele marge. Als u 20 bestellingen per dag verwerkt, voelt handmatige invoer als een klein ongemak. Maar zodra u groeit naar 100, 500 of 2.000 pakketten per dag, wordt het een structureel probleem. Daarom is een op maat gemaakt softwarekoppeling tussen uw ERP (zoals Exact Online of AFAS) en Nederlandse vervoerders als PostNL en DHL geen luxe meer—het is een noodzakelijke voorwaarde om efficiënt te kunnen schalen.</p>
+
+<div class="highlight-box">
+<h3>Snelle Feiten over Handmatig Verzenden</h3>
+<ul>
+  <li><strong>Tijdverlies:</strong> Magazijnmedewerkers besteden gemiddeld 2,5 tot 4 minuten per pakket aan het aanmaken van labels en het handmatig terugkoppelen van trackingcodes.</li>
+  <li><strong>Foutpercentage:</strong> 3% tot 5% van de handmatig ingevoerde adressen bevat opmaakfouten die leiden tot foutieve bezorgingen of toeslagen van PostNL/DHL.</li>
+  <li><strong>Druk op Klantenservice:</strong> Ruim 40% van alle B2B-supportvragen betreft eenvoudige statusvragen ("Waar is mijn bestelling?") die direct geautomatiseerd kunnen worden.</li>
+</ul>
+</div>
+
+<h2>Waarom Standaard Verzend-Plugins Tekortschieten bij B2B Fulfillment</h2>
+<p>Laten we realistisch zijn. U heeft waarschijnlijk al gekeken naar standaard kant-en-klare verzendapplicaties of plug-and-play koppelsoftware. Plug-ins die zijn gebouwd voor standaard webshops zoals WooCommerce of Shopify werken prima als elke bestelling één simpele doos is die naar een consument wordt gestuurd via standaard PostNL pakketpost. Maar B2B-logistiek in Nederland werkt zelden zoals standaard B2C e-commerce.</p>
+<p>Dit zijn de exacte punten waarop standaard koppeltools vastlopen in B2B-processen:</p>
+
+<h3>1. Deelleveringen en Backorders</h3>
+<p>In B2B worden verkooporders regelmatig in delen verzonden. Artikel A is vandaag op voorraad; Artikel B staat in backorder voor volgende week. Standaard software verwacht vrijwel altijd dat één order precies overeenkomt met één verzendlabel. Ze kunnen niet omgaan met partiële pakbonnen in AFAS (zoals gedeeltelijke leveringsnota's) of regelgebaseerde afhandeling in Exact Online zonder dubbele orders aan te maken of API-foutmeldingen te genereren.</p>
+
+<h3>2. Complexe Multi-Carrier Logica (PostNL vs. DHL vs. DPD vs. Palletvervoer)</h3>
+<p>Uw bedrijf verstuurt waarschijnlijk niet alles met één vervoerder. Kleine pakketten gaan via PostNL. Zwaardere zendingen met meerdere dozen gaan via DHL Parcel. Pallets moeten met Mainfreight of Dachser. Gevaarlijke stoffen of waardevolle elektronica vereisen specifieke verzekeringsopties. Standaard tools dwingen uw personeel om voor elke order handmatig de juiste vervoerder te selecteren. Een op maat gemaakt verzendplatform evalueert direct gewicht, afmetingen, bestemming, afsprakensets en productcodes om automatisch de meest optimale vervoerder te kiezen.</p>
+
+<h3>3. Multi-Colli en Specifieke Verpakkingseisen</h3>
+<p>Als een order uit 12 industriële pompen bestaat, is dat geen 1 pakket; het zijn 3 multi-colli hoofddozen met bijbehorende sub-trackingnummers. Standaard webshop-plugins lopen vast wanneer ze deze multi-colli structuur moeten terugschrijven naar AFAS Profit of Exact Online. Een maatwerk middleware-oplossing, ontwikkeld via <a href="/nl/blog/automation-intro">end-to-end operationele procesautomatisering</a>, zorgt voor een vlekkeloze verwerking van elke colli in de zending.</p>
+
+<div class="results-box">
+<h3>Hoe Geautomatiseerde B2B Verzending Erin de Praktijk Uitziet</h3>
+<p>In plaats van handmatig overtypen scant de magazijnmedewerker een barcode op de pakbon met een handscanner. Binnen 400 milliseconden rolt het gevalideerde PostNL- of DHL-verzendlabel automatisch uit de thermische labelprinter, springt de status van de pakbon in Exact Online of AFAS op "Verzonden", en krijgt de klant automatisch een e-mail in eigen huisstijl met de track-and-trace link.</p>
+</div>
+
+<h2>De Architectuur: PostNL & DHL API's Koppelen met Exact Online & AFAS</h2>
+<p>Hoe werkt een op maat gemaakte integratie precies onder de motorkap? Als software-engineers bouwen we geen fragiele browseruitbreidingen of losse Excel-exports. Wij ontwikkelen een veilige, event-driven middleware-laag die rechtstreeks communiceert met de API's van uw ERP en de vervoerders.</p>
+<p>Wilt u weten hoe u knelpunten in uw logistieke proces opspoort? Lees dan onze uitgebreide gids over het <a href="/nl/blog/bottlenecks-guide">elimineren van operationele bottlenecks</a> in bedrijfsprocessen.</p>
+
+<h3>De Exact Online & AFAS Middleware Pijplijn</h3>
+<p>Hier is een overzicht van hoe een op maat gemaakte integratie logistieke data verwerkt:</p>
+
+<ol>
+  <li><strong>Event Triggering:</strong> Zodra een magazijnmedewerker een pakbon aanmaakt of goedkeurt (Pakbon in AFAS of Goederenlevering in Exact Online), stuurt het ERP een webhook of haalt de middleware de nieuwste data op via de AFAS GetConnector of Exact Online SalesOrders/GoodsDeliveries REST API.</li>
+  <li><strong>Adresvalidatie & Normalisatie:</strong> De software controleert de adresgegevens direct tegen Nederlandse adresbestanden (controle van Postcode + Huisnummer). Dit voorkomt dat zendingen geweigerd worden door PostNL of DHL wegens opmaakfouten.</li>
+  <li><strong>Carrier Routing Engine:</strong> Het systeem past uw specifieke bedrijfslogica toe: Is de bestemming in de Benelux of daarbuiten? Is het gewicht boven 23 kg? Moet de levering overdag plaatsvinden bij een zakelijk adres? De software kiest automatisch PostNL, DHL of DPD.</li>
+  <li><strong>API-Aanroep naar Vervoerder:</strong> De middleware verstuurt een gestructureerd API-verzoek naar de PostNL API (v2 REST) of DHL ParcelConnect API. Het vraagt direct het juiste labelformaat op (zoals ruwe ZPL II-code voor snelle thermische printers).</li>
+  <li><strong>Direct Signaal naar Labelprinter:</strong> De labeldata wordt via een lokale print-agent of WebSocket-server rechtstreeks naar de Zebra- of Honeywell-labelprinters op de inpaktafel gestuurd—zonder dat er een printvenster op het scherm verschijnt.</li>
+  <li><strong>ERP Status en Tracking Terugschrijven:</strong> De track-and-trace URL, de vervoerdersbarcode, het aantal colli en het werkelijke gewicht worden direct teruggeschreven naar AFAS via de UpdateConnector (\`FbDeliveryNote\`) of Exact Online (\`GoodsDeliveries\`).</li>
+</ol>
+
+<h2>Stap-voor-Stap: Het Geautomatiseerde Verzendproces in Actie</h2>
+<p>Laten we bekijken hoe het werk op de werkvloer verandert wanneer handmatig werk wordt vervangen door maatwerksoftware van <strong>AutoFlow Studio</strong>.</p>
+
+<h3>Stap 1: Scan op de Inpaktafel</h3>
+<p>De magazijnmedewerker verzamelt de artikelen voor een bestelling en legt ze op de inpaktafel. Met een barcode-scanner scant hij het ordernummer op de pakbon. De maatwerksoftware vraagt direct in AFAS of Exact Online de orderregels, het berekende gewicht en de klantvoorkeuren op.</p>
+
+<h3>Stap 2: Automatische Berekening en Vervoerderskeuze</h3>
+<p>De medewerker hoeft niet meer na te denken over welke vervoerder het beste is. De software berekent het volumedichtheid en gewicht. Blijft de zending onder de 30 kg en betreft het een standaard adres? Dan stuurt het systeem de aanvraag naar de PostNL API. Gaat het om meerdere zware dozen? Dan genereert het systeem 1 hoofdlabel en sub-labels via DHL Parcel.</p>
+
+<h3>Stap 3: Razendsnelle Thermische Labelafdruk</h3>
+<p>Geen gedoe met PDF-bestanden openen en handmatig de juiste printer kiezen. De software stuurt de ZPL-code direct naar de labelprinter op het werkstation. Het label wordt binnen 1 seconde afgedrukt. De medewerker plakt het label op de doos en zet deze op de rolcontainer.</p>
+
+<h3>Stap 4: Stille ERP-Synchronisatie en Klantnotificatie</h3>
+<p>De trackingcode staat direct op de juiste plek in Exact Online of AFAS. Wilt u meer tijdbesparende ideeën ontdekken voor uw organisatie? Bekijk onze lijst met <a href="/nl/blog/10-repetitive-tasks">10 repetitieve taken die u vandaag kunt automatiseren</a>. Zodra het ERP is bijgewerkt, verstuurt het systeem automatisch een verzendbevestiging per e-mail naar de klant met een branded tracking-link. Dit vermindert de druk op uw klantenservice met wel 70%.</p>
+
+<div class="highlight-box">
+<h3>Technische Oplossing in Vogelvlucht</h3>
+<p>Bij <strong>AutoFlow Studio</strong> ontwerpen we logistieke software met moderne en schaalbare technologieën:</p>
+<ul>
+  <li><strong>Node.js / TypeScript Microservices:</strong> Snelle API-verwerking met minimale vertraging.</li>
+  <li><strong>Robuuste Webhooks & Queue-systemen:</strong> Garandeert verwerking van verzendopdrachten, zelfs bij tijdelijke storingen bij de vervoerder of in het ERP.</li>
+  <li><strong>Directe ZPL & PrintNode Integratie:</strong> Stille achtergrond-printing direct naar thermische Zebra-printers.</li>
+  <li><strong>Multi-Carrier Ondersteuning:</strong> Eén centrale API-koppeling voor PostNL, DHL Express, DHL Parcel, DPD, UPS en GLSI.</li>
+</ul>
+</div>
+
+<h2>Omgaan met Nederlandse Uitzonderingen in het Verzendproces</h2>
+<p>De logistieke praktijk is weerbarstig. Standaard software gaat uit van een ideale situatie, maar B2B-verzendingen in Nederland hebben regelmatig te maken met uitzonderingen. Maatwerksoftware vangt deze situaties automatisch op:</p>
+
+<h3>1. PostNL Avondlevering en Zaterdagbezorging</h3>
+<p>Sommige B2B-klanten eisen specifieke aflevermomenten. Onze software leest de specifieke leveringsvoorwaarden uit AFAS of Exact Online uit en voegt automatisch de juiste opties toe aan de PostNL API-aanroep (zoals productcode 3085 voor Handtekening voor Ontvangst of specifieke tijdvaklevering).</p>
+
+<h3>2. Douanedocumentatie voor Export buiten de EU (VK, Zwitserland, Wereldwijd)</h3>
+<p>Bij verzending buiten de EU via DHL Express zijn handelsfacturen, HS-goederencodes, land van herkomst en CN22/CN23 douaneformulieren verplicht. Een op maat gemaakte integratie haalt deze goederencodes rechtstreeks uit uw stamgegevens in Exact Online of AFAS, genereert digitale douanedocumenten (Paperless Trade) en verstuurt deze direct mee naar de DHL API.</p>
+
+<h3>3. Geautomatiseerde Retourlabels (RMA-Workflows)</h3>
+<p>Wanneer een klant apparatuur of defecte producten moet retourneren, kost handmatige aanmaak van een retourlabel al snel 10 minuten per aanvraag. Met maatwerksoftware genereert uw klantenservice of klantportaal met één muisklik een voorgefrankeerd PostNL- of DHL-retourlabel. De retour-trackingcode wordt direct gekoppeld aan het RMA-dossier in uw ERP.</p>
+
+<h2>Waarom Maatwerk Oplossingen Beter Presteren dan Generieke SaaS-Tools</h2>
+<p>Veel ondernemers vragen zich af: <em>"Waarom zouden we niet gewoon een abonnement nemen op een standaard SaaS-verzendplatform?"</em></p>
+<p>Hoewel generieke platforms prima werken voor eenvoudige webshops, worden ze al snel een dure beperking voor middelgrote B2B-bedrijven:</p>
+<ul>
+  <li><strong>Hoge Maandelijkse Transactiekosten:</strong> SaaS-platforms rekenen kosten per verzendlabel of dwingen u in dure enterprise-abonnementen naarmate uw volume groeit. Bij meer dan 50.000 zendingen per jaar zijn die terugkerende SaaS-kosten aanzienlijk hoger dan een eenmalige investering in maatwerksoftware.</li>
+  <li><strong>Geen Eigenaarschap van Data:</strong> Generieke apps bewaren uw verzendgegevens op hun eigen servers. Wanneer u diepgaande rapportages wilt maken over prestaties van vervoerders, werkelijke verzendkosten versus doorbelaste kosten, of inpak-snelheid, bent u beperkt tot hun standaard dashboards.</li>
+  <li><strong>Geen Ruimte voor Unieke Bedrijfsregels:</strong> Wilt u bestellingen automatisch verdelen over twee verschillende magazijnlocaties op basis van de actuele voorraad in AFAS? Generieke tools kunnen deze specifieke logica niet ondersteunen zonder kostbare maatwerkmodules.</li>
+</ul>
+<p>Door te kiezen voor een gerichte API-integratie gebouwd door <strong>AutoFlow Studio</strong> bent u volledig eigenaar van de oplossing, behoudt u de controle over uw processen, betaalt u geen maandelijks belastingtarief per label, en krijgt u software die 100% is afgestemd op uw magazijn.</p>
+
+<h2>Klaar om te Stoppen met het Handmatig Overtypen van Verzendlabels?</h2>
+<p>Als uw magazijnteam dagelijks uren kwijt is aan het overtypen van adressen in PostNL- of DHL-portalen, het handmatig invoeren van trackingcodes in Exact Online of AFAS, en het corrigeren van vermijdbare fouten, is het tijd voor een moderne aanpak.</p>
+<p>Bij <strong>AutoFlow Studio</strong> bouwen we op maat gemaakte API-koppelingen en procesautomatisering die uw ERP, magazijnwerkplekken en vervoerders naadloos samenbrengen in één snelle, foutloze pijplijn.</p>
+</div>`,
+  },
 ]
 export const getNlBlogBySlug = (slug) => NL_BLOG_POSTS.find(p => p.slug === slug)
