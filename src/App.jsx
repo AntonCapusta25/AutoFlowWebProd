@@ -5,6 +5,8 @@ import Footer from './components/Footer'
 import CookiesBanner from './components/CookiesBanner'
 // import PromoBanner from './components/PromoBanner' // temporarily disabled
 import MultiStepBooking from './components/MultiStepBooking'
+import Lenis from 'lenis'
+import 'lenis/dist/lenis.css'
 import './styles/index.css'
 
 // ── Public pages (lazy) ───────────────────────────────────────────────────
@@ -73,6 +75,42 @@ function AppContent() {
     window.addEventListener('open-booking', handleOpen)
     return () => window.removeEventListener('open-booking', handleOpen)
   }, [])
+
+  // ── Lenis Smooth Scroll (matches Nomina setup) ──────────────────────────
+  useEffect(() => {
+    if (isAdmin) return
+
+    const lenis = new Lenis({
+      duration: 1.35,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -7 * t)),
+      smoothWheel: true,
+      wheelMultiplier: 1.0,
+      touchMultiplier: 1.5,
+      syncTouch: false,
+    })
+
+    window.__lenis = lenis
+
+    let rafId
+    function raf(time) {
+      lenis.raf(time)
+      rafId = requestAnimationFrame(raf)
+    }
+    rafId = requestAnimationFrame(raf)
+
+    return () => {
+      cancelAnimationFrame(rafId)
+      lenis.destroy()
+      window.__lenis = null
+    }
+  }, [isAdmin])
+
+  // Scroll to top on route change smoothly
+  useEffect(() => {
+    if (window.__lenis) {
+      window.__lenis.scrollTo(0, { immediate: true })
+    }
+  }, [location.pathname])
 
 
   return (

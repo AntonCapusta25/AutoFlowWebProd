@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import SectionTransition from '../components/SectionTransition'
 
 // ── Video config ────────────────────────────────────────────────────────────
 // Drop the final film into /public/videos/ and set `src` (e.g. '/videos/about.mp4').
@@ -80,8 +81,16 @@ const copy = {
 }
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 28 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } },
+  hidden: { opacity: 0.001, y: 44 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      duration: 1.4,
+      bounce: 0,
+    },
+  },
 }
 
 const Label = ({ children }) => (
@@ -165,138 +174,161 @@ export default function About({ lang = 'en' }) {
       <style>{styles}</style>
 
       {/* ── Hero ── */}
-      <section className="about-hero">
-        <div className="about-glow about-glow-a" />
-        <div className="about-glow about-glow-b" />
-        <div className="about-container about-hero-grid">
-          <motion.div variants={fadeUp} initial="hidden" animate="show">
-            <Label>{t.badge}</Label>
-            <h1 className="about-h1">
-              {t.heroTitleA}
-              <br />
-              <span className="about-h1-accent">{t.heroTitleB}</span>
-            </h1>
-            <p className="about-lead">{t.heroSub}</p>
-            <div className="about-actions">
-              <button type="button" className="about-btn-primary" onClick={openBooking}>
-                {t.heroCta}
-              </button>
-              <Link to={prefix + '/portfolio'} className="about-btn-ghost">
-                {t.heroSecondary} →
-              </Link>
-            </div>
-          </motion.div>
+      <SectionTransition zIndex={1} isSticky={true} enableExitDepth={true} bg="#050505">
+        <section className="about-hero">
+          <div className="about-glow about-glow-a" />
+          <div className="about-glow about-glow-b" />
+          <div className="about-container about-hero-grid">
+            <motion.div variants={fadeUp} initial="hidden" animate="show">
+              <Label>{t.badge}</Label>
+              <h1 className="about-h1">
+                {t.heroTitleA}
+                <br />
+                <span className="about-h1-accent">{t.heroTitleB}</span>
+              </h1>
+              <p className="about-lead">{t.heroSub}</p>
+              <div className="about-actions">
+                <button type="button" className="about-btn-primary" onClick={openBooking}>
+                  {t.heroCta}
+                </button>
+                <Link to={prefix + '/portfolio'} className="about-btn-ghost">
+                  {t.heroSecondary} →
+                </Link>
+              </div>
+            </motion.div>
 
-          <motion.div
-            className="about-hero-media"
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-          >
-            <div className="about-hero-media-back" />
-            <div className="about-hero-media-front">
-              <img src="/images/team/founders-standing.webp" alt="AutoFlow Studio founders" />
-            </div>
-          </motion.div>
-        </div>
-      </section>
+            <motion.div
+              className="about-hero-media"
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+            >
+              <div className="about-hero-media-back" />
+              <div className="about-hero-media-front">
+                <img src="/images/team/founders-standing.webp" alt="AutoFlow Studio founders" />
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      </SectionTransition>
 
       {/* ── Video ── */}
-      <section className="about-section about-section-tight">
-        <div className="about-container">
-          <VideoBlock t={t} />
-        </div>
-      </section>
+      <SectionTransition zIndex={2} bg="#07070a">
+        <section className="about-section about-section-tight">
+          <div className="about-container">
+            <VideoBlock t={t} />
+          </div>
+        </section>
+      </SectionTransition>
 
       {/* ── Story ── */}
-      <section className="about-section">
-        <div className="about-container about-story-grid">
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.3 }}
-          >
-            <Label>{t.storyLabel}</Label>
-            <h2 className="about-h2">{t.storyTitle}</h2>
-            {t.story.map((p, i) => (
-              <p key={i} className="about-body">{p}</p>
-            ))}
-          </motion.div>
+      <SectionTransition zIndex={3} bg="#050505">
+        <section className="about-section">
+          <div className="about-container about-story-grid">
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.3 }}
+            >
+              <Label>{t.storyLabel}</Label>
+              <h2 className="about-h2">{t.storyTitle}</h2>
+              {t.story.map((p, i) => (
+                <p key={i} className="about-body">{p}</p>
+              ))}
+            </motion.div>
 
-          <motion.div
-            className="about-collage"
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.2 }}
-          >
-            <div className="about-collage-tall">
-              <img src="/images/team/founder-talking.webp" alt="" loading="lazy" style={{ objectPosition: '30% center' }} />
-            </div>
-            <div className="about-collage-tall about-collage-offset">
-              <img src="/images/team/founder-sitting.webp" alt="" loading="lazy" style={{ objectPosition: '52% center' }} />
-            </div>
-          </motion.div>
-
-        </div>
-      </section>
+            <motion.div
+              className="about-collage"
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.2 }}
+            >
+              <div className="about-collage-tall">
+                <img src="/images/team/founder-talking.webp" alt="" loading="lazy" style={{ objectPosition: '30% center' }} />
+              </div>
+              <div className="about-collage-tall about-collage-offset">
+                <img src="/images/team/founder-sitting.webp" alt="" loading="lazy" style={{ objectPosition: '52% center' }} />
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      </SectionTransition>
 
       {/* ── Principles ── */}
-      <section className="about-section">
-        <div className="about-container">
-          <div className="about-principles-head">
-            <Label>{t.principlesLabel}</Label>
-            <h2 className="about-h2">{t.principlesTitle}</h2>
+      <SectionTransition zIndex={4} bg="#07070b">
+        <section className="about-section about-principles-section">
+          <div className="about-container about-principles-grid">
+            <div className="about-principles-left">
+              <Label>{t.principlesLabel}</Label>
+              <h2 className="about-h2">{t.principlesTitle}</h2>
+              <p className="about-lead">
+                {lang === 'nl'
+                  ? 'Vier kernbeloftes die we in elk systeem en elke regel code meenemen.'
+                  : 'Four core commitments built into every system and automation we deliver.'}
+              </p>
+            </div>
+            <div className="about-principles-stack">
+              {t.principles.map((p, i) => (
+                <motion.div
+                  key={p.n}
+                  className="about-stack-card"
+                  style={{
+                    top: `calc(130px + ${i * 26}px)`,
+                    zIndex: i + 1,
+                  }}
+                  variants={fadeUp}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={{ once: true, amount: 0.15 }}
+                >
+                  <div className="about-stack-card-inner">
+                    <div className="about-stack-card-head">
+                      <span className="about-principle-n">{p.n}</span>
+                      <span className="about-stack-tag">STANDARD 0{i + 1}</span>
+                    </div>
+                    <h3>{p.title}</h3>
+                    <p>{p.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
-          <div className="about-principles">
-            {t.principles.map((p, i) => (
-              <motion.div
-                key={p.n}
-                className="about-principle"
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: 0.6, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <span className="about-principle-n">{p.n}</span>
-                <h3>{p.title}</h3>
-                <p>{p.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      </SectionTransition>
 
       {/* ── CTA ── */}
-      <section className="about-section about-cta-section">
-        <div className="about-container">
-          <motion.div
-            className="about-cta"
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.4 }}
-          >
-            <div className="about-cta-img">
-              <img src="/images/team/founders-duo.webp" alt="" loading="lazy" />
-            </div>
-            <div className="about-cta-text">
-              <h2 className="about-h2">{t.ctaTitle}</h2>
-              <p className="about-body">{t.ctaSub}</p>
-              <button type="button" className="about-btn-primary" onClick={openBooking}>
-                {t.ctaBtn}
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      <SectionTransition zIndex={5} bg="#050505">
+        <section className="about-section about-cta-section">
+          <div className="about-container">
+            <motion.div
+              className="about-cta"
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.4 }}
+            >
+              <div className="about-cta-img">
+                <img src="/images/team/founders-duo.webp" alt="" loading="lazy" />
+              </div>
+              <div className="about-cta-text">
+                <h2 className="about-h2">{t.ctaTitle}</h2>
+                <p className="about-body">{t.ctaSub}</p>
+                <button type="button" className="about-btn-primary" onClick={openBooking}>
+                  {t.ctaBtn}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      </SectionTransition>
     </main>
   )
 }
 
 const styles = `
-  .about-page { background: #050505; color: #fff; overflow: hidden; }
+  .about-page { background: #050505; color: #fff; overflow: clip; }
   .about-container { max-width: 1240px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
   .about-section { padding: 120px 0; position: relative; }
   .about-section-tight { padding: 40px 0 80px; }
@@ -399,17 +431,66 @@ const styles = `
   .about-collage-offset { margin-top: 56px; margin-bottom: -56px; }
   .about-collage img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  /* Principles */
-  .about-principles-head { margin-bottom: 56px; }
-  .about-principles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-  .about-principle {
-    padding: 32px 28px 36px; border-radius: 28px; background: rgba(255,255,255,0.025);
-    border: 1px solid rgba(255,255,255,0.07); transition: background .3s ease, border-color .3s ease;
+  /* Principles - Sticky Stacking Deck */
+  .about-principles-section { position: relative; padding: 120px 0 160px; }
+  .about-principles-grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: 72px; align-items: start; position: relative; }
+  .about-principles-left { position: sticky; top: 130px; }
+  .about-principles-left .about-h2 { margin-bottom: 20px; }
+  .about-principles-stack { display: flex; flex-direction: column; gap: 40px; position: relative; }
+  .about-stack-card {
+    position: sticky;
+    border-radius: 32px;
+    background: #0c0d12;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 -16px 40px -10px rgba(0, 0, 0, 0.7), 0 30px 60px -15px rgba(0, 0, 0, 0.9);
+    transition: transform 0.3s ease, border-color 0.3s ease;
   }
-  .about-principle:hover { background: rgba(255,255,255,0.05); border-color: rgba(209,187,251,0.25); }
-  .about-principle-n { font-family: 'Space Grotesk', sans-serif; font-weight: 800; color: ${ACCENT}; font-size: 1rem; display: block; margin-bottom: 48px; }
-  .about-principle h3 { font-family: 'Inter', sans-serif; font-size: 1.25rem; font-weight: 700; margin: 0 0 12px; letter-spacing: -0.01em; }
-  .about-principle p { font-family: 'Space Grotesk', sans-serif; color: #94a3b8; line-height: 1.65; margin: 0; font-size: 0.98rem; }
+  .about-stack-card:hover {
+    border-color: rgba(209, 187, 251, 0.35);
+  }
+  .about-stack-card-inner {
+    padding: 44px 40px 48px;
+  }
+  .about-stack-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+  .about-stack-tag {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: #64748b;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .about-principle-n {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800;
+    color: ${ACCENT};
+    font-size: 1.1rem;
+    display: inline-block;
+  }
+  .about-stack-card h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 16px;
+    letter-spacing: -0.015em;
+    color: #fff;
+  }
+  .about-stack-card p {
+    font-family: 'Space Grotesk', sans-serif;
+    color: #94a3b8;
+    line-height: 1.7;
+    margin: 0;
+    font-size: 1.05rem;
+    max-width: 48ch;
+  }
 
   /* CTA */
   .about-cta-section { padding-bottom: 140px; }
@@ -422,29 +503,28 @@ const styles = `
   .about-cta-img img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; display: block; }
   .about-cta-text { padding: 64px 56px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
 
-  @media (max-width: 1080px) {
-    .about-principles { grid-template-columns: repeat(2, 1fr); }
-  }
   @media (max-width: 991px) {
     .about-hero { padding: 130px 0 60px; }
     .about-hero-grid, .about-story-grid, .about-cta { grid-template-columns: 1fr; gap: 48px; }
+    .about-principles-grid { grid-template-columns: 1fr; gap: 36px; }
+    .about-principles-left { position: static; }
+    .about-stack-card { position: static; }
     .about-collage { height: 460px; }
     .about-hero-media { height: 460px; }
     .about-hero-media-back { inset: 16px -12px -16px 12px; }
     .about-section { padding: 80px 0; }
     .about-section-tight { padding: 20px 0 40px; }
-      .about-cta { gap: 0; }
+    .about-cta { gap: 0; }
     .about-cta-img { min-height: 300px; }
     .about-cta-text { padding: 40px 28px 48px; }
   }
   @media (max-width: 600px) {
-    .about-principles { grid-template-columns: 1fr; }
-    .about-principle-n { margin-bottom: 24px; }
+    .about-stack-card-inner { padding: 28px 24px; }
     .about-collage { height: 380px; }
     .about-video-frame { aspect-ratio: 4 / 5; border-radius: 28px; }
     .about-video-caption { left: 24px; right: 24px; bottom: 28px; }
     .about-play { width: 76px; height: 76px; }
     .about-video-soon { top: 18px; right: 18px; }
-    }
+  }
 `
 
